@@ -1,15 +1,17 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Render free tier spins down after inactivity — first request can take ~30-50s
 const API_BASE_URL = __DEV__
-  ? 'http://localhost:5000/api/v1'
-  : 'https://api.gomotarcar.com/api/v1';
+  ? 'http://192.168.0.109:5000/api/v1'
+  : 'https://gomotarcar.onrender.com/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 45000, // 45s to handle Render cold starts
   headers: { 'Content-Type': 'application/json' },
 });
+
 
 api.interceptors.request.use(async (config) => {
   const token = await AsyncStorage.getItem('accessToken');

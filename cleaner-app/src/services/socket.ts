@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SOCKET_URL = __DEV__
   ? 'http://192.168.0.109:5000'
-  : 'https://api.gomotarcar.com';
+  : 'https://gomotarcar.onrender.com';
 
 let socket: Socket | null = null;
 

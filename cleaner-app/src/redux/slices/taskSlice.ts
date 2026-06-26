@@ -46,7 +46,7 @@ const generateMockTasks = (): TaskItem[] => {
 };
 
 const initialState: TaskState = {
-  todayTasks: generateMockTasks(),
+  todayTasks: [],
   selectedTask: null,
   loading: false,
   error: null,
@@ -124,13 +124,11 @@ const taskSlice = createSlice({
       .addCase(fetchTodayTasks.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(fetchTodayTasks.fulfilled, (state, action) => {
         state.loading = false;
-        state.todayTasks = (action.payload && action.payload.length > 0) ? action.payload : generateMockTasks();
+        state.todayTasks = action.payload || [];
       })
       .addCase(fetchTodayTasks.rejected, (state, action) => {
         state.loading = false;
-        // Fallback to generating 90 mock tasks so testing always has data
-        state.todayTasks = generateMockTasks();
-        state.error = null; // Suppress API network error for clean sandbox testing
+        state.error = action.payload as string;
       })
       .addCase(fetchTaskById.fulfilled, (state, action) => {
         state.selectedTask = action.payload;

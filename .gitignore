@@ -47,6 +47,10 @@ cleaner-app/android/.gradle/
 # Docker
 docker-data/
 
+# MongoDB local data (never commit DB files)
+server/mongodb_data/
+mongodb_data/
+
 # Temp
 *.tgz
 .tmp/

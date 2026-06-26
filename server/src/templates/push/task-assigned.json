@@ -1,0 +1,13 @@
+{
+  "title": "New Cleaning Task",
+  "body": "You've been assigned a {{packageType}} cleaning for {{customerName}} at {{apartment}}. Scheduled at {{scheduledTime}}.",
+  "data": {
+    "screen": "TaskDetail",
+    "taskId": "{{taskId}}",
+    "type": "task_assigned"
+  },
+  "priority": "high",
+  "sound": "default",
+  "badge": 1,
+  "category": "task"
+}

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoMotarCar — Anything & Everything For Your Car</title>
+  <meta name="description" content="GoMotarCar is your one-stop platform for car cleaning, maintenance, FastTag recharge, and finding trusted service providers near you.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: #111827; background: #fff; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    /* Header */
+    header { background: #fff; border-bottom: 1px solid #E5E7EB; position: fixed; width: 100%; top: 0; z-index: 100; }
+    header .container { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; }
+    .logo { font-size: 24px; font-weight: 800; color: #0D5BD7; text-decoration: none; }
+    .logo span { color: #22C55E; }
+    nav a { margin-left: 32px; text-decoration: none; color: #4B5563; font-weight: 500; font-size: 14px; transition: color 0.2s; }
+    nav a:hover { color: #0D5BD7; }
+    .nav-cta { background: #0D5BD7; color: #fff !important; padding: 10px 20px; border-radius: 8px; }
+    .nav-cta:hover { background: #0A4DC0 !important; }
+    /* Hero */
+    .hero { padding: 160px 0 100px; background: linear-gradient(135deg, #0D5BD7 0%, #1E40AF 100%); color: #fff; text-align: center; }
+    .hero h1 { font-size: 56px; font-weight: 800; margin-bottom: 16px; line-height: 1.1; }
+    .hero p { font-size: 20px; opacity: 0.9; max-width: 600px; margin: 0 auto 40px; line-height: 1.6; }
+    .hero-buttons { display: flex; justify-content: center; gap: 16px; }
+    .btn { padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+    .btn-primary { background: #22C55E; color: #fff; }
+    .btn-primary:hover { background: #16A34A; transform: translateY(-2px); }
+    .btn-secondary { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.25); transform: translateY(-2px); }
+    /* Features */
+    .features { padding: 100px 0; background: #F9FAFB; }
+    .features h2 { text-align: center; font-size: 36px; margin-bottom: 60px; color: #111827; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .feature-card { background: #fff; padding: 40px 32px; border-radius: 16px; text-align: center; transition: all 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+    .feature-icon { font-size: 48px; margin-bottom: 20px; }
+    .feature-card h3 { font-size: 20px; margin-bottom: 12px; color: #111827; }
+    .feature-card p { color: #6B7280; line-height: 1.6; font-size: 14px; }
+    /* Services */
+    .services { padding: 100px 0; }
+    .services h2 { text-align: center; font-size: 36px; margin-bottom: 60px; }
+    .services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    .service-card { text-align: center; padding: 32px 24px; border-radius: 16px; border: 1px solid #E5E7EB; transition: all 0.3s; }
+    .service-card:hover { border-color: #0D5BD7; background: #F0F5FF; transform: translateY(-2px); }
+    .service-icon { font-size: 40px; margin-bottom: 16px; }
+    .service-card h4 { font-size: 18px; margin-bottom: 8px; }
+    .service-card p { color: #6B7280; font-size: 14px; }
+    /* Download */
+    .download { padding: 80px 0; background: linear-gradient(135deg, #0D5BD7 0%, #1E40AF 100%); color: #fff; text-align: center; }
+    .download h2 { font-size: 36px; margin-bottom: 16px; }
+    .download p { font-size: 18px; opacity: 0.9; margin-bottom: 40px; }
+    .download-buttons { display: flex; justify-content: center; gap: 16px; }
+    .store-btn { display: inline-flex; align-items: center; gap: 12px; background: #000; color: #fff; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-size: 16px; transition: all 0.2s; }
+    .store-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+    .store-btn small { display: block; font-size: 10px; opacity: 0.7; }
+    /* Footer */
+    footer { background: #111827; color: #fff; padding: 60px 0 40px; }
+    footer .container { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; }
+    footer h5 { font-size: 14px; font-weight: 600; color: #9CA3AF; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+    footer a { display: block; color: #D1D5DB; text-decoration: none; margin-bottom: 10px; font-size: 14px; }
+    footer a:hover { color: #fff; }
+    footer p { color: #9CA3AF; font-size: 14px; line-height: 1.8; }
+    .copyright { text-align: center; padding-top: 40px; margin-top: 40px; border-top: 1px solid #374151; color: #6B7280; font-size: 14px; }
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 36px; }
+      .features-grid, .services-grid { grid-template-columns: 1fr; }
+      footer .container { grid-template-columns: 1fr; }
+      .hero-buttons, .download-buttons { flex-direction: column; align-items: center; }
+      nav a { margin-left: 16px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/" class="logo">GoMotar<span>Car</span></a>
+      <nav>
+        <a href="#services">Services</a>
+        <a href="#features">Features</a>
+        <a href="/franchise">Franchise</a>
+        <a href="/contact">Contact</a>
+        <a href="/blog">Blog</a>
+        <a href="/app-download" class="nav-cta">Get the App</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Anything & Everything<br>For Your Car</h1>
+      <p>Professional car cleaning, trusted service providers, FastTag recharge, and more — all in one platform.</p>
+      <div class="hero-buttons">
+        <a href="/hire-cleaner" class="btn btn-primary">Hire a Cleaner</a>
+        <a href="/search-services" class="btn btn-secondary">Find Services</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="container">
+      <h2>Our Services</h2>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon">🧼</div>
+          <h4>Car Cleaning</h4>
+          <p>Professional exterior & interior cleaning with subscription plans</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🔧</div>
+          <h4>Service & Repair</h4>
+          <p>Find trusted mechanics and service centers near you</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">⛽</div>
+          <h4>FastTag Recharge</h4>
+          <p>Quick and easy FastTag recharge from multiple providers</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">📋</div>
+          <h4>Battery & Tyres</h4>
+          <p>Battery replacement, tyre service, and roadside assistance</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="container">
+      <h2>Why Choose GoMotarCar?</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">✅</div>
+          <h3>Verified Professionals</h3>
+          <p>All cleaners and service providers are background-verified and trained</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📍</div>
+          <h3>Real-Time Tracking</h3>
+          <p>Track your cleaner's arrival and service progress in real-time</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💳</div>
+          <h3>Secure Payments</h3>
+          <p>Pay securely via UPI, Cards, NetBanking, or Wallet — all through Razorpay</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⭐</div>
+          <h3>Quality Guaranteed</h3>
+          <p>Not satisfied? We'll re-clean for free. Your satisfaction is our priority</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Easy App</h3>
+          <p>Book services, manage subscriptions, and track everything from our mobile app</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Subscription Plans</h3>
+          <p>Save up to 40% with our weekly, bi-weekly, and monthly cleaning plans</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="download">
+    <div class="container">
+      <h2>Download the App</h2>
+      <p>Get started with GoMotarCar — available on iOS and Android</p>
+      <div class="download-buttons">
+        <a href="#" class="store-btn"><span>📱</span><span><small>Download on the</small>App Store</span></a>
+        <a href="#" class="store-btn"><span>📱</span><span><small>Get it on</small>Google Play</span></a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div>
+        <h5>GoMotarCar</h5>
+        <p>Your one-stop platform for all car care needs. We connect car owners with trusted service providers for cleaning, maintenance, and more.</p>
+      </div>
+      <div>
+        <h5>Quick Links</h5>
+        <a href="/about">About Us</a>
+        <a href="/services">Services</a>
+        <a href="/franchise">Franchise Program</a>
+        <a href="/ncspp">NCSP Program</a>
+        <a href="/blog">Blog</a>
+      </div>
+      <div>
+        <h5>Support</h5>
+        <a href="/contact">Contact Us</a>
+        <a href="/faq">FAQ</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="/refund">Refund Policy</a>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <p>📍 Gurgaon, Haryana, India</p>
+        <p>📞 +91-9876543210</p>
+        <p>✉️ hello@gomotarcar.com</p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="copyright">© 2026 GoMotarCar. All rights reserved.</div>
+    </div>
+  </footer>
+</body>
+</html>

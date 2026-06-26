@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; }
+    .header { background-color: #0D5BD7; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+    .content { padding: 30px; line-height: 1.6; color: #333333; }
+    .button { display: inline-block; padding: 12px 30px; background-color: #22C55E; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; }
+    .footer { padding: 20px; text-align: center; color: #888888; font-size: 12px; border-top: 1px solid #eeeeee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Welcome to GoMotarCar! 🚗</h1>
+    </div>
+    <div class="content">
+      <p>Hi {{name}},</p>
+      <p>Welcome to GoMotarCar — your one-stop solution for all car care needs!</p>
+      <p>We're excited to have you on board. Here's what you can do:</p>
+      <ul>
+        <li>✅ Book professional car cleaning services</li>
+        <li>✅ Subscribe to regular car maintenance plans</li>
+        <li>✅ Find trusted service providers near you</li>
+        <li>✅ Recharge your FastTag easily</li>
+        <li>✅ Track your car's service history</li>
+      </ul>
+      <p style="text-align: center; margin-top: 30px;">
+        <a href="{{appLink}}" class="button">Get Started</a>
+      </p>
+      <p>If you have any questions, feel free to reach out to our support team.</p>
+      <p>Best regards,<br>The GoMotarCar Team</p>
+    </div>
+    <div class="footer">
+      <p>&copy; {{year}} GoMotarCar. All rights reserved.</p>
+      <p>You received this email because you registered on GoMotarCar.</p>
+    </div>
+  </div>
+</body>
+</html>

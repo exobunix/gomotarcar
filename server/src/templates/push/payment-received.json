@@ -1,0 +1,12 @@
+{
+  "title": "Payment Received",
+  "body": "₹{{amount}} has been credited to your account. Transaction ref: {{transactionRef}}.",
+  "data": {
+    "screen": "EarningsDashboard",
+    "type": "payment_received"
+  },
+  "priority": "high",
+  "sound": "default",
+  "badge": 1,
+  "category": "payment"
+}

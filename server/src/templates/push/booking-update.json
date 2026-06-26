@@ -1,0 +1,13 @@
+{
+  "title": "Booking {{status}}",
+  "body": "Your {{serviceName}} booking for {{vehicleNumber}} on {{serviceDate}} is now {{status}}.",
+  "data": {
+    "screen": "BookingDetail",
+    "bookingId": "{{bookingId}}",
+    "type": "booking_update"
+  },
+  "priority": "high",
+  "sound": "default",
+  "badge": 1,
+  "category": "booking"
+}

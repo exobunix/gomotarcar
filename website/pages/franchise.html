@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Franchise Program — GoMotarCar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: #111827; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+    header { background: linear-gradient(135deg, #0D5BD7, #1E40AF); color: #fff; padding: 80px 0; text-align: center; }
+    header h1 { font-size: 48px; margin-bottom: 12px; }
+    header p { font-size: 20px; opacity: 0.9; max-width: 600px; margin: 0 auto 32px; }
+    .btn { display: inline-block; background: #22C55E; color: #fff; padding: 16px 40px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px; transition: all 0.2s; }
+    .btn:hover { background: #16A34A; transform: translateY(-2px); }
+    .section { padding: 80px 0; }
+    .section:nth-child(even) { background: #F9FAFB; }
+    .section h2 { font-size: 32px; margin-bottom: 40px; text-align: center; }
+    .benefits-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .benefit-card { background: #fff; padding: 32px; border-radius: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .benefit-card h3 { margin: 16px 0 8px; font-size: 20px; }
+    .benefit-card p { color: #6B7280; line-height: 1.6; }
+    .steps { counter-reset: step; }
+    .step { display: flex; gap: 24px; margin-bottom: 32px; align-items: flex-start; }
+    .step-num { width: 48px; height: 48px; background: #0D5BD7; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; flex-shrink: 0; }
+    .step-content h3 { font-size: 18px; margin-bottom: 4px; }
+    .step-content p { color: #6B7280; }
+    .cta { background: #0D5BD7; color: #fff; text-align: center; padding: 80px 0; }
+    .cta h2 { font-size: 36px; margin-bottom: 12px; }
+    .cta p { font-size: 18px; opacity: 0.9; margin-bottom: 32px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Become a Franchise Partner</h1>
+      <p>Partner with GoMotarCar and grow your car care business with our platform, technology, and customer base.</p>
+      <a href="/contact" class="btn">Apply Now</a>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <h2>Why Partner With Us?</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div style="font-size: 48px;">📈</div>
+          <h3>Steady Income</h3>
+          <p>Get a consistent flow of customers through our platform with minimal marketing effort</p>
+        </div>
+        <div class="benefit-card">
+          <div style="font-size: 48px;">🛠️</div>
+          <h3>Tech Platform</h3>
+          <p>Use our booking, payment, and management system to run your operations efficiently</p>
+        </div>
+        <div class="benefit-card">
+          <div style="font-size: 48px;">🎯</div>
+          <h3>Brand Power</h3>
+          <p>Leverage the GoMotarCar brand and marketing to attract more customers to your business</p>
+        </div>
+        <div class="benefit-card">
+          <div style="font-size: 48px;">📊</div>
+          <h3>Analytics</h3>
+          <p>Access real-time analytics and reports to track your business performance</p>
+        </div>
+        <div class="benefit-card">
+          <div style="font-size: 48px;">🤝</div>
+          <h3>Dedicated Support</h3>
+          <p>Get priority support from our operations team for any issues or questions</p>
+        </div>
+        <div class="benefit-card">
+          <div style="font-size: 48px;">💰</div>
+          <h3>Competitive Commission</h3>
+          <p>Enjoy attractive commission rates and transparent payout structures</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h3>Apply Online</h3>
+            <p>Fill out the franchise application form with your business details and location</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h3>Verification</h3>
+            <p>Our team verifies your business, documents, and service capabilities</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h3>Onboarding</h3>
+            <p>Get trained on the platform, set up your services, and start receiving bookings</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h3>Start Earning</h3>
+            <p>Receive customer bookings, complete services, and get paid regularly</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="container">
+      <h2>Ready to Get Started?</h2>
+      <p>Join 50+ franchise partners across Delhi NCR</p>
+      <a href="/contact" class="btn">Apply for Franchise</a>
+    </div>
+  </section>
+</body>
+</html>

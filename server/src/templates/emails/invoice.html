@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; }
+    .header { background-color: #0D5BD7; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+    .invoice-id { text-align: center; color: #888; margin: 10px 0; }
+    .content { padding: 30px; }
+    .items { background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .items table { width: 100%; border-collapse: collapse; }
+    .items th { text-align: left; padding: 10px 0; border-bottom: 2px solid #0D5BD7; color: #0D5BD7; }
+    .items td { padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
+    .items td:last-child { text-align: right; }
+    .total-row td { font-weight: bold; font-size: 18px; border-bottom: none !important; padding-top: 15px; }
+    .footer { padding: 20px; text-align: center; color: #888888; font-size: 12px; border-top: 1px solid #eeeeee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Invoice</h1>
+    </div>
+    <div class="invoice-id">Invoice #{{invoiceNumber}}</div>
+    <div class="content">
+      <p>Hi {{customerName}},</p>
+      <p>Thank you for your booking! Please find your invoice details below.</p>
+      <div class="items">
+        <table>
+          <tr><th>Description</th><th>Amount</th></tr>
+          {{#each items}}
+          <tr><td>{{this.name}}</td><td>₹{{this.amount}}</td></tr>
+          {{/each}}
+          <tr><td>GST (18%)</td><td>₹{{gstAmount}}</td></tr>
+          <tr class="total-row"><td>Total</td><td>₹{{totalAmount}}</td></tr>
+        </table>
+      </div>
+      <p><strong>Service Date:</strong> {{serviceDate}}<br>
+         <strong>Vehicle:</strong> {{vehicleNumber}}<br>
+         <strong>Payment Status:</strong> {{paymentStatus}}</p>
+      <p>Best regards,<br>The GoMotarCar Team</p>
+    </div>
+    <div class="footer">
+      <p>&copy; {{year}} GoMotarCar. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>

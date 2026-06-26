@@ -1,0 +1,70 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+*.js.map
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Uploads (local dev)
+uploads/*
+!uploads/.gitkeep
+
+# React Native
+customer-app/ios/Pods/
+cleaner-app/ios/Pods/
+customer-app/android/.gradle/
+cleaner-app/android/.gradle/
+
+# Docker
+docker-data/
+
+# Temp
+*.tgz
+.tmp/
+
+# Windows reserved device files (cannot be staged by git)
+nul
+*/nul
+**/nul
+
+# Explicit node_modules for all sub-apps
+admin-panel/node_modules/
+cleaner-app/node_modules/
+customer-app/node_modules/
+server/node_modules/
+franchise-app/node_modules/
+ncsp-app/node_modules/
+ncspp-app/node_modules/
+operations-app/node_modules/
+supervisor-app/node_modules/
+website/node_modules/
+shared/node_modules/

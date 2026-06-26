@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; }
+    .header { background-color: #22C55E; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+    .content { padding: 30px; }
+    .amount { font-size: 36px; font-weight: bold; color: #22C55E; text-align: center; padding: 20px; }
+    .details { background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .details table { width: 100%; }
+    .details td { padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+    .details td:last-child { text-align: right; font-weight: bold; }
+    .footer { padding: 20px; text-align: center; color: #888888; font-size: 12px; border-top: 1px solid #eeeeee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Payout Processed! 💰</h1>
+    </div>
+    <div class="content">
+      <p>Hi {{name}},</p>
+      <p>Your payout has been successfully processed!</p>
+      <div class="amount">₹{{amount}}</div>
+      <div class="details">
+        <table>
+          <tr><td>Payout ID</td><td>{{payoutId}}</td></tr>
+          <tr><td>Period</td><td>{{periodStart}} - {{periodEnd}}</td></tr>
+          <tr><td>Payment Method</td><td>{{paymentMethod}}</td></tr>
+          <tr><td>Transaction Ref</td><td>{{transactionRef}}</td></tr>
+          <tr><td>Processed On</td><td>{{processedDate}}</td></tr>
+        </table>
+      </div>
+      <p>The amount will be credited to your registered bank account/UPI within 1-2 business days.</p>
+      <p>Best regards,<br>The GoMotarCar Team</p>
+    </div>
+    <div class="footer">
+      <p>&copy; {{year}} GoMotarCar. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>

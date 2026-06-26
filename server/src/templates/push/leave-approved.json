@@ -1,0 +1,13 @@
+{
+  "title": "Leave {{status}}",
+  "body": "Your leave request from {{fromDate}} to {{toDate}} has been {{status}} by {{approvedBy}}.",
+  "data": {
+    "screen": "LeaveStatus",
+    "leaveId": "{{leaveId}}",
+    "type": "leave_status"
+  },
+  "priority": "medium",
+  "sound": "default",
+  "badge": 1,
+  "category": "leave"
+}

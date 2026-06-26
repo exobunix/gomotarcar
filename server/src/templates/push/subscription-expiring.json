@@ -1,0 +1,13 @@
+{
+  "title": "Subscription Expiring Soon",
+  "body": "Your {{packageName}} subscription for {{vehicleNumber}} expires in {{daysRemaining}} days. Renew now to continue enjoying uninterrupted service!",
+  "data": {
+    "screen": "SubscriptionDashboard",
+    "subscriptionId": "{{subscriptionId}}",
+    "type": "subscription_reminder"
+  },
+  "priority": "high",
+  "sound": "default",
+  "badge": 1,
+  "category": "subscription"
+}

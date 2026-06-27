@@ -14,6 +14,7 @@ export type MainTabParamList = {
   TodayCleaningTab: undefined;
   AttendanceTab: undefined;
   ApprovalsTab: undefined;
+  InventoryTab: undefined;
   MoreTab: undefined;
 };
 

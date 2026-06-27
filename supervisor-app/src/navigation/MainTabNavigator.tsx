@@ -11,6 +11,7 @@ import TodayCleaningStackNavigator from './TodayCleaningStackNavigator';
 import AttendanceStackNavigator from './AttendanceStackNavigator';
 import WorkStackNavigator from './WorkStackNavigator';
 import InventoryStackNavigator from './InventoryStackNavigator';
+import GrievanceStackNavigator from './GrievanceStackNavigator';
 import MoreStackNavigator from './MoreStackNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -86,6 +87,14 @@ const MainTabNavigator: React.FC = () => (
       options={{ 
         tabBarLabel: 'Inventory', 
         tabBarIcon: ({ color }) => <Icon name="cube-outline" color={color} size={22} /> 
+      }}
+    />
+    <Tab.Screen 
+      name="ComplaintsTab" 
+      component={GrievanceStackNavigator}
+      options={{ 
+        tabBarLabel: 'Complaints', 
+        tabBarIcon: ({ color }) => <Icon name="message-text-outline" color={color} size={22} /> 
       }}
     />
     <Tab.Screen 

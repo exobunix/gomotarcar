@@ -93,10 +93,12 @@ export type InventoryStackParamList = {
 export type MoreStackParamList = {
   MoreMain: undefined;
   Profile: undefined;
+  ProfileManagement: undefined;
   GrievanceManagement: undefined;
   InventoryManagement: undefined;
   Settings: undefined;
   Notifications: undefined;
+  SupportCenter: undefined;
 };
 
 export interface SupervisorProfile {

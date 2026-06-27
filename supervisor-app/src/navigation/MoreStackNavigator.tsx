@@ -11,6 +11,9 @@ import InventoryDetailScreen from '../screens/inventory/InventoryDetailScreen';
 import QRAssignmentScreen from '../screens/qr/QRAssignmentScreen';
 import QRReassignmentScreen from '../screens/qr/QRReassignmentScreen';
 import SalaryIncentivesScreen from '../screens/salary/SalaryIncentivesScreen';
+import SettingsScreen from '../screens/settings/SettingsScreen';
+import ProfileManagementScreen from '../screens/profile/ProfileManagementScreen';
+import SupportCenterScreen from '../screens/support/SupportCenterScreen';
 
 const Stack = createNativeStackNavigator<MoreStackParamList>();
 
@@ -29,6 +32,9 @@ const MoreStackNavigator: React.FC = () => (
     <Stack.Screen name="QRAssignment" component={QRAssignmentScreen} />
     <Stack.Screen name="QRReassignment" component={QRReassignmentScreen} />
     <Stack.Screen name="SalaryIncentives" component={SalaryIncentivesScreen} />
+    <Stack.Screen name="Settings" component={SettingsScreen} />
+    <Stack.Screen name="ProfileManagement" component={ProfileManagementScreen} />
+    <Stack.Screen name="SupportCenter" component={SupportCenterScreen} />
   </Stack.Navigator>
 );
 

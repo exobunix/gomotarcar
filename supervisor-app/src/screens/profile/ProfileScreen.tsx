@@ -21,7 +21,9 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     { icon: '📊', label: 'Salary & Incentives', screen: 'SalaryIncentives' },
     { icon: '📋', label: 'Task History', screen: 'DailyWorkMonitoring' },
     { icon: '🔔', label: 'Notifications', screen: 'Notifications' },
-    { icon: '⚙️', label: 'Settings', screen: '' },
+    { icon: '👤', label: 'Profile Management', screen: 'ProfileManagement' },
+    { icon: '⚙️', label: 'Settings', screen: 'Settings' },
+    { icon: '🎧', label: 'Support Center', screen: 'SupportCenter' },
   ];
 
   return (

@@ -18,7 +18,7 @@ export const fetchPerformance = createAsyncThunk(
   async ({ cleanerId, period }: { cleanerId: string; period?: 'week' | 'month' | 'all' }, { rejectWithValue }) => {
     try {
       const res = await performanceService.getPerformance(cleanerId, period);
-      return res.data;
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Failed');
     }
@@ -26,7 +26,7 @@ export const fetchPerformance = createAsyncThunk(
 );
 
 export const fetchAchievements = createAsyncThunk('performance/achievements', async (_, { rejectWithValue }) => {
-  try { const res = await performanceService.getAchievements(); return res.data; }
+  try { const res = await performanceService.getAchievements(); return res.data?.data !== undefined ? res.data.data : res.data; }
   catch { return rejectWithValue('Failed'); }
 });
 

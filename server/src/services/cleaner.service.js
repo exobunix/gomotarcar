@@ -12,6 +12,7 @@ class CleanerService {
       firstName, lastName, phone, email, photo, dateOfBirth, gender,
       alternatePhone, emergencyContact, address, assignedZone,
       supervisorId, experience, employmentType, language, password,
+      documents,
     } = data;
 
     const existing = await User.findOne({ phone });
@@ -55,6 +56,7 @@ class CleanerService {
       experience: experience || 0,
       employmentType: employmentType || 'full-time',
       language: language || 'en',
+      documents: documents || [],
     });
 
     return cleaner.populate('userId', 'phone email isActive');

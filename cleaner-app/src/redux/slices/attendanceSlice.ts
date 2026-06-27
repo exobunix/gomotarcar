@@ -30,8 +30,16 @@ export const checkIn = createAsyncThunk(
   'attendance/checkIn',
   async (data: { latitude: number; longitude: number; photo?: string }, { rejectWithValue }) => {
     try {
-      const res = await attendanceService.checkIn(data);
-      return res.data;
+      const formattedData = {
+        location: {
+          type: 'Point',
+          coordinates: [data.longitude, data.latitude]
+        },
+        address: 'Green Valley Apartments, Sector 45, Noida',
+        selfieUrl: data.photo || 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200&h=200'
+      };
+      const res = await attendanceService.checkIn(formattedData as any);
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Check-in failed');
     }
@@ -42,8 +50,15 @@ export const checkOut = createAsyncThunk(
   'attendance/checkOut',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await attendanceService.checkOut();
-      return res.data;
+      const formattedData = {
+        location: {
+          type: 'Point',
+          coordinates: [77.2090, 28.6139]
+        },
+        address: 'Green Valley Apartments, Sector 45, Noida'
+      };
+      const res = await attendanceService.checkOut(formattedData);
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Check-out failed');
     }
@@ -55,7 +70,7 @@ export const fetchTodayAttendance = createAsyncThunk(
   async (cleanerId: string, { rejectWithValue }) => {
     try {
       const res = await attendanceService.getToday(cleanerId);
-      return res.data;
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Failed to fetch attendance');
     }
@@ -67,7 +82,7 @@ export const fetchAttendanceMonthly = createAsyncThunk(
   async ({ cleanerId, month, year }: { cleanerId: string; month: number; year: number }, { rejectWithValue }) => {
     try {
       const res = await attendanceService.getMonthly(cleanerId, month, year);
-      return res.data;
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Failed to fetch history');
     }

@@ -27,6 +27,40 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
   const isCheckedIn = !!today?.checkIn && !today?.checkOut;
   const isComplete = !!today?.checkIn && !!today?.checkOut;
   const [refreshing, setRefreshing] = React.useState(false);
+  const [elapsedTime, setElapsedTime] = React.useState('00:00:00');
+
+  useEffect(() => {
+    let timerInterval: any;
+    if (isCheckedIn && today?.checkIn?.time) {
+      const checkInTime = new Date(today.checkIn.time).getTime();
+      
+      const updateTimer = () => {
+        const now = new Date().getTime();
+        const diffMs = now - checkInTime;
+        if (diffMs < 0) {
+          setElapsedTime('00:00:00');
+          return;
+        }
+        const diffSecs = Math.floor(diffMs / 1000);
+        const hrs = Math.floor(diffSecs / 3600);
+        const mins = Math.floor((diffSecs % 3600) / 60);
+        const secs = diffSecs % 60;
+        
+        const hrsStr = hrs.toString().padStart(2, '0');
+        const minsStr = mins.toString().padStart(2, '0');
+        const secsStr = secs.toString().padStart(2, '0');
+        setElapsedTime(`${hrsStr}:${minsStr}:${secsStr}`);
+      };
+      
+      updateTimer();
+      timerInterval = setInterval(updateTimer, 1000);
+    } else {
+      setElapsedTime('00:00:00');
+    }
+    return () => {
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  }, [isCheckedIn, today?.checkIn?.time]);
 
   const loadData = useCallback(() => {
     if (cleaner?._id) {
@@ -50,7 +84,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
   const totalJobs = todayTasks.length;
   const completedJobs = todayTasks.filter(t => t.status === 'completed').length;
   const pendingJobs = todayTasks.filter(t => t.status === 'pending' || t.status === 'in_progress').length;
-  const todaysEarnings = todayTasks.reduce((sum, t) => sum + (t.status === 'completed' ? (t.amount || 499) : 0), 0);
+  const todaysEarnings = todayTasks.reduce((sum, t) => sum + (t.status === 'completed' ? (t.cleanerEarnings || 150) : 0), 0);
   const attendanceRate = cleaner?.attendanceRate || 96;
 
   return (
@@ -69,17 +103,20 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
           {/* Right Section Actions */}
           <View style={styles.headerRightActions}>
             {isComplete ? (
-              <View style={[styles.headerStartDayBtn, { backgroundColor: '#64748B', shadowColor: '#64748B' }]}>
+              <TouchableOpacity 
+                style={[styles.headerStartDayBtn, { backgroundColor: '#64748B', shadowColor: '#64748B' }]}
+                onPress={() => navigation.navigate('Attendance')}
+              >
                 <Icon name="check-circle" size={12} color="#FFF" />
                 <Text style={styles.headerStartDayText}>Day End</Text>
-              </View>
+              </TouchableOpacity>
             ) : (
               <TouchableOpacity 
                 style={[styles.headerStartDayBtn, isCheckedIn && { backgroundColor: '#DC2626', shadowColor: '#DC2626' }]} 
                 onPress={() => navigation.navigate('Attendance')}
               >
                 <Icon name={isCheckedIn ? "stop" : "play"} size={12} color="#FFF" />
-                <Text style={styles.headerStartDayText}>{isCheckedIn ? 'End Day' : 'Start Day'}</Text>
+                <Text style={styles.headerStartDayText}>{isCheckedIn ? `End (${elapsedTime})` : 'Start Day'}</Text>
               </TouchableOpacity>
             )}
             
@@ -122,6 +159,12 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
               <Icon name="chevron-down" size={16} color="#64748B" />
               <Text style={styles.areaLocTxt}>{cleaner?.assignedArea || 'Green Valley Apartments, Sector 45'}</Text>
             </View>
+            {isCheckedIn && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FEF2F2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, marginTop: 6, alignSelf: 'flex-start' }}>
+                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#DC2626', marginRight: 6 }} />
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#DC2626', fontFamily: 'Inter-Bold' }}>ON DUTY: {elapsedTime}</Text>
+              </View>
+            )}
           </View>
 
           <View style={styles.ratingCol}>
@@ -200,7 +243,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
             <TouchableOpacity style={styles.qaCard} onPress={() => navigation.navigate('Attendance')}>
               <View style={[styles.qaIconBg, { backgroundColor: '#FEF2F2' }]}><Icon name="stop-circle" size={28} color="#DC2626" /></View>
               <Text style={styles.qaTitle}>End Day</Text>
-              <Text style={styles.qaDesc}>Mark Checkout</Text>
+              <Text style={styles.qaDesc}>On Duty: {elapsedTime}</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={styles.qaCard} onPress={() => navigation.navigate('Attendance')}>

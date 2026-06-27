@@ -16,7 +16,7 @@ class AuthService {
    */
   async sendOtp(phone) {
     const otp = generateOTP();
-    const { expiresAt } = storeOTP(phone, otp);
+    const { expiresAt } = await storeOTP(phone, otp);
     await sendOTP(phone, otp);
 
     return {
@@ -103,7 +103,7 @@ class AuthService {
    * Verify OTP and login/register
    */
   async loginWithOtp(phone, otp) {
-    verifyOTP(phone, otp);
+    await verifyOTP(phone, otp);
 
     let user = await User.findOne({ phone });
 

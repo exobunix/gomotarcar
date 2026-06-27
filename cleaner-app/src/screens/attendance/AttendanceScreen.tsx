@@ -21,6 +21,7 @@ const AttendanceScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
+  const [elapsedTime, setElapsedTime] = useState('00:00:00');
 
   const formatDate = (dateStr: string) => {
     try {
@@ -98,6 +99,39 @@ const AttendanceScreen: React.FC<Props> = ({ navigation }) => {
     const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    let timerInterval: any;
+    if (isCheckedIn && today?.checkIn?.time) {
+      const checkInTime = new Date(today.checkIn.time).getTime();
+      
+      const updateTimer = () => {
+        const now = new Date().getTime();
+        const diffMs = now - checkInTime;
+        if (diffMs < 0) {
+          setElapsedTime('00:00:00');
+          return;
+        }
+        const diffSecs = Math.floor(diffMs / 1000);
+        const hrs = Math.floor(diffSecs / 3600);
+        const mins = Math.floor((diffSecs % 3600) / 60);
+        const secs = diffSecs % 60;
+        
+        const hrsStr = hrs.toString().padStart(2, '0');
+        const minsStr = mins.toString().padStart(2, '0');
+        const secsStr = secs.toString().padStart(2, '0');
+        setElapsedTime(`${hrsStr}:${minsStr}:${secsStr}`);
+      };
+      
+      updateTimer();
+      timerInterval = setInterval(updateTimer, 1000);
+    } else {
+      setElapsedTime('00:00:00');
+    }
+    return () => {
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  }, [isCheckedIn, today?.checkIn?.time]);
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { const unsub = navigation.addListener('focus', load); return unsub; }, [navigation, load]);
@@ -194,120 +228,176 @@ const AttendanceScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </Card>
 
-        {!isCheckedIn && !isComplete ? (
-          /* ================= START DAY ATTENDANCE FORM ================= */
-          <View>
-            {/* 1. Location Verification */}
-            <Card variant="outlined" style={styles.stepCard}>
-              <View style={styles.stepHeaderRow}>
-                <View style={styles.stepIconWrapper}>
-                  <Icon name="map-marker" size={18} color="#FFF" />
-                </View>
-                <View style={styles.stepTextCol}>
-                  <Text style={styles.stepTitle}>1. Location Verification</Text>
-                  <Text style={styles.stepSub}>Please ensure you are at your assigned location</Text>
-                </View>
-                <View style={styles.badgeSuccess}>
-                  <Icon name="check-circle" size={12} color="#16A34A" />
-                  <Text style={styles.badgeSuccessText}>Within Range</Text>
-                </View>
+        {/* ================= START DAY ATTENDANCE FORM / ON DUTY STATS ================= */}
+        <View>
+          {/* 1. Location Verification */}
+          <Card variant="outlined" style={styles.stepCard}>
+            <View style={styles.stepHeaderRow}>
+              <View style={styles.stepIconWrapper}>
+                <Icon name="map-marker" size={18} color="#FFF" />
               </View>
-
-              {/* Map Mock */}
-              <View style={styles.mapMock}>
-                <View style={styles.mapGridLines} />
-                <View style={styles.mapPinContainer}>
-                   <View style={styles.mapPulse} />
-                   <Icon name="map-marker" size={42} color="#2563EB" />
-                </View>
+              <View style={styles.stepTextCol}>
+                <Text style={styles.stepTitle}>1. Location Verification</Text>
+                <Text style={styles.stepSub}>
+                  {isCheckedIn || isComplete ? 'Location verified successfully' : 'Please ensure you are at your assigned location'}
+                </Text>
               </View>
-
-              {/* Location footer */}
-              <View style={styles.locFooter}>
-                <View style={styles.radarIconWrapper}>
-                  <Icon name="radar" size={20} color="#16A34A" />
-                </View>
-                <View style={styles.locFooterTextCol}>
-                  <Text style={styles.locFooterTitle}>Current Location</Text>
-                  <Text style={styles.locFooterDesc}>Green Valley Apartments, Sector 45,{'\n'}Noida, Uttar Pradesh 201301</Text>
-                </View>
-                <View style={styles.badgeInfo}>
-                  <Text style={styles.badgeInfoText}>Accuracy: 12 m</Text>
-                </View>
+              <View style={styles.badgeSuccess}>
+                <Icon name="check-circle" size={12} color="#16A34A" />
+                <Text style={styles.badgeSuccessText}>Within Range</Text>
               </View>
-            </Card>
+            </View>
 
-            {/* 2. Check-In Time */}
-            <Card variant="outlined" style={styles.stepCard}>
-              <View style={styles.stepHeaderRow}>
-                <View style={styles.stepIconWrapper}>
-                  <Icon name="clock-outline" size={18} color="#FFF" />
-                </View>
-                <View style={styles.stepTextCol}>
-                  <Text style={styles.stepTitle}>2. Check-In Time</Text>
-                  <Text style={styles.stepSub}>Your check-in time will be recorded</Text>
-                </View>
-                
-                <View style={styles.timeBox}>
-                  <View style={styles.timeBoxTop}>
-                    <Icon name="calendar-month-outline" size={14} color="#2563EB" />
-                    <Text style={styles.timeBoxLabel}>Check-In Time</Text>
-                  </View>
-                  <Text style={styles.timeBoxVal}>{currentTime || '08:45 AM'}</Text>
-                </View>
+            {/* Map Mock */}
+            <View style={styles.mapMock}>
+              <View style={styles.mapGridLines} />
+              <View style={styles.mapPinContainer}>
+                 <View style={styles.mapPulse} />
+                 <Icon name="map-marker" size={42} color="#2563EB" />
               </View>
-            </Card>
+            </View>
 
-            {/* 3. Selfie Verification */}
-            <Card variant="outlined" style={styles.stepCard}>
-              <View style={styles.stepHeaderRow}>
-                <View style={styles.stepIconWrapper}>
-                  <Icon name="camera-outline" size={18} color="#FFF" />
-                </View>
-                <View style={styles.stepTextCol}>
-                  <Text style={styles.stepTitle}>3. Selfie Verification</Text>
-                  <Text style={styles.stepSub}>Capture your selfie to verify attendance</Text>
-                </View>
+            {/* Location footer */}
+            <View style={styles.locFooter}>
+              <View style={styles.radarIconWrapper}>
+                <Icon name="radar" size={20} color="#16A34A" />
               </View>
-
-              <View style={styles.selfieContainer}>
-                <Image source={require('../../assets/cleaner_avatar.png')} style={styles.selfieImg} resizeMode="cover" />
-                <View style={[styles.cornerBracket, styles.tl]} />
-                <View style={[styles.cornerBracket, styles.tr]} />
-                <View style={[styles.cornerBracket, styles.bl]} />
-                <View style={[styles.cornerBracket, styles.br]} />
+              <View style={styles.locFooterTextCol}>
+                <Text style={styles.locFooterTitle}>Current Location</Text>
+                <Text style={styles.locFooterDesc}>
+                  {isCheckedIn || isComplete 
+                    ? (today?.checkIn?.address || 'Green Valley Apartments, Sector 45, Noida') 
+                    : 'Green Valley Apartments, Sector 45, Noida, Uttar Pradesh 201301'}
+                </Text>
               </View>
+              <View style={styles.badgeInfo}>
+                <Text style={styles.badgeInfoText}>Accuracy: 12 m</Text>
+              </View>
+            </View>
+          </Card>
 
-              <View style={styles.selfieFooterRow}>
-                <View style={styles.shieldCheckRow}>
-                  <Icon name="shield-check-outline" size={16} color="#2563EB" />
-                  <Text style={styles.selfieFooterTxt}>Ensure your face is clearly visible</Text>
+          {/* 2. Check-In Time & Continuous Timer */}
+          <Card variant="outlined" style={styles.stepCard}>
+            <View style={styles.stepHeaderRow}>
+              <View style={styles.stepIconWrapper}>
+                <Icon name="clock-outline" size={18} color="#FFF" />
+              </View>
+              <View style={styles.stepTextCol}>
+                <Text style={styles.stepTitle}>2. Check-In / Duty Timer</Text>
+                <Text style={styles.stepSub}>
+                  {isCheckedIn ? 'Duty is in progress' : isComplete ? 'Duty completed for today' : 'Your check-in time will be recorded'}
+                </Text>
+              </View>
+              
+              <View style={styles.timeBox}>
+                <View style={styles.timeBoxTop}>
+                  <Icon name="calendar-month-outline" size={14} color="#2563EB" />
+                  <Text style={styles.timeBoxLabel}>
+                    {isCheckedIn ? 'Checked-In' : isComplete ? 'Shift time' : 'Check-In'}
+                  </Text>
                 </View>
+                <Text style={styles.timeBoxVal}>
+                  {isCheckedIn || isComplete ? formatTime(today?.checkIn?.time) : currentTime || '08:45 AM'}
+                </Text>
+              </View>
+            </View>
+
+            {isCheckedIn && (
+              <View style={{ marginTop: 12, padding: 12, backgroundColor: '#FEF2F2', borderRadius: 8, alignItems: 'center' }}>
+                <Text style={{ fontSize: 11, color: '#DC2626', fontWeight: '700', fontFamily: 'Inter-Bold', letterSpacing: 0.5 }}>ACTIVE DUTY TIMER</Text>
+                <Text style={{ fontSize: 28, fontWeight: '900', color: '#1E293B', fontFamily: 'Inter-Bold', marginTop: 4 }}>{elapsedTime}</Text>
+              </View>
+            )}
+
+            {isComplete && (
+              <View style={{ marginTop: 12, padding: 12, backgroundColor: '#F0FDF4', borderRadius: 8, alignItems: 'center' }}>
+                <Text style={{ fontSize: 11, color: '#16A34A', fontWeight: '700', fontFamily: 'Inter-Bold', letterSpacing: 0.5 }}>TOTAL WORKING TIME</Text>
+                <Text style={{ fontSize: 24, fontWeight: '800', color: '#16A34A', fontFamily: 'Inter-Bold', marginTop: 4 }}>
+                  {today?.checkIn?.time && today?.checkOut?.time ? calculateHours(today.checkIn.time, today.checkOut.time) : '00h 00m'}
+                </Text>
+              </View>
+            )}
+          </Card>
+
+          {/* 3. Selfie Verification */}
+          <Card variant="outlined" style={styles.stepCard}>
+            <View style={styles.stepHeaderRow}>
+              <View style={styles.stepIconWrapper}>
+                <Icon name="camera-outline" size={18} color="#FFF" />
+              </View>
+              <View style={styles.stepTextCol}>
+                <Text style={styles.stepTitle}>3. Selfie Verification</Text>
+                <Text style={styles.stepSub}>Capture your selfie to verify attendance</Text>
+              </View>
+            </View>
+
+            <View style={styles.selfieContainer}>
+              <Image source={require('../../assets/cleaner_avatar.png')} style={styles.selfieImg} resizeMode="cover" />
+              <View style={[styles.cornerBracket, styles.tl]} />
+              <View style={[styles.cornerBracket, styles.tr]} />
+              <View style={[styles.cornerBracket, styles.bl]} />
+              <View style={[styles.cornerBracket, styles.br]} />
+            </View>
+
+            <View style={styles.selfieFooterRow}>
+              <View style={styles.shieldCheckRow}>
+                <Icon name="shield-check-outline" size={16} color="#2563EB" />
+                <Text style={styles.selfieFooterTxt}>Ensure your face is clearly visible</Text>
+              </View>
+              {!isCheckedIn && !isComplete && (
                 <TouchableOpacity style={styles.retakeRow}>
                   <Icon name="camera-retake-outline" size={16} color="#2563EB" />
                   <Text style={styles.retakeTxt}>Retake Photo</Text>
                 </TouchableOpacity>
-              </View>
-            </Card>
+              )}
+            </View>
+          </Card>
 
-            {/* Start Duty Button */}
-            <TouchableOpacity style={styles.bigStartBtn} onPress={handleCheckIn} activeOpacity={0.9}>
-              <Icon name="fingerprint" size={32} color="#FFF" />
+          {/* Dynamic Start / End Duty Button */}
+          {isComplete ? (
+            <View style={[styles.bigStartBtn, { backgroundColor: '#64748B', shadowColor: '#64748B' }]}>
+              <Icon name="check-circle" size={32} color="#FFF" />
               <View style={{ marginLeft: 12 }}>
-                <Text style={styles.bigStartTitle}>Start Duty</Text>
-                <Text style={styles.bigStartSub}>Mark Attendance & Start Your Day</Text>
+                <Text style={styles.bigStartTitle}>Duty Completed</Text>
+                <Text style={styles.bigStartSub}>Your logs are successfully saved for today</Text>
+              </View>
+            </View>
+          ) : isCheckedIn ? (
+            <TouchableOpacity 
+              style={[styles.bigStartBtn, { backgroundColor: '#DC2626', shadowColor: '#DC2626' }]} 
+              onPress={handleCheckOut} 
+              activeOpacity={0.9}
+            >
+              <Icon name="stop-circle" size={32} color="#FFF" />
+              <View style={{ marginLeft: 12 }}>
+                <Text style={styles.bigStartTitle}>End Duty / Stop Day</Text>
+                <Text style={styles.bigStartSub}>Mark Check-Out & Stop Duty Timer</Text>
               </View>
             </TouchableOpacity>
+          ) : (
+            <TouchableOpacity 
+              style={styles.bigStartBtn} 
+              onPress={handleCheckIn} 
+              activeOpacity={0.9}
+            >
+              <Icon name="fingerprint" size={32} color="#FFF" />
+              <View style={{ marginLeft: 12 }}>
+                <Text style={styles.bigStartTitle}>Start Duty / Start Day</Text>
+                <Text style={styles.bigStartSub}>Mark Attendance & Start Duty Timer</Text>
+              </View>
+            </TouchableOpacity>
+          )}
 
-            <View style={styles.secureBottomRow}>
-              <Icon name="lock-outline" size={14} color="#64748B" />
-              <Text style={styles.secureBottomTxt}>Your location and selfie are securely recorded</Text>
-            </View>
+          <View style={styles.secureBottomRow}>
+            <Icon name="lock-outline" size={14} color="#64748B" />
+            <Text style={styles.secureBottomTxt}>Your location and selfie are securely recorded</Text>
           </View>
-        ) : (
-          <View>
-            {/* Summary Card */}
-            <View style={styles.summaryCard}>
+        </View>
+
+        {/* History and Summary section */}
+        <View style={{ marginTop: 20 }}>
+          {/* Summary Card */}
+          <View style={styles.summaryCard}>
               <View style={styles.summaryTopRow}>
                 <Text style={styles.summaryTitle}>Summary</Text>
                 <TouchableOpacity style={styles.summaryMonthBtn}>
@@ -443,14 +533,7 @@ const AttendanceScreen: React.FC<Props> = ({ navigation }) => {
               </View>
             )}
 
-            {isCheckedIn && (
-              <TouchableOpacity style={styles.checkoutFloatBtn} onPress={handleCheckOut}>
-                 <Text style={styles.checkoutFloatBtnTxt}>End Duty (Check-Out)</Text>
-              </TouchableOpacity>
-            )}
-
-          </View>
-        )}
+        </View>
       </ScrollView>
     </View>
   );
@@ -842,6 +925,97 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   checkoutFloatBtnTxt: { color: '#FFF', fontSize: 14, fontWeight: '700', fontFamily: 'Inter-Bold' },
+
+  // Active Duty styles
+  activeDutyCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 4,
+    alignItems: 'center',
+  },
+  activeDutyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 12,
+  },
+  activeDutyStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF2F2',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+  pulseDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#DC2626',
+    marginRight: 6,
+  },
+  activeDutyStatusTxt: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#DC2626',
+    fontFamily: 'Inter-Bold',
+  },
+  activeDutyTimeLabel: {
+    fontSize: 12,
+    color: '#64748B',
+    fontFamily: 'Inter-Medium',
+  },
+  activeDutyTimer: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#1E293B',
+    fontFamily: 'Inter-Bold',
+    marginVertical: 12,
+    letterSpacing: 1,
+  },
+  activeDutyDetails: {
+    width: '100%',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    padding: 12,
+    gap: 8,
+    marginBottom: 16,
+  },
+  activeDutyDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  activeDutyDetailTxt: {
+    fontSize: 12,
+    color: '#475569',
+    fontFamily: 'Inter-Regular',
+    marginLeft: 8,
+  },
+  activeDutyCheckoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#DC2626',
+    width: '100%',
+    paddingVertical: 14,
+    borderRadius: 12,
+    gap: 8,
+  },
+  activeDutyCheckoutBtnTxt: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '700',
+    fontFamily: 'Inter-Bold',
+  },
 });
 
 export default AttendanceScreen;

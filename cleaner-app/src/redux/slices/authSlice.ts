@@ -24,14 +24,18 @@ export const loginCleaner = createAsyncThunk(
   async ({ phone, password }: { phone: string; password: string }, { rejectWithValue }) => {
     try {
       const res = await authService.login(phone, password);
-      await AsyncStorage.setItem('accessToken', res.data.tokens.accessToken);
-      await AsyncStorage.setItem('refreshToken', res.data.tokens.refreshToken);
+      // Handle both { tokens: { accessToken, refreshToken } } and { accessToken, refreshToken } response shapes
+      const data = res.data;
+      const accessToken = data.tokens?.accessToken || data.accessToken;
+      const refreshToken = data.tokens?.refreshToken || data.refreshToken;
+      if (accessToken) await AsyncStorage.setItem('accessToken', accessToken);
+      if (refreshToken) await AsyncStorage.setItem('refreshToken', refreshToken);
       // Map backend { user, profile } to CleanerProfile
       return { 
-        ...res.data.profile, 
-        phone: res.data.user?.phone, 
-        email: res.data.user?.email, 
-        role: res.data.user?.role 
+        ...data.profile, 
+        phone: data.user?.phone, 
+        email: data.user?.email, 
+        role: data.user?.role 
       };
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Login failed');
@@ -55,8 +59,18 @@ export const verifyOtp = createAsyncThunk(
   'auth/verifyOtp',
   async ({ phone, otp }: { phone: string; otp: string }, { rejectWithValue }) => {
     try {
-      await authService.verifyOtp(phone, otp);
-      return true;
+      const res = await authService.verifyOtp(phone, otp);
+      const data = (res as any).data;
+      const accessToken = data.tokens?.accessToken || data.accessToken;
+      const refreshToken = data.tokens?.refreshToken || data.refreshToken;
+      if (accessToken) await AsyncStorage.setItem('accessToken', accessToken);
+      if (refreshToken) await AsyncStorage.setItem('refreshToken', refreshToken);
+      return { 
+        ...data.profile, 
+        phone: data.user?.phone, 
+        email: data.user?.email, 
+        role: data.user?.role 
+      };
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Invalid OTP');
     }
@@ -99,7 +113,7 @@ const authSlice = createSlice({
       .addCase(sendOtp.fulfilled, (state) => { state.isLoading = false; })
       .addCase(sendOtp.rejected, (state, action) => { state.isLoading = false; state.error = action.payload as string; })
       .addCase(verifyOtp.pending, (state) => { state.isLoading = true; state.error = null; })
-      .addCase(verifyOtp.fulfilled, (state) => { state.isLoading = false; })
+      .addCase(verifyOtp.fulfilled, (state, action) => { state.isLoading = false; state.cleaner = action.payload; state.isAuthenticated = true; })
       .addCase(verifyOtp.rejected, (state, action) => { state.isLoading = false; state.error = action.payload as string; })
       .addCase(loginCleaner.pending, (state) => { state.isLoading = true; state.error = null; })
       .addCase(loginCleaner.fulfilled, (state, action) => { state.isLoading = false; state.cleaner = action.payload; state.isAuthenticated = true; })

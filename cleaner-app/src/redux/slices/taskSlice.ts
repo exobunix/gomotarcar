@@ -57,7 +57,7 @@ export const fetchTodayTasks = createAsyncThunk(
   async (cleanerId: string, { rejectWithValue }) => {
     try {
       const res = await taskService.getTodayTasks(cleanerId);
-      return res.data;
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Failed to fetch tasks');
     }
@@ -69,7 +69,7 @@ export const fetchTaskById = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const res = await taskService.getById(id);
-      return res.data;
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Failed to fetch task');
     }
@@ -81,7 +81,7 @@ export const startTask = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const res = await taskService.startTask(id);
-      return res.data;
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Failed to start task');
     }
@@ -93,7 +93,7 @@ export const completeTask = createAsyncThunk(
   async ({ id, data }: { id: string; data: { afterPhotos?: string[]; notes?: string } }, { rejectWithValue }) => {
     try {
       const res = await taskService.completeTask(id, data);
-      return res.data;
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Failed to complete task');
     }
@@ -105,7 +105,7 @@ export const scanQRCode = createAsyncThunk(
   async (code: string, { rejectWithValue }) => {
     try {
       const res = await taskService.scanQR(code);
-      return res.data;
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Invalid QR code');
     }

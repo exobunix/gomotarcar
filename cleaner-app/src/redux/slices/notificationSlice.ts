@@ -21,7 +21,7 @@ export const fetchNotifications = createAsyncThunk(
   async ({ userId, params }: { userId: string; params?: { page?: number; limit?: number } }, { rejectWithValue }) => {
     try {
       const res = await notificationService.listForUser(userId, params);
-      return res.data;
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Failed to fetch notifications');
     }
@@ -33,7 +33,7 @@ export const markAsRead = createAsyncThunk(
   async (id: string, { rejectWithValue }) => {
     try {
       const res = await notificationService.markAsRead(id);
-      return res.data;
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Failed to mark as read');
     }

@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import { store } from '../redux/store';
 
-const SOCKET_URL = __DEV__ ? 'http://localhost:3000' : 'https://api.gomotarcar.com';
+const SOCKET_URL = __DEV__ ? 'http://localhost:3000' : 'https://gomotarcar-api.onrender.com';
 
 class SocketService {
   private socket: Socket | null = null;

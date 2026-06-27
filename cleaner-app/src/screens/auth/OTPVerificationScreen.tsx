@@ -125,12 +125,8 @@ const OTPVerificationScreen: React.FC<Props> = ({ navigation, route }) => {
     }
     setError(false);
     try {
-      const verified = await dispatch(verifyOtp({ phone, otp })).unwrap();
-      if (verified) {
-        Alert.alert('Success', 'OTP verified. You can now login with your password.', [
-          { text: 'OK', onPress: () => navigation.navigate('Login') }
-        ]);
-      }
+      await dispatch(verifyOtp({ phone, otp })).unwrap();
+      // AppNavigator handles the navigation to Main automatically when isAuthenticated becomes true
     } catch (err: any) {
       setError(true);
       Alert.alert('Error', typeof err === 'string' ? err : 'Invalid OTP');
@@ -156,7 +152,9 @@ const OTPVerificationScreen: React.FC<Props> = ({ navigation, route }) => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const formattedPhone = `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
+  const formattedPhone = phone.startsWith('+91')
+    ? `+91 ${phone.slice(3, 8)} ${phone.slice(8)}`
+    : `+91 ${phone.slice(0, 5)} ${phone.slice(5)}`;
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.white }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>

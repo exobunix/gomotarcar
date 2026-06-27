@@ -4,7 +4,7 @@ import { ApiResponse, AuthTokens, CleanerProfile } from '../types/navigation';
 const BASE = '/auth';
 
 export const authService = {
-  login: async (phone: string, password: string): Promise<ApiResponse<{ accessToken: string; refreshToken: string; user: any }>> => {
+  login: async (phone: string, password: string): Promise<ApiResponse<{ tokens: { accessToken: string; refreshToken: string }; user: any; profile: any }>> => {
     const res = await api.post(`${BASE}/login`, { phone, password });
     return res.data;
   },

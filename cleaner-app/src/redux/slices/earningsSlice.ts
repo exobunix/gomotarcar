@@ -19,7 +19,7 @@ export const fetchEarnings = createAsyncThunk(
   async ({ cleanerId, period }: { cleanerId: string; period?: 'today' | 'week' | 'month' }, { rejectWithValue }) => {
     try {
       const res = await cleanerService.getEarnings(cleanerId, { period });
-      return res.data;
+      return res.data?.data !== undefined ? res.data.data : res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Failed to fetch earnings');
     }

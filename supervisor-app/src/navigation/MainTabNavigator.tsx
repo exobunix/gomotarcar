@@ -13,6 +13,7 @@ import WorkStackNavigator from './WorkStackNavigator';
 import InventoryStackNavigator from './InventoryStackNavigator';
 import GrievanceStackNavigator from './GrievanceStackNavigator';
 import NotificationStackNavigator from './NotificationStackNavigator';
+import ReportsStackNavigator from './ReportsStackNavigator';
 import MoreStackNavigator from './MoreStackNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -121,6 +122,14 @@ const MainTabNavigator: React.FC = () => (
             </View>
           </View>
         )
+      }}
+    />
+    <Tab.Screen 
+      name="ReportsTab" 
+      component={ReportsStackNavigator}
+      options={{ 
+        tabBarLabel: 'Reports', 
+        tabBarIcon: ({ color }) => <Icon name="chart-box-outline" color={color} size={22} /> 
       }}
     />
     <Tab.Screen 

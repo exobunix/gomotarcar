@@ -19,6 +19,7 @@ export type MainTabParamList = {
   NotificationsTab: undefined;
   ReportsTab: undefined;
   EarningsTab: undefined;
+  LeavesTab: undefined;
   MoreTab: undefined;
 };
 

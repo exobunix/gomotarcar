@@ -11,6 +11,7 @@ export type MainTabParamList = {
   DashboardTab: undefined;
   ApartmentsTab: undefined;
   CleanersTab: undefined;
+  TodayCleaningTab: undefined;
   AttendanceTab: undefined;
   ApprovalsTab: undefined;
   MoreTab: undefined;
@@ -41,6 +42,10 @@ export type CustomerStackParamList = {
 
 export type AttendanceStackParamList = {
   DailyAttendance: undefined;
+};
+
+export type TodayCleaningStackParamList = {
+  TodayCleaningMain: undefined;
 };
 
 export type CleanerStackParamList = {

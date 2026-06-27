@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import DashboardStackNavigator from './DashboardStackNavigator';
 import ApartmentStackNavigator from './ApartmentStackNavigator';
 import CleanerStackNavigator from './CleanerStackNavigator';
+import TodayCleaningStackNavigator from './TodayCleaningStackNavigator';
 import AttendanceStackNavigator from './AttendanceStackNavigator';
 import WorkStackNavigator from './WorkStackNavigator';
 import MoreStackNavigator from './MoreStackNavigator';
@@ -35,7 +36,7 @@ const MainTabNavigator: React.FC = () => (
       component={DashboardStackNavigator}
       options={{ 
         tabBarLabel: 'Dashboard', 
-        tabBarIcon: ({ color, size }) => <Icon name="home-outline" color={color} size={24} /> 
+        tabBarIcon: ({ color }) => <Icon name="home-outline" color={color} size={24} /> 
       }}
     />
     <Tab.Screen 
@@ -43,7 +44,7 @@ const MainTabNavigator: React.FC = () => (
       component={ApartmentStackNavigator}
       options={{ 
         tabBarLabel: 'Apartments', 
-        tabBarIcon: ({ color, size }) => <Icon name="office-building" color={color} size={22} /> 
+        tabBarIcon: ({ color }) => <Icon name="office-building" color={color} size={22} /> 
       }}
     />
     <Tab.Screen 
@@ -51,7 +52,15 @@ const MainTabNavigator: React.FC = () => (
       component={CleanerStackNavigator}
       options={{ 
         tabBarLabel: 'Cleaners', 
-        tabBarIcon: ({ color, size }) => <Icon name="account-multiple-outline" color={color} size={24} /> 
+        tabBarIcon: ({ color }) => <Icon name="account-multiple-outline" color={color} size={24} /> 
+      }}
+    />
+    <Tab.Screen 
+      name="TodayCleaningTab" 
+      component={TodayCleaningStackNavigator}
+      options={{ 
+        tabBarLabel: "Today's Cleaning", 
+        tabBarIcon: ({ color }) => <Icon name="steering" color={color} size={22} /> 
       }}
     />
     <Tab.Screen 
@@ -59,7 +68,7 @@ const MainTabNavigator: React.FC = () => (
       component={AttendanceStackNavigator}
       options={{ 
         tabBarLabel: 'Attendance', 
-        tabBarIcon: ({ color, size }) => <Icon name="calendar-check-outline" color={color} size={22} /> 
+        tabBarIcon: ({ color }) => <Icon name="calendar-check-outline" color={color} size={22} /> 
       }}
     />
     <Tab.Screen 
@@ -67,7 +76,7 @@ const MainTabNavigator: React.FC = () => (
       component={WorkStackNavigator}
       options={{ 
         tabBarLabel: 'Approvals', 
-        tabBarIcon: ({ color, size }) => <Icon name="clipboard-check-outline" color={color} size={22} /> 
+        tabBarIcon: ({ color }) => <Icon name="clipboard-check-outline" color={color} size={22} /> 
       }}
     />
     <Tab.Screen 
@@ -75,7 +84,7 @@ const MainTabNavigator: React.FC = () => (
       component={MoreStackNavigator}
       options={{ 
         tabBarLabel: 'More', 
-        tabBarIcon: ({ color, size }) => <Icon name="dots-horizontal" color={color} size={24} /> 
+        tabBarIcon: ({ color }) => <Icon name="dots-horizontal" color={color} size={24} /> 
       }}
     />
   </Tab.Navigator>

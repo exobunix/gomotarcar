@@ -14,6 +14,7 @@ import InventoryStackNavigator from './InventoryStackNavigator';
 import GrievanceStackNavigator from './GrievanceStackNavigator';
 import NotificationStackNavigator from './NotificationStackNavigator';
 import ReportsStackNavigator from './ReportsStackNavigator';
+import EarningsStackNavigator from './EarningsStackNavigator';
 import MoreStackNavigator from './MoreStackNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -130,6 +131,14 @@ const MainTabNavigator: React.FC = () => (
       options={{ 
         tabBarLabel: 'Reports', 
         tabBarIcon: ({ color }) => <Icon name="chart-box-outline" color={color} size={22} /> 
+      }}
+    />
+    <Tab.Screen 
+      name="EarningsTab" 
+      component={EarningsStackNavigator}
+      options={{ 
+        tabBarLabel: 'Earnings', 
+        tabBarIcon: ({ color }) => <Icon name="wallet-outline" color={color} size={22} /> 
       }}
     />
     <Tab.Screen 

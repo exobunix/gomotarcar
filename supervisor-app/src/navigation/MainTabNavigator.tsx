@@ -12,6 +12,7 @@ import AttendanceStackNavigator from './AttendanceStackNavigator';
 import WorkStackNavigator from './WorkStackNavigator';
 import InventoryStackNavigator from './InventoryStackNavigator';
 import GrievanceStackNavigator from './GrievanceStackNavigator';
+import NotificationStackNavigator from './NotificationStackNavigator';
 import MoreStackNavigator from './MoreStackNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -95,6 +96,31 @@ const MainTabNavigator: React.FC = () => (
       options={{ 
         tabBarLabel: 'Complaints', 
         tabBarIcon: ({ color }) => <Icon name="message-text-outline" color={color} size={22} /> 
+      }}
+    />
+    <Tab.Screen 
+      name="NotificationsTab" 
+      component={NotificationStackNavigator}
+      options={{ 
+        tabBarLabel: 'Notifications', 
+        tabBarIcon: ({ color }) => (
+          <View style={{ position: 'relative' }}>
+            <Icon name="bell-outline" color={color} size={22} />
+            <View style={{
+              position: 'absolute',
+              top: -2,
+              right: -4,
+              backgroundColor: '#EF4444',
+              borderRadius: 6,
+              minWidth: 12,
+              height: 12,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <Text style={{ fontSize: 7, fontWeight: '800', color: '#FFFFFF' }}>12</Text>
+            </View>
+          </View>
+        )
       }}
     />
     <Tab.Screen 

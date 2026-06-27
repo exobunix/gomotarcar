@@ -10,9 +10,9 @@ export type AuthStackParamList = {
 export type MainTabParamList = {
   DashboardTab: undefined;
   ApartmentsTab: undefined;
-  CustomersTab: undefined;
   CleanersTab: undefined;
-  WorkTab: undefined;
+  AttendanceTab: undefined;
+  ApprovalsTab: undefined;
   MoreTab: undefined;
 };
 
@@ -37,6 +37,10 @@ export type CustomerStackParamList = {
   CustomerList: undefined;
   CustomerDetail: { customerId: string };
   NewOnboarding: undefined;
+};
+
+export type AttendanceStackParamList = {
+  DailyAttendance: undefined;
 };
 
 export type CleanerStackParamList = {

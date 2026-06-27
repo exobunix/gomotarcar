@@ -1,4 +1,4 @@
-package com.gomotarcarcleaner
+package com.gomotarcarsupervisor
 
 import android.app.Application
 import com.facebook.react.PackageList

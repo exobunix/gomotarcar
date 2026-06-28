@@ -1,7 +1,7 @@
 const Joi = require('joi');
 
 const objectIdPattern = /^[0-9a-fA-F]{24}$/;
-const phonePattern = /^\+?[1-9]\d{9,14}$/;
+const phonePattern = /^\+?\d{10,15}$/;
 
 const createSupervisorSchema = Joi.object({
   firstName: Joi.string().min(2).max(50).required().messages({
@@ -16,6 +16,7 @@ const createSupervisorSchema = Joi.object({
   email: Joi.string().email().allow('', null),
   assignedZone: Joi.string().pattern(objectIdPattern).allow('', null),
   experience: Joi.number().integer().min(0).default(0),
+  password: Joi.string().min(6).allow('', null),
 });
 
 const updateSupervisorSchema = Joi.object({

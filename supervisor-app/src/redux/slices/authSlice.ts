@@ -25,8 +25,8 @@ export const login = createAsyncThunk(
   async ({ phone, password }: { phone: string; password: string }, { rejectWithValue }) => {
     try {
       const data = await authService.login(phone, password);
-      await AsyncStorage.setItem('accessToken', data.accessToken);
-      await AsyncStorage.setItem('refreshToken', data.refreshToken);
+      await AsyncStorage.setItem('accessToken', data.tokens.accessToken);
+      await AsyncStorage.setItem('refreshToken', data.tokens.refreshToken);
       return data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.error?.message || 'Login failed');
@@ -76,7 +76,7 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
-        state.accessToken = action.payload.accessToken;
+        state.accessToken = action.payload.tokens.accessToken;
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;

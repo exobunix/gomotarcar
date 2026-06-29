@@ -201,6 +201,17 @@ class SupervisorService {
       }
     });
 
+    if (updates.password && updates.password.trim() !== '') {
+      await User.findByIdAndUpdate(supervisor.userId, { passwordHash: updates.password });
+    }
+    if (updates.phone || updates.email || updates.isActive !== undefined) {
+      const userUpdates = {};
+      if (updates.phone) userUpdates.phone = updates.phone;
+      if (updates.email) userUpdates.email = updates.email;
+      if (updates.isActive !== undefined) userUpdates.isActive = updates.isActive;
+      await User.findByIdAndUpdate(supervisor.userId, userUpdates);
+    }
+
     await supervisor.save();
     return supervisor.populate('userId', 'phone email');
   }

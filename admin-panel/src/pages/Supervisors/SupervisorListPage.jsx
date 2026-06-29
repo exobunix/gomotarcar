@@ -320,7 +320,7 @@ const SupervisorListPage = () => {
     if (!formDialog.data.phone?.trim()) errors.phone = 'Phone number is required';
     if (formDialog.mode === 'add' && !formDialog.data.password?.trim()) {
       errors.password = 'Password is required';
-    } else if (formDialog.mode === 'add' && formDialog.data.password.length < 6) {
+    } else if (formDialog.data.password?.trim() && formDialog.data.password.length < 6) {
       errors.password = 'Password must be at least 6 characters';
     }
 
@@ -1588,18 +1588,16 @@ const SupervisorListPage = () => {
             onChange={(e) => setFormDialog(prev => ({ ...prev, data: { ...prev.data, email: e.target.value } }))}
             fullWidth
           />
-          {formDialog?.mode === 'add' && (
-            <TextField
-              size="small"
-              label="Password"
-              type="password"
-              value={formDialog?.data.password || ''}
-              onChange={(e) => setFormDialog(prev => ({ ...prev, data: { ...prev.data, password: e.target.value } }))}
-              error={Boolean(formErrors.password)}
-              helperText={formErrors.password}
-              fullWidth
-            />
-          )}
+          <TextField
+            size="small"
+            label={formDialog?.mode === 'add' ? 'Password' : 'New Password (leave blank to keep current)'}
+            type="password"
+            value={formDialog?.data.password || ''}
+            onChange={(e) => setFormDialog(prev => ({ ...prev, data: { ...prev.data, password: e.target.value } }))}
+            error={Boolean(formErrors.password)}
+            helperText={formErrors.password}
+            fullWidth
+          />
           <TextField
             select
             size="small"

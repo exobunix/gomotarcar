@@ -28,6 +28,7 @@ const updateSupervisorSchema = Joi.object({
   assignedZone: Joi.string().pattern(objectIdPattern).allow('', null),
   isActive: Joi.boolean(),
   experience: Joi.number().integer().min(0),
+  password: Joi.string().min(6).allow('', null),
 });
 
 const listSupervisorsSchema = Joi.object({

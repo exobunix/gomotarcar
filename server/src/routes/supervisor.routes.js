@@ -18,6 +18,26 @@ router.use(authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS));
 // Stats
 router.get('/stats', supervisorController.getStats);
 
+// Migration: Set random passwords for supervisors without one
+router.post('/fix-passwords', async (req, res, next) => {
+  try {
+    const User = require('../models/User');
+    const crypto = require('crypto');
+    const supervisors = await User.find({ role: 'supervisor' });
+    let updatedCount = 0;
+    for (const sup of supervisors) {
+      if (!sup.passwordHash || sup.passwordHash.trim() === '') {
+        const randomPassword = crypto.randomBytes(3).toString('hex'); // 6 chars random password
+        await User.findByIdAndUpdate(sup._id, { passwordHash: randomPassword });
+        updatedCount++;
+      }
+    }
+    res.status(200).json({ success: true, message: `Updated ${updatedCount} supervisors with a temporary random password.` });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // CRUD
 router.get('/', validate(listSupervisorsSchema, 'query'), supervisorController.list);
 router.post('/', validate(createSupervisorSchema), supervisorController.create);

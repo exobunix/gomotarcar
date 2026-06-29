@@ -1,6 +1,7 @@
 const Supervisor = require('../models/Supervisor');
 const User = require('../models/User');
 const Cleaner = require('../models/Cleaner');
+const bcrypt = require('bcryptjs');
 const { AppError } = require('../middleware/errorHandler');
 
 class SupervisorService {
@@ -13,21 +14,30 @@ class SupervisorService {
       throw new AppError('Phone number already registered', 409, 'SUPERVISOR_PHONE_EXISTS');
     }
 
-    const userData = {
+    // Hash password manually before insert to avoid double-hashing via pre-save hook
+    let passwordHash;
+    if (password) {
+      passwordHash = await bcrypt.hash(password, 12);
+    }
+
+    // Use collection.insertOne to store the already-hashed password directly
+    const now = new Date();
+    const insertResult = await User.collection.insertOne({
       phone,
-      email,
+      email: email || undefined,
       role: 'supervisor',
       isVerified: true,
       phoneVerified: true,
-    };
-    if (password) {
-      userData.passwordHash = password;
-    }
-
-    const user = await User.create(userData);
+      isActive: true,
+      tokenVersion: 1,
+      passwordHash: passwordHash || null,
+      createdAt: now,
+      updatedAt: now,
+    });
+    const userId = insertResult.insertedId;
 
     const supervisor = await Supervisor.create({
-      userId: user._id,
+      userId: userId,
       firstName,
       lastName,
       phone,
@@ -201,17 +211,19 @@ class SupervisorService {
       }
     });
 
+    const userUpdates = {};
     if (updates.password && updates.password.trim() !== '') {
-      const bcrypt = require('bcryptjs');
-      const hash = await bcrypt.hash(updates.password, 12);
-      await User.findByIdAndUpdate(supervisor.userId, { passwordHash: hash });
+      userUpdates.passwordHash = await bcrypt.hash(updates.password, 12);
     }
-    if (updates.phone || updates.email || updates.isActive !== undefined) {
-      const userUpdates = {};
-      if (updates.phone) userUpdates.phone = updates.phone;
-      if (updates.email) userUpdates.email = updates.email;
-      if (updates.isActive !== undefined) userUpdates.isActive = updates.isActive;
-      await User.findByIdAndUpdate(supervisor.userId, userUpdates);
+    if (updates.phone) userUpdates.phone = updates.phone;
+    if (updates.email) userUpdates.email = updates.email;
+    if (updates.isActive !== undefined) userUpdates.isActive = updates.isActive;
+    if (Object.keys(userUpdates).length > 0) {
+      // Use updateOne to bypass pre-save hook (password already hashed above)
+      await User.collection.updateOne(
+        { _id: supervisor.userId },
+        { $set: { ...userUpdates, updatedAt: new Date() } }
+      );
     }
 
     await supervisor.save();

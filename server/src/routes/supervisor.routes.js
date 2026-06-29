@@ -23,12 +23,14 @@ router.post('/fix-passwords', async (req, res, next) => {
   try {
     const User = require('../models/User');
     const crypto = require('crypto');
+    const bcrypt = require('bcryptjs');
     const supervisors = await User.find({ role: 'supervisor' });
     let updatedCount = 0;
     for (const sup of supervisors) {
       if (!sup.passwordHash || sup.passwordHash.trim() === '') {
         const randomPassword = crypto.randomBytes(3).toString('hex'); // 6 chars random password
-        await User.findByIdAndUpdate(sup._id, { passwordHash: randomPassword });
+        const hash = await bcrypt.hash(randomPassword, 12);
+        await User.findByIdAndUpdate(sup._id, { passwordHash: hash });
         updatedCount++;
       }
     }

@@ -202,7 +202,9 @@ class SupervisorService {
     });
 
     if (updates.password && updates.password.trim() !== '') {
-      await User.findByIdAndUpdate(supervisor.userId, { passwordHash: updates.password });
+      const bcrypt = require('bcryptjs');
+      const hash = await bcrypt.hash(updates.password, 12);
+      await User.findByIdAndUpdate(supervisor.userId, { passwordHash: hash });
     }
     if (updates.phone || updates.email || updates.isActive !== undefined) {
       const userUpdates = {};

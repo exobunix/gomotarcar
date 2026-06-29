@@ -292,7 +292,7 @@ const SupervisorListPage = () => {
         email: '',
         assignedZone: '',
         experience: 0,
-        password: 'password123',
+        password: '',
       },
     });
     setFormErrors({});
@@ -318,6 +318,11 @@ const SupervisorListPage = () => {
     const errors = {};
     if (!formDialog.data.firstName?.trim()) errors.firstName = 'First Name is required';
     if (!formDialog.data.phone?.trim()) errors.phone = 'Phone number is required';
+    if (formDialog.mode === 'add' && !formDialog.data.password?.trim()) {
+      errors.password = 'Password is required';
+    } else if (formDialog.mode === 'add' && formDialog.data.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters';
+    }
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -1583,6 +1588,18 @@ const SupervisorListPage = () => {
             onChange={(e) => setFormDialog(prev => ({ ...prev, data: { ...prev.data, email: e.target.value } }))}
             fullWidth
           />
+          {formDialog?.mode === 'add' && (
+            <TextField
+              size="small"
+              label="Password"
+              type="password"
+              value={formDialog?.data.password || ''}
+              onChange={(e) => setFormDialog(prev => ({ ...prev, data: { ...prev.data, password: e.target.value } }))}
+              error={Boolean(formErrors.password)}
+              helperText={formErrors.password}
+              fullWidth
+            />
+          )}
           <TextField
             select
             size="small"

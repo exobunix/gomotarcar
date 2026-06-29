@@ -87,11 +87,17 @@ router.post('/fix-passwords', async (req, res, next) => {
       const newPassword = `${firstName}@123`;
       const hash = await bcrypt.hash(newPassword, 12);
       
+      let phone = user.phone || '';
+      if (!phone.startsWith('+91')) {
+        const rawDigits = phone.replace(/[^0-9]/g, '').slice(-10);
+        phone = `+91${rawDigits}`;
+      }
+      
       await User.collection.updateOne(
         { _id: user._id },
-        { $set: { passwordHash: hash, updatedAt: new Date() } }
+        { $set: { phone: phone, passwordHash: hash, updatedAt: new Date() } }
       );
-      results.push({ phone: user.phone, name: firstName, password: newPassword });
+      results.push({ phone: phone, name: firstName, password: newPassword });
     }
 
     res.status(200).json({

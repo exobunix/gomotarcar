@@ -43,6 +43,7 @@ import {
 
 // Icons
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BlockIcon from '@mui/icons-material/Block';
@@ -128,6 +129,8 @@ const SupervisorListPage = () => {
   // Dialogs
   const [formDialog, setFormDialog] = useState(null); // { mode: 'add'|'edit', data: {} }
   const [formErrors, setFormErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [saving, setSaving] = useState(false);
 
   // Actions menu state
@@ -1591,12 +1594,25 @@ const SupervisorListPage = () => {
           <TextField
             size="small"
             label={formDialog?.mode === 'add' ? 'Password' : 'New Password (leave blank to keep current)'}
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             value={formDialog?.data.password || ''}
             onChange={(e) => setFormDialog(prev => ({ ...prev, data: { ...prev.data, password: e.target.value } }))}
             error={Boolean(formErrors.password)}
             helperText={formErrors.password}
             fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             select

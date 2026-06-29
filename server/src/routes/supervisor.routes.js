@@ -104,6 +104,29 @@ router.post('/fix-passwords', async (req, res, next) => {
   }
 });
 
+router.get('/dump-supervisors', async (req, res, next) => {
+  try {
+    const User = require('../models/User');
+    const Supervisor = require('../models/Supervisor');
+    const supervisors = await Supervisor.find().populate('userId');
+    const results = supervisors.map(s => {
+      if (!s.userId) return null;
+      const fn = s.firstName ? s.firstName.replace(/\s+/g, '') : 'Supervisor';
+      return { 
+        id: s._id, 
+        userId: s.userId._id, 
+        phone: s.userId.phone, 
+        role: s.userId.role, 
+        name: s.firstName,
+        expectedPassword: `${fn}@123`
+      };
+    }).filter(Boolean);
+    res.json({ success: true, count: results.length, data: results });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─────────────────────────────────────────────
 // ADMIN-ONLY ROUTES (super_admin, manager, operations)
 // ─────────────────────────────────────────────

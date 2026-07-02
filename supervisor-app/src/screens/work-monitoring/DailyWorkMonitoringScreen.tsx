@@ -1,660 +1,810 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, Platform, Dimensions, StatusBar } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View, Text, StyleSheet, FlatList, TouchableOpacity, Image, TextInput,
+  Platform, Dimensions, StatusBar, Alert, Modal, ScrollView,
+  RefreshControl, ActivityIndicator, Linking,
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '../../components/common/Card';
+import {
+  fetchTodayForSupervisor,
+  approveTask,
+  rejectTask,
+  rescheduleTask,
+} from '../../redux/slices/taskSlice';
+import { fetchUnreadCount } from '../../redux/slices/notificationSlice';
+import { AppDispatch, RootState } from '../../redux/store';
+import { colors } from '../../theme/colors';
 
 const { width } = Dimensions.get('window');
 
 interface Props { navigation: any }
 
+type StatusFilter = 'all' | 'completed' | 'in_progress' | 'assigned' | 'missed';
+
+const STATUS_FILTERS: { key: StatusFilter; label: string; color: string }[] = [
+  { key: 'all', label: 'All', color: '#2563EB' },
+  { key: 'completed', label: 'Completed', color: '#16A34A' },
+  { key: 'in_progress', label: 'In Progress', color: '#2563EB' },
+  { key: 'assigned', label: 'Pending', color: '#F97316' },
+  { key: 'missed', label: 'Missed', color: '#EF4444' },
+];
+
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case 'completed': return 'Completed';
+    case 'in_progress': return 'In Progress';
+    case 'assigned': return 'Pending';
+    case 'missed': return 'Missed';
+    case 'cancelled': return 'Cancelled';
+    default: return status || 'Unknown';
+  }
+};
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'completed': return '#16A34A';
+    case 'in_progress': return '#2563EB';
+    case 'assigned': return '#F97316';
+    case 'missed': return '#EF4444';
+    default: return '#64748B';
+  }
+};
+
+const getStatusBg = (status: string) => {
+  switch (status) {
+    case 'completed': return '#ECFDF5';
+    case 'in_progress': return '#EFF6FF';
+    case 'assigned': return '#FFF7ED';
+    case 'missed': return '#FEF2F2';
+    default: return '#F1F5F9';
+  }
+};
+
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case 'completed': return 'check-circle';
+    case 'in_progress': return 'progress-clock';
+    case 'assigned': return 'clock-outline';
+    case 'missed': return 'close-circle';
+    default: return 'help-circle-outline';
+  }
+};
+
+const formatTime = (timeStr: string | undefined): string => {
+  if (!timeStr) return '—';
+  // If already formatted like "08:00 AM" just return it
+  return timeStr;
+};
+
+const formatScheduledDate = (date: Date | string | undefined): string => {
+  if (!date) return 'Today';
+  const d = new Date(date);
+  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const getCustomerName = (task: any): string => {
+  if (task.customerId?.firstName) {
+    return `${task.customerId.firstName} ${task.customerId.lastName || ''}`.trim();
+  }
+  return task.customerName || 'Customer';
+};
+
+const getCleanerName = (task: any): string => {
+  if (task.cleanerId?.firstName) {
+    return `${task.cleanerId.firstName} ${task.cleanerId.lastName || ''}`.trim();
+  }
+  return 'Not Assigned';
+};
+
+const getVehicleNo = (task: any): string => {
+  return task.vehicleId?.vehicleNumber || task.vehicleNo || '—';
+};
+
+const getVehicleModel = (task: any): string => {
+  if (task.vehicleId?.make) return `${task.vehicleId.make} ${task.vehicleId.model || ''}`.trim();
+  return task.vehicleModel || '—';
+};
+
+const getCustomerPhone = (task: any): string => {
+  return task.customerId?.phone || task.customerPhone || '';
+};
+
+// ─── Image Viewer Modal ───────────────────────────────────────────────────────
+const ImageViewerModal: React.FC<{
+  visible: boolean;
+  images: string[];
+  title: string;
+  onClose: () => void;
+}> = ({ visible, images, title, onClose }) => {
+  const [current, setCurrent] = useState(0);
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <View style={imgStyles.overlay}>
+        <View style={imgStyles.container}>
+          <View style={imgStyles.header}>
+            <Text style={imgStyles.title}>{title}</Text>
+            <TouchableOpacity onPress={onClose} style={imgStyles.closeBtn}>
+              <Icon name="close" size={22} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+          {images.length === 0 ? (
+            <View style={imgStyles.noPhotos}>
+              <Icon name="image-off-outline" size={48} color="#94A3B8" />
+              <Text style={imgStyles.noPhotosText}>No photos available</Text>
+            </View>
+          ) : (
+            <>
+              <Image
+                source={{ uri: images[current] }}
+                style={imgStyles.mainImage}
+                resizeMode="contain"
+              />
+              <View style={imgStyles.thumbnailRow}>
+                {images.map((img, idx) => (
+                  <TouchableOpacity key={idx} onPress={() => setCurrent(idx)}>
+                    <Image
+                      source={{ uri: img }}
+                      style={[imgStyles.thumbnail, current === idx && imgStyles.thumbActive]}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Text style={imgStyles.counter}>{current + 1} / {images.length}</Text>
+            </>
+          )}
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+// ─── Reschedule Modal ─────────────────────────────────────────────────────────
+const RescheduleModal: React.FC<{
+  visible: boolean;
+  taskId: string;
+  onClose: () => void;
+  onConfirm: (data: any) => void;
+  loading: boolean;
+}> = ({ visible, taskId, onClose, onConfirm, loading }) => {
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const [reason, setReason] = useState('');
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <View style={rsStyles.overlay}>
+        <View style={rsStyles.sheet}>
+          <View style={rsStyles.handle} />
+          <Text style={rsStyles.title}>Reschedule Task</Text>
+          <Text style={rsStyles.label}>New Date (YYYY-MM-DD)</Text>
+          <TextInput
+            style={rsStyles.input}
+            placeholder="e.g. 2025-06-15"
+            placeholderTextColor="#94A3B8"
+            value={date}
+            onChangeText={setDate}
+          />
+          <Text style={rsStyles.label}>New Time</Text>
+          <TextInput
+            style={rsStyles.input}
+            placeholder="e.g. 09:00 AM"
+            placeholderTextColor="#94A3B8"
+            value={time}
+            onChangeText={setTime}
+          />
+          <Text style={rsStyles.label}>Reason (optional)</Text>
+          <TextInput
+            style={[rsStyles.input, { height: 72, textAlignVertical: 'top' }]}
+            placeholder="Reason for reschedule..."
+            placeholderTextColor="#94A3B8"
+            multiline
+            value={reason}
+            onChangeText={setReason}
+          />
+          <View style={rsStyles.btnRow}>
+            <TouchableOpacity style={rsStyles.cancelBtn} onPress={onClose}>
+              <Text style={rsStyles.cancelTxt}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[rsStyles.confirmBtn, loading && { opacity: 0.7 }]}
+              disabled={loading || !date.trim()}
+              onPress={() => onConfirm({ scheduledDate: date, scheduledTime: time, reason })}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text style={rsStyles.confirmTxt}>Confirm</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+// ─── Main Screen ──────────────────────────────────────────────────────────────
 const DailyWorkMonitoringScreen: React.FC<Props> = ({ navigation }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const insets = useSafeAreaInsets();
+  const { dailyTasks, dailyStats, dailyLoading, actionLoading } = useSelector((s: RootState) => s.tasks);
+  const { unreadCount } = useSelector((s: RootState) => s.notifications);
+
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  // High fidelity mock data matching the screenshot exactly
-  const cleaningTasks = [
-    {
-      customerName: 'Rahul Sharma',
-      customerPhone: '98765 43210',
-      vehicleNo: 'DL 01 AB 1234',
-      vehicleModel: 'Honda City',
-      cleanerName: 'Ramesh Kumar',
-      apartmentName: 'Sunshine Heights',
-      flatNo: 'A-1203',
-      timeSlot: '07:00 AM - 08:00 AM',
-      status: 'Completed'
-    },
-    {
-      customerName: 'Priya Singh',
-      customerPhone: '98123 45678',
-      vehicleNo: 'DL 01 CD 5678',
-      vehicleModel: 'Hyundai i20',
-      cleanerName: 'Suresh Yadav',
-      apartmentName: 'Green View Apts',
-      flatNo: 'B-904',
-      timeSlot: '08:00 AM - 09:00 AM',
-      status: 'In Progress'
-    },
-    {
-      customerName: 'Amit Verma',
-      customerPhone: '96543 21098',
-      vehicleNo: 'DL 01 EF 9012',
-      vehicleModel: 'Maruti Swift',
-      cleanerName: 'Vikram Singh',
-      apartmentName: 'Maple Residency',
-      flatNo: 'C-1102',
-      timeSlot: '09:00 AM - 10:00 AM',
-      status: 'Pending'
-    },
-    {
-      customerName: 'Neha Gupta',
-      customerPhone: '97123 45609',
-      vehicleNo: 'DL 01 GH 3456',
-      vehicleModel: 'Tata Nexon',
-      cleanerName: 'Arjun Patel',
-      apartmentName: 'Skyline Towers',
-      flatNo: 'D-1504',
-      timeSlot: '10:00 AM - 11:00 AM',
-      status: 'Missed'
-    },
-    {
-      customerName: 'Vikas Yadav',
-      customerPhone: '98111 22334',
-      vehicleNo: 'DL 01 IJ 7890',
-      vehicleModel: 'Kia Seltos',
-      cleanerName: 'Imran Khan',
-      apartmentName: 'Palm Paradise',
-      flatNo: 'E-502',
-      timeSlot: '11:00 AM - 12:00 PM',
-      status: 'Pending'
-    },
-    {
-      customerName: 'Deepak Sharma',
-      customerPhone: '95822 11009',
-      vehicleNo: 'DL 01 KL 4567',
-      vehicleModel: 'Toyota Fortuner',
-      cleanerName: 'Mahesh Verma',
-      apartmentName: 'Oasis Apartments',
-      flatNo: 'F-703',
-      timeSlot: '12:00 PM - 01:00 PM',
-      status: 'In Progress'
-    }
-  ];
+  // Image viewer state
+  const [imgModal, setImgModal] = useState<{ visible: boolean; images: string[]; title: string }>({
+    visible: false, images: [], title: '',
+  });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Completed':
-        return '#16A34A';
-      case 'In Progress':
-        return '#2563EB';
-      case 'Pending':
-        return '#F97316';
-      case 'Missed':
-        return '#EF4444';
-      default:
-        return '#64748B';
-    }
+  // Reschedule modal state
+  const [rsModal, setRsModal] = useState<{ visible: boolean; taskId: string }>({
+    visible: false, taskId: '',
+  });
+
+  const load = useCallback(() => {
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    dispatch(fetchTodayForSupervisor({
+      date: dateStr,
+      status: statusFilter !== 'all' ? statusFilter : undefined,
+    }));
+    dispatch(fetchUnreadCount());
+  }, [dispatch, selectedDate, statusFilter]);
+
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const unsub = navigation.addListener('focus', load);
+    return unsub;
+  }, [navigation, load]);
+
+  // Client-side search filter on top of server filter
+  const filtered = dailyTasks.filter(task => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      getCustomerName(task).toLowerCase().includes(q) ||
+      getVehicleNo(task).toLowerCase().includes(q) ||
+      getCleanerName(task).toLowerCase().includes(q) ||
+      (task.taskId || '').toLowerCase().includes(q)
+    );
+  });
+
+  // Stats — prefer from server, fallback to counting filtered list
+  const totalCars = dailyStats?.total ?? dailyTasks.length;
+  const completedCount = dailyStats?.completed ?? dailyTasks.filter(t => t.status === 'completed').length;
+  const pendingCount = dailyStats?.pending ?? dailyTasks.filter(t => t.status === 'assigned').length;
+  const inProgressCount = dailyStats?.inProgress ?? dailyTasks.filter(t => t.status === 'in_progress').length;
+  const missedCount = dailyStats?.missed ?? dailyTasks.filter(t => t.status === 'missed').length;
+
+  const completedPct = totalCars > 0 ? ((completedCount / totalCars) * 100).toFixed(1) : '0.0';
+  const pendingPct = totalCars > 0 ? (((pendingCount + inProgressCount) / totalCars) * 100).toFixed(1) : '0.0';
+  const missedPct = totalCars > 0 ? ((missedCount / totalCars) * 100).toFixed(1) : '0.0';
+
+  // ── Handlers ──
+  const handleApprove = (task: any) => {
+    Alert.alert(
+      'Approve Task',
+      `Approve cleaning for ${getVehicleNo(task)} by ${getCleanerName(task)}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Approve',
+          onPress: () => {
+            dispatch(approveTask({ id: task._id, data: { remark: 'Approved by supervisor' } }))
+              .unwrap()
+              .then(() => {
+                Alert.alert('✓ Approved', 'Task marked as completed.');
+                load();
+              })
+              .catch(err => Alert.alert('Error', err?.message || 'Failed to approve.'));
+          },
+        },
+      ],
+    );
   };
 
-  const getStatusBgColor = (status: string) => {
-    switch (status) {
-      case 'Completed':
-        return '#ECFDF5';
-      case 'In Progress':
-        return '#EFF6FF';
-      case 'Pending':
-        return '#FFF7ED';
-      case 'Missed':
-        return '#FEF2F2';
-      default:
-        return '#F1F5F9';
-    }
+  const handleReject = (task: any) => {
+    Alert.prompt?.(
+      'Reject Task',
+      'Enter rejection reason:',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reject',
+          style: 'destructive',
+          onPress: (reason?: string) => {
+            dispatch(rejectTask({ id: task._id, reason: reason || 'Rejected by supervisor' }))
+              .unwrap()
+              .then(() => {
+                Alert.alert('✗ Rejected', 'Task marked as missed.');
+                load();
+              })
+              .catch(err => Alert.alert('Error', err?.message || 'Failed to reject.'));
+          },
+        },
+      ],
+      'plain-text',
+      '',
+    ) ?? Alert.alert(
+      'Reject Task',
+      `Reject cleaning for ${getVehicleNo(task)}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reject',
+          style: 'destructive',
+          onPress: () => {
+            dispatch(rejectTask({ id: task._id, reason: 'Rejected by supervisor' }))
+              .unwrap()
+              .then(() => {
+                Alert.alert('✗ Rejected', 'Task marked as missed.');
+                load();
+              })
+              .catch(err => Alert.alert('Error', err?.message || 'Failed to reject.'));
+          },
+        },
+      ],
+    );
   };
+
+  const handleViewImages = (task: any) => {
+    const allPhotos = [...(task.beforePhotos || []), ...(task.afterPhotos || [])];
+    setImgModal({
+      visible: true,
+      images: allPhotos,
+      title: `Photos — ${getVehicleNo(task)}`,
+    });
+  };
+
+  const handleReschedule = (task: any) => {
+    setRsModal({ visible: true, taskId: task._id });
+  };
+
+  const handleRescheduleConfirm = (data: any) => {
+    dispatch(rescheduleTask({ id: rsModal.taskId, data }))
+      .unwrap()
+      .then(() => {
+        setRsModal({ visible: false, taskId: '' });
+        Alert.alert('✓ Rescheduled', 'Task has been rescheduled successfully.');
+        load();
+      })
+      .catch(err => Alert.alert('Error', err?.message || 'Failed to reschedule.'));
+  };
+
+  // ── Render task card ──
+  const renderItem = ({ item: task }: { item: any }) => {
+    const isActioning = actionLoading === task._id;
+    const statusLabel = getStatusLabel(task.status);
+    const statusColor = getStatusColor(task.status);
+    const statusBg = getStatusBg(task.status);
+    const canApprove = ['in_progress', 'assigned', 'completed'].includes(task.status);
+    const canReject = task.status !== 'missed' && task.status !== 'cancelled';
+    const photoCount = (task.beforePhotos?.length || 0) + (task.afterPhotos?.length || 0);
+
+    return (
+      <Card variant="elevated" style={styles.taskCard}>
+        {/* Header row: task ID + status */}
+        <View style={styles.taskCardHeader}>
+          <Text style={styles.taskIdTxt}>{task.taskId || `#${task._id?.slice(-6).toUpperCase()}`}</Text>
+          <View style={[styles.statusPill, { backgroundColor: statusBg }]}>
+            <Icon name={getStatusIcon(task.status)} size={10} color={statusColor} />
+            <Text style={[styles.statusPillTxt, { color: statusColor }]}>{statusLabel}</Text>
+          </View>
+        </View>
+
+        {/* Main data row */}
+        <View style={styles.dataRow}>
+          {/* Customer + Vehicle */}
+          <View style={styles.dataCol}>
+            <Text style={styles.dataColLabel}>Customer & Vehicle</Text>
+            <Text style={styles.dataPrimary} numberOfLines={1}>{getCustomerName(task)}</Text>
+            {getCustomerPhone(task) ? (
+              <TouchableOpacity onPress={() => Linking.openURL(`tel:${getCustomerPhone(task)}`)}>
+                <Text style={styles.dataPhone}>{getCustomerPhone(task)}</Text>
+              </TouchableOpacity>
+            ) : null}
+            <View style={styles.vehicleRow}>
+              <Icon name="car" size={11} color="#64748B" />
+              <Text style={styles.vehicleNo} numberOfLines={1}>{getVehicleNo(task)}</Text>
+            </View>
+            <Text style={styles.vehicleModel} numberOfLines={1}>{getVehicleModel(task)}</Text>
+          </View>
+
+          {/* Cleaner + Time */}
+          <View style={styles.dataCol}>
+            <Text style={styles.dataColLabel}>Cleaner</Text>
+            <Text style={styles.dataPrimary} numberOfLines={1}>{getCleanerName(task)}</Text>
+            {task.cleanerId?.cleanerId ? (
+              <Text style={styles.dataSecondary}>{task.cleanerId.cleanerId}</Text>
+            ) : null}
+
+            <Text style={[styles.dataColLabel, { marginTop: 8 }]}>Scheduled</Text>
+            <View style={styles.timeRow}>
+              <Icon name="clock-outline" size={12} color="#64748B" />
+              <Text style={styles.timeTxt}>{formatTime(task.scheduledTime)}</Text>
+            </View>
+            <Text style={styles.dataSecondary}>{task.timeSlot || 'Morning'}</Text>
+          </View>
+
+          {/* Package + Photos count */}
+          <View style={[styles.dataCol, { flex: 0.7, alignItems: 'flex-end' }]}>
+            {task.packageType ? (
+              <View style={styles.packageBadge}>
+                <Text style={styles.packageTxt}>{task.packageType.toUpperCase()}</Text>
+              </View>
+            ) : null}
+            {task.qrVerified && (
+              <View style={styles.qrBadge}>
+                <Icon name="qrcode-scan" size={10} color="#10B981" />
+                <Text style={styles.qrTxt}>QR ✓</Text>
+              </View>
+            )}
+            {photoCount > 0 && (
+              <View style={styles.photoBadge}>
+                <Icon name="camera" size={10} color="#8B5CF6" />
+                <Text style={styles.photoTxt}>{photoCount} photos</Text>
+              </View>
+            )}
+            {task.actualStartTime && (
+              <View style={{ marginTop: 6 }}>
+                <Text style={styles.dataSecondary}>Started</Text>
+                <Text style={styles.timeTxt}>
+                  {new Date(task.actualStartTime).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+              </View>
+            )}
+            {task.actualEndTime && (
+              <View style={{ marginTop: 4 }}>
+                <Text style={styles.dataSecondary}>Ended</Text>
+                <Text style={styles.timeTxt}>
+                  {new Date(task.actualEndTime).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Action buttons */}
+        <View style={styles.actionsRow}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => handleViewImages(task)}>
+            {isActioning ? <ActivityIndicator size="small" color="#8B5CF6" /> : <Icon name="image-multiple-outline" size={15} color="#8B5CF6" />}
+            <Text style={[styles.actionTxt, { color: '#8B5CF6' }]}>
+              Images{photoCount > 0 ? ` (${photoCount})` : ''}
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.dividerV} />
+
+          <TouchableOpacity
+            style={[styles.actionBtn, !canApprove && styles.actionDisabled]}
+            onPress={() => canApprove && handleApprove(task)}
+            disabled={isActioning || !canApprove}
+          >
+            {isActioning ? (
+              <ActivityIndicator size="small" color="#16A34A" />
+            ) : (
+              <Icon name="check-circle-outline" size={15} color={canApprove ? '#16A34A' : '#CBD5E1'} />
+            )}
+            <Text style={[styles.actionTxt, { color: canApprove ? '#16A34A' : '#CBD5E1' }]}>Approve</Text>
+          </TouchableOpacity>
+
+          <View style={styles.dividerV} />
+
+          <TouchableOpacity
+            style={[styles.actionBtn, !canReject && styles.actionDisabled]}
+            onPress={() => canReject && handleReject(task)}
+            disabled={isActioning || !canReject}
+          >
+            {isActioning ? (
+              <ActivityIndicator size="small" color="#EF4444" />
+            ) : (
+              <Icon name="close-circle-outline" size={15} color={canReject ? '#EF4444' : '#CBD5E1'} />
+            )}
+            <Text style={[styles.actionTxt, { color: canReject ? '#EF4444' : '#CBD5E1' }]}>Reject</Text>
+          </TouchableOpacity>
+
+          <View style={styles.dividerV} />
+
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => handleReschedule(task)}
+            disabled={isActioning}
+          >
+            <Icon name="calendar-edit" size={15} color="#F97316" />
+            <Text style={[styles.actionTxt, { color: '#F97316' }]}>Reschedule</Text>
+          </TouchableOpacity>
+        </View>
+      </Card>
+    );
+  };
+
+  const todayStr = selectedDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Brand Header Bar */}
-      <View style={[styles.headerContainer, { paddingTop: insets.top > 0 ? insets.top + 4 : (Platform.OS === 'ios' ? 44 : 12) }]}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 4 : (Platform.OS === 'ios' ? 44 : 12) }]}>
         <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.headerMenuBtn}>
+          <TouchableOpacity style={styles.menuBtn} onPress={() => navigation.openDrawer?.()}>
             <Icon name="menu" size={26} color="#1E293B" />
           </TouchableOpacity>
-
-          <View style={styles.brandContainer}>
-            <Image 
-              source={require('../../assets/logo.png')} 
-              style={styles.brandLogo} 
-              resizeMode="contain" 
-            />
-            <Text style={styles.brandSub}>Anything & Everything for your Car</Text>
+          <View style={styles.brandWrap}>
+            <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+            <Text style={styles.brandSub}>Anything &amp; Everything for your Car</Text>
           </View>
-
-          <View style={styles.headerRightActions}>
-            <TouchableOpacity style={styles.notifBtn}>
-              <Icon name="bell-outline" size={24} color="#1E293B" />
-              <View style={styles.notifBadge}>
-                <Text style={styles.notifBadgeText}>12</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.profileDropdown}>
-              <Image source={require('../../assets/cleaner_avatar.png')} style={styles.avatarMini} />
-              <View style={{ marginLeft: 6, marginRight: 4 }}>
-                <Text style={styles.profileDropdownRole}>Supervisor</Text>
-                <Text style={styles.profileDropdownCode}>SUP001</Text>
-              </View>
-              <Icon name="chevron-down" size={14} color="#64748B" />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.notifBtn} onPress={() => navigation.navigate('Notifications')}>
+            <Icon name="bell-outline" size={24} color="#1E293B" />
+            {unreadCount > 0 && (
+              <View style={styles.badge}><Text style={styles.badgeTxt}>{unreadCount > 99 ? '99+' : unreadCount}</Text></View>
+            )}
+          </TouchableOpacity>
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Main Title Section */}
-        <View style={styles.titleRow}>
-          <View>
-            <Text style={styles.mainTitle}>Today's Cleaning</Text>
-            <Text style={styles.subTitle}>Track and manage today's cleaning tasks</Text>
+      <FlatList
+        data={filtered}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={dailyLoading} onRefresh={load} tintColor={colors.primaryBlue} />
+        }
+        renderItem={renderItem}
+        ListEmptyComponent={
+          <View style={styles.emptyWrap}>
+            {dailyLoading ? (
+              <ActivityIndicator size="large" color="#2563EB" />
+            ) : (
+              <>
+                <Icon name="car-off" size={52} color="#CBD5E1" />
+                <Text style={styles.emptyTitle}>No tasks found</Text>
+                <Text style={styles.emptySubtitle}>
+                  {statusFilter !== 'all' ? `No "${STATUS_FILTERS.find(f => f.key === statusFilter)?.label}" tasks today` : 'No cleaning tasks scheduled for today'}
+                </Text>
+              </>
+            )}
           </View>
-          <TouchableOpacity style={styles.datePickerBtn}>
-            <Icon name="calendar-month-outline" size={16} color="#2563EB" />
-            <Text style={styles.datePickerTxt}>20 May 2025</Text>
-            <Icon name="chevron-down" size={14} color="#64748B" />
-          </TouchableOpacity>
-        </View>
+        }
+        ListHeaderComponent={
+          <>
+            {/* Page Title + Date */}
+            <View style={styles.titleRow}>
+              <View>
+                <Text style={styles.mainTitle}>Today's Cleaning</Text>
+                <Text style={styles.subTitle}>
+                  {dailyLoading ? 'Loading...' : `${filtered.length} of ${dailyTasks.length} tasks`}
+                </Text>
+              </View>
+              <View style={styles.dateBtn}>
+                <Icon name="calendar-month-outline" size={15} color="#2563EB" />
+                <Text style={styles.dateTxt}>{todayStr}</Text>
+              </View>
+            </View>
 
-        {/* Analytics Grid */}
-        <View style={styles.analyticsGrid}>
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#EFF6FF' }]}>
-              <Icon name="car-outline" size={16} color="#2563EB" />
-            </View>
-            <Text style={styles.cardVal}>124</Text>
-            <Text style={[styles.cardLabel, { color: '#1E293B' }]}>Total Cars</Text>
-            <View style={[styles.pctCapsule, { backgroundColor: '#EFF6FF' }]}>
-              <Text style={[styles.pctCapsuleTxt, { color: '#2563EB' }]}>100%</Text>
-            </View>
-          </Card>
-
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#ECFDF5' }]}>
-              <Icon name="check-bold" size={16} color="#16A34A" />
-            </View>
-            <Text style={styles.cardVal}>68</Text>
-            <Text style={[styles.cardLabel, { color: '#16A34A' }]}>Completed</Text>
-            <View style={[styles.pctCapsule, { backgroundColor: '#E8F5E9' }]}>
-              <Text style={[styles.pctCapsuleTxt, { color: '#16A34A' }]}>54.8%</Text>
-            </View>
-          </Card>
-
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#FFF7ED' }]}>
-              <Icon name="clock-outline" size={16} color="#F97316" />
-            </View>
-            <Text style={styles.cardVal}>42</Text>
-            <Text style={[styles.cardLabel, { color: '#F97316' }]}>Pending</Text>
-            <View style={[styles.pctCapsule, { backgroundColor: '#FFF3E0' }]}>
-              <Text style={[styles.pctCapsuleTxt, { color: '#F97316' }]}>33.9%</Text>
-            </View>
-          </Card>
-
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#FEF2F2' }]}>
-              <Icon name="close-thick" size={16} color="#EF4444" />
-            </View>
-            <Text style={styles.cardVal}>14</Text>
-            <Text style={[styles.cardLabel, { color: '#EF4444' }]}>Missed</Text>
-            <View style={[styles.pctCapsule, { backgroundColor: '#FFEBEE' }]}>
-              <Text style={[styles.pctCapsuleTxt, { color: '#EF4444' }]}>11.3%</Text>
-            </View>
-          </Card>
-        </View>
-
-        {/* Search Row */}
-        <View style={styles.searchRow}>
-          <View style={styles.searchBox}>
-            <Icon name="magnify" size={20} color="#94A3B8" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search customer, vehicle or cleaner..."
-              placeholderTextColor="#94A3B8"
-              value={search}
-              onChangeText={setSearch}
-            />
-          </View>
-          <TouchableOpacity style={styles.filterBtn}>
-            <Icon name="filter-outline" size={18} color="#64748B" />
-            <Text style={styles.filterBtnTxt}>Filter</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Column Labels Header */}
-        <View style={styles.columnLabelsRow}>
-          <Text style={[styles.colLabelText, { width: '30%' }]}>Customer / Vehicle</Text>
-          <Text style={[styles.colLabelText, { width: '32%' }]}>Cleaner / Apartment</Text>
-          <Text style={[styles.colLabelText, { width: '22%' }]}>Scheduled Time</Text>
-          <Text style={[styles.colLabelText, { width: '16%' }]}>Status</Text>
-        </View>
-
-        {/* Task Cards List */}
-        <View style={styles.tasksListContainer}>
-          {cleaningTasks.map((task, idx) => {
-            const isActionable = task.status === 'Completed' || task.status === 'In Progress';
-            
-            return (
-              <Card key={idx} variant="elevated" style={styles.taskRecordCard}>
-                {/* Details layout row */}
-                <View style={styles.taskRecordRow}>
-                  {/* Customer / Vehicle */}
-                  <View style={[styles.taskColCell, { width: '30%', gap: 4 }]}>
-                    <View style={styles.avatarTextRow}>
-                      <Image source={require('../../assets/cleaner_avatar.png')} style={styles.avatarRound} />
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.cellTextBold} numberOfLines={1}>{task.customerName}</Text>
-                        <Text style={styles.cellTextSub}>{task.customerPhone}</Text>
-                      </View>
-                    </View>
-                    <View style={styles.vehicleRow}>
-                      <Icon name="car" size={12} color="#64748B" />
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.vehicleNoTxt} numberOfLines={1}>{task.vehicleNo}</Text>
-                        <Text style={styles.vehicleModelTxt} numberOfLines={1}>{task.vehicleModel}</Text>
-                      </View>
-                    </View>
+            {/* Stats Grid */}
+            <View style={styles.statsGrid}>
+              {[
+                { icon: 'car-outline', iconBg: '#EFF6FF', iconColor: '#2563EB', val: totalCars, label: 'Total Cars', pct: '100%', pctColor: '#2563EB', pctBg: '#EFF6FF', onPress: () => setStatusFilter('all') },
+                { icon: 'check-bold', iconBg: '#ECFDF5', iconColor: '#16A34A', val: completedCount, label: 'Completed', pct: `${completedPct}%`, pctColor: '#16A34A', pctBg: '#E8F5E9', onPress: () => setStatusFilter('completed') },
+                { icon: 'clock-outline', iconBg: '#FFF7ED', iconColor: '#F97316', val: pendingCount + inProgressCount, label: 'Pending', pct: `${pendingPct}%`, pctColor: '#F97316', pctBg: '#FFF3E0', onPress: () => setStatusFilter('assigned') },
+                { icon: 'close-thick', iconBg: '#FEF2F2', iconColor: '#EF4444', val: missedCount, label: 'Missed', pct: `${missedPct}%`, pctColor: '#EF4444', pctBg: '#FFEBEE', onPress: () => setStatusFilter('missed') },
+              ].map((card, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  activeOpacity={0.82}
+                  style={[styles.statCard, statusFilter === ['all', 'completed', 'assigned', 'missed'][idx] && styles.statCardActive]}
+                  onPress={card.onPress}
+                >
+                  <View style={[styles.statIconBg, { backgroundColor: card.iconBg }]}>
+                    <Icon name={card.icon} size={15} color={card.iconColor} />
                   </View>
-
-                  {/* Cleaner / Apartment */}
-                  <View style={[styles.taskColCell, { width: '32%', gap: 4 }]}>
-                    <View style={styles.avatarTextRow}>
-                      <Image source={require('../../assets/cleaner_avatar.png')} style={styles.avatarRound} />
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.cellTextBold} numberOfLines={1}>{task.cleanerName}</Text>
-                        <Text style={styles.cellTextSub} numberOfLines={1}>{task.apartmentName}</Text>
-                        <Text style={styles.flatNoTxt} numberOfLines={1}>{task.flatNo}</Text>
-                      </View>
-                    </View>
+                  <Text style={styles.statVal}>{dailyLoading ? '—' : card.val}</Text>
+                  <Text style={[styles.statLabel, { color: card.iconColor }]}>{card.label}</Text>
+                  <View style={[styles.pctPill, { backgroundColor: card.pctBg }]}>
+                    <Text style={[styles.pctTxt, { color: card.pctColor }]}>{dailyLoading ? '—' : card.pct}</Text>
                   </View>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-                  {/* Scheduled Time */}
-                  <View style={[styles.taskColCell, { width: '22%', flexDirection: 'row', alignItems: 'flex-start', gap: 4 }]}>
-                    <Icon name="clock-outline" size={12} color="#64748B" style={{ marginTop: 2 }} />
-                    <Text style={styles.timeSlotTxt}>{task.timeSlot.replace(' - ', '\n')}</Text>
-                  </View>
-
-                  {/* Status */}
-                  <View style={[styles.taskColCell, { width: '16%' }]}>
-                    <View style={[styles.statusCapsule, { backgroundColor: getStatusBgColor(task.status) }]}>
-                      <Icon 
-                        name={task.status === 'Completed' ? 'check-circle' : (task.status === 'In Progress' ? 'progress-clock' : (task.status === 'Pending' ? 'clock-outline' : 'close-circle'))} 
-                        size={10} 
-                        color={getStatusColor(task.status)} 
-                      />
-                      <Text style={[styles.statusCapsuleTxt, { color: getStatusColor(task.status) }]}>{task.status}</Text>
-                    </View>
-                  </View>
-                </View>
-
-                {/* Bottom action buttons tray */}
-                <View style={styles.cardActionsTray}>
-                  <TouchableOpacity style={styles.actionBtnItem}>
-                    <Icon name="image-outline" size={15} color="#2563EB" />
-                    <Text style={styles.actionBtnTxt}>View Images</Text>
+            {/* Search */}
+            <View style={styles.searchRow}>
+              <View style={styles.searchBox}>
+                <Icon name="magnify" size={20} color="#94A3B8" />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search customer, vehicle or cleaner..."
+                  placeholderTextColor="#94A3B8"
+                  value={search}
+                  onChangeText={setSearch}
+                />
+                {search.length > 0 && (
+                  <TouchableOpacity onPress={() => setSearch('')}>
+                    <Icon name="close-circle" size={18} color="#94A3B8" />
                   </TouchableOpacity>
+                )}
+              </View>
+            </View>
 
-                  <TouchableOpacity 
-                    style={[styles.actionBtnItem, !isActionable && styles.disabledActionItem]} 
-                    disabled={!isActionable}
-                  >
-                    <Icon name="check-circle-outline" size={15} color={isActionable ? '#16A34A' : '#94A3B8'} />
-                    <Text style={[styles.actionBtnTxt, { color: isActionable ? '#16A34A' : '#94A3B8' }]}>Approve</Text>
-                  </TouchableOpacity>
+            {/* Status filter chips */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll} contentContainerStyle={{ paddingRight: 16 }}>
+              {STATUS_FILTERS.map(f => (
+                <TouchableOpacity
+                  key={f.key}
+                  style={[styles.chip, statusFilter === f.key && { backgroundColor: f.color, borderColor: f.color }]}
+                  onPress={() => setStatusFilter(f.key)}
+                >
+                  <Text style={[styles.chipTxt, statusFilter === f.key && { color: '#FFFFFF' }]}>{f.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </>
+        }
+      />
 
-                  <TouchableOpacity 
-                    style={[styles.actionBtnItem, !isActionable && styles.disabledActionItem]} 
-                    disabled={!isActionable}
-                  >
-                    <Icon name="close-circle-outline" size={15} color={isActionable ? '#EF4444' : '#94A3B8'} />
-                    <Text style={[styles.actionBtnTxt, { color: isActionable ? '#EF4444' : '#94A3B8' }]}>Reject</Text>
-                  </TouchableOpacity>
+      {/* Image Viewer Modal */}
+      <ImageViewerModal
+        visible={imgModal.visible}
+        images={imgModal.images}
+        title={imgModal.title}
+        onClose={() => setImgModal({ visible: false, images: [], title: '' })}
+      />
 
-                  <TouchableOpacity style={styles.actionBtnItem}>
-                    <Icon name="calendar-month-outline" size={15} color="#2563EB" />
-                    <Text style={styles.actionBtnTxt}>Reschedule</Text>
-                  </TouchableOpacity>
-                </View>
-              </Card>
-            );
-          })}
-        </View>
-      </ScrollView>
+      {/* Reschedule Modal */}
+      <RescheduleModal
+        visible={rsModal.visible}
+        taskId={rsModal.taskId}
+        onClose={() => setRsModal({ visible: false, taskId: '' })}
+        onConfirm={handleRescheduleConfirm}
+        loading={actionLoading === rsModal.taskId}
+      />
     </View>
   );
 };
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
-  headerContainer: {
+
+  header: {
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderColor: '#E2E8F0',
     paddingBottom: 12,
     paddingHorizontal: 16,
   },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerMenuBtn: {
-    padding: 6,
-    borderRadius: 8,
-    backgroundColor: '#F1F5F9',
-  },
-  brandContainer: {
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  menuBtn: { padding: 6, borderRadius: 8, backgroundColor: '#F1F5F9' },
+  brandWrap: { flex: 1, alignItems: 'center' },
+  logo: { width: 150, height: 36 },
+  brandSub: { fontSize: 8, color: '#64748B', marginTop: -2 },
+  notifBtn: { position: 'relative', padding: 6, backgroundColor: '#F1F5F9', borderRadius: 8 },
+  badge: { position: 'absolute', top: -2, right: -2, backgroundColor: '#EF4444', borderRadius: 8, minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 2 },
+  badgeTxt: { fontSize: 9, fontWeight: '700', color: '#FFF' },
+
+  listContent: { paddingHorizontal: 16, paddingBottom: 32 },
+
+  titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16 },
+  mainTitle: { fontSize: 20, fontWeight: '800', color: '#0F172A' },
+  subTitle: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  dateBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#EFF6FF', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
+  dateTxt: { fontSize: 12, fontWeight: '600', color: '#2563EB' },
+
+  // Stats
+  statsGrid: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+  statCard: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  brandLogo: {
-    width: 150,
-    height: 36,
-  },
-  brandSub: {
-    fontSize: 8,
-    fontWeight: '500',
-    color: '#64748B',
-    marginTop: -2,
-  },
-  headerRightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  notifBtn: {
-    position: 'relative',
-    padding: 6,
-    marginRight: 10,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-  },
-  notifBadge: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    backgroundColor: '#EF4444',
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 2,
-  },
-  notifBadgeText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  profileDropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  avatarMini: {
-    width: 24,
-    height: 24,
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-  },
-  profileDropdownRole: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  profileDropdownCode: {
-    fontSize: 8,
-    color: '#64748B',
-    marginTop: -1,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  mainTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-  },
-  subTitle: {
-    fontSize: 11,
-    color: '#64748B',
-    marginTop: 2,
-    fontFamily: 'Inter-Regular',
-  },
-  datePickerBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  datePickerTxt: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#1E293B',
-    marginHorizontal: 6,
-    fontFamily: 'Inter-Medium',
-  },
-  analyticsGrid: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
-  },
-  analyticsCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
     padding: 10,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#F1F5F9',
   },
-  cardIconBg: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-  },
-  cardVal: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-  },
-  cardLabel: {
-    fontSize: 10,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  pctCapsule: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 10,
-    marginTop: 8,
-  },
-  pctCapsuleTxt: {
-    fontSize: 8,
-    fontWeight: '700',
-  },
-  searchRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
-  },
+  statCardActive: { borderColor: '#2563EB', borderWidth: 2 },
+  statIconBg: { width: 30, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  statVal: { fontSize: 18, fontWeight: '800', color: '#0F172A' },
+  statLabel: { fontSize: 9, fontWeight: '600', marginTop: 1, textAlign: 'center' },
+  pctPill: { borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2, marginTop: 4 },
+  pctTxt: { fontSize: 9, fontWeight: '700' },
+
+  // Search
+  searchRow: { flexDirection: 'row', marginBottom: 8, gap: 8 },
   searchBox: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    height: 44,
+    flex: 1, flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0',
+    borderRadius: 10, paddingHorizontal: 12, height: 42,
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 12,
-    color: '#1E293B',
-    marginLeft: 8,
-    padding: 0,
+  searchInput: { flex: 1, fontSize: 13, color: '#1E293B', marginLeft: 8, padding: 0 },
+
+  // Filter chips
+  chipScroll: { marginBottom: 12 },
+  chip: {
+    paddingHorizontal: 14, paddingVertical: 6,
+    borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC', marginLeft: 8,
   },
-  filterBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    height: 44,
-    gap: 6,
+  chipTxt: { fontSize: 11, fontWeight: '600', color: '#475569' },
+
+  // Task card
+  taskCard: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: '#F1F5F9' },
+  taskCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  taskIdTxt: { fontSize: 11, fontWeight: '700', color: '#64748B' },
+  statusPill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 },
+  statusPillTxt: { fontSize: 10, fontWeight: '700' },
+
+  dataRow: { flexDirection: 'row', gap: 8, borderBottomWidth: 1, borderColor: '#F1F5F9', paddingBottom: 10, marginBottom: 8 },
+  dataCol: { flex: 1 },
+  dataColLabel: { fontSize: 9, fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', marginBottom: 2 },
+  dataPrimary: { fontSize: 13, fontWeight: '700', color: '#0F172A' },
+  dataPhone: { fontSize: 11, color: '#2563EB', marginTop: 1 },
+  dataSecondary: { fontSize: 10, color: '#94A3B8', marginTop: 1 },
+  vehicleRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
+  vehicleNo: { fontSize: 11, fontWeight: '700', color: '#1E293B' },
+  vehicleModel: { fontSize: 10, color: '#64748B', marginTop: 1 },
+  timeRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  timeTxt: { fontSize: 11, fontWeight: '600', color: '#1E293B' },
+
+  packageBadge: { backgroundColor: '#F1F5F9', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, marginBottom: 4 },
+  packageTxt: { fontSize: 9, fontWeight: '700', color: '#475569' },
+  qrBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#ECFDF5', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, marginBottom: 4 },
+  qrTxt: { fontSize: 9, fontWeight: '700', color: '#10B981' },
+  photoBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#FAF5FF', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, marginBottom: 4 },
+  photoTxt: { fontSize: 9, fontWeight: '700', color: '#8B5CF6' },
+
+  // Actions
+  actionsRow: { flexDirection: 'row', alignItems: 'center' },
+  actionBtn: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3, paddingVertical: 4 },
+  actionDisabled: { opacity: 0.4 },
+  actionTxt: { fontSize: 9, fontWeight: '700' },
+  dividerV: { width: 1, height: 28, backgroundColor: '#E2E8F0' },
+
+  // Empty
+  emptyWrap: { alignItems: 'center', paddingTop: 60, gap: 12 },
+  emptyTitle: { fontSize: 16, fontWeight: '700', color: '#475569', marginTop: 8 },
+  emptySubtitle: { fontSize: 12, color: '#94A3B8', textAlign: 'center', paddingHorizontal: 32 },
+});
+
+// Image modal styles
+const imgStyles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' },
+  container: { width: width - 32, maxHeight: '85%', backgroundColor: '#111827', borderRadius: 16, overflow: 'hidden' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14 },
+  title: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+  closeBtn: { padding: 4 },
+  mainImage: { width: '100%', height: 260 },
+  thumbnailRow: { flexDirection: 'row', gap: 6, padding: 10 },
+  thumbnail: { width: 52, height: 52, borderRadius: 6, borderWidth: 1, borderColor: '#374151' },
+  thumbActive: { borderColor: '#2563EB', borderWidth: 2 },
+  counter: { textAlign: 'center', color: '#94A3B8', fontSize: 11, paddingBottom: 10 },
+  noPhotos: { alignItems: 'center', padding: 40, gap: 10 },
+  noPhotosText: { color: '#94A3B8', fontSize: 13 },
+});
+
+// Reschedule modal styles
+const rsStyles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20 },
+  handle: { width: 40, height: 4, backgroundColor: '#E2E8F0', borderRadius: 2, alignSelf: 'center', marginBottom: 16 },
+  title: { fontSize: 17, fontWeight: '800', color: '#0F172A', marginBottom: 16 },
+  label: { fontSize: 12, fontWeight: '600', color: '#475569', marginBottom: 6 },
+  input: {
+    backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0',
+    borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10,
+    fontSize: 14, color: '#1E293B', marginBottom: 12,
   },
-  filterBtnTxt: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
-  },
-  columnLabelsRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    marginBottom: 10,
-  },
-  colLabelText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#64748B',
-  },
-  tasksListContainer: {
-    gap: 12,
-  },
-  taskRecordCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  taskRecordRow: {
-    flexDirection: 'row',
-  },
-  taskColCell: {
-    justifyContent: 'flex-start',
-  },
-  avatarTextRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  avatarRound: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
-  cellTextBold: {
-    fontSize: 11,
-    fontWeight: '750',
-    color: '#1E293B',
-  },
-  cellTextSub: {
-    fontSize: 9,
-    color: '#64748B',
-    marginTop: 1,
-  },
-  vehicleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: 6,
-  },
-  vehicleNoTxt: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  vehicleModelTxt: {
-    fontSize: 8,
-    color: '#64748B',
-  },
-  flatNoTxt: {
-    fontSize: 9,
-    fontWeight: '600',
-    color: '#2563EB',
-    marginTop: 2,
-  },
-  timeSlotTxt: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#1E293B',
-    lineHeight: 14,
-  },
-  statusCapsule: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-    gap: 4,
-  },
-  statusCapsuleTxt: {
-    fontSize: 9,
-    fontWeight: '700',
-  },
-  cardActionsTray: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderColor: '#F1F5F9',
-    marginTop: 14,
-    paddingTop: 10,
-    gap: 8,
-  },
-  actionBtnItem: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 6,
-    paddingVertical: 8,
-    gap: 4,
-  },
-  disabledActionItem: {
-    backgroundColor: '#F1F5F9',
-    borderColor: '#E2E8F0',
-  },
-  actionBtnTxt: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#2563EB',
-  },
+  btnRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
+  cancelBtn: { flex: 1, borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10, alignItems: 'center', paddingVertical: 12 },
+  cancelTxt: { fontSize: 14, fontWeight: '600', color: '#64748B' },
+  confirmBtn: { flex: 1, backgroundColor: '#2563EB', borderRadius: 10, alignItems: 'center', paddingVertical: 12 },
+  confirmTxt: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
 });
 
 export default DailyWorkMonitoringScreen;

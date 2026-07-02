@@ -175,6 +175,7 @@ class TaskService {
     return task;
   }
 
+
   /**
    * Report issue on task
    */
@@ -185,8 +186,122 @@ class TaskService {
   }
 
   /**
-   * List tasks with filtering
+   * Supervisor approve a completed task
    */
+  async approveTask(taskId, data = {}) {
+    const task = await Task.findById(taskId);
+    if (!task) throw new AppError('Task not found', 404, 'TASK_NOT_FOUND');
+    // If in_progress or assigned → mark completed
+    if (!['in_progress', 'completed', 'assigned'].includes(task.status)) {
+      throw new AppError('Task cannot be approved in its current state', 400, 'TASK_WRONG_STATUS');
+    }
+    task.status = 'completed';
+    if (!task.actualEndTime) task.actualEndTime = new Date();
+    task.statusHistory.push({
+      status: 'completed',
+      changedAt: new Date(),
+      remark: data.remark || 'Approved by supervisor',
+    });
+    await task.save();
+    return task.populate('customerId', 'firstName lastName phone')
+      .then(t => t.populate('vehicleId', 'vehicleNumber make model'))
+      .then(t => t.populate('cleanerId', 'firstName lastName cleanerId'));
+  }
+
+  /**
+   * Supervisor reject a task
+   */
+  async rejectTask(taskId, reason) {
+    const task = await Task.findById(taskId);
+    if (!task) throw new AppError('Task not found', 404, 'TASK_NOT_FOUND');
+    task.status = 'missed';
+    task.statusHistory.push({
+      status: 'missed',
+      changedAt: new Date(),
+      remark: reason || 'Rejected by supervisor',
+    });
+    task.hasIssue = true;
+    await task.save();
+    return task.populate('customerId', 'firstName lastName phone')
+      .then(t => t.populate('vehicleId', 'vehicleNumber make model'))
+      .then(t => t.populate('cleanerId', 'firstName lastName cleanerId'));
+  }
+
+  /**
+   * Reschedule a task to a new date/time
+   */
+  async rescheduleTask(taskId, { scheduledDate, scheduledTime, timeSlot, reason }) {
+    const task = await Task.findById(taskId);
+    if (!task) throw new AppError('Task not found', 404, 'TASK_NOT_FOUND');
+    if (scheduledDate) task.scheduledDate = new Date(scheduledDate);
+    if (scheduledTime) task.scheduledTime = scheduledTime;
+    if (timeSlot) task.timeSlot = timeSlot;
+    task.status = 'assigned';
+    task.statusHistory.push({
+      status: 'assigned',
+      changedAt: new Date(),
+      remark: reason || 'Rescheduled by supervisor',
+    });
+    await task.save();
+    return task.populate('customerId', 'firstName lastName phone')
+      .then(t => t.populate('vehicleId', 'vehicleNumber make model'))
+      .then(t => t.populate('cleanerId', 'firstName lastName cleanerId'));
+  }
+
+  /**
+   * Get today's tasks for supervisor (all cleaners)
+   */
+  async getTodayTasksForSupervisor({ date, status, search, page = 1, limit = 50 } = {}) {
+    const targetDate = date ? new Date(date) : new Date();
+    const start = new Date(targetDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+
+    const query = { scheduledDate: { $gte: start, $lt: end } };
+    if (status && status !== 'all') query.status = status;
+
+    const skip = (page - 1) * limit;
+    const [tasks, total] = await Promise.all([
+      Task.find(query)
+        .populate('customerId', 'firstName lastName phone')
+        .populate('vehicleId', 'vehicleNumber make model color vehicleType')
+        .populate('cleanerId', 'firstName lastName cleanerId phone')
+        .sort({ scheduledTime: 1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Task.countDocuments(query),
+    ]);
+
+    const [totalCount, completedCount, pendingCount, inProgressCount, missedCount] = await Promise.all([
+      Task.countDocuments({ scheduledDate: { $gte: start, $lt: end } }),
+      Task.countDocuments({ scheduledDate: { $gte: start, $lt: end }, status: 'completed' }),
+      Task.countDocuments({ scheduledDate: { $gte: start, $lt: end }, status: 'assigned' }),
+      Task.countDocuments({ scheduledDate: { $gte: start, $lt: end }, status: 'in_progress' }),
+      Task.countDocuments({ scheduledDate: { $gte: start, $lt: end }, status: 'missed' }),
+    ]);
+
+    // Filter by search if provided
+    let filtered = tasks;
+    if (search) {
+      const q = search.toLowerCase();
+      filtered = tasks.filter(t => {
+        const custName = `${t.customerId?.firstName || ''} ${t.customerId?.lastName || ''}`.toLowerCase();
+        const vehNo = (t.vehicleId?.vehicleNumber || '').toLowerCase();
+        const cleanerName = `${t.cleanerId?.firstName || ''} ${t.cleanerId?.lastName || ''}`.toLowerCase();
+        return custName.includes(q) || vehNo.includes(q) || cleanerName.includes(q);
+      });
+    }
+
+    return {
+      data: filtered,
+      stats: { total: totalCount, completed: completedCount, pending: pendingCount, inProgress: inProgressCount, missed: missedCount },
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
+
   async list({ page = 1, limit = 20, status, cleanerId, customerId, vehicleId,
     supervisorId, scheduledDate, fromDate, toDate, search } = {}) {
     const query = {};

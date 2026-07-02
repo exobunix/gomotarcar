@@ -92,6 +92,35 @@ const taskController = {
     } catch (error) { next(error); }
   },
 
+  approveTask: async (req, res, next) => {
+    try {
+      const task = await taskService.approveTask(req.params.id, req.body);
+      res.status(200).json({ success: true, data: task });
+    } catch (error) { next(error); }
+  },
+
+  rejectTask: async (req, res, next) => {
+    try {
+      const { reason } = req.body;
+      const task = await taskService.rejectTask(req.params.id, reason);
+      res.status(200).json({ success: true, data: task });
+    } catch (error) { next(error); }
+  },
+
+  rescheduleTask: async (req, res, next) => {
+    try {
+      const task = await taskService.rescheduleTask(req.params.id, req.body);
+      res.status(200).json({ success: true, data: task });
+    } catch (error) { next(error); }
+  },
+
+  getTodayForSupervisor: async (req, res, next) => {
+    try {
+      const result = await taskService.getTodayTasksForSupervisor(req.query);
+      res.status(200).json({ success: true, ...result });
+    } catch (error) { next(error); }
+  },
+
   recordEarnings: async (req, res, next) => {
     try {
       const earningsService = require('../services/earnings.service');

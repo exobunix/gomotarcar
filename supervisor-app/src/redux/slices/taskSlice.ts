@@ -5,24 +5,30 @@ import { TaskItem } from '../../types/navigation';
 interface TaskState {
   tasks: TaskItem[];
   dailyTasks: TaskItem[];
+  approvalTasks: TaskItem[];
   selectedTask: TaskItem | null;
   loading: boolean;
   dailyLoading: boolean;
+  approvalLoading: boolean;
   actionLoading: string | null; // taskId being acted on
   stats: any;
   dailyStats: any; // today's stats: { total, completed, pending, inProgress, missed }
+  approvalStats: any; // { pendingApproval, approvedToday, rejectedToday }
   error: string | null;
 }
 
 const initialState: TaskState = {
   tasks: [],
   dailyTasks: [],
+  approvalTasks: [],
   selectedTask: null,
   loading: false,
   dailyLoading: false,
+  approvalLoading: false,
   actionLoading: null,
   stats: null,
   dailyStats: null,
+  approvalStats: null,
   error: null,
 };
 
@@ -50,6 +56,16 @@ export const fetchTodayForSupervisor = createAsyncThunk('tasks/fetchTodaySupervi
 export const fetchTaskStats = createAsyncThunk('tasks/fetchStats', async () => {
   const res = await taskService.getStats();
   return res.data.data;
+});
+
+export const fetchApprovalStats = createAsyncThunk('tasks/fetchApprovalStats', async () => {
+  const res = await taskService.getApprovalStats();
+  return res.data.data;
+});
+
+export const fetchApprovalList = createAsyncThunk('tasks/fetchApprovalList', async (params?: any) => {
+  const res = await taskService.getApprovalList(params);
+  return { tasks: res.data.data, pagination: res.data.pagination };
 });
 
 export const approveTask = createAsyncThunk('tasks/approve', async ({ id, data }: { id: string; data?: any }) => {
@@ -108,7 +124,16 @@ const taskSlice = createSlice({
       .addCase(fetchTaskById.fulfilled, (state, action) => { state.selectedTask = action.payload; })
       .addCase(fetchTaskStats.fulfilled, (state, action) => { state.stats = action.payload; })
 
-      // Approve
+      // Approval stats & list
+      .addCase(fetchApprovalStats.fulfilled, (state, action) => { state.approvalStats = action.payload; })
+      .addCase(fetchApprovalList.pending, (state) => { state.approvalLoading = true; })
+      .addCase(fetchApprovalList.fulfilled, (state, action) => {
+        state.approvalLoading = false;
+        state.approvalTasks = action.payload.tasks || [];
+      })
+      .addCase(fetchApprovalList.rejected, (state) => { state.approvalLoading = false; })
+
+
       .addCase(approveTask.pending, (state, action) => { state.actionLoading = action.meta.arg.id; })
       .addCase(approveTask.fulfilled, (state, action) => {
         state.actionLoading = null;

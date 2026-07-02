@@ -1,1036 +1,882 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, Platform, Dimensions, StatusBar, Animated } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  View, Text, StyleSheet, FlatList, TouchableOpacity, Image, TextInput,
+  Platform, Dimensions, StatusBar, Alert, Modal, ScrollView,
+  RefreshControl, ActivityIndicator, Linking, KeyboardAvoidingView,
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '../../components/common/Card';
+import {
+  fetchApprovalStats,
+  fetchApprovalList,
+  approveTask,
+  rejectTask,
+} from '../../redux/slices/taskSlice';
+import { fetchNotifications, fetchUnreadCount } from '../../redux/slices/notificationSlice';
+import { AppDispatch, RootState } from '../../redux/store';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 interface Props { navigation: any }
 
-const WorkApprovalCenterScreen: React.FC<Props> = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
-  const [activeSegment, setActiveSegment] = useState('Pending');
-  const [showDetailPanel, setShowDetailPanel] = useState(true); // default open side details panel as shown in wireframe
-  const [searchQuery, setSearchQuery] = useState('');
-  const [remarks, setRemarks] = useState('');
-  const [showStatsCard, setShowStatsCard] = useState(true);
+type Tab = 'pending' | 'approved' | 'rejected';
 
-  // High fidelity mock data matching the screenshot exactly
-  const pendingRequests = [
-    {
-      cleanerName: 'Ramesh Kumar',
-      apartment: 'Sunshine Heights',
-      customerName: 'Rahul Sharma',
-      vehicleNo: 'DL 01 AB 1234',
-      vehicleModel: 'Honda City',
-      submittedTime: '20 May 2025, 09:15 AM'
-    },
-    {
-      cleanerName: 'Suresh Yadav',
-      apartment: 'Green View Apartments',
-      customerName: 'Priya Singh',
-      vehicleNo: 'DL 01 CD 5678',
-      vehicleModel: 'Hyundai i20',
-      submittedTime: '20 May 2025, 09:05 AM'
-    },
-    {
-      cleanerName: 'Vikram Singh',
-      apartment: 'Maple Residency',
-      customerName: 'Amit Verma',
-      vehicleNo: 'DL 01 EF 9012',
-      vehicleModel: 'Maruti Swift',
-      submittedTime: '20 May 2025, 08:50 AM'
-    },
-    {
-      cleanerName: 'Arjun Patel',
-      apartment: 'Skyline Towers',
-      customerName: 'Neha Gupta',
-      vehicleNo: 'DL 01 GH 3456',
-      vehicleModel: 'Tata Nexon',
-      submittedTime: '20 May 2025, 08:35 AM'
-    }
-  ];
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const getCustomerName = (task: any) =>
+  task.customerId?.firstName
+    ? `${task.customerId.firstName} ${task.customerId.lastName || ''}`.trim()
+    : 'Customer';
+
+const getCleanerName = (task: any) =>
+  task.cleanerId?.firstName
+    ? `${task.cleanerId.firstName} ${task.cleanerId.lastName || ''}`.trim()
+    : 'Unassigned';
+
+const getVehicleNo = (task: any) => task.vehicleId?.vehicleNumber || '—';
+
+const getVehicleModel = (task: any) =>
+  task.vehicleId?.make
+    ? `${task.vehicleId.make} ${task.vehicleId.model || ''}`.trim()
+    : '—';
+
+const getCustomerPhone = (task: any) => task.customerId?.phone || '';
+
+const formatDate = (d: string | Date | undefined) => {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('en-IN', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+};
+
+const getDuration = (start: string | Date, end: string | Date): string => {
+  if (!start || !end) return '—';
+  const diff = (new Date(end).getTime() - new Date(start).getTime()) / 1000;
+  const h = Math.floor(diff / 3600);
+  const m = Math.floor((diff % 3600) / 60);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+};
+
+const TAB_META: { key: Tab; label: string; color: string; iconBg: string; icon: string }[] = [
+  { key: 'pending', label: 'Pending', color: '#F97316', iconBg: '#FFF7ED', icon: 'clock-outline' },
+  { key: 'approved', label: 'Approved', color: '#16A34A', iconBg: '#ECFDF5', icon: 'check-bold' },
+  { key: 'rejected', label: 'Rejected', color: '#EF4444', iconBg: '#FEF2F2', icon: 'close-thick' },
+];
+
+// ─── Notification Drawer ──────────────────────────────────────────────────────
+const NotificationDrawer: React.FC<{
+  visible: boolean;
+  onClose: () => void;
+  navigation: any;
+}> = ({ visible, onClose, navigation }) => {
+  const { notifications, loading } = useSelector((s: RootState) => s.notifications);
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={ndStyles.overlay} activeOpacity={1} onPress={onClose} />
+      <View style={ndStyles.drawer}>
+        <View style={ndStyles.header}>
+          <Text style={ndStyles.title}>Notifications</Text>
+          <TouchableOpacity onPress={onClose}><Icon name="close" size={22} color="#64748B" /></TouchableOpacity>
+        </View>
+        {loading ? (
+          <ActivityIndicator style={{ marginTop: 32 }} color="#2563EB" />
+        ) : notifications.length === 0 ? (
+          <View style={ndStyles.empty}>
+            <Icon name="bell-off-outline" size={44} color="#CBD5E1" />
+            <Text style={ndStyles.emptyTxt}>No notifications</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={notifications.slice(0, 30)}
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+            renderItem={({ item }) => (
+              <View style={[ndStyles.notifItem, !item.isRead && ndStyles.notifUnread]}>
+                <View style={ndStyles.notifDot} />
+                <View style={{ flex: 1 }}>
+                  <Text style={ndStyles.notifMsg} numberOfLines={2}>{item.message || item.title || 'Notification'}</Text>
+                  <Text style={ndStyles.notifTime}>{formatDate(item.createdAt)}</Text>
+                </View>
+              </View>
+            )}
+          />
+        )}
+        <TouchableOpacity
+          style={ndStyles.viewAllBtn}
+          onPress={() => { onClose(); navigation.navigate('Notifications'); }}
+        >
+          <Text style={ndStyles.viewAllTxt}>View All Notifications</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
+};
+
+// ─── Task Detail Side Panel (Bottom Sheet on mobile) ─────────────────────────
+const TaskDetailPanel: React.FC<{
+  task: any;
+  remarks: string;
+  onRemarksChange: (v: string) => void;
+  onApprove: () => void;
+  onReject: () => void;
+  onEscalate: () => void;
+  onClose: () => void;
+  actionLoading: boolean;
+  tab: Tab;
+}> = ({ task, remarks, onRemarksChange, onApprove, onReject, onEscalate, onClose, actionLoading, tab }) => {
+  if (!task) return null;
+
+  const timeline = (task.statusHistory || []).slice(-5);
+
+  return (
+    <Modal visible={!!task} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={dpStyles.overlay} activeOpacity={1} onPress={onClose} />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <View style={dpStyles.sheet}>
+          <View style={dpStyles.handle} />
+
+          {/* Header */}
+          <View style={dpStyles.header}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Icon name="file-check-outline" size={20} color="#2563EB" />
+              <Text style={dpStyles.title}>Job Details</Text>
+            </View>
+            <TouchableOpacity onPress={onClose} style={dpStyles.closeBtn}>
+              <Icon name="close" size={20} color="#64748B" />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
+            {/* Job Meta */}
+            <View style={dpStyles.section}>
+              <View style={dpStyles.kvRow}>
+                <Text style={dpStyles.kvLabel}>Task ID</Text>
+                <Text style={dpStyles.kvVal}>{task.taskId || `#${task._id?.slice(-6).toUpperCase()}`}</Text>
+              </View>
+              <View style={dpStyles.kvRow}>
+                <Text style={dpStyles.kvLabel}>Scheduled</Text>
+                <Text style={dpStyles.kvVal}>{formatDate(task.scheduledDate)} {task.scheduledTime || ''}</Text>
+              </View>
+              <View style={dpStyles.kvRow}>
+                <Text style={dpStyles.kvLabel}>Completed At</Text>
+                <Text style={dpStyles.kvVal}>{formatDate(task.actualEndTime)}</Text>
+              </View>
+              <View style={dpStyles.kvRow}>
+                <Text style={dpStyles.kvLabel}>Work Duration</Text>
+                <Text style={dpStyles.kvVal}>{getDuration(task.actualStartTime, task.actualEndTime)}</Text>
+              </View>
+              <View style={dpStyles.kvRow}>
+                <Text style={dpStyles.kvLabel}>Package</Text>
+                <Text style={dpStyles.kvVal}>{task.packageType?.toUpperCase() || '—'}</Text>
+              </View>
+              <View style={dpStyles.kvRow}>
+                <Text style={dpStyles.kvLabel}>QR Verified</Text>
+                <Text style={[dpStyles.kvVal, { color: task.qrVerified ? '#16A34A' : '#EF4444' }]}>
+                  {task.qrVerified ? '✓ Yes' : '✗ No'}
+                </Text>
+              </View>
+            </View>
+
+            {/* Customer */}
+            <Text style={dpStyles.sectionTitle}>Customer Details</Text>
+            <View style={dpStyles.section}>
+              <View style={dpStyles.custRow}>
+                <View style={dpStyles.custInitials}>
+                  <Text style={dpStyles.custInitialsTxt}>
+                    {getCustomerName(task).charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+                <View>
+                  <Text style={dpStyles.custName}>{getCustomerName(task)}</Text>
+                  <TouchableOpacity onPress={() => Linking.openURL(`tel:${getCustomerPhone(task)}`)}>
+                    <Text style={dpStyles.custPhone}>{getCustomerPhone(task)}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={dpStyles.kvRow}>
+                <Text style={dpStyles.kvLabel}>Vehicle</Text>
+                <Text style={dpStyles.kvVal}>{getVehicleModel(task)}</Text>
+              </View>
+              <View style={dpStyles.kvRow}>
+                <Text style={dpStyles.kvLabel}>Reg. No.</Text>
+                <Text style={[dpStyles.kvVal, { fontWeight: '700' }]}>{getVehicleNo(task)}</Text>
+              </View>
+            </View>
+
+            {/* Cleaner */}
+            <Text style={dpStyles.sectionTitle}>Cleaner</Text>
+            <View style={dpStyles.section}>
+              <View style={dpStyles.kvRow}>
+                <Text style={dpStyles.kvLabel}>Name</Text>
+                <Text style={dpStyles.kvVal}>{getCleanerName(task)}</Text>
+              </View>
+              {task.cleanerId?.cleanerId && (
+                <View style={dpStyles.kvRow}>
+                  <Text style={dpStyles.kvLabel}>Cleaner ID</Text>
+                  <Text style={dpStyles.kvVal}>{task.cleanerId.cleanerId}</Text>
+                </View>
+              )}
+              {task.cleanerId?.phone && (
+                <View style={dpStyles.kvRow}>
+                  <Text style={dpStyles.kvLabel}>Phone</Text>
+                  <TouchableOpacity onPress={() => Linking.openURL(`tel:${task.cleanerId.phone}`)}>
+                    <Text style={[dpStyles.kvVal, { color: '#2563EB' }]}>{task.cleanerId.phone}</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+
+            {/* Photos */}
+            {(task.beforePhotos?.length > 0 || task.afterPhotos?.length > 0) && (
+              <>
+                <Text style={dpStyles.sectionTitle}>Before / After Photos</Text>
+                <View style={dpStyles.section}>
+                  <View style={{ flexDirection: 'row', gap: 8 }}>
+                    {[...(task.beforePhotos || []).slice(0, 2), ...(task.afterPhotos || []).slice(0, 2)].map((uri: string, i: number) => (
+                      <View key={i} style={dpStyles.photoWrap}>
+                        <Image source={{ uri }} style={dpStyles.photo} />
+                        <View style={dpStyles.photoLabel}>
+                          <Text style={dpStyles.photoLabelTxt}>{i < (task.beforePhotos?.length || 0) ? 'Before' : 'After'}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </>
+            )}
+
+            {/* Timeline */}
+            {timeline.length > 0 && (
+              <>
+                <Text style={dpStyles.sectionTitle}>Status Timeline</Text>
+                <View style={dpStyles.section}>
+                  {timeline.map((entry: any, idx: number) => (
+                    <View key={idx} style={dpStyles.timelineItem}>
+                      <View style={dpStyles.timelineDot} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={dpStyles.timelineStatus}>{entry.status?.replace('_', ' ').toUpperCase()}</Text>
+                        <Text style={dpStyles.timelineMeta}>
+                          {formatDate(entry.changedAt)}{entry.remark ? ` — ${entry.remark}` : ''}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
+
+            {/* Remarks */}
+            {tab === 'pending' && (
+              <>
+                <Text style={dpStyles.sectionTitle}>Remarks</Text>
+                <View style={dpStyles.section}>
+                  <TextInput
+                    style={dpStyles.remarksInput}
+                    placeholder="Enter remarks (optional)..."
+                    placeholderTextColor="#94A3B8"
+                    multiline
+                    numberOfLines={3}
+                    value={remarks}
+                    onChangeText={onRemarksChange}
+                  />
+                </View>
+              </>
+            )}
+
+            {/* Action Buttons */}
+            {tab === 'pending' && (
+              <View style={dpStyles.actionBtns}>
+                <TouchableOpacity
+                  style={[dpStyles.btnApprove, actionLoading && { opacity: 0.7 }]}
+                  onPress={onApprove}
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? (
+                    <ActivityIndicator size="small" color="#FFF" />
+                  ) : (
+                    <Icon name="check-circle" size={16} color="#FFF" />
+                  )}
+                  <Text style={dpStyles.btnApproveTxt}>Approve Work</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[dpStyles.btnReject, actionLoading && { opacity: 0.7 }]}
+                  onPress={onReject}
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? (
+                    <ActivityIndicator size="small" color="#FFF" />
+                  ) : (
+                    <Icon name="close-circle" size={16} color="#FFF" />
+                  )}
+                  <Text style={dpStyles.btnRejectTxt}>Reject Work</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={dpStyles.btnEscalate} onPress={onEscalate}>
+                  <Icon name="arrow-up-bold-circle-outline" size={16} color="#2563EB" />
+                  <Text style={dpStyles.btnEscalateTxt}>Escalate</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+};
+
+// ─── Main Screen ──────────────────────────────────────────────────────────────
+const WorkApprovalCenterScreen: React.FC<Props> = ({ navigation }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const insets = useSafeAreaInsets();
+
+  const { approvalTasks, approvalStats, approvalLoading, actionLoading } = useSelector((s: RootState) => s.tasks);
+  const { notifications, unreadCount } = useSelector((s: RootState) => s.notifications);
+  const { supervisor } = useSelector((s: RootState) => s.auth);
+
+  const [activeTab, setActiveTab] = useState<Tab>('pending');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [remarks, setRemarks] = useState('');
+  const [showNotifDrawer, setShowNotifDrawer] = useState(false);
+
+  const load = useCallback(() => {
+    dispatch(fetchApprovalStats());
+    dispatch(fetchApprovalList({ tab: activeTab }));
+    dispatch(fetchUnreadCount());
+  }, [dispatch, activeTab]);
+
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const unsub = navigation.addListener('focus', load);
+    return unsub;
+  }, [navigation, load]);
+
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    dispatch(fetchApprovalList({ tab }));
+  };
+
+  // Client-side search filter
+  const filtered = approvalTasks.filter(task => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      getCustomerName(task).toLowerCase().includes(q) ||
+      getVehicleNo(task).toLowerCase().includes(q) ||
+      getCleanerName(task).toLowerCase().includes(q) ||
+      (task.taskId || '').toLowerCase().includes(q)
+    );
+  });
+
+  // ── Quick approve/reject from card ──
+  const handleQuickApprove = (task: any) => {
+    Alert.alert(
+      'Approve Work',
+      `Approve cleaning by ${getCleanerName(task)} for ${getVehicleNo(task)}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Approve',
+          onPress: () => {
+            dispatch(approveTask({ id: task._id, data: { remark: 'Approved by supervisor' } }))
+              .unwrap()
+              .then(() => {
+                setSelectedTask(null);
+                dispatch(fetchApprovalStats());
+                dispatch(fetchApprovalList({ tab: activeTab }));
+                Alert.alert('✓ Approved', 'Work has been approved successfully.');
+              })
+              .catch(err => Alert.alert('Error', err?.message || 'Failed to approve.'));
+          },
+        },
+      ],
+    );
+  };
+
+  const handleQuickReject = (task: any) => {
+    Alert.alert(
+      'Reject Work',
+      `Reject cleaning by ${getCleanerName(task)} for ${getVehicleNo(task)}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reject',
+          style: 'destructive',
+          onPress: () => {
+            dispatch(rejectTask({ id: task._id, reason: 'Rejected by supervisor' }))
+              .unwrap()
+              .then(() => {
+                setSelectedTask(null);
+                dispatch(fetchApprovalStats());
+                dispatch(fetchApprovalList({ tab: activeTab }));
+                Alert.alert('✗ Rejected', 'Work has been rejected.');
+              })
+              .catch(err => Alert.alert('Error', err?.message || 'Failed to reject.'));
+          },
+        },
+      ],
+    );
+  };
+
+  // ── Detail panel actions ──
+  const handleDetailApprove = () => {
+    if (!selectedTask) return;
+    dispatch(approveTask({ id: selectedTask._id, data: { remark: remarks || 'Approved by supervisor' } }))
+      .unwrap()
+      .then(() => {
+        setSelectedTask(null);
+        setRemarks('');
+        dispatch(fetchApprovalStats());
+        dispatch(fetchApprovalList({ tab: activeTab }));
+        Alert.alert('✓ Approved', 'Work approved successfully.');
+      })
+      .catch(err => Alert.alert('Error', err?.message || 'Failed to approve.'));
+  };
+
+  const handleDetailReject = () => {
+    if (!selectedTask) return;
+    dispatch(rejectTask({ id: selectedTask._id, reason: remarks || 'Rejected by supervisor' }))
+      .unwrap()
+      .then(() => {
+        setSelectedTask(null);
+        setRemarks('');
+        dispatch(fetchApprovalStats());
+        dispatch(fetchApprovalList({ tab: activeTab }));
+        Alert.alert('✗ Rejected', 'Work rejected.');
+      })
+      .catch(err => Alert.alert('Error', err?.message || 'Failed to reject.'));
+  };
+
+  const handleEscalate = () => {
+    Alert.alert(
+      'Escalate to Manager',
+      'This task will be flagged for manager review.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Escalate',
+          onPress: () => {
+            setSelectedTask(null);
+            Alert.alert('Escalated', 'Task has been escalated to the manager.');
+          },
+        },
+      ],
+    );
+  };
+
+  // ── Render each approval card ──
+  const renderCard = ({ item: task }: { item: any }) => {
+    const isActioning = actionLoading === task._id;
+    const photoCount = (task.beforePhotos?.length || 0) + (task.afterPhotos?.length || 0);
+
+    return (
+      <Card variant="elevated" style={styles.card}>
+        {/* Card header */}
+        <View style={styles.cardHeader}>
+          <View style={styles.cleanerInfo}>
+            <View style={styles.cleanerInitials}>
+              <Text style={styles.cleanerInitialsTxt}>{getCleanerName(task).charAt(0)}</Text>
+            </View>
+            <View>
+              <Text style={styles.cleanerName} numberOfLines={1}>{getCleanerName(task)}</Text>
+              <Text style={styles.cleanerSub} numberOfLines={1}>{task.cleanerId?.cleanerId || 'Cleaner'}</Text>
+            </View>
+          </View>
+          <View style={[styles.statusBadge, { backgroundColor: TAB_META.find(t => t.key === activeTab)?.iconBg }]}>
+            <Text style={[styles.statusBadgeTxt, { color: TAB_META.find(t => t.key === activeTab)?.color }]}>
+              {activeTab.toUpperCase()}
+            </Text>
+          </View>
+        </View>
+
+        {/* Card body: left text + right images */}
+        <View style={styles.cardBody}>
+          <View style={styles.textCol}>
+            <View style={styles.detailRow}>
+              <Icon name="account-outline" size={13} color="#64748B" />
+              <Text style={styles.detailTxt} numberOfLines={1}>{getCustomerName(task)}</Text>
+            </View>
+            <TouchableOpacity style={styles.detailRow} onPress={() => getCustomerPhone(task) && Linking.openURL(`tel:${getCustomerPhone(task)}`)}>
+              <Icon name="phone-outline" size={13} color="#64748B" />
+              <Text style={[styles.detailTxt, { color: '#2563EB' }]} numberOfLines={1}>{getCustomerPhone(task) || '—'}</Text>
+            </TouchableOpacity>
+            <View style={styles.detailRow}>
+              <Icon name="car-outline" size={13} color="#64748B" />
+              <View>
+                <Text style={styles.detailTxtBold} numberOfLines={1}>{getVehicleNo(task)}</Text>
+                <Text style={styles.detailSub} numberOfLines={1}>{getVehicleModel(task)}</Text>
+              </View>
+            </View>
+            <View style={styles.detailRow}>
+              <Icon name="clock-outline" size={13} color="#64748B" />
+              <Text style={styles.detailTxt} numberOfLines={2}>{formatDate(task.actualEndTime || task.updatedAt)}</Text>
+            </View>
+            {photoCount > 0 && (
+              <View style={styles.photoBadge}>
+                <Icon name="camera-outline" size={11} color="#8B5CF6" />
+                <Text style={styles.photoBadgeTxt}>{photoCount} photos</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Before/After thumbnails */}
+          <View style={styles.imagesCol}>
+            <View style={styles.imgCompare}>
+              <View style={styles.imgHalf}>
+                {task.beforePhotos?.[0] ? (
+                  <Image source={{ uri: task.beforePhotos[0] }} style={styles.compareImg} />
+                ) : (
+                  <View style={[styles.compareImg, styles.noPhoto]}>
+                    <Icon name="image-off-outline" size={14} color="#CBD5E1" />
+                  </View>
+                )}
+                <View style={styles.imgLabel}><Text style={styles.imgLabelTxt}>Before</Text></View>
+              </View>
+              <View style={styles.imgHalf}>
+                {task.afterPhotos?.[0] ? (
+                  <Image source={{ uri: task.afterPhotos[0] }} style={styles.compareImg} />
+                ) : (
+                  <View style={[styles.compareImg, styles.noPhoto]}>
+                    <Icon name="image-off-outline" size={14} color="#CBD5E1" />
+                  </View>
+                )}
+                <View style={styles.imgLabel}><Text style={styles.imgLabelTxt}>After</Text></View>
+              </View>
+            </View>
+            <Text style={styles.submitTime} numberOfLines={1}>
+              Submitted: {formatDate(task.actualEndTime || task.updatedAt)}
+            </Text>
+          </View>
+        </View>
+
+        {/* Card actions */}
+        <View style={styles.cardActions}>
+          {activeTab === 'pending' && (
+            <>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.approveBtn, isActioning && { opacity: 0.6 }]}
+                onPress={() => handleQuickApprove(task)}
+                disabled={isActioning}
+              >
+                {isActioning ? (
+                  <ActivityIndicator size="small" color="#16A34A" />
+                ) : (
+                  <Icon name="check-circle-outline" size={14} color="#16A34A" />
+                )}
+                <Text style={[styles.actionBtnTxt, { color: '#16A34A' }]}>Approve</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.rejectBtn, isActioning && { opacity: 0.6 }]}
+                onPress={() => handleQuickReject(task)}
+                disabled={isActioning}
+              >
+                {isActioning ? (
+                  <ActivityIndicator size="small" color="#EF4444" />
+                ) : (
+                  <Icon name="close-circle-outline" size={14} color="#EF4444" />
+                )}
+                <Text style={[styles.actionBtnTxt, { color: '#EF4444' }]}>Reject</Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.viewBtn]}
+            onPress={() => { setSelectedTask(task); setRemarks(''); }}
+          >
+            <Icon name="arrow-right-circle-outline" size={14} color="#2563EB" />
+            <Text style={[styles.actionBtnTxt, { color: '#2563EB' }]}>View Details</Text>
+          </TouchableOpacity>
+        </View>
+      </Card>
+    );
+  };
+
+  const pendingCount = approvalStats?.pendingApproval ?? approvalTasks.filter(t => t.status === 'in_progress').length;
+  const approvedCount = approvalStats?.approvedToday ?? 0;
+  const rejectedCount = approvalStats?.rejectedToday ?? 0;
+
+  const supervisorName = supervisor ? `${supervisor.firstName || ''} ${supervisor.lastName || ''}`.trim() : 'Supervisor';
+  const supervisorCode = supervisor?.supervisorId || supervisor?.phone?.slice(-4) || 'SUP';
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#2563EB" />
+      <StatusBar barStyle="light-content" backgroundColor="#1D4ED8" />
 
-      {/* Header Bar */}
-      <View style={[styles.headerContainer, { paddingTop: insets.top > 0 ? insets.top + 8 : (Platform.OS === 'ios' ? 48 : 16) }]}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : (Platform.OS === 'ios' ? 52 : 16) }]}>
         <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
-            <Icon name="arrow-left" size={24} color="#FFFFFF" />
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Icon name="arrow-left" size={22} color="#FFF" />
           </TouchableOpacity>
-          <View style={styles.headerTitleContainer}>
+          <View style={styles.headerMid}>
             <Text style={styles.headerTitle}>Work Approval Center</Text>
-            <Text style={styles.headerSubtitle}>Review and approve cleaner work</Text>
+            <Text style={styles.headerSub}>Review and approve cleaner work</Text>
           </View>
-          
-          <View style={styles.headerRightActions}>
-            <TouchableOpacity style={styles.notifBtn}>
-              <Icon name="bell-outline" size={24} color="#FFFFFF" />
-              <View style={styles.notifBadge}>
-                <Text style={styles.notifBadgeText}>12</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.profileDropdown}>
-              <Image source={require('../../assets/cleaner_avatar.png')} style={styles.avatarMini} />
-              <View style={{ marginLeft: 6, marginRight: 4 }}>
-                <Text style={styles.profileDropdownRole}>Supervisor</Text>
-                <Text style={styles.profileDropdownCode}>SUP001</Text>
-              </View>
-              <Icon name="chevron-down" size={14} color="#E0F2FE" />
+          <View style={styles.headerRight}>
+            {/* Notification bell */}
+            <TouchableOpacity
+              style={styles.notifBtn}
+              onPress={() => {
+                dispatch(fetchNotifications());
+                setShowNotifDrawer(true);
+              }}
+            >
+              <Icon name="bell-outline" size={22} color="#FFF" />
+              {unreadCount > 0 && (
+                <View style={styles.notifBadge}>
+                  <Text style={styles.notifBadgeTxt}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
         </View>
       </View>
 
-      {/* Main split content */}
-      <View style={styles.mainSplitBody}>
-        {/* Left List Pane */}
-        <ScrollView style={styles.leftListPane} contentContainerStyle={styles.leftScrollContent} showsVerticalScrollIndicator={false}>
-          {/* Top Metrics Cards Grid */}
-          {showStatsCard && (
+      <FlatList
+        data={filtered}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={approvalLoading} onRefresh={load} tintColor="#FFFFFF" />
+        }
+        renderItem={renderCard}
+        ListEmptyComponent={
+          <View style={styles.emptyWrap}>
+            {approvalLoading ? (
+              <ActivityIndicator size="large" color="#2563EB" />
+            ) : (
+              <>
+                <Icon name="clipboard-check-outline" size={52} color="#CBD5E1" />
+                <Text style={styles.emptyTitle}>
+                  {activeTab === 'pending' ? 'No pending approvals' :
+                   activeTab === 'approved' ? 'No approved tasks today' : 'No rejected tasks today'}
+                </Text>
+                <Text style={styles.emptySub}>Pull down to refresh</Text>
+              </>
+            )}
+          </View>
+        }
+        ListHeaderComponent={
+          <>
+            {/* Metrics Grid */}
             <Card variant="elevated" style={styles.metricsCard}>
-              <TouchableOpacity style={styles.closeStatsBtn} onPress={() => setShowStatsCard(false)}>
-                <Icon name="close" size={16} color="#94A3B8" />
-              </TouchableOpacity>
               <View style={styles.metricsRow}>
-                <View style={styles.metricItem}>
-                  <View style={[styles.metricIconBg, { backgroundColor: '#FFF7ED' }]}>
-                    <Icon name="clock-outline" size={16} color="#F97316" />
+                {[
+                  { icon: 'clock-outline', iconBg: '#FFF7ED', iconColor: '#F97316', val: pendingCount, label: 'Pending Approval', tab: 'pending' as Tab },
+                  { icon: 'check-bold', iconBg: '#ECFDF5', iconColor: '#16A34A', val: approvedCount, label: 'Approved Today', tab: 'approved' as Tab },
+                  { icon: 'close-thick', iconBg: '#FEF2F2', iconColor: '#EF4444', val: rejectedCount, label: 'Rejected', tab: 'rejected' as Tab },
+                ].map((m, idx) => (
+                  <View key={idx} style={styles.metricItem}>
+                    <View style={[styles.metricIconBg, { backgroundColor: m.iconBg }]}>
+                      <Icon name={m.icon} size={15} color={m.iconColor} />
+                    </View>
+                    <Text style={styles.metricVal}>{approvalLoading ? '—' : m.val}</Text>
+                    <Text style={styles.metricLabel}>{m.label}</Text>
+                    <TouchableOpacity onPress={() => handleTabChange(m.tab)}>
+                      <Text style={[styles.viewAllTxt, { color: m.iconColor }]}>View All</Text>
+                    </TouchableOpacity>
                   </View>
-                  <Text style={styles.metricVal}>28</Text>
-                  <Text style={styles.metricLabel}>Pending Approval</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.viewAllTxt}>View All</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.metricItem}>
-                  <View style={[styles.metricIconBg, { backgroundColor: '#ECFDF5' }]}>
-                    <Icon name="check-bold" size={16} color="#16A34A" />
-                  </View>
-                  <Text style={styles.metricVal}>56</Text>
-                  <Text style={styles.metricLabel}>Approved Today</Text>
-                  <TouchableOpacity>
-                    <Text style={[styles.viewAllTxt, { color: '#16A34A' }]}>View All</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.metricItem}>
-                  <View style={[styles.metricIconBg, { backgroundColor: '#FEF2F2' }]}>
-                    <Icon name="close-thick" size={16} color="#EF4444" />
-                  </View>
-                  <Text style={styles.metricVal}>6</Text>
-                  <Text style={styles.metricLabel}>Rejected</Text>
-                  <TouchableOpacity>
-                    <Text style={[styles.viewAllTxt, { color: '#EF4444' }]}>View All</Text>
-                  </TouchableOpacity>
-                </View>
+                ))}
               </View>
             </Card>
-          )}
 
-          {/* Search and Filters */}
-          <View style={styles.searchRow}>
-            <View style={styles.searchBox}>
-              <Icon name="magnify" size={20} color="#94A3B8" />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search cleaner, customer or vehicle..."
-                placeholderTextColor="#94A3B8"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-            </View>
-            <TouchableOpacity style={styles.filterBtn}>
-              <Icon name="filter-outline" size={18} color="#64748B" />
-              <Text style={styles.filterBtnTxt}>Filter</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Tabs Segmented Control */}
-          <View style={styles.segmentedControl}>
-            <TouchableOpacity 
-              style={[styles.segmentBtn, activeSegment === 'Pending' && styles.segmentActiveBtn]}
-              onPress={() => setActiveSegment('Pending')}
-            >
-              <Text style={[styles.segmentBtnTxt, activeSegment === 'Pending' && styles.segmentActiveBtnTxt]}>Pending (28)</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.segmentBtn, activeSegment === 'Approved' && styles.segmentActiveBtn]}
-              onPress={() => setActiveSegment('Approved')}
-            >
-              <Text style={[styles.segmentBtnTxt, activeSegment === 'Approved' && styles.segmentActiveBtnTxt]}>Approved (56)</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.segmentBtn, activeSegment === 'Rejected' && styles.segmentActiveBtn]}
-              onPress={() => setActiveSegment('Rejected')}
-            >
-              <Text style={[styles.segmentBtnTxt, activeSegment === 'Rejected' && styles.segmentActiveBtnTxt]}>Rejected (6)</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Pending Requests List */}
-          <View style={styles.requestsList}>
-            {pendingRequests.map((req, idx) => (
-              <Card key={idx} variant="elevated" style={styles.requestCard}>
-                {/* Header */}
-                <View style={styles.reqHeaderRow}>
-                  <View style={styles.cleanerDetails}>
-                    <Image source={require('../../assets/cleaner_avatar.png')} style={styles.reqAvatar} />
-                    <View>
-                      <Text style={styles.reqCleanerName}>{req.cleanerName}</Text>
-                      <Text style={styles.reqApartmentName}>{req.apartment}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.pendingBadgeCapsule}>
-                    <Text style={styles.pendingBadgeTxt}>PENDING</Text>
-                  </View>
-                </View>
-
-                {/* Split Details & Images content */}
-                <View style={styles.reqBodyRow}>
-                  {/* Left Column: text details */}
-                  <View style={styles.reqTextCol}>
-                    <View style={styles.reqDetailItem}>
-                      <Icon name="account-outline" size={16} color="#64748B" />
-                      <Text style={styles.reqDetailTextBold}>{req.customerName}</Text>
-                    </View>
-                    <View style={styles.reqDetailItem}>
-                      <Icon name="car-outline" size={16} color="#64748B" />
-                      <View>
-                        <Text style={styles.reqDetailTextBold}>{req.vehicleNo}</Text>
-                        <Text style={styles.reqDetailTextSub}>{req.vehicleModel}</Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  {/* Right Column: Before & After comparison */}
-                  <View style={styles.reqImagesCol}>
-                    <View style={styles.comparisonImagesContainer}>
-                      <View style={styles.comparisonHalfImage}>
-                        <Image source={require('../../assets/cleaner_avatar.png')} style={styles.comparisonImg} />
-                        <View style={styles.imageTagLabelBg}><Text style={styles.imageTagLabelTxt}>Before</Text></View>
-                      </View>
-                      <View style={styles.comparisonHalfImage}>
-                        <Image source={require('../../assets/cleaner_avatar.png')} style={styles.comparisonImg} />
-                        <View style={styles.imageTagLabelBg}><Text style={styles.imageTagLabelTxt}>After</Text></View>
-                      </View>
-                      {/* Slider handle <> overlay */}
-                      <View style={styles.sliderControlOverlay}>
-                        <Icon name="chevron-left" size={10} color="#64748B" />
-                        <Icon name="chevron-right" size={10} color="#64748B" style={{ marginLeft: -4 }} />
-                      </View>
-                    </View>
-                    <View style={styles.submittedTimeRow}>
-                      <Icon name="clock-outline" size={12} color="#64748B" />
-                      <Text style={styles.submittedTimeTxt}>Submitted: {req.submittedTime}</Text>
-                    </View>
-                  </View>
-                </View>
-
-                {/* Bottom Action buttons */}
-                <View style={styles.reqActionsRow}>
-                  <TouchableOpacity style={[styles.reqActionBtn, styles.btnApproveOutline]}>
-                    <Icon name="check-circle-outline" size={15} color="#16A34A" />
-                    <Text style={[styles.reqActionBtnTxt, { color: '#16A34A' }]}>Approve</Text>
+            {/* Search */}
+            <View style={styles.searchRow}>
+              <View style={styles.searchBox}>
+                <Icon name="magnify" size={20} color="#94A3B8" />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search cleaner, customer or vehicle..."
+                  placeholderTextColor="#94A3B8"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity onPress={() => setSearchQuery('')}>
+                    <Icon name="close-circle" size={18} color="#94A3B8" />
                   </TouchableOpacity>
-
-                  <TouchableOpacity style={[styles.reqActionBtn, styles.btnRejectOutline]}>
-                    <Icon name="close-circle-outline" size={15} color="#EF4444" />
-                    <Text style={[styles.reqActionBtnTxt, { color: '#EF4444' }]}>Reject</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity 
-                    style={[styles.reqActionBtn, styles.btnViewDetailsOutline]}
-                    onPress={() => setShowDetailPanel(true)}
-                  >
-                    <Icon name="arrow-right-circle-outline" size={15} color="#2563EB" />
-                    <Text style={[styles.reqActionBtnTxt, { color: '#2563EB' }]}>View Details</Text>
-                  </TouchableOpacity>
-                </View>
-              </Card>
-            ))}
-          </View>
-        </ScrollView>
-
-        {/* Right Details Drawer Side Pane */}
-        {showDetailPanel && (
-          <ScrollView style={styles.rightDetailsPane} contentContainerStyle={styles.rightScrollContent} showsVerticalScrollIndicator={false}>
-            {/* Header */}
-            <View style={styles.rightPaneHeader}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Icon name="office-building" size={20} color="#2563EB" />
-                <Text style={styles.rightPaneTitle}>Job Details</Text>
-              </View>
-              <TouchableOpacity onPress={() => setShowDetailPanel(false)} style={styles.rightPaneCloseBtn}>
-                <Icon name="close" size={20} color="#64748B" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Section 1: Job Details */}
-            <View style={styles.rightPaneSection}>
-              <View style={styles.kvRow}>
-                <Text style={styles.kvLabel}>Job ID</Text>
-                <Text style={styles.kvValueBold}>JOB-2025-0520-001</Text>
-              </View>
-              <View style={styles.kvRow}>
-                <Text style={styles.kvLabel}>Scheduled Time</Text>
-                <Text style={styles.kvValue}>20 May 2025, 08:00 AM</Text>
-              </View>
-              <View style={styles.kvRow}>
-                <Text style={styles.kvLabel}>Submitted Time</Text>
-                <Text style={styles.kvValue}>20 May 2025, 09:15 AM</Text>
-              </View>
-              <View style={styles.kvRow}>
-                <Text style={styles.kvLabel}>Cleaning Type</Text>
-                <Text style={styles.kvValue}>Interior + Exterior</Text>
-              </View>
-              <View style={styles.kvRow}>
-                <Text style={styles.kvLabel}>Work Duration</Text>
-                <Text style={styles.kvValue}>1h 10m</Text>
+                )}
               </View>
             </View>
 
-            {/* Section 2: Customer Details */}
-            <Text style={styles.rightPaneSectionTitle}>Customer Details</Text>
-            <View style={styles.rightPaneSection}>
-              <View style={styles.customerSummaryRow}>
-                <Image source={require('../../assets/cleaner_avatar.png')} style={styles.custAvatar} />
-                <View>
-                  <Text style={styles.custName}>Rahul Sharma</Text>
-                  <Text style={styles.custPhone}>98765 43210</Text>
-                </View>
-              </View>
-
-              <View style={styles.detailMetaItem}>
-                <Icon name="email-outline" size={16} color="#64748B" />
-                <Text style={styles.detailMetaText}>rahul.sharma@email.com</Text>
-              </View>
-
-              <View style={styles.detailMetaItem}>
-                <Icon name="map-marker-outline" size={16} color="#64748B" />
-                <Text style={styles.detailMetaText} numberOfLines={2}>Sunshine Heights{"\n"}A-1203, Sector 45, Noida</Text>
-              </View>
-
-              <View style={styles.vehicleInfoSection}>
-                <View style={styles.kvRow}>
-                  <Text style={styles.kvLabel}>Vehicle</Text>
-                  <Text style={styles.kvValue}>Honda City</Text>
-                </View>
-                <View style={styles.kvRow}>
-                  <Text style={styles.kvLabel}>Number</Text>
-                  <Text style={styles.kvValueBold}>DL 01 AB 1234</Text>
-                </View>
-              </View>
+            {/* Tabs */}
+            <View style={styles.tabs}>
+              {TAB_META.map(tab => (
+                <TouchableOpacity
+                  key={tab.key}
+                  style={[styles.tab, activeTab === tab.key && { backgroundColor: '#FFFFFF', borderColor: tab.color, borderBottomWidth: 2 }]}
+                  onPress={() => handleTabChange(tab.key)}
+                >
+                  <Text style={[styles.tabTxt, activeTab === tab.key && { color: tab.color, fontWeight: '800' }]}>
+                    {tab.label} ({approvalLoading ? '…' : tab.key === 'pending' ? pendingCount : tab.key === 'approved' ? approvedCount : rejectedCount})
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
+          </>
+        }
+      />
 
-            {/* Section 3: Timeline */}
-            <Text style={styles.rightPaneSectionTitle}>Timeline</Text>
-            <View style={styles.rightPaneSection}>
-              {/* Node 1 */}
-              <View style={styles.timelineNode}>
-                <View style={styles.timelineConnectorCol}>
-                  <View style={[styles.timelineDot, { backgroundColor: '#16A34A' }]}>
-                    <Icon name="check" size={10} color="#FFFFFF" />
-                  </View>
-                  <View style={[styles.timelineLine, { backgroundColor: '#16A34A' }]} />
-                </View>
-                <View style={styles.timelineContent}>
-                  <Text style={styles.timelineTitle}>Job Assigned</Text>
-                  <Text style={styles.timelineMeta}>20 May 2025, 07:45 AM</Text>
-                  <Text style={styles.timelineActor}>by System</Text>
-                </View>
-              </View>
+      {/* Notification Drawer */}
+      <NotificationDrawer
+        visible={showNotifDrawer}
+        onClose={() => setShowNotifDrawer(false)}
+        navigation={navigation}
+      />
 
-              {/* Node 2 */}
-              <View style={styles.timelineNode}>
-                <View style={styles.timelineConnectorCol}>
-                  <View style={[styles.timelineDot, { backgroundColor: '#16A34A' }]}>
-                    <Icon name="check" size={10} color="#FFFFFF" />
-                  </View>
-                  <View style={[styles.timelineLine, { backgroundColor: '#16A34A' }]} />
-                </View>
-                <View style={styles.timelineContent}>
-                  <Text style={styles.timelineTitle}>Cleaner Started</Text>
-                  <Text style={styles.timelineMeta}>20 May 2025, 08:05 AM</Text>
-                  <Text style={styles.timelineActor}>Ramesh Kumar</Text>
-                </View>
-              </View>
-
-              {/* Node 3 */}
-              <View style={styles.timelineNode}>
-                <View style={styles.timelineConnectorCol}>
-                  <View style={[styles.timelineDot, { backgroundColor: '#16A34A' }]}>
-                    <Icon name="check" size={10} color="#FFFFFF" />
-                  </View>
-                  <View style={[styles.timelineLine, { backgroundColor: '#F97316' }]} />
-                </View>
-                <View style={styles.timelineContent}>
-                  <Text style={styles.timelineTitle}>Work Completed</Text>
-                  <Text style={styles.timelineMeta}>20 May 2025, 09:10 AM</Text>
-                  <Text style={styles.timelineActor}>Ramesh Kumar</Text>
-                </View>
-              </View>
-
-              {/* Node 4 */}
-              <View style={styles.timelineNode}>
-                <View style={styles.timelineConnectorCol}>
-                  <View style={[styles.timelineDot, { backgroundColor: '#F97316' }]}>
-                    <Icon name="clock-outline" size={10} color="#FFFFFF" />
-                  </View>
-                  <View style={[styles.timelineLine, { backgroundColor: '#CBD5E1' }]} />
-                </View>
-                <View style={styles.timelineContent}>
-                  <Text style={styles.timelineTitle}>Submitted</Text>
-                  <Text style={styles.timelineMeta}>20 May 2025, 09:15 AM</Text>
-                  <Text style={styles.timelineActor}>Ramesh Kumar</Text>
-                </View>
-              </View>
-
-              {/* Node 5 */}
-              <View style={[styles.timelineNode, { marginBottom: 0 }]}>
-                <View style={styles.timelineConnectorCol}>
-                  <View style={[styles.timelineDot, { backgroundColor: '#94A3B8' }]} />
-                </View>
-                <View style={styles.timelineContent}>
-                  <Text style={[styles.timelineTitle, { color: '#94A3B8' }]}>Approved</Text>
-                  <Text style={styles.timelineMeta}>—</Text>
-                  <Text style={[styles.timelineActor, { color: '#F97316', fontWeight: '700' }]}>Pending</Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Remarks Input */}
-            <Text style={styles.rightPaneSectionTitle}>Remarks</Text>
-            <View style={styles.remarksContainer}>
-              <TextInput
-                style={styles.remarksInput}
-                placeholder="Enter remarks (optional)..."
-                placeholderTextColor="#94A3B8"
-                value={remarks}
-                onChangeText={setRemarks}
-                multiline
-                numberOfLines={3}
-              />
-            </View>
-
-            {/* Bottom Actions Buttons */}
-            <View style={styles.rightPaneActionsContainer}>
-              <TouchableOpacity style={styles.btnSolidApprove}>
-                <Icon name="check-circle" size={16} color="#FFFFFF" />
-                <Text style={styles.btnSolidApproveTxt}>Approve Work</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.btnSolidReject}>
-                <Icon name="close-circle" size={16} color="#FFFFFF" />
-                <Text style={styles.btnSolidRejectTxt}>Reject Work</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.btnOutlineEscalate}>
-                <Icon name="arrow-up-bold-circle-outline" size={16} color="#2563EB" />
-                <Text style={styles.btnOutlineEscalateTxt}>Escalate</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        )}
-      </View>
+      {/* Task Detail Panel */}
+      <TaskDetailPanel
+        task={selectedTask}
+        remarks={remarks}
+        onRemarksChange={setRemarks}
+        onApprove={handleDetailApprove}
+        onReject={handleDetailReject}
+        onEscalate={handleEscalate}
+        onClose={() => setSelectedTask(null)}
+        actionLoading={actionLoading === selectedTask?._id}
+        tab={activeTab}
+      />
     </View>
   );
 };
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
-  headerContainer: {
-    backgroundColor: '#2563EB',
+
+  header: {
+    backgroundColor: '#1D4ED8',
     paddingBottom: 16,
     paddingHorizontal: 16,
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerBackBtn: {
-    padding: 6,
-  },
-  headerTitleContainer: {
-    flex: 1,
-    paddingLeft: 12,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    fontFamily: 'Inter-Bold',
-  },
-  headerSubtitle: {
-    fontSize: 11,
-    color: '#E0F2FE',
-    fontFamily: 'Inter-Regular',
-    marginTop: 2,
-  },
-  headerRightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  notifBtn: {
-    position: 'relative',
-    padding: 6,
-    marginRight: 10,
-  },
-  notifBadge: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    backgroundColor: '#EF4444',
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 2,
-  },
-  notifBadgeText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  profileDropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  avatarMini: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
-  profileDropdownRole: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  profileDropdownCode: {
-    fontSize: 8,
-    color: '#E0F2FE',
-    marginTop: -1,
-  },
-  mainSplitBody: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  leftListPane: {
-    flex: 1.1,
-  },
-  leftScrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  metricsCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 16,
-    position: 'relative',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  closeStatsBtn: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    zIndex: 10,
-  },
-  metricsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  metricItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  metricIconBg: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-  },
-  metricVal: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-  },
-  metricLabel: {
-    fontSize: 9,
-    fontWeight: '600',
-    color: '#64748B',
-    marginTop: 2,
-    textAlign: 'center',
-  },
-  viewAllTxt: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#F97316',
-    marginTop: 6,
-  },
-  searchRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
-  },
-  searchBox: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    height: 44,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 12,
-    color: '#1E293B',
-    marginLeft: 8,
-    padding: 0,
-  },
-  filterBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    height: 44,
-    gap: 6,
-  },
-  filterBtnTxt: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
-  },
-  segmentedControl: {
-    flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-    padding: 3,
-    marginBottom: 16,
-  },
-  segmentBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderRadius: 6,
-  },
-  segmentActiveBtn: {
-    backgroundColor: '#2563EB',
-  },
-  segmentBtnTxt: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#475569',
-  },
-  segmentActiveBtnTxt: {
-    color: '#FFFFFF',
-  },
-  requestsList: {
-    gap: 14,
-  },
-  requestCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  reqHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: '#F1F5F9',
-    paddingBottom: 10,
-    marginBottom: 12,
-  },
-  cleanerDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  reqAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-  },
-  reqCleanerName: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-  },
-  reqApartmentName: {
-    fontSize: 10,
-    color: '#64748B',
-    marginTop: 1,
-  },
-  pendingBadgeCapsule: {
-    backgroundColor: '#FFF7ED',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
-  },
-  pendingBadgeTxt: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#F97316',
-  },
-  reqBodyRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  reqTextCol: {
-    width: '42%',
-    gap: 12,
-  },
-  reqDetailItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-  },
-  reqDetailTextBold: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  reqDetailTextSub: {
-    fontSize: 9,
-    color: '#64748B',
-    marginTop: 1,
-  },
-  reqImagesCol: {
-    flex: 1,
-  },
-  comparisonImagesContainer: {
-    flexDirection: 'row',
-    height: 90,
-    borderRadius: 8,
-    overflow: 'hidden',
-    position: 'relative',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  comparisonHalfImage: {
-    flex: 1,
-    position: 'relative',
-  },
-  comparisonImg: {
-    width: '100%',
-    height: '100%',
-  },
-  imageTagLabelBg: {
-    position: 'absolute',
-    bottom: 4,
-    left: 4,
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  imageTagLabelTxt: {
-    fontSize: 8,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  sliderControlOverlay: {
-    position: 'absolute',
-    top: '35%',
-    left: '46%',
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
-    elevation: 2,
-  },
-  submittedTimeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: 8,
-    justifyContent: 'flex-end',
-  },
-  submittedTimeTxt: {
-    fontSize: 9,
-    color: '#64748B',
-    fontWeight: '500',
-  },
-  reqActionsRow: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderColor: '#F1F5F9',
-    marginTop: 12,
-    paddingTop: 10,
-    gap: 8,
-  },
-  reqActionBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderRadius: 6,
-    paddingVertical: 8,
-    gap: 4,
-    backgroundColor: '#FFFFFF',
-  },
-  btnApproveOutline: {
-    borderColor: '#16A34A',
-  },
-  btnRejectOutline: {
-    borderColor: '#EF4444',
-  },
-  btnViewDetailsOutline: {
-    borderColor: '#2563EB',
-  },
-  reqActionBtnTxt: {
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  rightDetailsPane: {
-    width: 320,
-    backgroundColor: '#FFFFFF',
-    borderLeftWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  rightScrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  rightPaneHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: '#F1F5F9',
-    paddingBottom: 12,
-    marginBottom: 14,
-  },
-  rightPaneTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-  },
-  rightPaneCloseBtn: {
-    padding: 4,
-  },
-  rightPaneSection: {
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
-    gap: 10,
-  },
-  rightPaneSectionTitle: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-    marginBottom: 10,
-  },
-  kvRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  kvLabel: {
-    fontSize: 10,
-    color: '#64748B',
-    fontWeight: '500',
-  },
-  kvValue: {
-    fontSize: 10,
-    color: '#1E293B',
-    fontWeight: '600',
-  },
-  kvValueBold: {
-    fontSize: 10,
-    color: '#1E293B',
-    fontWeight: '850',
-  },
-  customerSummaryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    borderBottomWidth: 1,
-    borderColor: '#E2E8F0',
-    paddingBottom: 8,
-    marginBottom: 2,
-  },
-  custAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-  },
-  custName: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  custPhone: {
-    fontSize: 10,
-    color: '#64748B',
-  },
-  detailMetaItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-  },
-  detailMetaText: {
-    fontSize: 10,
-    color: '#475569',
-    fontWeight: '500',
-    flex: 1,
-    lineHeight: 14,
-  },
-  vehicleInfoSection: {
-    borderTopWidth: 1,
-    borderColor: '#E2E8F0',
-    paddingTop: 8,
-    marginTop: 2,
-    gap: 8,
-  },
-  timelineNode: {
-    flexDirection: 'row',
-    marginBottom: 12,
-  },
-  timelineConnectorCol: {
-    alignItems: 'center',
-    width: 20,
-  },
-  timelineDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#94A3B8',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timelineLine: {
-    width: 2,
-    flex: 1,
-    backgroundColor: '#CBD5E1',
-    marginVertical: 4,
-  },
-  timelineContent: {
-    flex: 1,
-    paddingLeft: 10,
-  },
-  timelineTitle: {
-    fontSize: 11,
-    fontWeight: '750',
-    color: '#1E293B',
-  },
-  timelineMeta: {
-    fontSize: 9,
-    color: '#64748B',
-    marginTop: 1,
-  },
-  timelineActor: {
-    fontSize: 9,
-    color: '#2563EB',
-    fontWeight: '500',
-    marginTop: 1,
-  },
-  remarksContainer: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    marginBottom: 16,
-  },
-  remarksInput: {
-    fontSize: 11,
-    color: '#1E293B',
-    padding: 0,
-    minHeight: 48,
-    textAlignVertical: 'top',
-  },
-  rightPaneActionsContainer: {
-    gap: 10,
-  },
-  btnSolidApprove: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#16A34A',
-    borderRadius: 8,
-    paddingVertical: 10,
-    gap: 6,
-  },
-  btnSolidApproveTxt: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  btnSolidReject: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#EF4444',
-    borderRadius: 8,
-    paddingVertical: 10,
-    gap: 6,
-  },
-  btnSolidRejectTxt: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  btnOutlineEscalate: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#2563EB',
-    borderRadius: 8,
-    paddingVertical: 10,
-    gap: 6,
-  },
-  btnOutlineEscalateTxt: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#2563EB',
-  },
+    borderBottomLeftRadius: 18,
+    borderBottomRightRadius: 18,
+  },
+  headerRow: { flexDirection: 'row', alignItems: 'center' },
+  backBtn: { padding: 6, marginRight: 8 },
+  headerMid: { flex: 1 },
+  headerTitle: { fontSize: 17, fontWeight: '800', color: '#FFF' },
+  headerSub: { fontSize: 11, color: '#BFDBFE', marginTop: 1 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  notifBtn: { position: 'relative', padding: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 8 },
+  notifBadge: { position: 'absolute', top: -2, right: -2, backgroundColor: '#EF4444', borderRadius: 8, minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 2 },
+  notifBadgeTxt: { fontSize: 9, fontWeight: '700', color: '#FFF' },
+
+  listContent: { padding: 16, paddingBottom: 40 },
+
+  metricsCard: { backgroundColor: '#FFF', borderRadius: 14, padding: 14, marginBottom: 14, borderWidth: 1, borderColor: '#F1F5F9' },
+  metricsRow: { flexDirection: 'row', justifyContent: 'space-around' },
+  metricItem: { alignItems: 'center', flex: 1 },
+  metricIconBg: { width: 30, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginBottom: 6 },
+  metricVal: { fontSize: 20, fontWeight: '800', color: '#0F172A' },
+  metricLabel: { fontSize: 9, fontWeight: '600', color: '#64748B', marginTop: 2, textAlign: 'center' },
+  viewAllTxt: { fontSize: 10, fontWeight: '700', marginTop: 4 },
+
+  searchRow: { marginBottom: 12 },
+  searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10, paddingHorizontal: 12, height: 42 },
+  searchInput: { flex: 1, fontSize: 13, color: '#1E293B', marginLeft: 8, padding: 0 },
+
+  tabs: { flexDirection: 'row', marginBottom: 14, backgroundColor: '#F1F5F9', borderRadius: 10, overflow: 'hidden' },
+  tab: { flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: 10 },
+  tabTxt: { fontSize: 11, fontWeight: '600', color: '#64748B' },
+
+  card: { backgroundColor: '#FFF', borderRadius: 14, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: '#F1F5F9' },
+
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  cleanerInfo: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
+  cleanerInitials: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#EFF6FF', alignItems: 'center', justifyContent: 'center' },
+  cleanerInitialsTxt: { fontSize: 14, fontWeight: '800', color: '#2563EB' },
+  cleanerName: { fontSize: 13, fontWeight: '700', color: '#0F172A', maxWidth: width * 0.35 },
+  cleanerSub: { fontSize: 10, color: '#94A3B8', maxWidth: width * 0.35 },
+  statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
+  statusBadgeTxt: { fontSize: 9, fontWeight: '800' },
+
+  cardBody: { flexDirection: 'row', gap: 10, borderBottomWidth: 1, borderColor: '#F1F5F9', paddingBottom: 10, marginBottom: 10 },
+  textCol: { flex: 1, gap: 4 },
+  detailRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
+  detailTxt: { fontSize: 11, color: '#475569', flex: 1 },
+  detailTxtBold: { fontSize: 11, fontWeight: '700', color: '#1E293B' },
+  detailSub: { fontSize: 10, color: '#94A3B8' },
+  photoBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#FAF5FF', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2, alignSelf: 'flex-start' },
+  photoBadgeTxt: { fontSize: 9, fontWeight: '700', color: '#8B5CF6' },
+
+  imagesCol: { width: 120 },
+  imgCompare: { flexDirection: 'row', gap: 4, marginBottom: 4 },
+  imgHalf: { flex: 1, position: 'relative' },
+  compareImg: { width: '100%', height: 54, borderRadius: 6 },
+  noPhoto: { backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center' },
+  imgLabel: { position: 'absolute', bottom: 2, left: 2, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 3, paddingHorizontal: 4, paddingVertical: 1 },
+  imgLabelTxt: { fontSize: 8, color: '#FFF', fontWeight: '700' },
+  submitTime: { fontSize: 9, color: '#94A3B8' },
+
+  cardActions: { flexDirection: 'row', gap: 6 },
+  actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 7, borderRadius: 8, borderWidth: 1 },
+  approveBtn: { borderColor: '#16A34A', backgroundColor: '#ECFDF5' },
+  rejectBtn: { borderColor: '#EF4444', backgroundColor: '#FEF2F2' },
+  viewBtn: { borderColor: '#2563EB', backgroundColor: '#EFF6FF' },
+  actionBtnTxt: { fontSize: 10, fontWeight: '700' },
+
+  emptyWrap: { alignItems: 'center', paddingTop: 60, gap: 10 },
+  emptyTitle: { fontSize: 15, fontWeight: '700', color: '#475569', marginTop: 8 },
+  emptySub: { fontSize: 12, color: '#94A3B8' },
+});
+
+// Notification drawer styles
+const ndStyles = StyleSheet.create({
+  overlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.3)' },
+  drawer: { position: 'absolute', top: 0, right: 0, bottom: 0, width: width * 0.82, backgroundColor: '#FFF', shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 12, elevation: 10 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderColor: '#E2E8F0' },
+  title: { fontSize: 16, fontWeight: '800', color: '#0F172A' },
+  empty: { alignItems: 'center', paddingTop: 64, gap: 10 },
+  emptyTxt: { color: '#94A3B8', fontSize: 13 },
+  notifItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F1F5F9' },
+  notifUnread: { backgroundColor: '#EFF6FF' },
+  notifDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#2563EB', marginTop: 4 },
+  notifMsg: { fontSize: 12, color: '#1E293B', lineHeight: 18 },
+  notifTime: { fontSize: 10, color: '#94A3B8', marginTop: 3 },
+  viewAllBtn: { margin: 16, backgroundColor: '#EFF6FF', borderRadius: 10, alignItems: 'center', paddingVertical: 12 },
+  viewAllTxt: { fontSize: 13, fontWeight: '700', color: '#2563EB' },
+});
+
+// Detail panel styles
+const dpStyles = StyleSheet.create({
+  overlay: { flex: 0.35, backgroundColor: 'rgba(0,0,0,0.4)' },
+  sheet: { flex: 0.65, backgroundColor: '#FFF', borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 16, paddingBottom: 0 },
+  handle: { width: 40, height: 4, backgroundColor: '#E2E8F0', borderRadius: 2, alignSelf: 'center', marginBottom: 12 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  title: { fontSize: 16, fontWeight: '800', color: '#0F172A' },
+  closeBtn: { padding: 4 },
+  section: { backgroundColor: '#F8FAFC', borderRadius: 12, padding: 12, marginBottom: 12 },
+  sectionTitle: { fontSize: 11, fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', marginBottom: 8, marginLeft: 2 },
+  kvRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 },
+  kvLabel: { fontSize: 11, color: '#64748B' },
+  kvVal: { fontSize: 12, fontWeight: '600', color: '#1E293B', flex: 1, textAlign: 'right' },
+  custRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
+  custInitials: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#EFF6FF', alignItems: 'center', justifyContent: 'center' },
+  custInitialsTxt: { fontSize: 16, fontWeight: '800', color: '#2563EB' },
+  custName: { fontSize: 14, fontWeight: '700', color: '#0F172A' },
+  custPhone: { fontSize: 12, color: '#2563EB', marginTop: 2 },
+  photoWrap: { flex: 1, position: 'relative' },
+  photo: { width: '100%', height: 80, borderRadius: 8 },
+  photoLabel: { position: 'absolute', bottom: 4, left: 4, backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+  photoLabelTxt: { fontSize: 9, color: '#FFF', fontWeight: '700' },
+  timelineItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 10 },
+  timelineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#2563EB', marginTop: 3 },
+  timelineStatus: { fontSize: 11, fontWeight: '700', color: '#1E293B' },
+  timelineMeta: { fontSize: 10, color: '#94A3B8', marginTop: 2 },
+  remarksInput: { backgroundColor: '#FFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8, fontSize: 13, color: '#1E293B', minHeight: 72, textAlignVertical: 'top' },
+  actionBtns: { gap: 10, paddingHorizontal: 2 },
+  btnApprove: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#16A34A', borderRadius: 12, paddingVertical: 12 },
+  btnApproveTxt: { fontSize: 14, fontWeight: '700', color: '#FFF' },
+  btnReject: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#EF4444', borderRadius: 12, paddingVertical: 12 },
+  btnRejectTxt: { fontSize: 14, fontWeight: '700', color: '#FFF' },
+  btnEscalate: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderWidth: 1, borderColor: '#2563EB', borderRadius: 12, paddingVertical: 12 },
+  btnEscalateTxt: { fontSize: 14, fontWeight: '700', color: '#2563EB' },
 });
 
 export default WorkApprovalCenterScreen;

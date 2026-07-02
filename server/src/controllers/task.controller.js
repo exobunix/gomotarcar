@@ -135,6 +135,20 @@ const taskController = {
       res.status(200).json({ success: true, data: stats });
     } catch (error) { next(error); }
   },
+
+  getApprovalStats: async (req, res, next) => {
+    try {
+      const stats = await taskService.getApprovalStats();
+      res.status(200).json({ success: true, data: stats });
+    } catch (error) { next(error); }
+  },
+
+  getApprovalList: async (req, res, next) => {
+    try {
+      const result = await taskService.getApprovalList(req.query);
+      res.status(200).json({ success: true, ...result });
+    } catch (error) { next(error); }
+  },
 };
 
 module.exports = taskController;

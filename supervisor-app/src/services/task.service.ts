@@ -12,6 +12,8 @@ export const taskService = {
   getStats: () => api.get('/tasks/stats'),
   getDailyWork: (date: string) => api.get(`/tasks/daily/${date}`),
   getTodayForSupervisor: (params?: any) => api.get('/tasks/today', { params }),
+  getApprovalStats: () => api.get('/tasks/approval/stats'),
+  getApprovalList: (params?: any) => api.get('/tasks/approval/list', { params }),
 };
 
 export default taskService;

@@ -487,6 +487,65 @@ class TaskService {
     ]);
     return { totalTasks: total, assigned, inProgress, completed, missed };
   }
+
+  /**
+   * Get approval-page stats: pendingApproval, approvedToday, rejectedToday
+   */
+  async getApprovalStats() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const [pendingApproval, approvedToday, rejectedToday] = await Promise.all([
+      // Tasks that are in_progress or completed but submitted today (needing supervisor sign-off)
+      Task.countDocuments({ status: 'in_progress' }),
+      // Completed today (approved by supervisor)
+      Task.countDocuments({ status: 'completed', actualEndTime: { $gte: today, $lt: tomorrow } }),
+      // Missed today (rejected / escalated)
+      Task.countDocuments({ status: 'missed', updatedAt: { $gte: today, $lt: tomorrow } }),
+    ]);
+
+    return { pendingApproval, approvedToday, rejectedToday };
+  }
+
+  /**
+   * Get tasks for approval page by status tab
+   */
+  async getApprovalList({ tab = 'pending', search, page = 1, limit = 30 } = {}) {
+    let statusFilter;
+    if (tab === 'pending') statusFilter = { status: 'in_progress' };
+    else if (tab === 'approved') statusFilter = { status: 'completed' };
+    else if (tab === 'rejected') statusFilter = { status: 'missed' };
+    else statusFilter = {};
+
+    const query = { ...statusFilter };
+
+    const skip = (page - 1) * limit;
+    const tasks = await Task.find(query)
+      .populate('customerId', 'firstName lastName phone email')
+      .populate('vehicleId', 'vehicleNumber make model color vehicleType')
+      .populate('cleanerId', 'firstName lastName cleanerId phone photo')
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const total = await Task.countDocuments(query);
+
+    let filtered = tasks;
+    if (search) {
+      const q = search.toLowerCase();
+      filtered = tasks.filter(t => {
+        const cust = `${t.customerId?.firstName || ''} ${t.customerId?.lastName || ''}`.toLowerCase();
+        const veh = (t.vehicleId?.vehicleNumber || '').toLowerCase();
+        const cleaner = `${t.cleanerId?.firstName || ''} ${t.cleanerId?.lastName || ''}`.toLowerCase();
+        return cust.includes(q) || veh.includes(q) || cleaner.includes(q) || (t.taskId || '').toLowerCase().includes(q);
+      });
+    }
+
+    return { data: filtered, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } };
+  }
 }
 
 module.exports = new TaskService();

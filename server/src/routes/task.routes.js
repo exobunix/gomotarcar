@@ -16,6 +16,10 @@ router.use(authenticate);
 // Stats
 router.get('/stats', authorize(roles.SUPER_ADMIN, roles.MANAGER), taskController.getStats);
 
+// Approval page
+router.get('/approval/stats', taskController.getApprovalStats);
+router.get('/approval/list', taskController.getApprovalList);
+
 // Today's tasks for supervisor (all cleaners)
 router.get('/today', taskController.getTodayForSupervisor);
 

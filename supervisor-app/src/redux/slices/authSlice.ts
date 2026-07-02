@@ -41,7 +41,7 @@ export const loadProfile = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await supervisorService.getProfile();
-      return res.data;
+      return res.data.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.error?.message || 'Failed to load profile');
     }
@@ -79,6 +79,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuthenticated = true;
         state.accessToken = action.payload?.tokens?.accessToken || action.payload?.accessToken;
+        state.supervisor = action.payload?.profile || null;
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;

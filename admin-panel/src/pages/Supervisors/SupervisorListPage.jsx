@@ -531,6 +531,7 @@ const SupervisorListPage = () => {
             <Typography variant="body2" sx={{ color: '#94A3B8' }}>&gt;</Typography>
             <Typography variant="body2" sx={{ color: '#2563EB', fontWeight: 600 }}>
               {activeTabQuery === 'all' && 'All Supervisors'}
+              {activeTabQuery === 'pending-approvals' && 'Pending Approvals'}
               {activeTabQuery === 'apartment-allocation' && 'Apartment Allocation'}
               {activeTabQuery === 'cleaner-allocation' && 'Cleaner Allocation'}
               {activeTabQuery === 'qr-stock' && 'QR Code Stock'}
@@ -909,6 +910,98 @@ const SupervisorListPage = () => {
                   <TableRow>
                     <TableCell colSpan={7} align="center" sx={{ py: 6 }}>
                       <Typography variant="body2" sx={{ color: '#64748B' }}>No pending work submittals for approval</Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
+      ) : activeTabQuery === 'pending-approvals' ? (
+        <Card sx={{ p: 3, borderRadius: 3, border: '1px solid #E2E8F0', boxShadow: 'none' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1E293B' }}>
+                Pending Supervisor Registrations
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#64748B', mt: 0.5 }}>
+                Self-registered supervisors awaiting admin approval before they can log in.
+              </Typography>
+            </Box>
+            <Chip
+              icon={<HourglassEmptyIcon />}
+              label={`${supervisors.filter(s => !s.isActive).length} Pending`}
+              sx={{ bgcolor: '#FEF2F2', color: '#EF4444', fontWeight: 700, border: '1px solid #FEE2E2' }}
+            />
+          </Box>
+          <TableContainer>
+            <Table>
+              <TableHead sx={{ bgcolor: '#FFF8F8' }}>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Phone</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Registered</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {supervisors.filter(s => !s.isActive).map(s => (
+                  <TableRow key={s._id} sx={{ '&:hover': { bgcolor: '#FFFBEB' } }}>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Avatar sx={{ width: 36, height: 36, bgcolor: '#FEF3C7', color: '#D97706', fontWeight: 700 }}>
+                          {s.firstName?.[0]?.toUpperCase() || 'S'}
+                        </Avatar>
+                        <Box>
+                          <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', color: '#1E293B' }}>
+                            {`${s.firstName} ${s.lastName || ''}`.trim()}
+                          </Typography>
+                          <Chip label="Pending" size="small" sx={{ bgcolor: '#FEF2F2', color: '#EF4444', fontWeight: 600, fontSize: '0.7rem', height: 18, mt: 0.25 }} />
+                        </Box>
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={{ color: '#475569' }}>{s.phone}</TableCell>
+                    <TableCell sx={{ color: '#475569' }}>{s.email || '—'}</TableCell>
+                    <TableCell sx={{ color: '#64748B', fontSize: '0.8rem' }}>
+                      {s.joiningDate ? new Date(s.joiningDate).toLocaleDateString('en-IN') : '—'}
+                    </TableCell>
+                    <TableCell align="center">
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          startIcon={<CheckCircleIcon />}
+                          onClick={() => handleVerify(s._id)}
+                          sx={{
+                            bgcolor: '#10B981', textTransform: 'none', fontWeight: 600,
+                            '&:hover': { bgcolor: '#059669' },
+                            boxShadow: 'none',
+                          }}
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<BlockIcon />}
+                          onClick={() => handleDeactivate(s._id)}
+                          sx={{
+                            borderColor: '#EF4444', color: '#EF4444', textTransform: 'none', fontWeight: 600,
+                            '&:hover': { bgcolor: '#FEF2F2', borderColor: '#DC2626' },
+                          }}
+                        >
+                          Reject
+                        </Button>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {supervisors.filter(s => !s.isActive).length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ py: 6 }}>
+                      <CheckCircleIcon sx={{ fontSize: 48, color: '#10B981', mb: 1, display: 'block', mx: 'auto' }} />
+                      <Typography variant="body2" sx={{ color: '#64748B' }}>No pending registrations</Typography>
                     </TableCell>
                   </TableRow>
                 )}

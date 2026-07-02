@@ -1,10 +1,12 @@
 export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
+  Onboarding: undefined;
 };
 
 export type AuthStackParamList = {
   Login: undefined;
+  Register: undefined;
 };
 
 export type MainTabParamList = {

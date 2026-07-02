@@ -101,6 +101,7 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            crunchPngs false
         }
     }
 
@@ -110,7 +111,7 @@ android {
             enable true
             reset()
             include 'arm64-v8a', 'armeabi-v7a'
-            universalApk false
+            universalApk true
         }
     }
     compileOptions {

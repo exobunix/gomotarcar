@@ -69,6 +69,73 @@ router.get('/me/cleaners', authenticate, authorize(roles.SUPERVISOR), async (req
 });
 
 // ─────────────────────────────────────────────
+// PUBLIC SUPERVISOR SELF-REGISTRATION ROUTE
+// ─────────────────────────────────────────────
+router.post('/register', async (req, res, next) => {
+  try {
+    const User = require('../models/User');
+    const Supervisor = require('../models/Supervisor');
+    const bcrypt = require('bcryptjs');
+    const { firstName, lastName, phone, password, email } = req.body;
+
+    if (!firstName || !phone || !password) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'MISSING_FIELDS', message: 'firstName, phone, and password are required' },
+      });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'WEAK_PASSWORD', message: 'Password must be at least 6 characters' },
+      });
+    }
+
+    const formattedPhone = phone.startsWith('+91') ? phone : `+91${phone.replace(/[^0-9]/g, '').slice(-10)}`;
+    const existing = await User.findOne({ phone: formattedPhone });
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        error: { code: 'PHONE_EXISTS', message: 'This phone number is already registered' },
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const now = new Date();
+    const insertResult = await User.collection.insertOne({
+      phone: formattedPhone,
+      email: email || undefined,
+      role: 'supervisor',
+      isVerified: false,
+      phoneVerified: false,
+      isActive: false, // pending admin approval
+      tokenVersion: 1,
+      passwordHash,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await Supervisor.create({
+      userId: insertResult.insertedId,
+      firstName: firstName.trim(),
+      lastName: lastName?.trim() || '',
+      phone: formattedPhone,
+      email: email?.trim() || '',
+      isActive: false,
+      joiningDate: now,
+      experience: 0,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration submitted successfully. Awaiting admin approval before you can log in.',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─────────────────────────────────────────────
 // TEMPORARY PUBLIC MIGRATION ROUTE
 // ─────────────────────────────────────────────
 router.post('/fix-passwords', async (req, res, next) => {

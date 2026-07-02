@@ -1,8 +1,9 @@
 import { io, Socket } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 const SOCKET_URL = __DEV__
-  ? 'http://localhost:5000'
+  ? Platform.OS === 'android' ? 'http://10.0.2.2:5000' : 'http://localhost:5000'
   : 'https://gomotarcar-api.onrender.com';
 
 let socket: Socket | null = null;

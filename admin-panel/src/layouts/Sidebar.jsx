@@ -55,6 +55,7 @@ const menuItems = [
     children: [
       { text: 'All Supervisors', path: '/supervisors' },
       { text: 'Add Supervisor', path: '/supervisors?action=add' },
+      { text: 'Pending Approvals', path: '/supervisors?tab=pending-approvals' },
       { text: 'Apartment Allocation', path: '/supervisors?tab=apartment-allocation' },
       { text: 'Cleaner Allocation', path: '/supervisors?tab=cleaner-allocation' },
       { text: 'QR Code Stock', path: '/supervisors?tab=qr-stock' },

@@ -128,7 +128,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
             <View style={[styles.cardIconBg, { backgroundColor: '#ECFDF5' }]}>
               <Icon name="account-multiple" size={20} color="#10B981" />
             </View>
-            <Text style={styles.cardValue}>{cleanerStats?.totalCleaners || 320}</Text>
+            <Text style={styles.cardValue}>{cleanerStats?.totalCleaners?.value ?? cleanerStats?.totalCleaners ?? 320}</Text>
             <Text style={styles.cardLabel}>Assigned Cleaners</Text>
             <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 12 <Text style={styles.trendLabel}>from yesterday</Text></Text>
           </Card>

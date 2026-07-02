@@ -24,6 +24,20 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
   const { unreadCount } = useSelector((s: RootState) => s.notifications);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Filters State
+  const [weeklyTrendFilter, setWeeklyTrendFilter] = useState<'This Week' | 'This Month'>('This Week');
+  const [cleanerPerfFilter, setCleanerPerfFilter] = useState<'This Week' | 'This Month'>('This Week');
+  const [apartmentFilter, setApartmentFilter] = useState<'This Week' | 'This Month'>('This Week');
+  const [attendanceFilter, setAttendanceFilter] = useState<'Today' | 'This Month'>('Today');
+
+  // Tasks State
+  const [tasks, setTasks] = useState([
+    { id: 1, name: 'Review 18 pending approvals', priority: 'High', due: '12:00 PM', completed: false, route: 'WorkApprovalList' },
+    { id: 2, name: 'Verify attendance & leaves', priority: 'Medium', due: '02:00 PM', completed: false, route: 'DailyAttendance' },
+    { id: 3, name: 'Inspect Sunshine Heights audit', priority: 'Medium', due: '04:00 PM', completed: false, route: 'ApartmentList' },
+    { id: 4, name: 'Resolve open complaints (7)', priority: 'High', due: '06:00 PM', completed: false, route: 'GrievanceList' },
+  ]);
+
   const load = useCallback(() => {
     dispatch(fetchTaskStats());
     dispatch(fetchCleanerStats());
@@ -43,12 +57,14 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
       CleanerList: 'CleanersTab',
       QRList: 'MoreTab',
       SalaryIncentives: 'CleanersTab',
-      GrievanceList: 'MoreTab',
-      InventoryList: 'MoreTab',
+      GrievanceList: 'ComplaintsTab',
+      InventoryList: 'InventoryTab',
       Profile: 'MoreTab',
       NewOnboarding: 'CustomersTab',
-      WorkApprovalList: 'WorkTab',
+      WorkApprovalList: 'ApprovalsTab',
       QRAssignment: 'ApartmentsTab',
+      DailyAttendance: 'AttendanceTab',
+      TodayCleaningMain: 'TodayCleaningTab',
     };
     const tab = tabMap[target];
     if (tab) {
@@ -56,6 +72,30 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
     } else {
       navigation.navigate(target);
     }
+  };
+
+  const toggleTask = (id: number) => {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  };
+
+  const showFilterOptions = (
+    title: string,
+    current: string,
+    onSelect: (option: any) => void,
+    options: string[] = ['This Week', 'This Month']
+  ) => {
+    Alert.alert(
+      `Filter ${title}`,
+      `Currently showing: ${current}`,
+      [
+        ...options.map(opt => ({
+          text: opt,
+          onPress: () => onSelect(opt),
+          style: current === opt ? 'destructive' : 'default' as any
+        })),
+        { text: 'Cancel', style: 'cancel' }
+      ]
+    );
   };
 
   return (
@@ -114,85 +154,133 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* Analytics Card Grid */}
         <View style={styles.analyticsGrid}>
-          {/* Card 1 */}
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#EFF6FF' }]}>
-              <Icon name="office-building" size={20} color="#2563EB" />
-            </View>
-            <Text style={styles.cardValue}>125</Text>
-            <Text style={styles.cardLabel}>Total Apartments</Text>
-            <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 8 <Text style={styles.trendLabel}>from yesterday</Text></Text>
-          </Card>
+          {/* Card 1: Total Apartments */}
+          <TouchableOpacity 
+            activeOpacity={0.8} 
+            onPress={() => navigateTo('ApartmentList')} 
+            style={styles.analyticsCardWrapper}
+          >
+            <Card variant="elevated" style={styles.analyticsCard}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#EFF6FF' }]}>
+                <Icon name="office-building" size={20} color="#2563EB" />
+              </View>
+              <Text style={styles.cardValue}>125</Text>
+              <Text style={styles.cardLabel}>Total Apartments</Text>
+              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 8 <Text style={styles.trendLabel}>from yesterday</Text></Text>
+            </Card>
+          </TouchableOpacity>
 
-          {/* Card 2 */}
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#ECFDF5' }]}>
-              <Icon name="account-multiple" size={20} color="#10B981" />
-            </View>
-            <Text style={styles.cardValue}>{cleanerStats?.totalCleaners?.value ?? cleanerStats?.totalCleaners ?? 320}</Text>
-            <Text style={styles.cardLabel}>Assigned Cleaners</Text>
-            <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 12 <Text style={styles.trendLabel}>from yesterday</Text></Text>
-          </Card>
+          {/* Card 2: Assigned Cleaners */}
+          <TouchableOpacity 
+            activeOpacity={0.8} 
+            onPress={() => navigateTo('CleanerList')} 
+            style={styles.analyticsCardWrapper}
+          >
+            <Card variant="elevated" style={styles.analyticsCard}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#ECFDF5' }]}>
+                <Icon name="account-multiple" size={20} color="#10B981" />
+              </View>
+              <Text style={styles.cardValue}>{cleanerStats?.totalCleaners?.value ?? cleanerStats?.totalCleaners ?? 320}</Text>
+              <Text style={styles.cardLabel}>Assigned Cleaners</Text>
+              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 12 <Text style={styles.trendLabel}>from yesterday</Text></Text>
+            </Card>
+          </TouchableOpacity>
 
-          {/* Card 3 */}
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#FAF5FF' }]}>
-              <Icon name="calendar-check" size={20} color="#8B5CF6" />
-            </View>
-            <Text style={styles.cardValue}>298</Text>
-            <Text style={styles.cardLabel}>Today's Attendance</Text>
-            <Text style={[styles.cardTrend, { color: '#16A34A' }]}>93% <Text style={styles.trendLabel}>Present</Text></Text>
-          </Card>
+          {/* Card 3: Today's Attendance */}
+          <TouchableOpacity 
+            activeOpacity={0.8} 
+            onPress={() => navigateTo('DailyAttendance')} 
+            style={styles.analyticsCardWrapper}
+          >
+            <Card variant="elevated" style={styles.analyticsCard}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#FAF5FF' }]}>
+                <Icon name="calendar-check" size={20} color="#8B5CF6" />
+              </View>
+              <Text style={styles.cardValue}>298</Text>
+              <Text style={styles.cardLabel}>Today's Attendance</Text>
+              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>93% <Text style={styles.trendLabel}>Present</Text></Text>
+            </Card>
+          </TouchableOpacity>
 
-          {/* Card 4 */}
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#FFF7ED' }]}>
-              <Icon name="car" size={20} color="#F97316" />
-            </View>
-            <Text style={styles.cardValue}>540</Text>
-            <Text style={styles.cardLabel}>Cars Assigned</Text>
-            <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 15 <Text style={styles.trendLabel}>from yesterday</Text></Text>
-          </Card>
+          {/* Card 4: Cars Assigned */}
+          <TouchableOpacity 
+            activeOpacity={0.8} 
+            onPress={() => navigateTo('TodayCleaningMain')} 
+            style={styles.analyticsCardWrapper}
+          >
+            <Card variant="elevated" style={styles.analyticsCard}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#FFF7ED' }]}>
+                <Icon name="car" size={20} color="#F97316" />
+              </View>
+              <Text style={styles.cardValue}>540</Text>
+              <Text style={styles.cardLabel}>Cars Assigned</Text>
+              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 15 <Text style={styles.trendLabel}>from yesterday</Text></Text>
+            </Card>
+          </TouchableOpacity>
 
-          {/* Card 5 */}
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#FFFBEB' }]}>
-              <Icon name="clipboard-check-outline" size={20} color="#D97706" />
-            </View>
-            <Text style={styles.cardValue}>{taskStats?.pendingApproval || 18}</Text>
-            <Text style={styles.cardLabel}>Pending Approvals</Text>
-            <Text style={[styles.cardActionLabel, { color: '#EA580C' }]}>Needs your action</Text>
-          </Card>
+          {/* Card 5: Pending Approvals */}
+          <TouchableOpacity 
+            activeOpacity={0.8} 
+            onPress={() => navigateTo('WorkApprovalList')} 
+            style={styles.analyticsCardWrapper}
+          >
+            <Card variant="elevated" style={styles.analyticsCard}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#FFFBEB' }]}>
+                <Icon name="clipboard-check-outline" size={20} color="#D97706" />
+              </View>
+              <Text style={styles.cardValue}>{taskStats?.pendingApproval || 18}</Text>
+              <Text style={styles.cardLabel}>Pending Approvals</Text>
+              <Text style={[styles.cardActionLabel, { color: '#EA580C' }]}>Needs your action</Text>
+            </Card>
+          </TouchableOpacity>
 
-          {/* Card 6 */}
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#F0FDF4' }]}>
-              <Icon name="check-decagram" size={20} color="#16A34A" />
-            </View>
-            <Text style={styles.cardValue}>186</Text>
-            <Text style={styles.cardLabel}>Today's Completed</Text>
-            <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 20 <Text style={styles.trendLabel}>from yesterday</Text></Text>
-          </Card>
+          {/* Card 6: Today's Completed */}
+          <TouchableOpacity 
+            activeOpacity={0.8} 
+            onPress={() => navigateTo('TodayCleaningMain')} 
+            style={styles.analyticsCardWrapper}
+          >
+            <Card variant="elevated" style={styles.analyticsCard}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#F0FDF4' }]}>
+                <Icon name="check-decagram" size={20} color="#16A34A" />
+              </View>
+              <Text style={styles.cardValue}>186</Text>
+              <Text style={styles.cardLabel}>Today's Completed</Text>
+              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 20 <Text style={styles.trendLabel}>from yesterday</Text></Text>
+            </Card>
+          </TouchableOpacity>
 
-          {/* Card 7 */}
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#FEF2F2' }]}>
-              <Icon name="message-alert-outline" size={20} color="#EF4444" />
-            </View>
-            <Text style={styles.cardValue}>{taskStats?.openComplaints || 7}</Text>
-            <Text style={styles.cardLabel}>Open Complaints</Text>
-            <Text style={[styles.cardActionLabel, { color: '#DC2626' }]}>Needs attention</Text>
-          </Card>
+          {/* Card 7: Open Complaints */}
+          <TouchableOpacity 
+            activeOpacity={0.8} 
+            onPress={() => navigateTo('GrievanceList')} 
+            style={styles.analyticsCardWrapper}
+          >
+            <Card variant="elevated" style={styles.analyticsCard}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#FEF2F2' }]}>
+                <Icon name="message-alert-outline" size={20} color="#EF4444" />
+              </View>
+              <Text style={styles.cardValue}>{taskStats?.openComplaints || 7}</Text>
+              <Text style={styles.cardLabel}>Open Complaints</Text>
+              <Text style={[styles.cardActionLabel, { color: '#DC2626' }]}>Needs attention</Text>
+            </Card>
+          </TouchableOpacity>
 
-          {/* Card 8 */}
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#EFF6FF' }]}>
-              <Icon name="package-variant-closed" size={20} color="#2563EB" />
-            </View>
-            <Text style={styles.cardValue}>₹48,650</Text>
-            <Text style={styles.cardLabel}>Inventory Balance</Text>
-            <Text style={[styles.cardTrend, { color: '#64748B' }]}>Updated just now</Text>
-          </Card>
+          {/* Card 8: Inventory Balance */}
+          <TouchableOpacity 
+            activeOpacity={0.8} 
+            onPress={() => navigateTo('InventoryList')} 
+            style={styles.analyticsCardWrapper}
+          >
+            <Card variant="elevated" style={styles.analyticsCard}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#EFF6FF' }]}>
+                <Icon name="package-variant-closed" size={20} color="#2563EB" />
+              </View>
+              <Text style={styles.cardValue}>₹48,650</Text>
+              <Text style={styles.cardLabel}>Inventory Balance</Text>
+              <Text style={[styles.cardTrend, { color: '#64748B' }]}>Updated just now</Text>
+            </Card>
+          </TouchableOpacity>
         </View>
 
         {/* Charts Row 1 */}
@@ -201,44 +289,74 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
           <Card variant="elevated" style={styles.chartCard}>
             <View style={styles.chartHeaderRow}>
               <Text style={styles.chartTitle}>Weekly Cleaning Trend</Text>
-              <TouchableOpacity style={styles.chartFilterBtn}>
-                <Text style={styles.chartFilterTxt}>This Week</Text>
+              <TouchableOpacity 
+                style={styles.chartFilterBtn}
+                onPress={() => showFilterOptions('Trend', weeklyTrendFilter, setWeeklyTrendFilter)}
+              >
+                <Text style={styles.chartFilterTxt}>{weeklyTrendFilter}</Text>
                 <Icon name="chevron-down" size={14} color="#64748B" />
               </TouchableOpacity>
             </View>
             {/* Mock Trend Chart */}
             <View style={styles.trendChartContainer}>
               <View style={styles.chartYGrid}>
-                <Text style={styles.yAxisLabel}>300</Text>
-                <Text style={styles.yAxisLabel}>200</Text>
-                <Text style={styles.yAxisLabel}>100</Text>
+                <Text style={styles.yAxisLabel}>{weeklyTrendFilter === 'This Week' ? '300' : '900'}</Text>
+                <Text style={styles.yAxisLabel}>{weeklyTrendFilter === 'This Week' ? '200' : '600'}</Text>
+                <Text style={styles.yAxisLabel}>{weeklyTrendFilter === 'This Week' ? '100' : '300'}</Text>
                 <Text style={styles.yAxisLabel}>0</Text>
               </View>
               <View style={styles.lineChartMock}>
                 {/* Simulated area/line plot using vertical offset components */}
                 <View style={styles.mockAreaFill} />
                 <View style={styles.trendBarsRow}>
-                  <View style={[styles.trendBar, { height: '30%' }]} />
-                  <View style={[styles.trendBar, { height: '45%' }]} />
-                  <View style={[styles.trendBar, { height: '38%' }]} />
-                  <View style={[styles.trendBar, { height: '55%' }]} />
-                  <View style={[styles.trendBar, { height: '42%' }]} />
-                  <View style={[styles.trendBar, { height: '70%', backgroundColor: '#2563EB' }]}>
-                    <View style={styles.trendTooltip}>
-                      <Text style={styles.trendTooltipTxt}>186</Text>
-                    </View>
-                  </View>
+                  {weeklyTrendFilter === 'This Week' ? (
+                    <>
+                      <View style={[styles.trendBar, { height: '30%' }]} />
+                      <View style={[styles.trendBar, { height: '45%' }]} />
+                      <View style={[styles.trendBar, { height: '38%' }]} />
+                      <View style={[styles.trendBar, { height: '55%' }]} />
+                      <View style={[styles.trendBar, { height: '42%' }]} />
+                      <View style={[styles.trendBar, { height: '70%', backgroundColor: '#2563EB' }]}>
+                        <View style={styles.trendTooltip}>
+                          <Text style={styles.trendTooltipTxt}>186</Text>
+                        </View>
+                      </View>
+                      <View style={[styles.trendBar, { height: '48%' }]} />
+                    </>
+                  ) : (
+                    <>
+                      <View style={[styles.trendBar, { height: '50%' }]} />
+                      <View style={[styles.trendBar, { height: '65%' }]} />
+                      <View style={[styles.trendBar, { height: '78%' }]} />
+                      <View style={[styles.trendBar, { height: '88%', backgroundColor: '#2563EB' }]}>
+                        <View style={styles.trendTooltip}>
+                          <Text style={styles.trendTooltipTxt}>720</Text>
+                        </View>
+                      </View>
+                    </>
+                  )}
                 </View>
               </View>
             </View>
             <View style={styles.xAxisRow}>
-              <Text style={styles.xAxisLabel}>Mon</Text>
-              <Text style={styles.xAxisLabel}>Tue</Text>
-              <Text style={styles.xAxisLabel}>Wed</Text>
-              <Text style={styles.xAxisLabel}>Thu</Text>
-              <Text style={styles.xAxisLabel}>Fri</Text>
-              <Text style={styles.xAxisLabel}>Sat</Text>
-              <Text style={styles.xAxisLabel}>Sun</Text>
+              {weeklyTrendFilter === 'This Week' ? (
+                <>
+                  <Text style={styles.xAxisLabel}>Mon</Text>
+                  <Text style={styles.xAxisLabel}>Tue</Text>
+                  <Text style={styles.xAxisLabel}>Wed</Text>
+                  <Text style={styles.xAxisLabel}>Thu</Text>
+                  <Text style={styles.xAxisLabel}>Fri</Text>
+                  <Text style={styles.xAxisLabel}>Sat</Text>
+                  <Text style={styles.xAxisLabel}>Sun</Text>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.xAxisLabel}>Week 1</Text>
+                  <Text style={styles.xAxisLabel}>Week 2</Text>
+                  <Text style={styles.xAxisLabel}>Week 3</Text>
+                  <Text style={styles.xAxisLabel}>Week 4</Text>
+                </>
+              )}
             </View>
           </Card>
 
@@ -246,8 +364,11 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
           <Card variant="elevated" style={styles.chartCard}>
             <View style={styles.chartHeaderRow}>
               <Text style={styles.chartTitle}>Cleaner Performance</Text>
-              <TouchableOpacity style={styles.chartFilterBtn}>
-                <Text style={styles.chartFilterTxt}>This Week</Text>
+              <TouchableOpacity 
+                style={styles.chartFilterBtn}
+                onPress={() => showFilterOptions('Performance', cleanerPerfFilter, setCleanerPerfFilter)}
+              >
+                <Text style={styles.chartFilterTxt}>{cleanerPerfFilter}</Text>
                 <Icon name="chevron-down" size={14} color="#64748B" />
               </TouchableOpacity>
             </View>
@@ -255,36 +376,36 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
             <View style={styles.perfChartContainer}>
               <View style={styles.barChartContent}>
                 <View style={styles.barCol}>
-                  <Text style={styles.barPctTxt}>98%</Text>
-                  <View style={[styles.perfBar, { height: 100, backgroundColor: '#2563EB' }]} />
+                  <Text style={styles.barPctTxt}>{cleanerPerfFilter === 'This Week' ? '98%' : '96%'}</Text>
+                  <View style={[styles.perfBar, { height: cleanerPerfFilter === 'This Week' ? 100 : 98, backgroundColor: '#2563EB' }]} />
                   <Image source={require('../../assets/cleaner_avatar.png')} style={styles.barAvatar} />
                   <Text style={styles.barName}>Ramesh</Text>
                 </View>
 
                 <View style={styles.barCol}>
-                  <Text style={styles.barPctTxt}>92%</Text>
-                  <View style={[styles.perfBar, { height: 88, backgroundColor: '#3B82F6' }]} />
+                  <Text style={styles.barPctTxt}>{cleanerPerfFilter === 'This Week' ? '92%' : '94%'}</Text>
+                  <View style={[styles.perfBar, { height: cleanerPerfFilter === 'This Week' ? 88 : 94, backgroundColor: '#3B82F6' }]} />
                   <Image source={require('../../assets/cleaner_avatar.png')} style={styles.barAvatar} />
                   <Text style={styles.barName}>Suresh</Text>
                 </View>
 
                 <View style={styles.barCol}>
-                  <Text style={styles.barPctTxt}>90%</Text>
-                  <View style={[styles.perfBar, { height: 85, backgroundColor: '#60A5FA' }]} />
+                  <Text style={styles.barPctTxt}>{cleanerPerfFilter === 'This Week' ? '90%' : '93%'}</Text>
+                  <View style={[styles.perfBar, { height: cleanerPerfFilter === 'This Week' ? 85 : 90, backgroundColor: '#60A5FA' }]} />
                   <Image source={require('../../assets/cleaner_avatar.png')} style={styles.barAvatar} />
                   <Text style={styles.barName}>Vikram</Text>
                 </View>
 
                 <View style={styles.barCol}>
-                  <Text style={styles.barPctTxt}>88%</Text>
-                  <View style={[styles.perfBar, { height: 80, backgroundColor: '#93C5FD' }]} />
+                  <Text style={styles.barPctTxt}>{cleanerPerfFilter === 'This Week' ? '88%' : '91%'}</Text>
+                  <View style={[styles.perfBar, { height: cleanerPerfFilter === 'This Week' ? 80 : 86, backgroundColor: '#93C5FD' }]} />
                   <Image source={require('../../assets/cleaner_avatar.png')} style={styles.barAvatar} />
                   <Text style={styles.barName}>Arjun</Text>
                 </View>
 
                 <View style={styles.barCol}>
-                  <Text style={styles.barPctTxt}>85%</Text>
-                  <View style={[styles.perfBar, { height: 75, backgroundColor: '#BFDBFE' }]} />
+                  <Text style={styles.barPctTxt}>{cleanerPerfFilter === 'This Week' ? '85%' : '89%'}</Text>
+                  <View style={[styles.perfBar, { height: cleanerPerfFilter === 'This Week' ? 75 : 82, backgroundColor: '#BFDBFE' }]} />
                   <Image source={require('../../assets/cleaner_avatar.png')} style={styles.barAvatar} />
                   <Text style={styles.barName}>Imran</Text>
                 </View>
@@ -299,8 +420,11 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
           <Card variant="elevated" style={styles.chartCard}>
             <View style={styles.chartHeaderRow}>
               <Text style={styles.chartTitle}>Apartment-wise Cleanings</Text>
-              <TouchableOpacity style={styles.chartFilterBtn}>
-                <Text style={styles.chartFilterTxt}>This Week</Text>
+              <TouchableOpacity 
+                style={styles.chartFilterBtn}
+                onPress={() => showFilterOptions('Apartments', apartmentFilter, setApartmentFilter)}
+              >
+                <Text style={styles.chartFilterTxt}>{apartmentFilter}</Text>
                 <Icon name="chevron-down" size={14} color="#64748B" />
               </TouchableOpacity>
             </View>
@@ -314,7 +438,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
                 <View style={[styles.donutSector, { borderColor: '#94A3B8', transform: [{ rotate: '302.4deg' }] }]} />
                 <View style={styles.donutCenter}>
                   <Text style={styles.donutCenterLabel}>Total</Text>
-                  <Text style={styles.donutCenterVal}>186</Text>
+                  <Text style={styles.donutCenterVal}>{apartmentFilter === 'This Week' ? '186' : '744'}</Text>
                 </View>
               </View>
               
@@ -323,27 +447,27 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: '#2563EB' }]} />
                   <Text style={styles.legendLabelText}>Green View</Text>
-                  <Text style={styles.legendValueText}>48 (26%)</Text>
+                  <Text style={styles.legendValueText}>{apartmentFilter === 'This Week' ? '48 (26%)' : '198 (27%)'}</Text>
                 </View>
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
                   <Text style={styles.legendLabelText}>Sunshine Heights</Text>
-                  <Text style={styles.legendValueText}>42 (23%)</Text>
+                  <Text style={styles.legendValueText}>{apartmentFilter === 'This Week' ? '42 (23%)' : '172 (23%)'}</Text>
                 </View>
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: '#F59E0B' }]} />
                   <Text style={styles.legendLabelText}>Maple Residency</Text>
-                  <Text style={styles.legendValueText}>36 (19%)</Text>
+                  <Text style={styles.legendValueText}>{apartmentFilter === 'This Week' ? '36 (19%)' : '140 (19%)'}</Text>
                 </View>
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: '#8B5CF6' }]} />
                   <Text style={styles.legendLabelText}>Skyline Towers</Text>
-                  <Text style={styles.legendValueText}>30 (16%)</Text>
+                  <Text style={styles.legendValueText}>{apartmentFilter === 'This Week' ? '30 (16%)' : '118 (16%)'}</Text>
                 </View>
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: '#94A3B8' }]} />
                   <Text style={styles.legendLabelText}>Others</Text>
-                  <Text style={styles.legendValueText}>30 (16%)</Text>
+                  <Text style={styles.legendValueText}>{apartmentFilter === 'This Week' ? '30 (16%)' : '116 (15%)'}</Text>
                 </View>
               </View>
             </View>
@@ -353,8 +477,11 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
           <Card variant="elevated" style={styles.chartCard}>
             <View style={styles.chartHeaderRow}>
               <Text style={styles.chartTitle}>Attendance Analytics</Text>
-              <TouchableOpacity style={styles.chartFilterBtn}>
-                <Text style={styles.chartFilterTxt}>Today</Text>
+              <TouchableOpacity 
+                style={styles.chartFilterBtn}
+                onPress={() => showFilterOptions('Attendance', attendanceFilter, setAttendanceFilter, ['Today', 'This Month'])}
+              >
+                <Text style={styles.chartFilterTxt}>{attendanceFilter}</Text>
                 <Icon name="chevron-down" size={14} color="#64748B" />
               </TouchableOpacity>
             </View>
@@ -367,7 +494,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
                 <View style={[styles.donutSector, { borderColor: '#3B82F6', transform: [{ rotate: '356.4deg' }] }]} />
                 <View style={styles.donutCenter}>
                   <Text style={styles.donutCenterLabel}>Total</Text>
-                  <Text style={styles.donutCenterVal}>320</Text>
+                  <Text style={styles.donutCenterVal}>{attendanceFilter === 'Today' ? '320' : '9,600'}</Text>
                 </View>
               </View>
               
@@ -376,22 +503,22 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
                   <Text style={styles.legendLabelText}>Present</Text>
-                  <Text style={styles.legendValueText}>298 (93%)</Text>
+                  <Text style={styles.legendValueText}>{attendanceFilter === 'Today' ? '298 (93%)' : '8,928 (93%)'}</Text>
                 </View>
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: '#EF4444' }]} />
                   <Text style={styles.legendLabelText}>Absent</Text>
-                  <Text style={styles.legendValueText}>14 (4%)</Text>
+                  <Text style={styles.legendValueText}>{attendanceFilter === 'Today' ? '14 (4%)' : '420 (4%)'}</Text>
                 </View>
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: '#F59E0B' }]} />
                   <Text style={styles.legendLabelText}>Late</Text>
-                  <Text style={styles.legendValueText}>6 (2%)</Text>
+                  <Text style={styles.legendValueText}>{attendanceFilter === 'Today' ? '6 (2%)' : '180 (2%)'}</Text>
                 </View>
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: '#3B82F6' }]} />
                   <Text style={styles.legendLabelText}>On Leave</Text>
-                  <Text style={styles.legendValueText}>2 (1%)</Text>
+                  <Text style={styles.legendValueText}>{attendanceFilter === 'Today' ? '2 (1%)' : '72 (1%)'}</Text>
                 </View>
               </View>
             </View>
@@ -404,7 +531,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
           <Card variant="elevated" style={styles.listCard}>
             <View style={styles.listHeaderRow}>
               <Text style={styles.listSectionTitle}>Recent Activities</Text>
-              <TouchableOpacity onPress={() => navigateTo('DailyWorkMonitoring')}>
+              <TouchableOpacity onPress={() => navigateTo('TodayCleaningMain')}>
                 <Text style={styles.viewAllText}>View All</Text>
               </TouchableOpacity>
             </View>
@@ -597,65 +724,41 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
             <Text style={styles.tasksTitle}>Today's Tasks</Text>
             
             <View style={styles.taskList}>
-              <TouchableOpacity style={styles.taskItem}>
-                <View style={styles.checkboxCircle}>
-                  <Icon name="circle-outline" size={20} color="#94A3B8" />
-                </View>
-                <View style={styles.taskTextCol}>
-                  <View style={styles.taskHeaderLine}>
-                    <Text style={styles.taskName}>Review 18 pending approvals</Text>
-                    <View style={[styles.priorityBadge, { backgroundColor: '#FEE2E2' }]}>
-                      <Text style={[styles.priorityBadgeTxt, { color: '#EF4444' }]}>High Priority</Text>
+              {tasks.map(task => (
+                <View key={task.id} style={styles.taskItem}>
+                  <TouchableOpacity onPress={() => toggleTask(task.id)} style={styles.checkboxCircle}>
+                    <Icon 
+                      name={task.completed ? "check-circle" : "circle-outline"} 
+                      size={22} 
+                      color={task.completed ? "#10B981" : "#94A3B8"} 
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    onPress={() => navigateTo(task.route)} 
+                    style={[styles.taskTextCol, { opacity: task.completed ? 0.6 : 1 }]}
+                  >
+                    <View style={styles.taskHeaderLine}>
+                      <Text style={[styles.taskName, task.completed && { textDecorationLine: 'line-through' }]}>
+                        {task.name}
+                      </Text>
+                      <View style={[
+                        styles.priorityBadge, 
+                        { backgroundColor: task.priority === 'High' ? '#FEE2E2' : '#FFF7ED' }
+                      ]}>
+                        <Text style={[
+                          styles.priorityBadgeTxt, 
+                          { color: task.priority === 'High' ? '#EF4444' : '#F97316' }
+                        ]}>
+                          {task.priority} Priority
+                        </Text>
+                      </View>
                     </View>
-                  </View>
-                  <Text style={styles.taskDue}><Icon name="clock-outline" size={12} /> Due Today, 12:00 PM</Text>
+                    <Text style={styles.taskDue}>
+                      <Icon name="clock-outline" size={12} /> Due Today, {task.due}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.taskItem}>
-                <View style={styles.checkboxCircle}>
-                  <Icon name="circle-outline" size={20} color="#94A3B8" />
-                </View>
-                <View style={styles.taskTextCol}>
-                  <View style={styles.taskHeaderLine}>
-                    <Text style={styles.taskName}>Verify attendance & leaves</Text>
-                    <View style={[styles.priorityBadge, { backgroundColor: '#FFF7ED' }]}>
-                      <Text style={[styles.priorityBadgeTxt, { color: '#F97316' }]}>Medium Priority</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.taskDue}><Icon name="clock-outline" size={12} /> Due Today, 02:00 PM</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.taskItem}>
-                <View style={styles.checkboxCircle}>
-                  <Icon name="circle-outline" size={20} color="#94A3B8" />
-                </View>
-                <View style={styles.taskTextCol}>
-                  <View style={styles.taskHeaderLine}>
-                    <Text style={styles.taskName}>Inspect Sunshine Heights audit</Text>
-                    <View style={[styles.priorityBadge, { backgroundColor: '#FFF7ED' }]}>
-                      <Text style={[styles.priorityBadgeTxt, { color: '#F97316' }]}>Medium Priority</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.taskDue}><Icon name="clock-outline" size={12} /> Due Today, 04:00 PM</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.taskItem}>
-                <View style={styles.checkboxCircle}>
-                  <Icon name="circle-outline" size={20} color="#94A3B8" />
-                </View>
-                <View style={styles.taskTextCol}>
-                  <View style={styles.taskHeaderLine}>
-                    <Text style={styles.taskName}>Resolve open complaints (7)</Text>
-                    <View style={[styles.priorityBadge, { backgroundColor: '#FEE2E2' }]}>
-                      <Text style={[styles.priorityBadgeTxt, { color: '#EF4444' }]}>High Priority</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.taskDue}><Icon name="clock-outline" size={12} /> Due Today, 06:00 PM</Text>
-                </View>
-              </TouchableOpacity>
+              ))}
             </View>
           </Card>
 
@@ -827,8 +930,11 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 16,
   },
-  analyticsCard: {
+  analyticsCardWrapper: {
     width: (width - 44) / 2,
+  },
+  analyticsCard: {
+    flex: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 14,

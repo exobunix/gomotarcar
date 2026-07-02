@@ -58,11 +58,12 @@ export type TodayCleaningStackParamList = {
 
 export type CleanerStackParamList = {
   CleanerList: undefined;
-  CleanerDetail: { cleanerId: string };
-  CleanerAllocation: undefined;
+  CleanerDetail: { cleanerId?: string; mode?: 'create' | 'edit' | 'view' };
+  CleanerAllocation: { cleanerId?: string; cleanerName?: string } | undefined;
   SalaryIncentives: undefined;
   SalaryDetail: { cleanerId: string };
 };
+
 
 export type WorkStackParamList = {
   WorkDashboard: undefined;
@@ -121,16 +122,24 @@ export interface SupervisorProfile {
 export interface CleanerItem {
   _id: string;
   cleanerId: string;
-  name: string;
-  phone: string;
+  firstName: string;
+  lastName?: string;
+  name?: string;
+  phone?: string;
   email?: string;
   photo?: string;
   zone?: string;
-  rating: number;
-  totalTasks: number;
-  completedTasks: number;
+  rating?: number;
+  totalTasks?: number;
+  completedTasks?: number;
   isActive: boolean;
-  documents: any[];
+  verificationStatus?: 'pending' | 'verified' | 'rejected';
+  employmentType?: string;
+  apartmentsCount?: number;
+  assignedCarsCount?: number;
+  apartmentNames?: string;
+  userId?: any;
+  documents?: any[];
   bankDetails?: any;
 }
 

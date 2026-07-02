@@ -351,24 +351,30 @@ class CleanerService {
    * Get dashboard stats
    */
   async getDashboardStats() {
+    const Leave = require('../models/Leave');
     const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
 
     const [
       totalToday,
       totalLastMonth,
       activeToday,
+      activeLastMonth,
       partTimeToday,
       fullTimeToday,
       pendingToday,
-      pendingLastMonth
+      pendingLastMonth,
+      onLeaveToday,
     ] = await Promise.all([
       // Total Cleaners today
       Cleaner.countDocuments(),
       // Total Cleaners by end of last month
       Cleaner.countDocuments({ createdAt: { $lte: lastDayLastMonth } }),
-      // Active Cleaners
-      Cleaner.countDocuments({ isActive: true }),
+      // Active Cleaners (isActive=true and verificationStatus=verified)
+      Cleaner.countDocuments({ isActive: true, verificationStatus: 'verified' }),
+      // Active cleaners last month
+      Cleaner.countDocuments({ isActive: true, verificationStatus: 'verified', createdAt: { $lte: lastDayLastMonth } }),
       // Part Time Cleaners
       Cleaner.countDocuments({ employmentType: 'part-time' }),
       // Full Time Cleaners
@@ -376,7 +382,9 @@ class CleanerService {
       // Pending Approvals today
       Cleaner.countDocuments({ verificationStatus: 'pending' }),
       // Pending Approvals by end of last month
-      Cleaner.countDocuments({ verificationStatus: 'pending', createdAt: { $lte: lastDayLastMonth } })
+      Cleaner.countDocuments({ verificationStatus: 'pending', createdAt: { $lte: lastDayLastMonth } }),
+      // On Leave today: approved leave whose date range covers today
+      Leave.countDocuments({ status: 'approved', fromDate: { $lte: now }, toDate: { $gte: today } }),
     ]);
 
     const calcChange = (todayVal, lastMonthVal) => {
@@ -390,11 +398,26 @@ class CleanerService {
     };
 
     return {
-      totalCleaners: { value: totalToday, changePercent: calcChange(totalToday, totalLastMonth) },
-      activeCleaners: { value: activeToday, percentOfTotal: calcPercent(activeToday, totalToday) },
+      totalCleaners: {
+        value: totalToday,
+        changePercent: calcChange(totalToday, totalLastMonth),
+        change: totalToday - totalLastMonth,
+      },
+      activeCleaners: {
+        value: activeToday,
+        percentOfTotal: calcPercent(activeToday, totalToday),
+        change: activeToday - activeLastMonth,
+      },
+      onLeave: {
+        value: onLeaveToday,
+      },
       partTimeCleaners: { value: partTimeToday, percentOfTotal: calcPercent(partTimeToday, totalToday) },
       fullTimeCleaners: { value: fullTimeToday, percentOfTotal: calcPercent(fullTimeToday, totalToday) },
-      pendingApprovals: { value: pendingToday, changePercent: calcChange(pendingToday, pendingLastMonth) }
+      pendingApprovals: {
+        value: pendingToday,
+        changePercent: calcChange(pendingToday, pendingLastMonth),
+        change: pendingToday - pendingLastMonth,
+      },
     };
   }
 }

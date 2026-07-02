@@ -51,7 +51,8 @@ const MainTabNavigator: React.FC = () => (
       component={ApartmentStackNavigator}
       options={{ 
         tabBarLabel: 'Apartments', 
-        tabBarIcon: ({ color }) => <Icon name="office-building" color={color} size={22} /> 
+        tabBarIcon: ({ color }) => <Icon name="office-building" color={color} size={22} />,
+        tabBarButton: () => null
       }}
     />
     <Tab.Screen 
@@ -75,7 +76,8 @@ const MainTabNavigator: React.FC = () => (
       component={AttendanceStackNavigator}
       options={{ 
         tabBarLabel: 'Attendance', 
-        tabBarIcon: ({ color }) => <Icon name="calendar-check-outline" color={color} size={22} /> 
+        tabBarIcon: ({ color }) => <Icon name="calendar-check-outline" color={color} size={22} />,
+        tabBarButton: () => null
       }}
     />
     <Tab.Screen 
@@ -91,7 +93,8 @@ const MainTabNavigator: React.FC = () => (
       component={InventoryStackNavigator}
       options={{ 
         tabBarLabel: 'Inventory', 
-        tabBarIcon: ({ color }) => <Icon name="cube-outline" color={color} size={22} /> 
+        tabBarIcon: ({ color }) => <Icon name="cube-outline" color={color} size={22} />,
+        tabBarButton: () => null
       }}
     />
     <Tab.Screen 
@@ -99,7 +102,8 @@ const MainTabNavigator: React.FC = () => (
       component={GrievanceStackNavigator}
       options={{ 
         tabBarLabel: 'Complaints', 
-        tabBarIcon: ({ color }) => <Icon name="message-text-outline" color={color} size={22} /> 
+        tabBarIcon: ({ color }) => <Icon name="message-text-outline" color={color} size={22} />,
+        tabBarButton: () => null
       }}
     />
     <Tab.Screen 
@@ -124,7 +128,8 @@ const MainTabNavigator: React.FC = () => (
               <Text style={{ fontSize: 7, fontWeight: '800', color: '#FFFFFF' }}>12</Text>
             </View>
           </View>
-        )
+        ),
+        tabBarButton: () => null
       }}
     />
     <Tab.Screen 
@@ -132,7 +137,8 @@ const MainTabNavigator: React.FC = () => (
       component={ReportsStackNavigator}
       options={{ 
         tabBarLabel: 'Reports', 
-        tabBarIcon: ({ color }) => <Icon name="chart-box-outline" color={color} size={22} /> 
+        tabBarIcon: ({ color }) => <Icon name="chart-box-outline" color={color} size={22} />,
+        tabBarButton: () => null
       }}
     />
     <Tab.Screen 
@@ -140,7 +146,8 @@ const MainTabNavigator: React.FC = () => (
       component={EarningsStackNavigator}
       options={{ 
         tabBarLabel: 'Earnings', 
-        tabBarIcon: ({ color }) => <Icon name="wallet-outline" color={color} size={22} /> 
+        tabBarIcon: ({ color }) => <Icon name="wallet-outline" color={color} size={22} />,
+        tabBarButton: () => null
       }}
     />
     <Tab.Screen 
@@ -148,7 +155,8 @@ const MainTabNavigator: React.FC = () => (
       component={LeaveStackNavigator}
       options={{ 
         tabBarLabel: 'Leaves', 
-        tabBarIcon: ({ color }) => <Icon name="calendar-multiselect" color={color} size={22} /> 
+        tabBarIcon: ({ color }) => <Icon name="calendar-multiselect" color={color} size={22} />,
+        tabBarButton: () => null
       }}
     />
     <Tab.Screen 

@@ -7,6 +7,7 @@ import { AppDispatch, RootState } from '../../redux/store';
 import { fetchTaskStats, fetchTasks } from '../../redux/slices/taskSlice';
 import { fetchCleanerStats } from '../../redux/slices/cleanerSlice';
 import { fetchUnreadCount } from '../../redux/slices/notificationSlice';
+import { toggleDrawer } from '../../redux/slices/uiSlice';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -63,7 +64,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
       {/* Brand Header Bar */}
       <View style={[styles.headerContainer, { paddingTop: insets.top > 0 ? insets.top + 4 : (Platform.OS === 'ios' ? 44 : 12) }]}>
         <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.headerMenuBtn}>
+          <TouchableOpacity style={styles.headerMenuBtn} onPress={() => dispatch(toggleDrawer())}>
             <Icon name="menu" size={26} color="#1E293B" />
           </TouchableOpacity>
           

@@ -5,3 +5,4 @@ export { default as Header } from './Header';
 export { default as LoadingOverlay } from './LoadingOverlay';
 export { default as EmptyState } from './EmptyState';
 export { default as StatusBadge } from './StatusBadge';
+export { default as DrawerOverlay } from './DrawerOverlay';

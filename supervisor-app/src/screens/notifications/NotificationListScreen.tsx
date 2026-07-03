@@ -1,640 +1,200 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Platform, Dimensions, StatusBar } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View, Text, StyleSheet, FlatList, TouchableOpacity, Platform, Dimensions,
+  StatusBar, RefreshControl, ActivityIndicator, Linking, Alert,
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Card from '../../components/common/Card';
+import { AppDispatch, RootState } from '../../redux/store';
+import { fetchNotifications, fetchUnreadCount, markNotificationRead } from '../../redux/slices/notificationSlice';
 
 const { width } = Dimensions.get('window');
-
 interface Props { navigation: any }
 
+const FILTERS = ['All', 'Unread', 'System', 'Customer', 'Cleaner'];
+
+const TAG_META: Record<string, { bg: string; color: string }> = {
+  Important: { bg: '#FAF5FF', color: '#8B5CF6' },
+  High: { bg: '#FEF2F2', color: '#DC2626' },
+  New: { bg: '#EFF6FF', color: '#2563EB' },
+  Info: { bg: '#ECFDF5', color: '#16A34A' },
+  General: { bg: '#F8FAFC', color: '#64748B' },
+  Task: { bg: '#FFF7ED', color: '#F97316' },
+};
+
+const ICON_MAP: Record<string, string> = {
+  task: 'broom',
+  complaint: 'message-alert-outline',
+  leave: 'calendar-multiselect',
+  attendance: 'clock-outline',
+  system: 'shield-check-outline',
+  approval: 'clipboard-check-outline',
+  default: 'bell-outline',
+};
+
+const getIcon = (notif: any) => ICON_MAP[notif.type?.toLowerCase()] || ICON_MAP.default;
+
+const formatTime = (d: string | Date | undefined) => {
+  if (!d) return '';
+  const date = new Date(d);
+  const now = new Date();
+  const diff = Math.floor((now.getTime() - date.getTime()) / 60000);
+  if (diff < 60) return `${diff}m ago`;
+  if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+  return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+};
+
 const NotificationListScreen: React.FC<Props> = ({ navigation }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const insets = useSafeAreaInsets();
+  const { notifications, loading, unreadCount } = useSelector((s: RootState) => s.notifications);
   const [activeFilter, setActiveFilter] = useState('All');
 
-  // Categorized high-fidelity mock data matching the screenshot exactly
-  const systemNotifications = [
-    {
-      id: 'SYS-1',
-      title: 'System Maintenance Scheduled',
-      message: 'System maintenance is scheduled on 22 May 2025 from 02:00 AM to 04:00 AM.',
-      time: '20 May 2025, 09:15 AM',
-      sender: 'System',
-      icon: 'server',
-      tag: 'Important',
-      tagBg: '#FAF5FF',
-      tagTxt: '#8B5CF6',
-      unread: true
-    },
-    {
-      id: 'SYS-2',
-      title: 'New Feature Update',
-      message: 'Inventory management module has been updated with new features.',
-      time: '19 May 2025, 04:30 PM',
-      sender: 'System',
-      icon: 'shield-check-outline',
-      tag: 'New',
-      tagBg: '#EFF6FF',
-      tagTxt: '#2563EB',
-      unread: true
-    },
-    {
-      id: 'SYS-3',
-      title: 'Data Backup Completed',
-      message: 'Daily data backup completed successfully.',
-      time: '19 May 2025, 02:05 PM',
-      sender: 'System',
-      icon: 'cloud-upload-outline',
-      tag: 'Info',
-      tagBg: '#ECFDF5',
-      tagTxt: '#16A34A',
-      unread: true
-    }
-  ];
+  const load = useCallback(() => {
+    dispatch(fetchNotifications());
+    dispatch(fetchUnreadCount());
+  }, [dispatch]);
 
-  const customerNotifications = [
-    {
-      id: 'CUST-1',
-      title: 'New Complaint Raised',
-      message: 'Rahul Sharma has raised a complaint about Water Spots on Car.',
-      time: '20 May 2025, 09:10 AM',
-      sender: 'Rahul Sharma',
-      icon: 'account-alert-outline',
-      tag: 'High',
-      tagBg: '#FFF7ED',
-      tagTxt: '#EA580C',
-      unread: true
-    },
-    {
-      id: 'CUST-2',
-      title: 'Cleaning Completed',
-      message: 'Your car cleaning at Sunshine Heights is completed. Please rate your experience.',
-      time: '19 May 2025, 06:20 PM',
-      sender: 'Priya Singh',
-      icon: 'calendar-check-outline',
-      tag: 'General',
-      tagBg: '#EFF6FF',
-      tagTxt: '#2563EB',
-      unread: true
-    },
-    {
-      id: 'CUST-3',
-      title: 'Upcoming Cleaning Reminder',
-      message: 'Your car cleaning is scheduled tomorrow at 10:00 AM.',
-      time: '19 May 2025, 05:45 PM',
-      sender: 'Amit Verma',
-      icon: 'volume-high',
-      tag: 'Reminder',
-      tagBg: '#ECFDF5',
-      tagTxt: '#16A34A',
-      unread: true
-    }
-  ];
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => { const unsub = navigation.addListener('focus', load); return unsub; }, [navigation, load]);
 
-  const cleanerNotifications = [
-    {
-      id: 'CLEAN-1',
-      title: 'New Assignment',
-      message: 'You are assigned to Sunshine Heights for cleaning on 21 May 2025.',
-      time: '20 May 2025, 08:45 AM',
-      sender: 'Ramesh Kumar',
-      icon: 'account-arrow-right-outline',
-      tag: 'High',
-      tagBg: '#FFF7ED',
-      tagTxt: '#EA580C',
-      unread: true
-    },
-    {
-      id: 'CLEAN-2',
-      title: 'Shift Change',
-      message: 'Your shift timing has been updated to 08:00 AM – 04:00 PM from 21 May 2025.',
-      time: '19 May 2025, 07:30 PM',
-      sender: 'Suresh Yadav',
-      icon: 'calendar-clock-outline',
-      tag: 'Update',
-      tagBg: '#EFF6FF',
-      tagTxt: '#2563EB',
-      unread: true
-    },
-    {
-      id: 'CLEAN-3',
-      title: 'Payment Credited',
-      message: 'Your earnings of ₹1,250 has been credited.',
-      time: '19 May 2025, 06:10 PM',
-      sender: 'Vikram Singh',
-      icon: 'wallet-outline',
-      tag: 'Payment',
-      tagBg: '#ECFDF5',
-      tagTxt: '#16A34A',
-      unread: true
-    }
-  ];
+  const filtered = notifications.filter(n => {
+    if (activeFilter === 'All') return true;
+    if (activeFilter === 'Unread') return !n.isRead;
+    return (n.type || '').toLowerCase().includes(activeFilter.toLowerCase());
+  });
+
+  const handleMarkRead = (id: string) => {
+    dispatch(markNotificationRead(id));
+  };
+
+  const handleMarkAllRead = () => {
+    notifications.filter(n => !n.isRead).forEach(n => dispatch(markNotificationRead(n._id)));
+  };
+
+  const renderItem = ({ item }: { item: any }) => {
+    const tag = item.priority === 'high' ? 'High' : item.type === 'system' ? 'System' : 'General';
+    const tagMeta = TAG_META[tag] || TAG_META.General;
+    return (
+      <TouchableOpacity
+        style={[styles.card, !item.isRead && styles.cardUnread]}
+        onPress={() => handleMarkRead(item._id)}
+        activeOpacity={0.85}
+      >
+        <View style={[styles.iconBg, { backgroundColor: !item.isRead ? '#EFF6FF' : '#F8FAFC' }]}>
+          <Icon name={getIcon(item)} size={20} color={!item.isRead ? '#2563EB' : '#94A3B8'} />
+        </View>
+        <View style={styles.cardBody}>
+          <View style={styles.cardTopRow}>
+            <Text style={[styles.cardTitle, !item.isRead && { fontWeight: '800', color: '#0F172A' }]} numberOfLines={2}>
+              {item.title || 'Notification'}
+            </Text>
+            <View style={[styles.tag, { backgroundColor: tagMeta.bg }]}>
+              <Text style={[styles.tagTxt, { color: tagMeta.color }]}>{tag}</Text>
+            </View>
+          </View>
+          <Text style={styles.cardMsg} numberOfLines={2}>{item.message || item.body || ''}</Text>
+          <View style={styles.cardFooter}>
+            <Text style={styles.cardTime}>{formatTime(item.createdAt)}</Text>
+            {!item.isRead && <View style={styles.unreadDot} />}
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-
-      {/* Brand Header Bar */}
-      <View style={[styles.headerContainer, { paddingTop: insets.top > 0 ? insets.top + 4 : (Platform.OS === 'ios' ? 44 : 12) }]}>
+      <StatusBar barStyle="light-content" backgroundColor="#1D4ED8" />
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : (Platform.OS === 'ios' ? 52 : 16) }]}>
         <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.headerBackBtn} onPress={() => navigation.goBack()}>
-            <Icon name="arrow-left" size={24} color="#1E293B" />
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Icon name="arrow-left" size={22} color="#FFF" />
           </TouchableOpacity>
-
-          <View style={styles.brandContainer}>
-            <Text style={styles.headerCenterTitle}>Notifications Center</Text>
-            <Text style={styles.headerCenterSub}>Stay updated with all activities</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headerTitle}>Notifications</Text>
+            <Text style={styles.headerSub}>{unreadCount} unread messages</Text>
           </View>
-
-          <View style={styles.headerRightActions}>
-            <TouchableOpacity style={styles.notifBtn}>
-              <Icon name="bell-outline" size={24} color="#1E293B" />
-              <View style={styles.notifBadge}>
-                <Text style={styles.notifBadgeText}>12</Text>
-              </View>
+          {unreadCount > 0 && (
+            <TouchableOpacity style={styles.markAllBtn} onPress={handleMarkAllRead}>
+              <Text style={styles.markAllTxt}>Mark All Read</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity style={styles.profileDropdown}>
-              <Image source={require('../../assets/cleaner_avatar.png')} style={styles.avatarMini} />
-              <View style={{ marginLeft: 6, marginRight: 4 }}>
-                <Text style={styles.profileDropdownRole}>Supervisor</Text>
-                <Text style={styles.profileDropdownCode}>SUP001</Text>
-              </View>
-              <Icon name="chevron-down" size={14} color="#64748B" />
-            </TouchableOpacity>
-          </View>
+          )}
         </View>
+        {/* Filters */}
+        <FlatList
+          horizontal
+          data={FILTERS}
+          keyExtractor={f => f}
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: 10 }}
+          contentContainerStyle={{ gap: 8, paddingHorizontal: 2 }}
+          renderItem={({ item: f }) => (
+            <TouchableOpacity
+              style={[styles.filterChip, activeFilter === f && styles.filterChipActive]}
+              onPress={() => setActiveFilter(f)}
+            >
+              <Text style={[styles.filterChipTxt, activeFilter === f && { color: '#FFF' }]}>{f}</Text>
+            </TouchableOpacity>
+          )}
+        />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
-        {/* Filter Controls Row */}
-        <View style={styles.filterRow}>
-          <View style={styles.segmentedControl}>
-            <TouchableOpacity 
-              style={[styles.segmentBtn, activeFilter === 'All' && styles.segmentActiveBtn]}
-              onPress={() => setActiveFilter('All')}
-            >
-              <Text style={[styles.segmentBtnTxt, activeFilter === 'All' && styles.segmentActiveBtnTxt]}>All</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.segmentBtn, activeFilter === 'Unread' && styles.segmentActiveBtn]}
-              onPress={() => setActiveFilter('Unread')}
-            >
-              <Text style={[styles.segmentBtnTxt, activeFilter === 'Unread' && styles.segmentActiveBtnTxt]}>Unread</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.segmentBtn, activeFilter === 'Important' && styles.segmentActiveBtn]}
-              onPress={() => setActiveFilter('Important')}
-            >
-              <Text style={[styles.segmentBtnTxt, activeFilter === 'Important' && styles.segmentActiveBtnTxt]}>Important</Text>
-            </TouchableOpacity>
+      <FlatList
+        data={filtered}
+        keyExtractor={item => item._id}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor="#2563EB" />}
+        renderItem={renderItem}
+        ListEmptyComponent={
+          <View style={styles.emptyWrap}>
+            {loading ? (
+              <ActivityIndicator size="large" color="#2563EB" />
+            ) : (
+              <>
+                <Icon name="bell-off-outline" size={52} color="#CBD5E1" />
+                <Text style={styles.emptyTitle}>No notifications</Text>
+                <Text style={styles.emptySub}>You're all caught up!</Text>
+              </>
+            )}
           </View>
-          <TouchableOpacity style={styles.filterBtn}>
-            <Icon name="filter-outline" size={18} color="#64748B" />
-            <Text style={styles.filterBtnTxt}>Filter</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Channels Quick Actions */}
-        <View style={styles.quickActionsGrid}>
-          {/* Item 1 */}
-          <TouchableOpacity style={styles.quickActionCard}>
-            <View style={styles.qaLeftIconRow}>
-              <View style={[styles.qaCircleIconBg, { backgroundColor: '#8B5CF6' }]}>
-                <Icon name="bell-ring" size={20} color="#FFFFFF" />
-              </View>
-              <View style={styles.qaDetailsCol}>
-                <Text style={styles.qaTitle}>Push Notification</Text>
-                <Text style={styles.qaDesc}>Send app push{"\n"}notifications</Text>
-              </View>
-            </View>
-            <Icon name="chevron-right" size={16} color="#94A3B8" />
-          </TouchableOpacity>
-
-          {/* Item 2 */}
-          <TouchableOpacity style={styles.quickActionCard}>
-            <View style={styles.qaLeftIconRow}>
-              <View style={[styles.qaCircleIconBg, { backgroundColor: '#10B981' }]}>
-                <Icon name="message-text" size={20} color="#FFFFFF" />
-              </View>
-              <View style={styles.qaDetailsCol}>
-                <Text style={styles.qaTitle}>SMS</Text>
-                <Text style={styles.qaDesc}>Send SMS to users{"\n"}or cleaners</Text>
-              </View>
-            </View>
-            <Icon name="chevron-right" size={16} color="#94A3B8" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={[styles.quickActionsGrid, { marginTop: 10 }]}>
-          {/* Item 3 */}
-          <TouchableOpacity style={styles.quickActionCard}>
-            <View style={styles.qaLeftIconRow}>
-              <View style={[styles.qaCircleIconBg, { backgroundColor: '#2563EB' }]}>
-                <Icon name="email" size={20} color="#FFFFFF" />
-              </View>
-              <View style={styles.qaDetailsCol}>
-                <Text style={styles.qaTitle}>Email</Text>
-                <Text style={styles.qaDesc}>Send email{"\n"}notifications</Text>
-              </View>
-            </View>
-            <Icon name="chevron-right" size={16} color="#94A3B8" />
-          </TouchableOpacity>
-
-          {/* Item 4 */}
-          <TouchableOpacity style={styles.quickActionCard}>
-            <View style={styles.qaLeftIconRow}>
-              <View style={[styles.qaCircleIconBg, { backgroundColor: '#F59E0B' }]}>
-                <Icon name="send" size={20} color="#FFFFFF" />
-              </View>
-              <View style={styles.qaDetailsCol}>
-                <Text style={styles.qaTitle}>Create New</Text>
-                <Text style={styles.qaDesc}>Create custom{"\n"}notification</Text>
-              </View>
-            </View>
-            <Icon name="chevron-right" size={16} color="#94A3B8" />
-          </TouchableOpacity>
-        </View>
-
-        {/* 1. System Notifications Section */}
-        <View style={styles.sectionHeader}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Icon name="laptop" size={20} color="#8B5CF6" />
-            <Text style={styles.sectionTitle}>System Notifications</Text>
-          </View>
-          <TouchableOpacity>
-            <Text style={styles.viewAllTxt}>View All</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.notifCardList}>
-          {systemNotifications.map((n) => (
-            <Card key={n.id} variant="elevated" style={styles.notifCard}>
-              {n.unread && <View style={styles.unreadBlueDot} />}
-              <View style={styles.notifRowContent}>
-                <View style={[styles.notifCircleIconBg, { backgroundColor: '#F3E8FF' }]}>
-                  <Icon name={n.icon} size={20} color="#8B5CF6" />
-                </View>
-                
-                <View style={styles.notifTextCol}>
-                  <Text style={styles.notifTitle}>{n.title}</Text>
-                  <Text style={styles.notifMessage}>{n.message}</Text>
-                  <Text style={styles.notifMeta}>{n.time}  •  {n.sender}</Text>
-                </View>
-
-                <View style={styles.notifRightCol}>
-                  <View style={[styles.tagBadge, { backgroundColor: n.tagBg }]}>
-                    <Text style={[styles.tagBadgeTxt, { color: n.tagTxt }]}>{n.tag}</Text>
-                  </View>
-                  <Icon name="chevron-right" size={18} color="#94A3B8" />
-                </View>
-              </View>
-            </Card>
-          ))}
-        </View>
-
-        {/* 2. Customer Notifications Section */}
-        <View style={[styles.sectionHeader, { marginTop: 24 }]}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Icon name="account-group-outline" size={20} color="#10B981" />
-            <Text style={styles.sectionTitle}>Customer Notifications</Text>
-          </View>
-          <TouchableOpacity>
-            <Text style={styles.viewAllTxt}>View All</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.notifCardList}>
-          {customerNotifications.map((n) => (
-            <Card key={n.id} variant="elevated" style={styles.notifCard}>
-              {n.unread && <View style={styles.unreadBlueDot} />}
-              <View style={styles.notifRowContent}>
-                <View style={[styles.notifCircleIconBg, { backgroundColor: '#D1FAE5' }]}>
-                  <Icon name={n.icon} size={20} color="#10B981" />
-                </View>
-                
-                <View style={styles.notifTextCol}>
-                  <Text style={styles.notifTitle}>{n.title}</Text>
-                  <Text style={styles.notifMessage}>{n.message}</Text>
-                  <Text style={styles.notifMeta}>{n.time}  •  {n.sender}</Text>
-                </View>
-
-                <View style={styles.notifRightCol}>
-                  <View style={[styles.tagBadge, { backgroundColor: n.tagBg }]}>
-                    <Text style={[styles.tagBadgeTxt, { color: n.tagTxt }]}>{n.tag}</Text>
-                  </View>
-                  <Icon name="chevron-right" size={18} color="#94A3B8" />
-                </View>
-              </View>
-            </Card>
-          ))}
-        </View>
-
-        {/* 3. Cleaner Notifications Section */}
-        <View style={[styles.sectionHeader, { marginTop: 24 }]}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Icon name="account-tie-outline" size={20} color="#2563EB" />
-            <Text style={styles.sectionTitle}>Cleaner Notifications</Text>
-          </View>
-          <TouchableOpacity>
-            <Text style={styles.viewAllTxt}>View All</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.notifCardList}>
-          {cleanerNotifications.map((n) => (
-            <Card key={n.id} variant="elevated" style={styles.notifCard}>
-              {n.unread && <View style={styles.unreadBlueDot} />}
-              <View style={styles.notifRowContent}>
-                <View style={[styles.notifCircleIconBg, { backgroundColor: '#DBEAFE' }]}>
-                  <Icon name={n.icon} size={20} color="#2563EB" />
-                </View>
-                
-                <View style={styles.notifTextCol}>
-                  <Text style={styles.notifTitle}>{n.title}</Text>
-                  <Text style={styles.notifMessage}>{n.message}</Text>
-                  <Text style={styles.notifMeta}>{n.time}  •  {n.sender}</Text>
-                </View>
-
-                <View style={styles.notifRightCol}>
-                  <View style={[styles.tagBadge, { backgroundColor: n.tagBg }]}>
-                    <Text style={[styles.tagBadgeTxt, { color: n.tagTxt }]}>{n.tag}</Text>
-                  </View>
-                  <Icon name="chevron-right" size={18} color="#94A3B8" />
-                </View>
-              </View>
-            </Card>
-          ))}
-        </View>
-
-      </ScrollView>
+        }
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
-  headerContainer: {
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderColor: '#E2E8F0',
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerBackBtn: {
-    padding: 6,
-    borderRadius: 8,
-    backgroundColor: '#F1F5F9',
-  },
-  brandContainer: {
-    flex: 1,
-    paddingLeft: 12,
-  },
-  headerCenterTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-  },
-  headerCenterSub: {
-    fontSize: 10,
-    color: '#64748B',
-    marginTop: 2,
-    fontFamily: 'Inter-Regular',
-  },
-  headerRightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  notifBtn: {
-    position: 'relative',
-    padding: 6,
-    marginRight: 10,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-  },
-  notifBadge: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    backgroundColor: '#EF4444',
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 2,
-  },
-  notifBadgeText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  profileDropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  avatarMini: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
-  profileDropdownRole: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  profileDropdownCode: {
-    fontSize: 8,
-    color: '#64748B',
-    marginTop: -1,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  segmentedControl: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-    padding: 3,
-  },
-  segmentBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderRadius: 6,
-  },
-  segmentActiveBtn: {
-    backgroundColor: '#2563EB',
-  },
-  segmentBtnTxt: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#475569',
-  },
-  segmentActiveBtnTxt: {
-    color: '#FFFFFF',
-  },
-  filterBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    height: 38,
-    gap: 6,
-  },
-  filterBtnTxt: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
-  },
-  quickActionsGrid: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  quickActionCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  qaLeftIconRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  qaCircleIconBg: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  qaDetailsCol: {
-    gap: 2,
-  },
-  qaTitle: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#1E293B',
-  },
-  qaDesc: {
-    fontSize: 8,
-    color: '#64748B',
-    lineHeight: 11,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#1E293B',
-    fontFamily: 'Inter-Bold',
-  },
-  viewAllTxt: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#2563EB',
-  },
-  notifCardList: {
-    gap: 10,
-  },
-  notifCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    padding: 14,
-    position: 'relative',
-  },
-  unreadBlueDot: {
-    position: 'absolute',
-    left: 8,
-    top: '48%',
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#2563EB',
-  },
-  notifRowContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: 8,
-  },
-  notifCircleIconBg: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  notifTextCol: {
-    flex: 1,
-    paddingLeft: 12,
-    paddingRight: 8,
-    gap: 2,
-  },
-  notifTitle: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#1E293B',
-  },
-  notifMessage: {
-    fontSize: 10.5,
-    color: '#475569',
-    lineHeight: 14,
-  },
-  notifMeta: {
-    fontSize: 9,
-    color: '#64748B',
-    marginTop: 2,
-  },
-  notifRightCol: {
-    alignItems: 'flex-end',
-    gap: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  tagBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  tagBadgeTxt: {
-    fontSize: 9,
-    fontWeight: '700',
-  },
+  header: { backgroundColor: '#1D4ED8', paddingHorizontal: 16, paddingBottom: 14, borderBottomLeftRadius: 18, borderBottomRightRadius: 18 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 2 },
+  backBtn: { padding: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 8 },
+  headerTitle: { fontSize: 18, fontWeight: '800', color: '#FFF' },
+  headerSub: { fontSize: 11, color: '#BFDBFE', marginTop: 1 },
+  markAllBtn: { backgroundColor: 'rgba(255,255,255,0.18)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
+  markAllTxt: { fontSize: 11, fontWeight: '700', color: '#FFF' },
+  filterChip: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)' },
+  filterChipActive: { backgroundColor: '#FFF' },
+  filterChipTxt: { fontSize: 12, fontWeight: '600', color: '#BFDBFE' },
+  listContent: { padding: 16, paddingBottom: 32, gap: 10 },
+  card: { flexDirection: 'row', gap: 12, backgroundColor: '#FFF', borderRadius: 14, padding: 14, borderWidth: 1, borderColor: '#F1F5F9' },
+  cardUnread: { backgroundColor: '#F0F6FF', borderColor: '#BFDBFE' },
+  iconBg: { width: 42, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start' },
+  cardBody: { flex: 1 },
+  cardTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 },
+  cardTitle: { fontSize: 13, fontWeight: '600', color: '#1E293B', flex: 1, marginRight: 8 },
+  tag: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
+  tagTxt: { fontSize: 9, fontWeight: '700' },
+  cardMsg: { fontSize: 12, color: '#64748B', lineHeight: 17 },
+  cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 },
+  cardTime: { fontSize: 10, color: '#94A3B8' },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#2563EB' },
+  emptyWrap: { alignItems: 'center', paddingTop: 80, gap: 10 },
+  emptyTitle: { fontSize: 16, fontWeight: '700', color: '#475569' },
+  emptySub: { fontSize: 13, color: '#94A3B8' },
 });
 
 export default NotificationListScreen;

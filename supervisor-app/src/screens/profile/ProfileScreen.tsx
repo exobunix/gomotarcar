@@ -15,12 +15,14 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const { supervisor } = useSelector((s: RootState) => s.auth);
 
   const menuItems = [
+    { icon: '🔔', label: 'Notifications', screen: 'Notifications' },
     { icon: '📱', label: 'QR Management', screen: 'QRList' },
     { icon: '📦', label: 'Inventory', screen: 'InventoryList' },
     { icon: '⚠️', label: 'Grievances', screen: 'GrievanceList' },
-    { icon: '📊', label: 'Salary & Incentives', screen: 'SalaryIncentives' },
+    { icon: '💰', label: 'Salary & Incentives', screen: 'SalaryIncentives' },
+    { icon: '🌴', label: 'Leave Management', screen: 'LeaveManagement' },
+    { icon: '📊', label: 'Reports & Analytics', screen: 'Reports' },
     { icon: '📋', label: 'Task History', screen: 'DailyWorkMonitoring' },
-    { icon: '🔔', label: 'Notifications', screen: 'Notifications' },
     { icon: '👤', label: 'Profile Management', screen: 'ProfileManagement' },
     { icon: '⚙️', label: 'Settings', screen: 'Settings' },
     { icon: '🎧', label: 'Support Center', screen: 'SupportCenter' },
@@ -49,7 +51,14 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         </Card>
 
         {menuItems.map((item, i) => (
-          <TouchableOpacity key={i} style={styles.menuItem} onPress={() => navigation.navigate(item.screen)}>
+          <TouchableOpacity key={i} style={styles.menuItem} onPress={() => {
+            // Handle screens that live inside tab stacks
+            if (item.screen === 'DailyWorkMonitoring') {
+              navigation.navigate('TodayCleaningTab' as any);
+            } else {
+              navigation.navigate(item.screen as any);
+            }
+          }}>
             <Text style={styles.menuIcon}>{item.icon}</Text>
             <Text style={styles.menuLabel}>{item.label}</Text>
             <Text style={styles.menuArrow}>→</Text>

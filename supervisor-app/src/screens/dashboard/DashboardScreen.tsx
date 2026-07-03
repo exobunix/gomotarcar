@@ -56,10 +56,15 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
       CustomerList: 'CustomersTab',
       CleanerList: 'CleanersTab',
       QRList: 'MoreTab',
-      SalaryIncentives: 'CleanersTab',
-      GrievanceList: 'ComplaintsTab',
-      InventoryList: 'InventoryTab',
+      SalaryIncentives: 'MoreTab',
+      LeaveManagement: 'LeavesTab',
+      GrievanceList: 'MoreTab',
+      GrievanceManagement: 'MoreTab',
+      InventoryList: 'MoreTab',
+      InventoryManagement: 'MoreTab',
       Profile: 'MoreTab',
+      Notifications: 'MoreTab',
+      Reports: 'MoreTab',
       NewOnboarding: 'CustomersTab',
       WorkApprovalList: 'ApprovalsTab',
       QRAssignment: 'ApartmentsTab',
@@ -68,9 +73,16 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
     };
     const tab = tabMap[target];
     if (tab) {
-      navigation.navigate(tab as any, { screen: target });
+      // Some targets live inside the MoreTab stack
+      const moreTabScreens = ['SalaryIncentives', 'LeaveManagement', 'GrievanceList', 'GrievanceManagement',
+        'InventoryList', 'InventoryManagement', 'QRList', 'QRAssignment', 'Profile', 'Notifications', 'Reports'];
+      if (tab === 'MoreTab' && moreTabScreens.includes(target)) {
+        navigation.navigate('MoreTab' as any, { screen: target });
+      } else {
+        navigation.navigate(tab as any, { screen: target });
+      }
     } else {
-      navigation.navigate(target);
+      navigation.navigate(target as any);
     }
   };
 

@@ -1,887 +1,288 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Platform, Dimensions, StatusBar } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Dimensions,
+  StatusBar, RefreshControl, ActivityIndicator,
+} from 'react-native';
+import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Card from '../../components/common/Card';
+import { RootState } from '../../redux/store';
+import api from '../../services/api';
 
 const { width } = Dimensions.get('window');
-
 interface Props { navigation: any }
 
-const ReportsScreen: React.FC<Props> = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
-  const [activeReportTab, setActiveReportTab] = useState('Attendance');
+type ReportTab = 'Attendance' | 'Cleaning' | 'Performance' | 'Complaint';
 
-  const reportTabs = [
-    { name: 'Attendance', label: 'Attendance Report', icon: 'calendar-check' },
-    { name: 'Cleaning', label: 'Cleaning Report', icon: 'broom' },
-    { name: 'Performance', label: 'Cleaner Performance', icon: 'account-badge-outline' },
-    { name: 'Apartment', label: 'Apartment Report', icon: 'office-building' },
-    { name: 'Complaint', label: 'Complaint Report', icon: 'message-alert-outline' },
-  ];
+const TABS: { key: ReportTab; label: string; icon: string }[] = [
+  { key: 'Attendance', label: 'Attendance', icon: 'calendar-check' },
+  { key: 'Cleaning', label: 'Cleaning', icon: 'broom' },
+  { key: 'Performance', label: 'Performance', icon: 'account-badge-outline' },
+  { key: 'Complaint', label: 'Complaints', icon: 'message-alert-outline' },
+];
 
-  // High fidelity metrics
-  const staffMetrics = [
-    { val: '128', label: 'Total Staff', icon: 'account-group', color: '#2563EB', bg: '#EFF6FF', pct: null },
-    { val: '98', label: 'Present', icon: 'check-circle-outline', color: '#16A34A', bg: '#ECFDF5', pct: '76.6%' },
-    { val: '18', label: 'Late', icon: 'clock-outline', color: '#D97706', bg: '#FFF7ED', pct: '14.1%' },
-    { val: '10', label: 'Absent', icon: 'close-circle-outline', color: '#DC2626', bg: '#FEF2F2', pct: '7.8%' },
-    { val: '2', label: 'On Leave', icon: 'airplane-takeoff', color: '#8B5CF6', bg: '#FAF5FF', pct: '1.5%' },
-  ];
+const StatCard = ({ label, val, sub, color, bg, icon }: any) => (
+  <View style={[rcStyles.statCard, { backgroundColor: bg }]}>
+    <View style={[rcStyles.statIconBg, { backgroundColor: color + '22' }]}>
+      <Icon name={icon} size={18} color={color} />
+    </View>
+    <Text style={[rcStyles.statVal, { color }]}>{val}</Text>
+    <Text style={rcStyles.statLabel}>{label}</Text>
+    {sub ? <Text style={[rcStyles.statSub, { color }]}>{sub}</Text> : null}
+  </View>
+);
 
-  // Attendance Trend Mock Data points for Custom chart
-  // Points layout: 14 May, 15 May, 16 May, 17 May, 18 May, 19 May, 20 May
-  const trendLabels = ['14 May', '15 May', '16 May', '17 May', '18 May', '19 May', '20 May'];
-  const presentTrend = [70, 85, 92, 88, 95, 98, 98];
-  const lateTrend = [16, 10, 8, 10, 12, 14, 18];
-  const absentTrend = [12, 8, 6, 9, 5, 6, 10];
-
-  const cleanerAttendance = [
-    { name: 'Ramesh Kumar', ratio: '25 / 30', pct: 83 },
-    { name: 'Suresh Yadav', ratio: '25 / 30', pct: 83 },
-    { name: 'Vikram Singh', ratio: '24 / 30', pct: 80 },
-    { name: 'Amit Verma', ratio: '22 / 30', pct: 73 },
-    { name: 'Arjun Patel', ratio: '21 / 30', pct: 70 },
-  ];
-
-  // Render simulated Line Chart
-  const renderLineChart = () => {
-    const chartHeight = 150;
-    const padding = 30;
-    // Map values to coordinates inside height 150
-    const getY = (val: number) => chartHeight - (val / 120) * chartHeight;
-
-    return (
-      <View style={styles.chartWrapper}>
-        <View style={styles.chartYAxis}>
-          <Text style={styles.axisLabel}>120</Text>
-          <Text style={styles.axisLabel}>100</Text>
-          <Text style={styles.axisLabel}>80</Text>
-          <Text style={styles.axisLabel}>60</Text>
-          <Text style={styles.axisLabel}>40</Text>
-          <Text style={styles.axisLabel}>20</Text>
-          <Text style={styles.axisLabel}>0</Text>
-        </View>
-
-        <View style={styles.chartPlotArea}>
-          {/* Grid lines */}
-          {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <View key={i} style={[styles.gridLine, { top: (chartHeight / 6) * i }]} />
-          ))}
-
-          {/* Render Present Trend Nodes */}
-          <View style={styles.nodesContainer}>
-            {presentTrend.map((val, idx) => (
-              <View key={`pres-${idx}`} style={[styles.chartNodeWrapper, { left: `${(idx / 6) * 90}%`, top: getY(val) }]}>
-                <View style={[styles.chartDot, { backgroundColor: '#16A34A' }]} />
-                <Text style={styles.dotValueTxt}>{val}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Render Late Trend Nodes */}
-          <View style={styles.nodesContainer}>
-            {lateTrend.map((val, idx) => (
-              <View key={`late-${idx}`} style={[styles.chartNodeWrapper, { left: `${(idx / 6) * 90}%`, top: getY(val) }]}>
-                <View style={[styles.chartDot, { backgroundColor: '#D97706' }]} />
-                <Text style={styles.dotValueTxt}>{val}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Render Absent Trend Nodes */}
-          <View style={styles.nodesContainer}>
-            {absentTrend.map((val, idx) => (
-              <View key={`abs-${idx}`} style={[styles.chartNodeWrapper, { left: `${(idx / 6) * 90}%`, top: getY(val) }]}>
-                <View style={[styles.chartDot, { backgroundColor: '#DC2626' }]} />
-                <Text style={styles.dotValueTxt}>{val}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* X Axis Labels */}
-        <View style={styles.xAxisRow}>
-          {trendLabels.map((lbl, idx) => (
-            <Text key={idx} style={[styles.xAxisLabel, { left: `${(idx / 6) * 80 + 8}%` }]}>{lbl}</Text>
-          ))}
-        </View>
-      </View>
-    );
-  };
-
+const SimpleBar = ({ label, val, max, color }: any) => {
+  const pct = max > 0 ? Math.min((val / max) * 100, 100) : 0;
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-
-      {/* Brand Header Bar */}
-      <View style={[styles.headerContainer, { paddingTop: insets.top > 0 ? insets.top + 4 : (Platform.OS === 'ios' ? 44 : 12) }]}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.headerMenuBtn}>
-            <Icon name="menu" size={26} color="#1E293B" />
-          </TouchableOpacity>
-
-          <View style={styles.brandContainer}>
-            <Image 
-              source={require('../../assets/logo.png')} 
-              style={styles.brandLogo} 
-              resizeMode="contain" 
-            />
-            <Text style={styles.brandSub}>Anything & Everything for your Car</Text>
-          </View>
-
-          <View style={styles.headerRightActions}>
-            <TouchableOpacity style={styles.notifBtn}>
-              <Icon name="bell-outline" size={24} color="#1E293B" />
-              <View style={styles.notifBadge}>
-                <Text style={styles.notifBadgeText}>12</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.profileDropdown}>
-              <Image source={require('../../assets/cleaner_avatar.png')} style={styles.avatarMini} />
-              <View style={{ marginLeft: 6, marginRight: 4 }}>
-                <Text style={styles.profileDropdownRole}>Supervisor</Text>
-                <Text style={styles.profileDropdownCode}>SUP001</Text>
-              </View>
-              <Icon name="chevron-down" size={14} color="#64748B" />
-            </TouchableOpacity>
-          </View>
-        </View>
+    <View style={rcStyles.barRow}>
+      <Text style={rcStyles.barLabel} numberOfLines={1}>{label}</Text>
+      <View style={rcStyles.barOuter}>
+        <View style={[rcStyles.barInner, { width: `${pct}%` as any, backgroundColor: color }]} />
       </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Main Title Section */}
-        <View style={styles.titleRow}>
-          <View>
-            <Text style={styles.mainTitle}>Reports</Text>
-            <Text style={styles.subTitle}>Analyze performance and activities</Text>
-          </View>
-          <TouchableOpacity style={styles.datePickerBtn}>
-            <Icon name="calendar-month-outline" size={16} color="#2563EB" />
-            <Text style={styles.datePickerTxt}>20 May 2025 - 20 May 2025</Text>
-            <Icon name="chevron-down" size={14} color="#64748B" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Tab Selector Buttons Bar */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.reportTabsRow}>
-          {reportTabs.map((tab) => {
-            const isActive = activeReportTab === tab.name;
-            return (
-              <TouchableOpacity 
-                key={tab.name} 
-                style={[styles.reportTabItem, isActive && styles.reportTabActiveItem]}
-                onPress={() => setActiveReportTab(tab.name)}
-              >
-                <Icon name={tab.icon} size={16} color={isActive ? '#FFFFFF' : '#64748B'} />
-                <Text style={[styles.reportTabTxt, isActive && styles.reportTabActiveTxt]}>{tab.label}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-
-        {/* Staff Attendance Metrics Row */}
-        <View style={styles.metricsRow}>
-          {staffMetrics.map((metric, idx) => (
-            <Card key={idx} variant="elevated" style={styles.metricCard}>
-              <View style={[styles.metricIconBg, { backgroundColor: metric.bg }]}>
-                <Icon name={metric.icon} size={16} color={metric.color} />
-              </View>
-              <Text style={styles.metricValue}>{metric.val}</Text>
-              <Text style={styles.metricLabel}>{metric.label}</Text>
-              {metric.pct && (
-                <View style={[styles.pctBadge, { backgroundColor: metric.bg }]}>
-                  <Text style={[styles.pctBadgeTxt, { color: metric.color }]}>{metric.pct}</Text>
-                </View>
-              )}
-            </Card>
-          ))}
-        </View>
-
-        {/* Attendance Trend Section */}
-        <Card variant="elevated" style={styles.trendCard}>
-          <View style={styles.trendHeaderRow}>
-            <Text style={styles.cardHeaderTitle}>Attendance Trend</Text>
-            <TouchableOpacity style={styles.trendDailyDropdown}>
-              <Text style={styles.dropdownTxt}>Daily</Text>
-              <Icon name="chevron-down" size={14} color="#64748B" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Graph Legend */}
-          <View style={styles.legendRow}>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#16A34A' }]} />
-              <Text style={styles.legendTxt}>Present</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#DC2626' }]} />
-              <Text style={styles.legendTxt}>Absent</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#D97706' }]} />
-              <Text style={styles.legendTxt}>Late</Text>
-            </View>
-          </View>
-
-          {/* Simulated Line Chart */}
-          {renderLineChart()}
-        </Card>
-
-        {/* Attendance List and Pie Chart Split Panel */}
-        <View style={styles.splitRow}>
-          {/* Attendance by Cleaner */}
-          <Card variant="elevated" style={styles.splitCard}>
-            <View style={styles.splitHeaderRow}>
-              <Text style={styles.splitCardTitle}>Attendance by Cleaner</Text>
-              <TouchableOpacity>
-                <Text style={styles.viewAllLink}>View All</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.cleanerBarList}>
-              {cleanerAttendance.map((cleaner, idx) => (
-                <View key={idx} style={styles.cleanerBarRow}>
-                  <View style={styles.cleanerBarInfo}>
-                    <Text style={styles.cleanerBarName}>{cleaner.name}</Text>
-                    <Text style={styles.cleanerBarRatio}>{cleaner.ratio}</Text>
-                  </View>
-                  <View style={styles.progressBg}>
-                    <View style={[styles.progressFill, { width: `${cleaner.pct}%`, backgroundColor: '#16A34A' }]} />
-                  </View>
-                </View>
-              ))}
-            </View>
-          </Card>
-
-          {/* Attendance % Distribution */}
-          <Card variant="elevated" style={styles.splitCard}>
-            <Text style={styles.splitCardTitle}>Attendance % Distribution</Text>
-            
-            <View style={styles.donutChartWrapper}>
-              {/* Simulated Donut shape */}
-              <View style={styles.donutShape}>
-                <View style={styles.donutHole}>
-                  <Text style={styles.donutHoleText}>76.6%</Text>
-                </View>
-              </View>
-
-              {/* Legend details */}
-              <View style={styles.donutLegendCol}>
-                <View style={styles.legendRowItem}>
-                  <View style={[styles.legendDot, { backgroundColor: '#16A34A' }]} />
-                  <Text style={styles.donutLegendTxt}>Present (76.6%)</Text>
-                </View>
-                <View style={styles.legendRowItem}>
-                  <View style={[styles.legendDot, { backgroundColor: '#D97706' }]} />
-                  <Text style={styles.donutLegendTxt}>Late (14.1%)</Text>
-                </View>
-                <View style={styles.legendRowItem}>
-                  <View style={[styles.legendDot, { backgroundColor: '#DC2626' }]} />
-                  <Text style={styles.donutLegendTxt}>Absent (7.8%)</Text>
-                </View>
-                <View style={styles.legendRowItem}>
-                  <View style={[styles.legendDot, { backgroundColor: '#8B5CF6' }]} />
-                  <Text style={styles.donutLegendTxt}>On Leave (1.5%)</Text>
-                </View>
-              </View>
-            </View>
-          </Card>
-        </View>
-
-        {/* Summary and Exports Split Panel */}
-        <View style={[styles.splitRow, { marginTop: 16 }]}>
-          {/* Summary Card */}
-          <Card variant="elevated" style={styles.splitCard}>
-            <Text style={styles.splitCardTitle}>Summary</Text>
-            
-            <View style={styles.summaryList}>
-              <View style={styles.summaryRowItem}>
-                <Icon name="clock-outline" size={16} color="#64748B" />
-                <Text style={styles.summaryLabel}>Average Attendance</Text>
-                <Text style={[styles.summaryValBold, { color: '#16A34A' }]}>86.2%</Text>
-              </View>
-
-              <View style={styles.summaryRowItem}>
-                <Icon name="calendar-check-outline" size={16} color="#64748B" />
-                <Text style={styles.summaryLabel}>Best Attendance Day</Text>
-                <Text style={[styles.summaryValBold, { color: '#16A34A' }]}>19 May 2025 (98%)</Text>
-              </View>
-
-              <View style={styles.summaryRowItem}>
-                <Icon name="calendar-remove-outline" size={16} color="#64748B" />
-                <Text style={styles.summaryLabel}>Lowest Attendance Day</Text>
-                <Text style={[styles.summaryValBold, { color: '#DC2626' }]}>14 May 2025 (70%)</Text>
-              </View>
-
-              <View style={styles.summaryRowItem}>
-                <Icon name="calendar-range" size={16} color="#64748B" />
-                <Text style={styles.summaryLabel}>Total Working Days</Text>
-                <Text style={styles.summaryVal}>7 Days</Text>
-              </View>
-            </View>
-          </Card>
-
-          {/* Export Report Card */}
-          <Card variant="elevated" style={styles.splitCard}>
-            <Text style={styles.splitCardTitle}>Export Report</Text>
-            
-            <View style={styles.exportList}>
-              <TouchableOpacity style={styles.exportItem}>
-                <View style={[styles.exportIconBg, { backgroundColor: '#FEE2E2' }]}>
-                  <Icon name="file-pdf-box" size={20} color="#DC2626" />
-                </View>
-                <View style={{ flex: 1, marginLeft: 8 }}>
-                  <Text style={styles.exportTitle}>Export as PDF</Text>
-                  <Text style={styles.exportDesc}>Download report in PDF format</Text>
-                </View>
-                <Icon name="chevron-right" size={16} color="#94A3B8" />
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.exportItem}>
-                <View style={[styles.exportIconBg, { backgroundColor: '#ECFDF5' }]}>
-                  <Icon name="file-excel-box" size={20} color="#16A34A" />
-                </View>
-                <View style={{ flex: 1, marginLeft: 8 }}>
-                  <Text style={styles.exportTitle}>Export as Excel</Text>
-                  <Text style={styles.exportDesc}>Download report in Excel format</Text>
-                </View>
-                <Icon name="chevron-right" size={16} color="#94A3B8" />
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.exportItem}>
-                <View style={[styles.exportIconBg, { backgroundColor: '#F0FDF4' }]}>
-                  <Icon name="file-document-outline" size={20} color="#16A34A" />
-                </View>
-                <View style={{ flex: 1, marginLeft: 8 }}>
-                  <Text style={styles.exportTitle}>Export as CSV</Text>
-                  <Text style={styles.exportDesc}>Download report in CSV format</Text>
-                </View>
-                <Icon name="chevron-right" size={16} color="#94A3B8" />
-              </TouchableOpacity>
-            </View>
-          </Card>
-        </View>
-
-        {/* Bottom Banner info */}
-        <View style={styles.bottomInfoBanner}>
-          <Icon name="information-outline" size={16} color="#2563EB" />
-          <Text style={styles.bottomInfoBannerTxt}>Reports are updated daily at 11:59 PM</Text>
-          <TouchableOpacity style={{ marginLeft: 'auto' }}>
-            <Icon name="refresh" size={16} color="#2563EB" />
-          </TouchableOpacity>
-        </View>
-
-      </ScrollView>
+      <Text style={[rcStyles.barVal, { color }]}>{val}</Text>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const ReportsScreen: React.FC<Props> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+  const [activeTab, setActiveTab] = useState<ReportTab>('Attendance');
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<any>(null);
+
+  const { stats: cleanerStats } = useSelector((s: RootState) => s.cleaners);
+  const { stats: taskStats } = useSelector((s: RootState) => s.tasks);
+  const { complaints } = useSelector((s: RootState) => s.complaints);
+
+  const fetchReportData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [attendanceRes, reportRes] = await Promise.allSettled([
+        api.get('/attendance/summary'),
+        api.get('/report/summary'),
+      ]);
+      const attendanceData = attendanceRes.status === 'fulfilled' ? attendanceRes.value.data.data : null;
+      const reportData = reportRes.status === 'fulfilled' ? reportRes.value.data.data : null;
+      setData({ attendance: attendanceData, report: reportData });
+    } catch (_) {}
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchReportData(); }, [fetchReportData]);
+
+  // Build attendance stats from data or fall back to cleaner stats
+  const totalStaff = cleanerStats?.total ?? data?.attendance?.total ?? 0;
+  const present = data?.attendance?.present ?? cleanerStats?.active ?? 0;
+  const late = data?.attendance?.late ?? 0;
+  const absent = data?.attendance?.absent ?? 0;
+  const onLeave = data?.attendance?.onLeave ?? cleanerStats?.onLeave ?? 0;
+  const presentPct = totalStaff > 0 ? ((present / totalStaff) * 100).toFixed(1) : '0';
+  const latePct = totalStaff > 0 ? ((late / totalStaff) * 100).toFixed(1) : '0';
+  const absentPct = totalStaff > 0 ? ((absent / totalStaff) * 100).toFixed(1) : '0';
+
+  // Cleaning stats
+  const totalTasks = taskStats?.totalTasks ?? 0;
+  const completed = taskStats?.completed ?? 0;
+  const inProgress = taskStats?.inProgress ?? 0;
+  const missed = taskStats?.missed ?? 0;
+  const completionRate = totalTasks > 0 ? ((completed / totalTasks) * 100).toFixed(1) : '0';
+
+  // Complaint stats
+  const openComplaints = complaints.filter(c => c.status === 'open').length;
+  const resolvedComplaints = complaints.filter(c => c.status === 'resolved').length;
+  const totalComplaints = complaints.length;
+  const resolutionRate = totalComplaints > 0 ? ((resolvedComplaints / totalComplaints) * 100).toFixed(1) : '0';
+
+  const renderAttendance = () => (
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={rcStyles.statsGrid}>
+        <StatCard label="Total Staff" val={totalStaff} icon="account-group" color="#2563EB" bg="#EFF6FF" sub={null} />
+        <StatCard label="Present" val={present} sub={`${presentPct}%`} icon="check-circle-outline" color="#16A34A" bg="#ECFDF5" />
+        <StatCard label="Late" val={late} sub={`${latePct}%`} icon="clock-outline" color="#D97706" bg="#FFF7ED" />
+        <StatCard label="Absent" val={absent} sub={`${absentPct}%`} icon="close-circle-outline" color="#DC2626" bg="#FEF2F2" />
+        <StatCard label="On Leave" val={onLeave} icon="airplane-takeoff" color="#8B5CF6" bg="#FAF5FF" sub={null} />
+      </View>
+
+      <View style={rcStyles.section}>
+        <Text style={rcStyles.sectionTitle}>Today's Attendance Breakdown</Text>
+        <SimpleBar label="Present" val={present} max={totalStaff} color="#16A34A" />
+        <SimpleBar label="Late" val={late} max={totalStaff} color="#D97706" />
+        <SimpleBar label="Absent" val={absent} max={totalStaff} color="#DC2626" />
+        <SimpleBar label="On Leave" val={onLeave} max={totalStaff} color="#8B5CF6" />
+      </View>
+    </ScrollView>
+  );
+
+  const renderCleaning = () => (
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={rcStyles.statsGrid}>
+        <StatCard label="Total Tasks" val={totalTasks} icon="clipboard-list-outline" color="#2563EB" bg="#EFF6FF" sub={null} />
+        <StatCard label="Completed" val={completed} sub={`${completionRate}%`} icon="check-circle-outline" color="#16A34A" bg="#ECFDF5" />
+        <StatCard label="In Progress" val={inProgress} icon="progress-clock" color="#F97316" bg="#FFF7ED" sub={null} />
+        <StatCard label="Missed" val={missed} icon="close-circle-outline" color="#EF4444" bg="#FEF2F2" sub={null} />
+      </View>
+
+      <View style={rcStyles.section}>
+        <Text style={rcStyles.sectionTitle}>Cleaning Status Breakdown</Text>
+        <SimpleBar label="Completed" val={completed} max={totalTasks} color="#16A34A" />
+        <SimpleBar label="In Progress" val={inProgress} max={totalTasks} color="#F97316" />
+        <SimpleBar label="Missed" val={missed} max={totalTasks} color="#EF4444" />
+      </View>
+    </ScrollView>
+  );
+
+  const renderPerformance = () => (
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={rcStyles.section}>
+        <Text style={rcStyles.sectionTitle}>Cleaner Performance Summary</Text>
+        <View style={rcStyles.perfRow}>
+          <View style={rcStyles.perfCard}>
+            <Icon name="star-circle" size={28} color="#D97706" />
+            <Text style={rcStyles.perfVal}>{cleanerStats?.active ?? 0}</Text>
+            <Text style={rcStyles.perfLabel}>Active Cleaners</Text>
+          </View>
+          <View style={rcStyles.perfCard}>
+            <Icon name="alert-circle-outline" size={28} color="#EF4444" />
+            <Text style={rcStyles.perfVal}>{cleanerStats?.pendingApproval ?? 0}</Text>
+            <Text style={rcStyles.perfLabel}>Pending Approval</Text>
+          </View>
+          <View style={rcStyles.perfCard}>
+            <Icon name="airplane-takeoff" size={28} color="#8B5CF6" />
+            <Text style={rcStyles.perfVal}>{cleanerStats?.onLeave ?? 0}</Text>
+            <Text style={rcStyles.perfLabel}>On Leave</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={rcStyles.section}>
+        <Text style={rcStyles.sectionTitle}>Overall Task Completion Rate</Text>
+        <View style={rcStyles.bigRate}>
+          <Text style={rcStyles.bigRateVal}>{completionRate}%</Text>
+          <Text style={rcStyles.bigRateLabel}>Completion Rate</Text>
+          <View style={rcStyles.rateBarOuter}>
+            <View style={[rcStyles.rateBarInner, { width: `${completionRate}%` as any }]} />
+          </View>
+        </View>
+      </View>
+    </ScrollView>
+  );
+
+  const renderComplaints = () => (
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={rcStyles.statsGrid}>
+        <StatCard label="Total" val={totalComplaints} icon="message-text-outline" color="#2563EB" bg="#EFF6FF" sub={null} />
+        <StatCard label="Open" val={openComplaints} icon="alert-circle-outline" color="#EF4444" bg="#FEF2F2" sub={null} />
+        <StatCard label="Resolved" val={resolvedComplaints} sub={`${resolutionRate}%`} icon="check-circle-outline" color="#16A34A" bg="#ECFDF5" />
+      </View>
+
+      <View style={rcStyles.section}>
+        <Text style={rcStyles.sectionTitle}>Complaint Resolution Rate</Text>
+        <View style={rcStyles.bigRate}>
+          <Text style={[rcStyles.bigRateVal, { color: '#16A34A' }]}>{resolutionRate}%</Text>
+          <Text style={rcStyles.bigRateLabel}>Resolved</Text>
+          <View style={rcStyles.rateBarOuter}>
+            <View style={[rcStyles.rateBarInner, { width: `${resolutionRate}%` as any, backgroundColor: '#16A34A' }]} />
+          </View>
+        </View>
+      </View>
+
+      <View style={rcStyles.section}>
+        <Text style={rcStyles.sectionTitle}>Status Breakdown</Text>
+        <SimpleBar label="Open" val={openComplaints} max={totalComplaints} color="#EF4444" />
+        <SimpleBar label="In Progress" val={complaints.filter(c => c.status === 'in_progress').length} max={totalComplaints} color="#F97316" />
+        <SimpleBar label="Resolved" val={resolvedComplaints} max={totalComplaints} color="#16A34A" />
+      </View>
+    </ScrollView>
+  );
+
+  const renderContent = () => {
+    if (loading) return <View style={rcStyles.loadingWrap}><ActivityIndicator size="large" color="#2563EB" /></View>;
+    switch (activeTab) {
+      case 'Attendance': return renderAttendance();
+      case 'Cleaning': return renderCleaning();
+      case 'Performance': return renderPerformance();
+      case 'Complaint': return renderComplaints();
+    }
+  };
+
+  return (
+    <View style={rcStyles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#1D4ED8" />
+      {/* Header */}
+      <View style={[rcStyles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : (Platform.OS === 'ios' ? 52 : 16) }]}>
+        <View style={rcStyles.headerRow}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={rcStyles.backBtn}>
+            <Icon name="arrow-left" size={22} color="#FFF" />
+          </TouchableOpacity>
+          <View style={{ flex: 1 }}>
+            <Text style={rcStyles.headerTitle}>Reports & Analytics</Text>
+            <Text style={rcStyles.headerSub}>Real-time operational data</Text>
+          </View>
+          <TouchableOpacity style={rcStyles.refreshBtn} onPress={fetchReportData}>
+            <Icon name="refresh" size={20} color="#FFF" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Tab bar */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={rcStyles.tabBar} contentContainerStyle={rcStyles.tabBarContent}>
+        {TABS.map(t => (
+          <TouchableOpacity
+            key={t.key}
+            style={[rcStyles.tab, activeTab === t.key && rcStyles.tabActive]}
+            onPress={() => setActiveTab(t.key)}
+          >
+            <Icon name={t.icon} size={14} color={activeTab === t.key ? '#2563EB' : '#94A3B8'} />
+            <Text style={[rcStyles.tabTxt, activeTab === t.key && rcStyles.tabTxtActive]}>{t.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      <View style={{ flex: 1, paddingHorizontal: 14 }}>
+        {renderContent()}
+      </View>
+    </View>
+  );
+};
+
+const rcStyles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
-  headerContainer: {
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderColor: '#E2E8F0',
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerMenuBtn: {
-    padding: 6,
-    borderRadius: 8,
-    backgroundColor: '#F1F5F9',
-  },
-  brandContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  brandLogo: {
-    width: 150,
-    height: 36,
-  },
-  brandSub: {
-    fontSize: 8,
-    fontWeight: '500',
-    color: '#64748B',
-    marginTop: -2,
-  },
-  headerRightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  notifBtn: {
-    position: 'relative',
-    padding: 6,
-    marginRight: 10,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-  },
-  notifBadge: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    backgroundColor: '#EF4444',
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 2,
-  },
-  notifBadgeText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  profileDropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  avatarMini: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
-  profileDropdownRole: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  profileDropdownCode: {
-    fontSize: 8,
-    color: '#64748B',
-    marginTop: -1,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  mainTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-  },
-  subTitle: {
-    fontSize: 11,
-    color: '#64748B',
-    marginTop: 2,
-    fontFamily: 'Inter-Regular',
-  },
-  datePickerBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  datePickerTxt: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#1E293B',
-    marginHorizontal: 6,
-    fontFamily: 'Inter-Medium',
-  },
-  reportTabsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
-  },
-  reportTabItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 6,
-  },
-  reportTabActiveItem: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
-  },
-  reportTabTxt: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#475569',
-  },
-  reportTabActiveTxt: {
-    color: '#FFFFFF',
-  },
-  metricsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
-  },
-  metricCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 8,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    position: 'relative',
-  },
-  metricIconBg: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4,
-  },
-  metricValue: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#1E293B',
-    fontFamily: 'Inter-Bold',
-  },
-  metricLabel: {
-    fontSize: 8.5,
-    fontWeight: '600',
-    color: '#64748B',
-    marginTop: 2,
-    textAlign: 'center',
-  },
-  pctBadge: {
-    paddingHorizontal: 5,
-    paddingVertical: 1.5,
-    borderRadius: 4,
-    marginTop: 4,
-  },
-  pctBadgeTxt: {
-    fontSize: 8,
-    fontWeight: '700',
-  },
-  trendCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 16,
-  },
-  trendHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  cardHeaderTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-  },
-  trendDailyDropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    gap: 4,
-  },
-  dropdownTxt: {
-    fontSize: 10.5,
-    fontWeight: '600',
-    color: '#475569',
-  },
-  legendRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  legendTxt: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#64748B',
-  },
-  chartWrapper: {
-    flexDirection: 'row',
-    height: 170,
-    position: 'relative',
-  },
-  chartYAxis: {
-    width: 25,
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    paddingRight: 6,
-    height: 150,
-  },
-  axisLabel: {
-    fontSize: 8,
-    color: '#94A3B8',
-    fontWeight: '600',
-  },
-  chartPlotArea: {
-    flex: 1,
-    height: 150,
-    position: 'relative',
-    borderLeftWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#CBD5E1',
-  },
-  gridLine: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 1,
-    backgroundColor: '#F1F5F9',
-  },
-  nodesContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-  },
-  chartNodeWrapper: {
-    position: 'absolute',
-    alignItems: 'center',
-    width: 20,
-    marginLeft: -10,
-    marginTop: -5,
-  },
-  chartDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#FFFFFF',
-  },
-  dotValueTxt: {
-    fontSize: 8,
-    fontWeight: '700',
-    color: '#1E293B',
-    marginTop: -16,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 2,
-    borderRadius: 3,
-  },
-  xAxisRow: {
-    position: 'absolute',
-    left: 25,
-    right: 0,
-    bottom: 0,
-    height: 20,
-    flexDirection: 'row',
-  },
-  xAxisLabel: {
-    position: 'absolute',
-    fontSize: 8,
-    color: '#94A3B8',
-    fontWeight: '600',
-  },
-  splitRow: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  splitCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  splitHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  splitCardTitle: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-    marginBottom: 10,
-  },
-  viewAllLink: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#2563EB',
-  },
-  cleanerBarList: {
-    gap: 12,
-  },
-  cleanerBarRow: {
-    gap: 4,
-  },
-  cleanerBarInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  cleanerBarName: {
-    fontSize: 10.5,
-    fontWeight: '750',
-    color: '#1E293B',
-  },
-  cleanerBarRatio: {
-    fontSize: 9.5,
-    color: '#64748B',
-    fontWeight: '600',
-  },
-  progressBg: {
-    height: 6,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  donutChartWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    marginTop: 8,
-  },
-  donutShape: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 10,
-    borderColor: '#16A34A',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  donutHole: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  donutHoleText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#1E293B',
-  },
-  donutLegendCol: {
-    flex: 1,
-    gap: 6,
-  },
-  legendRowItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  donutLegendTxt: {
-    fontSize: 9.5,
-    color: '#475569',
-    fontWeight: '600',
-  },
-  summaryList: {
-    gap: 10,
-    marginTop: 6,
-  },
-  summaryRowItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    borderBottomWidth: 1,
-    borderColor: '#F1F5F9',
-    paddingBottom: 8,
-  },
-  summaryLabel: {
-    fontSize: 10,
-    color: '#475569',
-    fontWeight: '500',
-    flex: 1,
-  },
-  summaryVal: {
-    fontSize: 10.5,
-    fontWeight: '600',
-    color: '#1E293B',
-  },
-  summaryValBold: {
-    fontSize: 10.5,
-    fontWeight: '800',
-  },
-  exportList: {
-    gap: 8,
-    marginTop: 6,
-  },
-  exportItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 8,
-    padding: 8,
-  },
-  exportIconBg: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  exportTitle: {
-    fontSize: 10.5,
-    fontWeight: '750',
-    color: '#1E293B',
-  },
-  exportDesc: {
-    fontSize: 8,
-    color: '#64748B',
-    marginTop: 1,
-  },
-  bottomInfoBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#EFF6FF',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    gap: 8,
-    marginTop: 16,
-  },
-  bottomInfoBannerTxt: {
-    fontSize: 10,
-    color: '#2563EB',
-    fontWeight: '600',
-  },
+  header: { backgroundColor: '#1D4ED8', paddingHorizontal: 16, paddingBottom: 14, borderBottomLeftRadius: 18, borderBottomRightRadius: 18 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  backBtn: { padding: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 8 },
+  headerTitle: { fontSize: 18, fontWeight: '800', color: '#FFF' },
+  headerSub: { fontSize: 11, color: '#BFDBFE', marginTop: 1 },
+  refreshBtn: { padding: 8, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 8 },
+  tabBar: { backgroundColor: '#FFF', borderBottomWidth: 1, borderColor: '#E2E8F0', maxHeight: 52 },
+  tabBarContent: { paddingHorizontal: 10, gap: 4, alignItems: 'center' },
+  tab: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10 },
+  tabActive: { borderBottomWidth: 2, borderBottomColor: '#2563EB' },
+  tabTxt: { fontSize: 12, fontWeight: '600', color: '#94A3B8' },
+  tabTxtActive: { color: '#2563EB', fontWeight: '800' },
+  loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 14, marginBottom: 4 },
+  statCard: { flex: 1, minWidth: (width - 56) / 2, borderRadius: 14, padding: 14, alignItems: 'center', gap: 4, borderWidth: 1, borderColor: '#F1F5F9' },
+  statIconBg: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  statVal: { fontSize: 22, fontWeight: '800' },
+  statLabel: { fontSize: 10, color: '#64748B', textAlign: 'center' },
+  statSub: { fontSize: 12, fontWeight: '700', marginTop: 2 },
+  section: { backgroundColor: '#FFF', borderRadius: 14, padding: 14, marginTop: 12, borderWidth: 1, borderColor: '#F1F5F9' },
+  sectionTitle: { fontSize: 13, fontWeight: '700', color: '#0F172A', marginBottom: 12 },
+  barRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 8 },
+  barLabel: { width: 80, fontSize: 11, color: '#64748B' },
+  barOuter: { flex: 1, height: 8, backgroundColor: '#F1F5F9', borderRadius: 4, overflow: 'hidden' },
+  barInner: { height: '100%' as any, borderRadius: 4 },
+  barVal: { width: 30, fontSize: 12, fontWeight: '700', textAlign: 'right' },
+  perfRow: { flexDirection: 'row', justifyContent: 'space-around' },
+  perfCard: { alignItems: 'center', gap: 6 },
+  perfVal: { fontSize: 20, fontWeight: '800', color: '#0F172A' },
+  perfLabel: { fontSize: 10, color: '#64748B', textAlign: 'center' },
+  bigRate: { alignItems: 'center', gap: 8 },
+  bigRateVal: { fontSize: 44, fontWeight: '800', color: '#2563EB' },
+  bigRateLabel: { fontSize: 13, color: '#64748B' },
+  rateBarOuter: { width: '100%', height: 10, backgroundColor: '#F1F5F9', borderRadius: 6, overflow: 'hidden' },
+  rateBarInner: { height: '100%' as any, borderRadius: 6, backgroundColor: '#2563EB' },
 });
 
 export default ReportsScreen;

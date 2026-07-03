@@ -1,1126 +1,316 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, Platform, Dimensions, StatusBar } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View, Text, StyleSheet, FlatList, TouchableOpacity, Platform, Dimensions,
+  StatusBar, RefreshControl, ActivityIndicator, Alert, TextInput, Linking,
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Card from '../../components/common/Card';
+import { AppDispatch, RootState } from '../../redux/store';
+import { fetchComplaints } from '../../redux/slices/complaintSlice';
+import complaintService from '../../services/complaint.service';
 
 const { width } = Dimensions.get('window');
-
 interface Props { navigation: any }
 
-const GrievanceListScreen: React.FC<Props> = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
-  const [activeSegment, setActiveSegment] = useState('Open');
-  const [showDetailPanel, setShowDetailPanel] = useState(true); // default open side details panel as shown in wireframe
-  const [searchQuery, setSearchQuery] = useState('');
+type GrievanceTab = 'Open' | 'In Progress' | 'Resolved' | 'Closed';
 
-  const complaintsList = [
-    {
-      id: 'CMP-2025-0018',
-      customerName: 'Rahul Sharma',
-      phone: '98765 43210',
-      subject: 'Water Spots on Car',
-      apartment: 'Sunshine Heights',
-      raisedTime: '20 May 2025, 09:15 AM',
-      priority: 'High',
-      priorityColor: '#EF4444',
-      priorityBg: '#FEF2F2',
-      status: 'Open',
-      statusColor: '#EF4444',
-      statusBg: '#FEF2F2'
-    },
-    {
-      id: 'CMP-2025-0017',
-      customerName: 'Priya Singh',
-      phone: '98123 45678',
-      subject: 'Interior Cleaning Not Done Properly',
-      apartment: 'Green View Apartments',
-      raisedTime: '20 May 2025, 08:50 AM',
-      priority: 'Medium',
-      priorityColor: '#F97316',
-      priorityBg: '#FFF7ED',
-      status: 'In Progress',
-      statusColor: '#F97316',
-      statusBg: '#FFF7ED'
-    },
-    {
-      id: 'CMP-2025-0016',
-      customerName: 'Amit Verma',
-      phone: '96543 21098',
-      subject: 'Scratch on Rear Bumper',
-      apartment: 'Maple Residency',
-      raisedTime: '20 May 2025, 08:30 AM',
-      priority: 'High',
-      priorityColor: '#EF4444',
-      priorityBg: '#FEF2F2',
-      status: 'Open',
-      statusColor: '#EF4444',
-      statusBg: '#FEF2F2'
-    },
-    {
-      id: 'CMP-2025-0015',
-      customerName: 'Neha Gupta',
-      phone: '97123 45609',
-      subject: 'Cleaner Did Not Arrive',
-      apartment: 'Skyline Towers',
-      raisedTime: '19 May 2025, 07:45 PM',
-      priority: 'Medium',
-      priorityColor: '#F97316',
-      priorityBg: '#FFF7ED',
-      status: 'In Progress',
-      statusColor: '#F97316',
-      statusBg: '#FFF7ED'
-    },
-    {
-      id: 'CMP-2025-0014',
-      customerName: 'Vikas Yadav',
-      phone: '98111 22334',
-      subject: 'Extra Charges Applied',
-      apartment: 'Palm Paradise',
-      raisedTime: '19 May 2025, 06:20 PM',
-      priority: 'Low',
-      priorityColor: '#16A34A',
-      priorityBg: '#ECFDF5',
-      status: 'Open',
-      statusColor: '#EF4444',
-      statusBg: '#FEF2F2'
-    },
-    {
-      id: 'CMP-2025-0013',
-      customerName: 'Deepak Sharma',
-      phone: '95822 21009',
-      subject: 'Bad Odour After Cleaning',
-      apartment: 'Oasis Apartments',
-      raisedTime: '19 May 2025, 05:10 PM',
-      priority: 'Medium',
-      priorityColor: '#F97316',
-      priorityBg: '#FFF7ED',
-      status: 'In Progress',
-      statusColor: '#F97316',
-      statusBg: '#FFF7ED'
-    },
-    {
-      id: 'CMP-2025-0012',
-      customerName: 'Pankaj Mehta',
-      phone: '98712 33445',
-      subject: 'Delay in Service',
-      apartment: 'Silver Springs',
-      raisedTime: '19 May 2025, 04:40 PM',
-      priority: 'Low',
-      priorityColor: '#16A34A',
-      priorityBg: '#ECFDF5',
-      status: 'Open',
-      statusColor: '#EF4444',
-      statusBg: '#FEF2F2'
-    },
-    {
-      id: 'CMP-2025-0011',
-      customerName: 'Suresh Yadav',
-      phone: '98701 11223',
-      subject: 'Incomplete Exterior Wash',
-      apartment: 'Green View Apartments',
-      raisedTime: '19 May 2025, 03:25 PM',
-      priority: 'High',
-      priorityColor: '#EF4444',
-      priorityBg: '#FEF2F2',
-      status: 'Open',
-      statusColor: '#EF4444',
-      statusBg: '#FEF2F2'
-    }
+const PRIORITY_META: Record<string, { bg: string; color: string }> = {
+  high: { bg: '#FEF2F2', color: '#EF4444' },
+  medium: { bg: '#FFF7ED', color: '#F97316' },
+  low: { bg: '#ECFDF5', color: '#16A34A' },
+};
+
+const STATUS_META: Record<string, { bg: string; color: string }> = {
+  open: { bg: '#FEF2F2', color: '#EF4444' },
+  in_progress: { bg: '#FFF7ED', color: '#F97316' },
+  resolved: { bg: '#ECFDF5', color: '#16A34A' },
+  closed: { bg: '#F1F5F9', color: '#64748B' },
+};
+
+const formatDate = (d: string | Date | undefined) => {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+};
+
+const getCustomerName = (c: any) =>
+  c.customerId?.firstName ? `${c.customerId.firstName} ${c.customerId.lastName || ''}`.trim() : 'Customer';
+
+const GrievanceListScreen: React.FC<Props> = ({ navigation }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const insets = useSafeAreaInsets();
+  const { complaints, loading } = useSelector((s: RootState) => s.complaints);
+  const [tab, setTab] = useState<GrievanceTab>('Open');
+  const [search, setSearch] = useState('');
+  const [actionId, setActionId] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    dispatch(fetchComplaints({ limit: 100 }));
+  }, [dispatch]);
+
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => { const unsub = navigation.addListener('focus', load); return unsub; }, [navigation, load]);
+
+  // Stats
+  const openCount = complaints.filter(c => c.status === 'open').length;
+  const inProgressCount = complaints.filter(c => c.status === 'in_progress').length;
+  const resolvedCount = complaints.filter(c => c.status === 'resolved').length;
+  const closedCount = complaints.filter(c => c.status === 'closed').length;
+
+  const TABS: { key: GrievanceTab; label: string; count: number }[] = [
+    { key: 'Open', label: 'Open', count: openCount },
+    { key: 'In Progress', label: 'In Progress', count: inProgressCount },
+    { key: 'Resolved', label: 'Resolved', count: resolvedCount },
+    { key: 'Closed', label: 'Closed', count: closedCount },
   ];
+
+  const filtered = complaints.filter(c => {
+    const tabStatus = tab.toLowerCase().replace(' ', '_');
+    const matchTab = c.status?.toLowerCase().replace(' ', '_') === tabStatus || c.status === tab.toLowerCase();
+    const matchSearch = !search.trim() ||
+      getCustomerName(c).toLowerCase().includes(search.toLowerCase()) ||
+      (c.subject || c.title || '').toLowerCase().includes(search.toLowerCase()) ||
+      (c.ticketNumber || '').toLowerCase().includes(search.toLowerCase());
+    return matchTab && matchSearch;
+  });
+
+  const handleResolve = (c: any) => {
+    Alert.alert('Resolve Complaint', `Mark "${c.subject || 'this complaint'}" as resolved?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Resolve',
+        onPress: async () => {
+          setActionId(c._id);
+          try {
+            await complaintService.resolve(c._id, { resolution: 'Resolved by supervisor' });
+            load();
+            Alert.alert('✓ Resolved', 'Complaint marked as resolved.');
+          } catch (e: any) {
+            Alert.alert('Error', e?.response?.data?.message || 'Failed to resolve.');
+          }
+          setActionId(null);
+        },
+      },
+    ]);
+  };
+
+  const handleClose = (c: any) => {
+    Alert.alert('Close Complaint', `Close ticket ${c.ticketNumber || '#' + c._id?.slice(-5)}?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Close',
+        style: 'destructive',
+        onPress: async () => {
+          setActionId(c._id);
+          try {
+            await complaintService.close(c._id);
+            load();
+            Alert.alert('Closed', 'Complaint closed.');
+          } catch (e: any) {
+            Alert.alert('Error', e?.response?.data?.message || 'Failed to close.');
+          }
+          setActionId(null);
+        },
+      },
+    ]);
+  };
+
+  const renderItem = ({ item: c }: { item: any }) => {
+    const priorityMeta = PRIORITY_META[c.priority?.toLowerCase()] || PRIORITY_META.low;
+    const statusMeta = STATUS_META[c.status?.toLowerCase()?.replace(' ', '_')] || STATUS_META.open;
+    const isActioning = actionId === c._id;
+
+    return (
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => navigation.navigate('GrievanceDetail', { complaintId: c._id })}
+        activeOpacity={0.88}
+      >
+        {/* Header */}
+        <View style={styles.cardHeader}>
+          <View style={styles.ticketRow}>
+            <Icon name="ticket-outline" size={13} color="#94A3B8" />
+            <Text style={styles.ticketNum}>{c.ticketNumber || `CMP-${c._id?.slice(-6).toUpperCase()}`}</Text>
+          </View>
+          <View style={styles.badgeRow}>
+            <View style={[styles.badge, { backgroundColor: priorityMeta.bg }]}>
+              <Text style={[styles.badgeTxt, { color: priorityMeta.color }]}>{c.priority?.toUpperCase() || 'MED'}</Text>
+            </View>
+            <View style={[styles.badge, { backgroundColor: statusMeta.bg }]}>
+              <Text style={[styles.badgeTxt, { color: statusMeta.color }]}>{c.status?.toUpperCase().replace('_', ' ')}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Subject */}
+        <Text style={styles.subject} numberOfLines={2}>{c.subject || c.title || 'Complaint'}</Text>
+
+        {/* Customer & contact */}
+        <View style={styles.infoRow}>
+          <Icon name="account-outline" size={13} color="#64748B" />
+          <Text style={styles.infoTxt} numberOfLines={1}>{getCustomerName(c)}</Text>
+          {c.customerId?.phone && (
+            <TouchableOpacity onPress={() => Linking.openURL(`tel:${c.customerId.phone}`)}>
+              <Icon name="phone-outline" size={13} color="#2563EB" />
+            </TouchableOpacity>
+          )}
+        </View>
+        <View style={styles.infoRow}>
+          <Icon name="clock-outline" size={13} color="#64748B" />
+          <Text style={styles.infoTxt}>{formatDate(c.createdAt)}</Text>
+        </View>
+
+        {/* Actions */}
+        <View style={styles.actions}>
+          {(tab === 'Open' || tab === 'In Progress') && (
+            <TouchableOpacity
+              style={[styles.resolveBtn, isActioning && { opacity: 0.6 }]}
+              onPress={() => handleResolve(c)}
+              disabled={isActioning}
+            >
+              {isActioning ? <ActivityIndicator size="small" color="#16A34A" /> : <Icon name="check-circle-outline" size={13} color="#16A34A" />}
+              <Text style={styles.resolveTxt}>Resolve</Text>
+            </TouchableOpacity>
+          )}
+          {tab === 'Resolved' && (
+            <TouchableOpacity
+              style={[styles.closeBtn, isActioning && { opacity: 0.6 }]}
+              onPress={() => handleClose(c)}
+              disabled={isActioning}
+            >
+              {isActioning ? <ActivityIndicator size="small" color="#64748B" /> : <Icon name="close-circle-outline" size={13} color="#64748B" />}
+              <Text style={styles.closeTxt}>Close</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={styles.viewBtn}
+            onPress={() => navigation.navigate('GrievanceDetail', { complaintId: c._id })}
+          >
+            <Icon name="eye-outline" size={13} color="#2563EB" />
+            <Text style={styles.viewBtnTxt}>View</Text>
+          </TouchableOpacity>
+          {c.customerId?.phone && (
+            <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL(`tel:${c.customerId.phone}`)}>
+              <Icon name="phone-outline" size={13} color="#8B5CF6" />
+              <Text style={styles.callBtnTxt}>Call</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-
-      {/* Brand Header Bar */}
-      <View style={[styles.headerContainer, { paddingTop: insets.top > 0 ? insets.top + 4 : (Platform.OS === 'ios' ? 44 : 12) }]}>
+      <StatusBar barStyle="light-content" backgroundColor="#1D4ED8" />
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : (Platform.OS === 'ios' ? 52 : 16) }]}>
         <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.headerMenuBtn}>
-            <Icon name="menu" size={26} color="#1E293B" />
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Icon name="arrow-left" size={22} color="#FFF" />
           </TouchableOpacity>
-
-          <View style={styles.brandContainer}>
-            <Image 
-              source={require('../../assets/logo.png')} 
-              style={styles.brandLogo} 
-              resizeMode="contain" 
-            />
-            <Text style={styles.brandSub}>Anything & Everything for your Car</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headerTitle}>Grievance Management</Text>
+            <Text style={styles.headerSub}>{openCount} open complaints</Text>
           </View>
+        </View>
 
-          <View style={styles.headerRightActions}>
-            <TouchableOpacity style={styles.notifBtn}>
-              <Icon name="bell-outline" size={24} color="#1E293B" />
-              <View style={styles.notifBadge}>
-                <Text style={styles.notifBadgeText}>12</Text>
-              </View>
-            </TouchableOpacity>
+        {/* Summary chips */}
+        <View style={styles.summaryRow}>
+          {[{ label: 'Open', val: openCount, color: '#FCA5A5' }, { label: 'In Progress', val: inProgressCount, color: '#FCD34D' }, { label: 'Resolved', val: resolvedCount, color: '#6EE7B7' }].map((s, i) => (
+            <View key={i} style={styles.summaryItem}>
+              <Text style={[styles.summaryVal, { color: s.color }]}>{loading ? '—' : s.val}</Text>
+              <Text style={styles.summaryLabel}>{s.label}</Text>
+            </View>
+          ))}
+        </View>
 
-            <TouchableOpacity style={styles.profileDropdown}>
-              <Image source={require('../../assets/cleaner_avatar.png')} style={styles.avatarMini} />
-              <View style={{ marginLeft: 6, marginRight: 4 }}>
-                <Text style={styles.profileDropdownRole}>Supervisor</Text>
-                <Text style={styles.profileDropdownCode}>SUP001</Text>
-              </View>
-              <Icon name="chevron-down" size={14} color="#64748B" />
-            </TouchableOpacity>
-          </View>
+        {/* Search */}
+        <View style={styles.searchBox}>
+          <Icon name="magnify" size={18} color="rgba(255,255,255,0.6)" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by customer, subject or ticket..."
+            placeholderTextColor="rgba(255,255,255,0.5)"
+            value={search}
+            onChangeText={setSearch}
+          />
         </View>
       </View>
 
-      {/* Split Main Body layout */}
-      <View style={styles.mainSplitBody}>
-        
-        {/* Left List Pane */}
-        <ScrollView style={styles.leftListPane} contentContainerStyle={styles.leftScrollContent} showsVerticalScrollIndicator={false}>
-          {/* Main Title Section */}
-          <View style={styles.titleRow}>
-            <View>
-              <Text style={styles.mainTitle}>Complaint Management</Text>
-              <Text style={styles.subTitle}>Track, assign and resolve complaints</Text>
-            </View>
-            <TouchableOpacity style={styles.datePickerBtn}>
-              <Icon name="calendar-month-outline" size={16} color="#2563EB" />
-              <Text style={styles.datePickerTxt}>20 May 2025</Text>
-              <Icon name="chevron-down" size={14} color="#64748B" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Analytics Metrics Cards Row */}
-          <View style={styles.analyticsGrid}>
-            <Card variant="elevated" style={styles.analyticsCard}>
-              <View style={[styles.cardIconBg, { backgroundColor: '#FEF2F2' }]}>
-                <Icon name="message-text-outline" size={16} color="#EF4444" />
-              </View>
-              <Text style={styles.cardVal}>18</Text>
-              <Text style={[styles.cardLabel, { color: '#EF4444' }]}>Open</Text>
-              <TouchableOpacity>
-                <Text style={[styles.viewAllTxt, { color: '#EF4444' }]}>View All</Text>
-              </TouchableOpacity>
-            </Card>
-
-            <Card variant="elevated" style={styles.analyticsCard}>
-              <View style={[styles.cardIconBg, { backgroundColor: '#FFF7ED' }]}>
-                <Icon name="clock-outline" size={16} color="#F97316" />
-              </View>
-              <Text style={styles.cardVal}>12</Text>
-              <Text style={[styles.cardLabel, { color: '#F97316' }]}>In Progress</Text>
-              <TouchableOpacity>
-                <Text style={[styles.viewAllTxt, { color: '#F97316' }]}>View All</Text>
-              </TouchableOpacity>
-            </Card>
-
-            <Card variant="elevated" style={styles.analyticsCard}>
-              <View style={[styles.cardIconBg, { backgroundColor: '#ECFDF5' }]}>
-                <Icon name="check-circle-outline" size={16} color="#16A34A" />
-              </View>
-              <Text style={styles.cardVal}>36</Text>
-              <Text style={[styles.cardLabel, { color: '#16A34A' }]}>Closed</Text>
-              <TouchableOpacity>
-                <Text style={[styles.viewAllTxt, { color: '#16A34A' }]}>View All</Text>
-              </TouchableOpacity>
-            </Card>
-          </View>
-
-          {/* Search Row */}
-          <View style={styles.searchRow}>
-            <View style={styles.searchBox}>
-              <Icon name="magnify" size={20} color="#94A3B8" />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search complaint ID, customer or subject..."
-                placeholderTextColor="#94A3B8"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-            </View>
-            <TouchableOpacity style={styles.filterBtn}>
-              <Icon name="filter-outline" size={18} color="#64748B" />
-              <Text style={styles.filterBtnTxt}>Filter</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Segmented control tabs */}
-          <View style={styles.segmentedControl}>
-            <TouchableOpacity 
-              style={[styles.segmentBtn, activeSegment === 'Open' && styles.segmentActiveBtn]}
-              onPress={() => setActiveSegment('Open')}
-            >
-              <Text style={[styles.segmentBtnTxt, activeSegment === 'Open' && styles.segmentActiveBtnTxt]}>Open (18)</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.segmentBtn, activeSegment === 'In Progress' && styles.segmentActiveBtn]}
-              onPress={() => setActiveSegment('In Progress')}
-            >
-              <Text style={[styles.segmentBtnTxt, activeSegment === 'In Progress' && styles.segmentActiveBtnTxt]}>In Progress (12)</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.segmentBtn, activeSegment === 'Closed' && styles.segmentActiveBtn]}
-              onPress={() => setActiveSegment('Closed')}
-            >
-              <Text style={[styles.segmentBtnTxt, activeSegment === 'Closed' && styles.segmentActiveBtnTxt]}>Closed (36)</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Complaints Cards List */}
-          <View style={styles.complaintsList}>
-            {complaintsList.map((complaint) => (
-              <TouchableOpacity 
-                key={complaint.id} 
-                onPress={() => setShowDetailPanel(true)}
-              >
-                <Card variant="elevated" style={styles.complaintCard}>
-                  <View style={styles.cardHeaderRow}>
-                    <Text style={styles.ticketIdTxt}>{complaint.id}</Text>
-                    <View style={{ flexDirection: 'row', gap: 6 }}>
-                      <View style={[styles.pillBadge, { borderColor: complaint.priorityColor }]}>
-                        <Text style={[styles.pillBadgeTxt, { color: complaint.priorityColor }]}>{complaint.priority}</Text>
-                      </View>
-                      <View style={[styles.pillBadge, { borderColor: complaint.statusColor }]}>
-                        <Text style={[styles.pillBadgeTxt, { color: complaint.statusColor }]}>{complaint.status}</Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View style={styles.cardBodyRow}>
-                    {/* Customer */}
-                    <View style={styles.customerCol}>
-                      <Image source={require('../../assets/cleaner_avatar.png')} style={styles.custAvatarSmall} />
-                      <View>
-                        <Text style={styles.custNameSmall}>{complaint.customerName}</Text>
-                        <Text style={styles.custPhoneSmall}>{complaint.phone}</Text>
-                      </View>
-                    </View>
-
-                    {/* Complaint details */}
-                    <View style={styles.complaintDetailsCol}>
-                      <Text style={styles.subjectTxt} numberOfLines={1}>{complaint.subject}</Text>
-                      <Text style={styles.apartmentTxt} numberOfLines={1}>{complaint.apartment}</Text>
-                      
-                      <View style={styles.raisedTimeRow}>
-                        <Icon name="clock-outline" size={12} color="#64748B" />
-                        <Text style={styles.raisedTimeTxt}>{complaint.raisedTime}</Text>
-                      </View>
-                    </View>
-
-                    {/* Right link arrow */}
-                    <Icon name="chevron-right" size={20} color="#94A3B8" />
-                  </View>
-                </Card>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Pagination Footer */}
-          <View style={styles.paginationRow}>
-            <Text style={styles.showingText}>Showing 1 to 8 of 18 complaints</Text>
-            <View style={styles.pageBtnRow}>
-              <TouchableOpacity style={styles.pageArrowBtn}>
-                <Icon name="chevron-left" size={16} color="#64748B" />
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.pageBtn, styles.activePageBtn]}>
-                <Text style={[styles.pageBtnTxt, styles.activePageBtnTxt]}>1</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.pageBtn}>
-                <Text style={styles.pageBtnTxt}>2</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.pageBtn}>
-                <Text style={styles.pageBtnTxt}>3</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.pageArrowBtn}>
-                <Icon name="chevron-right" size={16} color="#64748B" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ScrollView>
-
-        {/* Right Details Panel Drawer */}
-        {showDetailPanel && (
-          <ScrollView style={styles.rightDetailsPane} contentContainerStyle={styles.rightScrollContent} showsVerticalScrollIndicator={false}>
-            {/* Header */}
-            <View style={styles.rightPaneHeader}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={styles.rightPaneTitle}>CMP-2025-0018</Text>
-                <View style={[styles.statusCapsuleSolid, { backgroundColor: '#EF4444' }]}>
-                  <Text style={styles.statusCapsuleSolidTxt}>Open</Text>
-                </View>
-              </View>
-              <TouchableOpacity onPress={() => setShowDetailPanel(false)} style={styles.rightPaneCloseBtn}>
-                <Icon name="close" size={20} color="#64748B" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Subject Info */}
-            <View style={styles.subjectCardSection}>
-              <View style={styles.kvRow}>
-                <Text style={styles.kvLabel}>Subject</Text>
-                <Text style={styles.kvValueBold}>Water Spots on Car</Text>
-              </View>
-              <View style={styles.kvRow}>
-                <Text style={styles.kvLabel}>Priority</Text>
-                <Text style={[styles.kvValueBold, { color: '#EF4444' }]}>High</Text>
-              </View>
-              <View style={styles.kvRow}>
-                <Text style={styles.kvLabel}>Raised Date</Text>
-                <Text style={styles.kvValue}>20 May 2025, 09:15 AM</Text>
-              </View>
-              <View style={styles.kvRow}>
-                <Text style={styles.kvLabel}>Apartment</Text>
-                <Text style={styles.kvValue}>Sunshine Heights</Text>
-              </View>
-              <View style={styles.kvRow}>
-                <Text style={styles.kvLabel}>Vehicle</Text>
-                <Text style={styles.kvValueBold}>DL 01 AB 1234</Text>
-              </View>
-            </View>
-
-            {/* Timeline */}
-            <Text style={styles.rightPaneSectionTitle}>Timeline</Text>
-            <View style={styles.timelineSection}>
-              {/* Step 1 */}
-              <View style={styles.timelineNode}>
-                <View style={styles.timelineConnectorCol}>
-                  <View style={[styles.timelineDot, { backgroundColor: '#EF4444' }]}>
-                    <Icon name="check" size={10} color="#FFFFFF" />
-                  </View>
-                  <View style={[styles.timelineLine, { backgroundColor: '#EF4444' }]} />
-                </View>
-                <View style={styles.timelineContent}>
-                  <Text style={styles.timelineTitle}>Complaint Raised</Text>
-                  <Text style={styles.timelineMeta}>20 May 2025, 09:15 AM</Text>
-                  <Text style={styles.timelineActor}>by Rahul Sharma</Text>
-                </View>
-              </View>
-
-              {/* Step 2 */}
-              <View style={styles.timelineNode}>
-                <View style={styles.timelineConnectorCol}>
-                  <View style={[styles.timelineDot, { backgroundColor: '#F97316' }]}>
-                    <Icon name="check" size={10} color="#FFFFFF" />
-                  </View>
-                  <View style={[styles.timelineLine, { backgroundColor: '#2563EB' }]} />
-                </View>
-                <View style={styles.timelineContent}>
-                  <Text style={styles.timelineTitle}>Assigned to Cleaner</Text>
-                  <Text style={styles.timelineMeta}>Ramesh Kumar</Text>
-                  <Text style={styles.timelineActor}>20 May 2025, 09:25 AM</Text>
-                </View>
-              </View>
-
-              {/* Step 3 */}
-              <View style={styles.timelineNode}>
-                <View style={styles.timelineConnectorCol}>
-                  <View style={[styles.timelineDot, { backgroundColor: '#2563EB' }]}>
-                    <Icon name="check" size={10} color="#FFFFFF" />
-                  </View>
-                  <View style={[styles.timelineLine, { backgroundColor: '#CBD5E1' }]} />
-                </View>
-                <View style={styles.timelineContent}>
-                  <Text style={styles.timelineTitle}>In Progress</Text>
-                  <Text style={styles.timelineMeta}>20 May 2025, 10:05 AM</Text>
-                  <Text style={styles.timelineActor}>Cleaner Started Work</Text>
-                </View>
-              </View>
-
-              {/* Step 4 */}
-              <View style={[styles.timelineNode, { marginBottom: 0 }]}>
-                <View style={styles.timelineConnectorCol}>
-                  <View style={[styles.timelineDot, { backgroundColor: '#94A3B8' }]} />
-                </View>
-                <View style={styles.timelineContent}>
-                  <Text style={[styles.timelineTitle, { color: '#94A3B8' }]}>Pending Resolution</Text>
-                  <Text style={styles.timelineMeta}>—</Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Attachments */}
-            <View style={styles.attachmentsHeaderRow}>
-              <Text style={styles.rightPaneSectionTitle}>Attachments</Text>
-              <TouchableOpacity>
-                <Text style={styles.viewAllAttachmentsTxt}>View All (3)</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.attachmentsListGrid}>
-              <Image source={require('../../assets/cleaner_avatar.png')} style={styles.attachmentImg} />
-              <Image source={require('../../assets/cleaner_avatar.png')} style={styles.attachmentImg} />
-              <Image source={require('../../assets/cleaner_avatar.png')} style={styles.attachmentImg} />
-            </View>
-
-            {/* Customer Details */}
-            <Text style={styles.rightPaneSectionTitle}>Customer Details</Text>
-            <View style={styles.customerDetailsSection}>
-              <View style={styles.customerMainRow}>
-                <Image source={require('../../assets/cleaner_avatar.png')} style={styles.custAvatar} />
-                <View>
-                  <Text style={styles.custName}>{complaintsList[0].customerName}</Text>
-                  <Text style={styles.custPhone}>{complaintsList[0].phone}</Text>
-                </View>
-              </View>
-
-              <View style={styles.custMetaItem}>
-                <Icon name="email-outline" size={16} color="#64748B" />
-                <Text style={styles.custMetaTxt}>rahul.sharma@email.com</Text>
-              </View>
-
-              <View style={styles.custMetaItem}>
-                <Icon name="map-marker-outline" size={16} color="#64748B" />
-                <Text style={styles.custMetaTxt} numberOfLines={2}>Sunshine Heights{"\n"}A-1203, Sector 45, Noida</Text>
-              </View>
-
-              <View style={styles.vehicleInfoBox}>
-                <View style={styles.kvRow}>
-                  <Text style={styles.kvLabel}>Vehicle</Text>
-                  <Text style={styles.kvValue}>Honda City</Text>
-                </View>
-                <View style={styles.kvRow}>
-                  <Text style={styles.kvLabel}>Number</Text>
-                  <Text style={styles.kvValueBold}>DL 01 AB 1234</Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Actions Grid */}
-            <Text style={styles.rightPaneSectionTitle}>Actions</Text>
-            <View style={styles.actionsGrid}>
-              <View style={styles.actionsGridRow}>
-                <TouchableOpacity style={styles.actionGridItem}>
-                  <Icon name="account-plus-outline" size={20} color="#16A34A" />
-                  <Text style={[styles.actionGridItemTxt, { color: '#16A34A' }]}>Assign Cleaner</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionGridItem}>
-                  <Icon name="arrow-up-bold-circle-outline" size={20} color="#EA580C" />
-                  <Text style={[styles.actionGridItemTxt, { color: '#EA580C' }]}>Escalate</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.actionsGridRow}>
-                <TouchableOpacity style={styles.actionGridItem}>
-                  <Icon name="check-circle-outline" size={20} color="#2563EB" />
-                  <Text style={[styles.actionGridItemTxt, { color: '#2563EB' }]}>Resolve</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionGridItem}>
-                  <Icon name="notebook-outline" size={20} color="#8B5CF6" />
-                  <Text style={[styles.actionGridItemTxt, { color: '#8B5CF6' }]}>Add Notes</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* View Full Details Button */}
-            <TouchableOpacity style={styles.btnViewFullDetails}>
-              <Text style={styles.btnViewFullDetailsTxt}>View Full Details</Text>
-            </TouchableOpacity>
-
-          </ScrollView>
-        )}
-
+      {/* Tabs */}
+      <View style={styles.tabBar}>
+        {TABS.map(t => (
+          <TouchableOpacity key={t.key} style={[styles.tabItem, tab === t.key && styles.tabItemActive]} onPress={() => setTab(t.key)}>
+            <Text style={[styles.tabTxt, tab === t.key && styles.tabTxtActive]}>{t.label}{t.count > 0 ? ` (${t.count})` : ''}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
+
+      <FlatList
+        data={filtered}
+        keyExtractor={item => item._id}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={load} tintColor="#2563EB" />}
+        renderItem={renderItem}
+        ListEmptyComponent={
+          <View style={styles.emptyWrap}>
+            {loading ? <ActivityIndicator size="large" color="#2563EB" /> : (
+              <>
+                <Icon name="message-text-outline" size={52} color="#CBD5E1" />
+                <Text style={styles.emptyTitle}>No complaints in this tab</Text>
+                <Text style={styles.emptySub}>Pull down to refresh</Text>
+              </>
+            )}
+          </View>
+        }
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
-  headerContainer: {
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderColor: '#E2E8F0',
-    paddingBottom: 12,
-    paddingHorizontal: 16,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerMenuBtn: {
-    padding: 6,
-    borderRadius: 8,
-    backgroundColor: '#F1F5F9',
-  },
-  brandContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  brandLogo: {
-    width: 150,
-    height: 36,
-  },
-  brandSub: {
-    fontSize: 8,
-    fontWeight: '500',
-    color: '#64748B',
-    marginTop: -2,
-  },
-  headerRightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  notifBtn: {
-    position: 'relative',
-    padding: 6,
-    marginRight: 10,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-  },
-  notifBadge: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    backgroundColor: '#EF4444',
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 2,
-  },
-  notifBadgeText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  profileDropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  avatarMini: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
-  profileDropdownRole: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  profileDropdownCode: {
-    fontSize: 8,
-    color: '#64748B',
-    marginTop: -1,
-  },
-  mainSplitBody: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  leftListPane: {
-    flex: 1.1,
-  },
-  leftScrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  mainTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-  },
-  subTitle: {
-    fontSize: 11,
-    color: '#64748B',
-    marginTop: 2,
-    fontFamily: 'Inter-Regular',
-  },
-  datePickerBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  datePickerTxt: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#1E293B',
-    marginHorizontal: 6,
-    fontFamily: 'Inter-Medium',
-  },
-  analyticsGrid: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
-  },
-  analyticsCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-  },
-  cardIconBg: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-  },
-  cardVal: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-  },
-  cardLabel: {
-    fontSize: 10,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  viewAllTxt: {
-    fontSize: 10,
-    fontWeight: '700',
-    marginTop: 6,
-  },
-  searchRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
-  },
-  searchBox: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    height: 44,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 12,
-    color: '#1E293B',
-    marginLeft: 8,
-    padding: 0,
-  },
-  filterBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    height: 44,
-    gap: 6,
-  },
-  filterBtnTxt: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
-  },
-  segmentedControl: {
-    flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-    padding: 3,
-    marginBottom: 16,
-  },
-  segmentBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderRadius: 6,
-  },
-  segmentActiveBtn: {
-    backgroundColor: '#2563EB',
-  },
-  segmentBtnTxt: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#475569',
-  },
-  segmentActiveBtnTxt: {
-    color: '#FFFFFF',
-  },
-  complaintsList: {
-    gap: 12,
-  },
-  complaintCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  cardHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: '#F1F5F9',
-    paddingBottom: 8,
-    marginBottom: 10,
-  },
-  ticketIdTxt: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#2563EB',
-    fontFamily: 'monospace',
-  },
-  pillBadge: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-  },
-  pillBadgeTxt: {
-    fontSize: 8,
-    fontWeight: '700',
-  },
-  cardBodyRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  customerCol: {
-    width: '35%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingRight: 8,
-    borderRightWidth: 1,
-    borderColor: '#F1F5F9',
-  },
-  custAvatarSmall: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-  },
-  custNameSmall: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  custPhoneSmall: {
-    fontSize: 9,
-    color: '#64748B',
-    marginTop: 1,
-  },
-  complaintDetailsCol: {
-    flex: 1,
-    paddingHorizontal: 12,
-    gap: 2,
-  },
-  subjectTxt: {
-    fontSize: 11,
-    fontWeight: '750',
-    color: '#1E293B',
-  },
-  apartmentTxt: {
-    fontSize: 9,
-    color: '#64748B',
-  },
-  raisedTimeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: 4,
-  },
-  raisedTimeTxt: {
-    fontSize: 9,
-    color: '#64748B',
-  },
-  paginationRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 16,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderColor: '#F1F5F9',
-  },
-  showingText: {
-    fontSize: 10,
-    color: '#64748B',
-  },
-  pageBtnRow: {
-    flexDirection: 'row',
-    gap: 6,
-    alignItems: 'center',
-  },
-  pageArrowBtn: {
-    width: 26,
-    height: 26,
-    borderRadius: 6,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pageBtn: {
-    width: 26,
-    height: 26,
-    borderRadius: 6,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activePageBtn: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
-  },
-  pageBtnTxt: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#475569',
-  },
-  activePageBtnTxt: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  rightDetailsPane: {
-    width: 320,
-    backgroundColor: '#FFFFFF',
-    borderLeftWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  rightScrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  rightPaneHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderColor: '#F1F5F9',
-    paddingBottom: 12,
-    marginBottom: 14,
-  },
-  rightPaneTitle: {
-    fontSize: 14,
-    fontWeight: '850',
-    color: '#0F172A',
-    fontFamily: 'monospace',
-  },
-  statusCapsuleSolid: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  statusCapsuleSolidTxt: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  rightPaneCloseBtn: {
-    padding: 4,
-  },
-  subjectCardSection: {
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
-    gap: 10,
-  },
-  kvRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  kvLabel: {
-    fontSize: 10,
-    color: '#64748B',
-    fontWeight: '500',
-  },
-  kvValue: {
-    fontSize: 10,
-    color: '#1E293B',
-    fontWeight: '600',
-  },
-  kvValueBold: {
-    fontSize: 10,
-    color: '#1E293B',
-    fontWeight: '850',
-  },
-  rightPaneSectionTitle: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
-    marginBottom: 10,
-  },
-  timelineSection: {
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
-  },
-  timelineNode: {
-    flexDirection: 'row',
-    marginBottom: 12,
-  },
-  timelineConnectorCol: {
-    alignItems: 'center',
-    width: 20,
-  },
-  timelineDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#94A3B8',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timelineLine: {
-    width: 2,
-    flex: 1,
-    backgroundColor: '#CBD5E1',
-    marginVertical: 4,
-  },
-  timelineContent: {
-    flex: 1,
-    paddingLeft: 10,
-  },
-  timelineTitle: {
-    fontSize: 11,
-    fontWeight: '750',
-    color: '#1E293B',
-  },
-  timelineMeta: {
-    fontSize: 9,
-    color: '#64748B',
-    marginTop: 1,
-  },
-  timelineActor: {
-    fontSize: 9,
-    color: '#2563EB',
-    fontWeight: '500',
-    marginTop: 1,
-  },
-  attachmentsHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  viewAllAttachmentsTxt: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#2563EB',
-  },
-  attachmentsListGrid: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
-  },
-  attachmentImg: {
-    width: 60,
-    height: 60,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  customerDetailsSection: {
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
-    gap: 10,
-  },
-  customerMainRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    borderBottomWidth: 1,
-    borderColor: '#E2E8F0',
-    paddingBottom: 8,
-  },
-  custAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-  },
-  custName: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  custPhone: {
-    fontSize: 10,
-    color: '#64748B',
-  },
-  custMetaItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-  },
-  custMetaTxt: {
-    fontSize: 10,
-    color: '#475569',
-    fontWeight: '500',
-    flex: 1,
-    lineHeight: 14,
-  },
-  vehicleInfoBox: {
-    borderTopWidth: 1,
-    borderColor: '#E2E8F0',
-    paddingTop: 8,
-    gap: 8,
-  },
-  actionsGrid: {
-    gap: 10,
-    marginBottom: 20,
-  },
-  actionsGridRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  actionGridItem: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
-    gap: 6,
-  },
-  actionGridItemTxt: {
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  btnViewFullDetails: {
-    backgroundColor: '#2563EB',
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  btnViewFullDetailsTxt: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
+  header: { backgroundColor: '#1D4ED8', paddingHorizontal: 16, paddingBottom: 14, borderBottomLeftRadius: 18, borderBottomRightRadius: 18 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
+  backBtn: { padding: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 8 },
+  headerTitle: { fontSize: 18, fontWeight: '800', color: '#FFF' },
+  headerSub: { fontSize: 11, color: '#BFDBFE', marginTop: 1 },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 12, padding: 10, marginBottom: 10 },
+  summaryItem: { alignItems: 'center' },
+  summaryVal: { fontSize: 20, fontWeight: '800' },
+  summaryLabel: { fontSize: 10, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
+  searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 10, paddingHorizontal: 12, height: 40, gap: 8 },
+  searchInput: { flex: 1, fontSize: 13, color: '#FFF', padding: 0 },
+  tabBar: { flexDirection: 'row', backgroundColor: '#FFF', borderBottomWidth: 1, borderColor: '#E2E8F0' },
+  tabItem: { flex: 1, paddingVertical: 11, alignItems: 'center' },
+  tabItemActive: { borderBottomWidth: 2, borderBottomColor: '#EF4444' },
+  tabTxt: { fontSize: 10, fontWeight: '600', color: '#94A3B8' },
+  tabTxtActive: { color: '#EF4444', fontWeight: '800' },
+  listContent: { padding: 14, paddingBottom: 32, gap: 10 },
+  card: { backgroundColor: '#FFF', borderRadius: 14, padding: 13, borderWidth: 1, borderColor: '#F1F5F9' },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  ticketRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  ticketNum: { fontSize: 11, fontWeight: '700', color: '#64748B' },
+  badgeRow: { flexDirection: 'row', gap: 6 },
+  badge: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 },
+  badgeTxt: { fontSize: 8, fontWeight: '800' },
+  subject: { fontSize: 13, fontWeight: '700', color: '#0F172A', marginBottom: 8 },
+  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
+  infoTxt: { fontSize: 11, color: '#64748B', flex: 1 },
+  actions: { flexDirection: 'row', gap: 8, borderTopWidth: 1, borderColor: '#F1F5F9', paddingTop: 10, marginTop: 6 },
+  resolveBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 7, borderRadius: 8, backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#16A34A' },
+  resolveTxt: { fontSize: 11, fontWeight: '700', color: '#16A34A' },
+  closeBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 7, borderRadius: 8, backgroundColor: '#F1F5F9', borderWidth: 1, borderColor: '#94A3B8' },
+  closeTxt: { fontSize: 11, fontWeight: '700', color: '#64748B' },
+  viewBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 7, borderRadius: 8, backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#2563EB' },
+  viewBtnTxt: { fontSize: 11, fontWeight: '700', color: '#2563EB' },
+  callBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 7, borderRadius: 8, backgroundColor: '#FAF5FF', borderWidth: 1, borderColor: '#8B5CF6' },
+  callBtnTxt: { fontSize: 11, fontWeight: '700', color: '#8B5CF6' },
+  emptyWrap: { alignItems: 'center', paddingTop: 80, gap: 10 },
+  emptyTitle: { fontSize: 16, fontWeight: '700', color: '#475569' },
+  emptySub: { fontSize: 13, color: '#94A3B8' },
 });
 
 export default GrievanceListScreen;

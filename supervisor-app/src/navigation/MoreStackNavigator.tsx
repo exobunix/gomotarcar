@@ -5,12 +5,15 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 import GrievanceListScreen from '../screens/grievances/GrievanceListScreen';
 import GrievanceDetailScreen from '../screens/grievances/GrievanceDetailScreen';
 import InventoryListScreen from '../screens/inventory/InventoryListScreen';
+import InventoryDetailScreen from '../screens/inventory/InventoryDetailScreen';
 import NotificationListScreen from '../screens/notifications/NotificationListScreen';
 import QRListScreen from '../screens/qr/QRListScreen';
-import InventoryDetailScreen from '../screens/inventory/InventoryDetailScreen';
 import QRAssignmentScreen from '../screens/qr/QRAssignmentScreen';
 import QRReassignmentScreen from '../screens/qr/QRReassignmentScreen';
 import SalaryIncentivesScreen from '../screens/salary/SalaryIncentivesScreen';
+import SalaryDetailScreen from '../screens/salary/SalaryDetailScreen';
+import LeaveManagementScreen from '../screens/leaves/LeaveManagementScreen';
+import ReportsScreen from '../screens/reports/ReportsScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import ProfileManagementScreen from '../screens/profile/ProfileManagementScreen';
 import SupportCenterScreen from '../screens/support/SupportCenterScreen';
@@ -21,19 +24,38 @@ const MoreStackNavigator: React.FC = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="MoreMain" component={ProfileScreen} />
     <Stack.Screen name="Profile" component={ProfileScreen} />
+    <Stack.Screen name="ProfileManagement" component={ProfileManagementScreen} />
+
+    {/* Grievances */}
     <Stack.Screen name="GrievanceManagement" component={GrievanceListScreen} />
     <Stack.Screen name="GrievanceList" component={GrievanceListScreen} />
     <Stack.Screen name="GrievanceDetail" component={GrievanceDetailScreen} />
+
+    {/* Inventory */}
     <Stack.Screen name="InventoryManagement" component={InventoryListScreen} />
     <Stack.Screen name="InventoryList" component={InventoryListScreen} />
     <Stack.Screen name="InventoryDetail" component={InventoryDetailScreen} />
+
+    {/* Notifications */}
     <Stack.Screen name="Notifications" component={NotificationListScreen} />
+
+    {/* QR */}
     <Stack.Screen name="QRList" component={QRListScreen} />
     <Stack.Screen name="QRAssignment" component={QRAssignmentScreen} />
     <Stack.Screen name="QRReassignment" component={QRReassignmentScreen} />
+
+    {/* Salary & Incentives */}
     <Stack.Screen name="SalaryIncentives" component={SalaryIncentivesScreen} />
+    <Stack.Screen name="SalaryDetail" component={SalaryDetailScreen} />
+
+    {/* Leaves */}
+    <Stack.Screen name="LeaveManagement" component={LeaveManagementScreen} />
+
+    {/* Reports */}
+    <Stack.Screen name="Reports" component={ReportsScreen} />
+
+    {/* Settings & Support */}
     <Stack.Screen name="Settings" component={SettingsScreen} />
-    <Stack.Screen name="ProfileManagement" component={ProfileManagementScreen} />
     <Stack.Screen name="SupportCenter" component={SupportCenterScreen} />
   </Stack.Navigator>
 );

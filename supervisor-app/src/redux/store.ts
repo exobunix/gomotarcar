@@ -8,6 +8,7 @@ import complaintReducer from './slices/complaintSlice';
 import incentiveReducer from './slices/incentiveSlice';
 import inventoryReducer from './slices/inventorySlice';
 import notificationReducer from './slices/notificationSlice';
+import leaveReducer from './slices/leaveSlice';
 import uiReducer from './slices/uiSlice';
 
 const store = configureStore({
@@ -21,6 +22,7 @@ const store = configureStore({
     incentives: incentiveReducer,
     inventory: inventoryReducer,
     notifications: notificationReducer,
+    leaves: leaveReducer,
     ui: uiReducer,
   },
   middleware: (getDefaultMiddleware) =>

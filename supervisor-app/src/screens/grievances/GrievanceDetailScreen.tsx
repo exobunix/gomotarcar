@@ -14,19 +14,21 @@ import { complaintService } from '../../services/complaint.service';
 interface Props { navigation: any; route: any }
 
 const GrievanceDetailScreen: React.FC<Props> = ({ navigation, route }) => {
-  const { grievanceId } = route.params;
+  // Accept complaintId (from list) or grievanceId (legacy) 
+  const { grievanceId, complaintId } = route.params || {};
+  const id = complaintId || grievanceId;
   const dispatch = useDispatch<AppDispatch>();
   const { selectedComplaint: complaint } = useSelector((s: RootState) => s.complaints);
   const [resolution, setResolution] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => { dispatch(fetchComplaintById(grievanceId)); }, [dispatch, grievanceId]);
+  useEffect(() => { if (id) dispatch(fetchComplaintById(id)); }, [dispatch, id]);
 
   const handleResolve = async () => {
     if (!resolution.trim()) { Alert.alert('Required', 'Enter resolution notes'); return; }
     setLoading(true);
     try {
-      await complaintService.resolve(grievanceId, { resolution: resolution.trim() });
+      await complaintService.resolve(id, { resolution: resolution.trim() });
       Alert.alert('Resolved', 'Complaint marked as resolved', [{ text: 'OK', onPress: () => navigation.goBack() }]);
     } catch { Alert.alert('Error', 'Failed to resolve'); }
     finally { setLoading(false); }

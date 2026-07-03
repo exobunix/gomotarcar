@@ -191,10 +191,14 @@ export default function FranchisePortal() {
     setAuthLoading(true);
     setAuthError(null);
     try {
+      let formattedPhone = regForm.phone.trim();
+      if (/^\d{10}$/.test(formattedPhone)) {
+        formattedPhone = "+91" + formattedPhone;
+      }
       const payload = {
         franchiseName: regForm.franchiseName,
         ownerName: regForm.ownerName,
-        phone: regForm.phone,
+        phone: formattedPhone,
         email: regForm.email || undefined,
         password: regForm.password,
         type: "cleaning_station", // Must match Joi validator enum: 'workshop', 'service_center', 'cleaning_station'

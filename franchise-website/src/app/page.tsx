@@ -21,9 +21,6 @@ if (typeof window !== "undefined") {
   }
 }
 
-// ----------------------------------------------------
-// UI Components / Pages
-// ----------------------------------------------------
 export default function FranchisePortal() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
@@ -31,11 +28,28 @@ export default function FranchisePortal() {
   const [profile, setProfile] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "staff" | "profile">("dashboard");
 
+  // Auth/Register Toggle
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
+
   // Auth form state
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
+
+  // Registration Form State
+  const [regForm, setRegForm] = useState({
+    franchiseName: "",
+    type: "cleaning_station", // CSP / Steam Car Wash
+    ownerName: "",
+    phone: "",
+    email: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
+    password: "",
+  });
 
   // Data states
   const [stats, setStats] = useState({
@@ -172,6 +186,26 @@ export default function FranchisePortal() {
     }
   };
 
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      await api.post("/auth/register-franchise", {
+        ...regForm,
+        agreement: { commissionPercent: 15 },
+      });
+      alert("Registration Successful! Please sign in using your phone and password.");
+      setIsRegisterMode(false);
+      setPhone(regForm.phone);
+      setPassword(regForm.password);
+    } catch (err: any) {
+      setAuthError(err.response?.data?.message || err.response?.data?.error?.message || "Registration failed");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("franchise_token");
     localStorage.removeItem("franchise_user");
@@ -213,8 +247,8 @@ export default function FranchisePortal() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-900 px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-700">
+      <div className="flex min-h-screen items-center justify-center bg-slate-900 px-6 py-12 lg:px-8 overflow-y-auto">
+        <div className="sm:mx-auto sm:w-full sm:max-w-lg bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-700 my-8">
           <div className="flex flex-col items-center">
             <span className="text-5xl mb-3">🚗</span>
             <h2 className="text-center text-3xl font-extrabold tracking-tight text-white">
@@ -225,51 +259,198 @@ export default function FranchisePortal() {
             </p>
           </div>
 
-          <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-            {authError && (
-              <div className="rounded-lg bg-red-950/50 p-3 border border-red-500/30 text-center text-sm text-red-400">
-                {authError}
-              </div>
-            )}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-slate-300">
-                  Phone Number
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="+919876543210"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-300">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
+          {authError && (
+            <div className="mt-6 rounded-lg bg-red-950/50 p-3 border border-red-500/30 text-center text-sm text-red-400">
+              {authError}
             </div>
+          )}
 
-            <div>
-              <button
-                type="submit"
-                disabled={authLoading}
-                className="group relative flex w-full justify-center rounded-xl bg-blue-600 py-3 px-4 text-sm font-semibold text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer disabled:opacity-50"
-              >
-                {authLoading ? "Logging in..." : "Sign In"}
-              </button>
-            </div>
-          </form>
+          {!isRegisterMode ? (
+            /* Login Form */
+            <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-300">
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="+919710000000"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-300">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Owner's Name (lowercase) + @123"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="group relative flex w-full justify-center rounded-xl bg-blue-600 py-3 px-4 text-sm font-semibold text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {authLoading ? "Logging in..." : "Sign In"}
+                </button>
+              </div>
+
+              <div className="text-center mt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsRegisterMode(true)}
+                  className="text-sm font-semibold text-blue-400 hover:text-blue-300 cursor-pointer"
+                >
+                  Don't have an account? Register as Franchise Partner
+                </button>
+              </div>
+            </form>
+          ) : (
+            /* Register Form */
+            <form className="mt-8 space-y-4" onSubmit={handleRegister}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Franchise Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="GoMotarCar Station"
+                    value={regForm.franchiseName}
+                    onChange={(e) => setRegForm({ ...regForm, franchiseName: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Franchise Type</label>
+                  <select
+                    value={regForm.type}
+                    onChange={(e) => setRegForm({ ...regForm, type: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="cleaning_station">CSP (Car Service Point)</option>
+                    <option value="steam_car_wash">Steam Car Wash</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Owner Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Owner Full Name"
+                    value={regForm.ownerName}
+                    onChange={(e) => setRegForm({ ...regForm, ownerName: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Mobile Number</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="+919876543210"
+                    value={regForm.phone}
+                    onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="owner@email.com"
+                    value={regForm.email}
+                    onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Create Password"
+                    value={regForm.password}
+                    onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Business Address</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Shop address, Sector/Street name"
+                    value={regForm.address}
+                    onChange={(e) => setRegForm({ ...regForm, address: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">City</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Gurgaon"
+                    value={regForm.city}
+                    onChange={(e) => setRegForm({ ...regForm, city: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">State</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Haryana"
+                    value={regForm.state}
+                    onChange={(e) => setRegForm({ ...regForm, state: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Pincode</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="122001"
+                    value={regForm.pincode}
+                    onChange={(e) => setRegForm({ ...regForm, pincode: e.target.value })}
+                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setIsRegisterMode(false)}
+                  className="flex-1 py-3 bg-slate-700 hover:bg-slate-650 text-white rounded-xl font-semibold cursor-pointer transition-all text-sm"
+                >
+                  Back to Sign In
+                </button>
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold cursor-pointer transition-all text-sm disabled:opacity-50"
+                >
+                  {authLoading ? "Registering..." : "Submit Application"}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     );

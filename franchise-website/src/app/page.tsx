@@ -191,11 +191,23 @@ export default function FranchisePortal() {
     setAuthLoading(true);
     setAuthError(null);
     try {
-      await api.post("/auth/register-franchise", {
-        ...regForm,
+      const payload = {
+        franchiseName: regForm.franchiseName,
+        ownerName: regForm.ownerName,
+        phone: regForm.phone,
+        email: regForm.email || undefined,
+        password: regForm.password,
+        type: "cleaning_station", // Must match Joi validator enum: 'workshop', 'service_center', 'cleaning_station'
+        address: {
+          street: regForm.address,
+          city: regForm.city,
+          state: regForm.state,
+          pincode: regForm.pincode,
+        },
         agreement: { commissionPercent: 15 },
-      });
-      alert("Registration Successful! Please sign in using your phone and password.");
+      };
+      await api.post("/auth/register-franchise", payload);
+      alert("Registration Successful! Please wait for Admin approval to login.");
       setIsRegisterMode(false);
       setPhone(regForm.phone);
       setPassword(regForm.password);

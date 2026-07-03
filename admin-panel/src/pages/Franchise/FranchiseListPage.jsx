@@ -342,7 +342,11 @@ const FranchiseListPage = () => {
         await franchiseApi.create(formDialog.data);
         enqueueSnackbar('Franchise partner added successfully', { variant: 'success' });
       } else {
-        await franchiseApi.update(formDialog.data._id, formDialog.data);
+        const { _id, region, revenueThisMonth, franchiseCode, userId, verificationStatus, stats, documents, createdAt, updatedAt, __v, ...cleanedData } = formDialog.data;
+        if (cleanedData.password === '') {
+          delete cleanedData.password;
+        }
+        await franchiseApi.update(formDialog.data._id, cleanedData);
         enqueueSnackbar('Franchise partner updated successfully', { variant: 'success' });
       }
       setFormDialog(null);

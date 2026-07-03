@@ -292,6 +292,10 @@ class FranchiseService {
       if (updates.agreement.documentUrl) franchise.agreement.documentUrl = updates.agreement.documentUrl;
     }
 
+    if (updates.password && updates.password.trim() !== '') {
+      await User.findByIdAndUpdate(franchise.userId, { passwordHash: updates.password });
+    }
+
     await franchise.save();
     return franchise.populate('userId', 'phone email');
   }

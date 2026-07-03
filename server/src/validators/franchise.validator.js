@@ -72,6 +72,7 @@ const updateFranchiseSchema = Joi.object({
     endDate: Joi.date(),
     documentUrl: Joi.string().allow('', null),
   }).optional(),
+  password: Joi.string().min(6).allow('', null),
 });
 
 const verifyFranchiseSchema = Joi.object({

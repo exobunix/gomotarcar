@@ -318,7 +318,8 @@ const FranchiseListPage = () => {
           accountNumber: row.bankDetails?.accountNumber || '',
           ifscCode: row.bankDetails?.ifscCode || '',
           upiId: row.bankDetails?.upiId || '',
-        }
+        },
+        password: '',
       },
     });
     setFormErrors({});
@@ -1304,6 +1305,19 @@ const FranchiseListPage = () => {
               />
             </Grid>
           </Grid>
+          {formDialog?.mode === 'edit' && (
+            <>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mt: 2, mb: 0.5 }}>Security Settings</Typography>
+              <TextField
+                size="small"
+                label="Update Password"
+                placeholder="Leave blank to keep current password"
+                value={formDialog?.data.password || ''}
+                onChange={(e) => setFormDialog(prev => ({ ...prev, data: { ...prev.data, password: e.target.value } }))}
+                fullWidth
+              />
+            </>
+          )}
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
           <Button onClick={() => setFormDialog(null)} sx={{ textTransform: 'none', fontWeight: 600 }}>Cancel</Button>

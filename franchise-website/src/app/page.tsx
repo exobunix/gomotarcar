@@ -34,6 +34,8 @@ export default function FranchisePortal() {
   // Auth form state
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegPassword, setShowRegPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
 
@@ -309,14 +311,23 @@ export default function FranchisePortal() {
                   <label className="block text-sm font-semibold text-slate-300">
                     Password
                   </label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="Owner's Name (lowercase) + @123"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showLoginPassword ? "text" : "password"}
+                      required
+                      placeholder="Owner's Name (lowercase) + @123"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 py-3 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPassword(!showLoginPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white focus:outline-none cursor-pointer"
+                    >
+                      {showLoginPassword ? "👁️ Hide" : "👁️ Show"}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -401,14 +412,23 @@ export default function FranchisePortal() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="Create Password"
-                    value={regForm.password}
-                    onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showRegPassword ? "text" : "password"}
+                      required
+                      placeholder="Create Password"
+                      value={regForm.password}
+                      onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
+                      className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegPassword(!showRegPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white focus:outline-none cursor-pointer"
+                    >
+                      {showRegPassword ? "👁️ Hide" : "👁️ Show"}
+                    </button>
+                  </div>
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Business Address</label>

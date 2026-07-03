@@ -93,7 +93,10 @@ class AuthService {
     }
 
     if (!user.isActive) {
-      throw new AppError('Account is deactivated', 403, 'AUTH_ACCOUNT_INACTIVE');
+      if (user.role === 'franchise' && !user.isVerified) {
+        throw new AppError('Your franchise account is pending admin approval.', 403, 'AUTH_PENDING_APPROVAL');
+      }
+      throw new AppError('Account is deactivated. Please contact support.', 403, 'AUTH_ACCOUNT_INACTIVE');
     }
 
     return this._generateAuthResponse(user);

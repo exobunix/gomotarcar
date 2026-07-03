@@ -22,7 +22,8 @@ class FranchiseService {
       phone,
       email,
       role: 'franchise',
-      isVerified: true,
+      isVerified: false,
+      isActive: false,
       phoneVerified: true,
       passwordHash: data.password || defaultPassword,
     });
@@ -314,10 +315,12 @@ class FranchiseService {
 
     if (status === 'verified') {
       franchise.verified = true;
+      franchise.isActive = true;
+      await User.findByIdAndUpdate(franchise.userId, { isActive: true, isVerified: true });
     }
 
     await franchise.save();
-    return franchise.populate('userId', 'phone email');
+    return franchise.populate('userId', 'phone email isActive');
   }
 
   /**

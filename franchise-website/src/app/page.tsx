@@ -250,12 +250,13 @@ export default function FranchisePortal() {
       <div className="flex min-h-screen items-center justify-center bg-slate-900 px-6 py-12 lg:px-8 overflow-y-auto">
         <div className="sm:mx-auto sm:w-full sm:max-w-lg bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-700 my-8">
           <div className="flex flex-col items-center">
-            <span className="text-5xl mb-3">🚗</span>
-            <h2 className="text-center text-3xl font-extrabold tracking-tight text-white">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="GoMotarCar" className="h-16 w-auto mb-4 object-contain" />
+            <h2 className="text-center text-2xl font-extrabold tracking-tight text-white">
               Franchise Portal
             </h2>
-            <p className="mt-2 text-center text-sm text-slate-400">
-              GoMotarCar Partner System
+            <p className="mt-1 text-center text-xs text-slate-400">
+              "Anything & Everything for Your Car"
             </p>
           </div>
 

@@ -20,6 +20,15 @@ router.post('/send-otp', rateLimiters.otp, validate(sendOtpSchema), authControll
 router.post('/verify-otp', rateLimiters.otp, validate(verifyOtpSchema), authController.verifyOtp);
 router.post('/register', rateLimiters.auth, validate(registerSchema), authController.register);
 router.post('/register-cleaner', rateLimiters.auth, authController.registerCleaner);
+router.post('/register-franchise', rateLimiters.auth, async (req, res, next) => {
+  try {
+    const franchiseService = require('../services/franchise.service');
+    const franchise = await franchiseService.create(req.body);
+    res.status(201).json({ success: true, data: franchise });
+  } catch (error) {
+    next(error);
+  }
+});
 router.post('/login', rateLimiters.auth, validate(loginPasswordSchema), authController.login);
 router.post('/refresh', rateLimiters.auth, validate(refreshTokenSchema), authController.refresh);
 

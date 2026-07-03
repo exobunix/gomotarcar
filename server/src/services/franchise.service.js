@@ -16,12 +16,15 @@ class FranchiseService {
       throw new AppError('Phone number already registered', 409, 'FRANCHISE_PHONE_EXISTS');
     }
 
+    // Default password to owner name lowercase without spaces + '@123'
+    const defaultPassword = (ownerName || 'franchise').toLowerCase().replace(/\s+/g, '') + '@123';
     const user = await User.create({
       phone,
       email,
       role: 'franchise',
       isVerified: true,
       phoneVerified: true,
+      passwordHash: data.password || defaultPassword,
     });
 
     const franchise = await Franchise.create({

@@ -634,12 +634,17 @@ class DashboardService {
   /**
    * Franchise dashboard (existing)
    */
-  async getFranchiseDashboard(franchiseId) {
-    const [franchise, cleaners, bookings, revenue] = await Promise.all([
-      Franchise.findById(franchiseId),
-      Cleaner.countDocuments({ assignedZone: { $in: franchiseId }, isActive: true }),
-      ServiceBooking.aggregate([{ $match: { franchiseId } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
-      ServiceBooking.aggregate([{ $match: { franchiseId, status: 'completed' } }, { $group: { _id: null, total: { $sum: '$totalAmount' }, count: { $sum: 1 } } }]),
+  async getFranchiseDashboard(franchiseIdOrUserId) {
+    let franchise = await Franchise.findById(franchiseIdOrUserId);
+    if (!franchise) {
+      franchise = await Franchise.findOne({ userId: franchiseIdOrUserId });
+    }
+    const actualFranchiseId = franchise ? franchise._id : franchiseIdOrUserId;
+
+    const [cleaners, bookings, revenue] = await Promise.all([
+      Cleaner.countDocuments({ assignedZone: { $in: actualFranchiseId }, isActive: true }),
+      ServiceBooking.aggregate([{ $match: { franchiseId: actualFranchiseId } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
+      ServiceBooking.aggregate([{ $match: { franchiseId: actualFranchiseId, status: 'completed' } }, { $group: { _id: null, total: { $sum: '$totalAmount' }, count: { $sum: 1 } } }]),
     ]);
 
     const bookingStats = { total: 0, active: 0, completed: 0 };

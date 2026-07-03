@@ -98,9 +98,20 @@ export type MoreStackParamList = {
   Profile: undefined;
   ProfileManagement: undefined;
   GrievanceManagement: undefined;
+  GrievanceList: undefined;
+  GrievanceDetail: { complaintId: string };
   InventoryManagement: undefined;
+  InventoryList: undefined;
+  InventoryDetail: { itemId: string };
   Settings: undefined;
   Notifications: undefined;
+  QRList: undefined;
+  QRAssignment: { apartmentId?: string };
+  QRReassignment: { qrId: string; apartmentId: string };
+  SalaryIncentives: undefined;
+  SalaryDetail: { cleanerId: string };
+  LeaveManagement: undefined;
+  Reports: undefined;
   SupportCenter: undefined;
 };
 

@@ -6,7 +6,7 @@ import axios from "axios";
 // ----------------------------------------------------
 // Core API Config & State Management (simulating Redux)
 // ----------------------------------------------------
-const API_BASE = "https://gomotarcar-api.onrender.com/api/v1";
+const API_BASE = "http://localhost:5000/api/v1";
 
 const api = axios.create({
   baseURL: API_BASE,

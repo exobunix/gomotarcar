@@ -293,7 +293,11 @@ class FranchiseService {
     }
 
     if (updates.password && updates.password.trim() !== '') {
-      await User.findByIdAndUpdate(franchise.userId, { passwordHash: updates.password });
+      const user = await User.findById(franchise.userId);
+      if (user) {
+        user.passwordHash = updates.password;
+        await user.save();
+      }
     }
 
     await franchise.save();

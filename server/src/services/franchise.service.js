@@ -45,9 +45,9 @@ class FranchiseService {
       servicesOffered: servicesOffered || [],
       serviceZones: serviceZones || [],
       agreement: {
-        commissionPercent: agreement?.commissionPercent || 10,
-        startDate: agreement?.startDate,
-        endDate: agreement?.endDate,
+        commissionPercent: agreement?.commissionPercent || 15,
+        startDate: agreement?.startDate || new Date(),
+        endDate: agreement?.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       },
       bankDetails: bankDetails || {},
     });

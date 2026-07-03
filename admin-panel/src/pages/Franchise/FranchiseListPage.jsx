@@ -356,7 +356,7 @@ const FranchiseListPage = () => {
 
   const handleVerify = async (id) => {
     try {
-      await franchiseApi.verify(id, 'verified');
+      await franchiseApi.verify(id, { status: 'verified' });
       enqueueSnackbar('Franchise activated and verified', { variant: 'success' });
       fetchData(pagination.page, pagination.limit);
       fetchStats();
@@ -1061,19 +1061,19 @@ const FranchiseListPage = () => {
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 3 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="body2" sx={{ color: '#64748B' }}>Total Bookings</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{selectedFranchise.stats?.totalBookings || '256'}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{selectedFranchise.stats?.totalBookings || '0'}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="body2" sx={{ color: '#64748B' }}>Revenue</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>₹ {selectedFranchise.revenueThisMonth?.toLocaleString() || '2,35,640'}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>₹ {(selectedFranchise.stats?.totalRevenue || 0).toLocaleString()}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="body2" sx={{ color: '#64748B' }}>Payouts</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>₹ {(Math.round((selectedFranchise.revenueThisMonth || 235640) * 0.85)).toLocaleString()}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>₹ {(Math.round((selectedFranchise.stats?.totalRevenue || 0) * (1 - (selectedFranchise.agreement?.commissionPercent || 15) / 100))).toLocaleString()}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="body2" sx={{ color: '#64748B' }}>Balance</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#16A34A' }}>₹ {(Math.round((selectedFranchise.revenueThisMonth || 235640) * 0.15)).toLocaleString()}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#16A34A' }}>₹ {(selectedFranchise.stats?.totalCommission || Math.round((selectedFranchise.stats?.totalRevenue || 0) * (selectedFranchise.agreement?.commissionPercent || 15) / 100)).toLocaleString()}</Typography>
                     </Box>
                   </Box>
                 </Box>

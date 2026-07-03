@@ -44,7 +44,19 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: config.corsOrigins,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const allowed = config.corsOrigins;
+    const isAllowed = allowed.includes(origin) || 
+                      origin.endsWith('.vercel.app') || 
+                      /^http:\/\/localhost:\d+$/.test(origin) ||
+                      /^http:\/\/127\.0\.0\.1:\d+$/.test(origin);
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Device-ID', 'X-Platform', 'X-App-Version', 'X-CSRF-Token', 'X-Request-ID'],

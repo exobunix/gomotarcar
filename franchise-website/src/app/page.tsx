@@ -273,229 +273,310 @@ export default function FranchisePortal() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-900 px-6 py-12 lg:px-8 overflow-y-auto">
-        <div className="sm:mx-auto sm:w-full sm:max-w-lg bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-700 my-8">
-          <div className="flex flex-col items-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="GoMotarCar" className="h-16 w-auto mb-4 object-contain" />
-            <h2 className="text-center text-2xl font-extrabold tracking-tight text-white">
-              Franchise Portal
-            </h2>
-            <p className="mt-1 text-center text-xs text-slate-400">
-              "Anything & Everything for Your Car"
+      <div className="flex min-h-screen bg-[#090D1A] overflow-hidden text-slate-100 font-sans" style={{ fontFamily: "'Inter', sans-serif" }}>
+        {/* Left Side: Splash Banner */}
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: "linear-gradient(to bottom, rgba(5, 10, 30, 0.7), rgba(9, 13, 26, 0.95)), url('https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&w=1200&q=80')" }}>
+          {/* Logo */}
+          <div className="flex items-center gap-3.5 z-10">
+            <div className="bg-blue-600/10 p-2.5 rounded-2xl border border-blue-500/25 flex items-center justify-center">
+              <span className="text-3xl font-extrabold text-blue-500 tracking-tighter">G</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-1">
+                <span className="text-xl font-black text-white tracking-tight uppercase">Go<span className="text-blue-500">Motor</span>Car</span>
+              </div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-0.5">Franchise</p>
+            </div>
+          </div>
+
+          {/* Marketing text */}
+          <div className="z-10 max-w-md my-auto">
+            <h1 className="text-4xl font-extrabold text-white leading-tight tracking-tight mb-4">
+              Drive Success <br />
+              With <span className="text-blue-500">GoMotor</span>Car <br />
+              Franchise
+            </h1>
+            <div className="h-1.5 w-16 bg-blue-500 rounded-full mb-6"></div>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Manage bookings, customers, earnings and your team all in one place. Scale your business operations effortlessly.
             </p>
           </div>
 
-          {authError && (
-            <div className="mt-6 rounded-lg bg-red-950/50 p-3 border border-red-500/30 text-center text-sm text-red-400">
-              {authError}
+          {/* Footer Badge */}
+          <div className="z-10 flex items-center justify-between border-t border-slate-800/60 pt-6">
+            <div className="flex items-center gap-2 text-slate-400 text-xs font-semibold">
+              <span className="text-blue-500">🛡️</span> Secure. Reliable. Everywhere.
             </div>
-          )}
+            <div className="flex gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+              <span className="w-2 h-2 rounded-full bg-slate-700"></span>
+              <span className="w-2 h-2 rounded-full bg-slate-700"></span>
+            </div>
+          </div>
+        </div>
 
-          {!isRegisterMode ? (
-            /* Login Form */
-            <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-300">
-                    Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="+919710000000"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
+        {/* Right Side: Form Container */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 overflow-y-auto">
+          <div className="w-full max-w-md bg-[#0F172A]/85 backdrop-blur-md p-8 lg:p-10 rounded-3xl shadow-2xl border border-slate-800/80">
+            {/* Header info */}
+            <div className="mb-8">
+              <h2 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
+                {!isRegisterMode ? "Welcome Back!" : "Register Partner"}
+              </h2>
+              <p className="text-slate-400 text-xs mt-1.5 leading-relaxed">
+                {!isRegisterMode 
+                  ? "Login to your GoMotorCar franchise account" 
+                  : "Submit your details to apply for a franchise partnership"}
+              </p>
+            </div>
+
+            {/* Error notifications */}
+            {authError && (
+              <div className="mb-6 rounded-2xl bg-red-950/40 p-4 border border-red-500/20 text-sm text-red-400 font-medium">
+                ⚠️ {authError}
+              </div>
+            )}
+
+            {!isRegisterMode ? (
+              /* Login Form */
+              <form className="space-y-5" onSubmit={handleLogin}>
+                <div className="flex bg-[#1E293B]/60 p-1 rounded-xl border border-slate-800 mb-6">
+                  <button type="button" className="flex-1 py-2 text-xs font-bold bg-blue-600 text-white rounded-lg transition-all shadow-sm">
+                    📱 Mobile Number
+                  </button>
+                  <button type="button" className="flex-1 py-2 text-xs font-medium text-slate-400 hover:text-white rounded-lg transition-all">
+                    ✉️ Email
+                  </button>
                 </div>
+
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300">
-                    Password
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    Mobile Number
                   </label>
+                  <div className="flex gap-2">
+                    <div className="flex items-center gap-1.5 bg-[#1E293B]/40 border border-slate-800 rounded-xl px-3 text-sm text-slate-300">
+                      🇮🇳 <span>+91</span>
+                    </div>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter mobile number"
+                      value={phone.replace(/^\+91/, '')}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setPhone(val ? "+91" + val : "");
+                      }}
+                      className="flex-1 rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 transition-all text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      Password
+                    </label>
+                    <button type="button" className="text-xs font-semibold text-blue-500 hover:text-blue-400">
+                      Forgot Password?
+                    </button>
+                  </div>
                   <div className="relative">
                     <input
                       type={showLoginPassword ? "text" : "password"}
                       required
-                      placeholder="Owner's Name (lowercase) + @123"
+                      placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 py-3 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 py-3 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-600/50 transition-all text-sm"
                     />
                     <button
                       type="button"
                       onClick={() => setShowLoginPassword(!showLoginPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white focus:outline-none cursor-pointer"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-white focus:outline-none cursor-pointer"
                     >
-                      {showLoginPassword ? "👁️ Hide" : "👁️ Show"}
+                      {showLoginPassword ? "Hide" : "Show"}
                     </button>
                   </div>
                 </div>
-              </div>
 
-              <div>
+                <div className="flex items-center gap-2 py-1">
+                  <input type="checkbox" id="remember" defaultChecked className="rounded border-slate-700 bg-[#1E293B] text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer" />
+                  <label htmlFor="remember" className="text-xs text-slate-400 font-medium cursor-pointer select-none">Remember Me</label>
+                </div>
+
                 <button
                   type="submit"
                   disabled={authLoading}
-                  className="group relative flex w-full justify-center rounded-xl bg-blue-600 py-3 px-4 text-sm font-semibold text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-blue-600/25 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {authLoading ? "Logging in..." : "Sign In"}
+                  {authLoading ? (
+                    <span>Logging in...</span>
+                  ) : (
+                    <>
+                      <span>Sign In</span>
+                      <span className="text-base">🚀</span>
+                    </>
+                  )}
                 </button>
-              </div>
 
-              <div className="text-center mt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsRegisterMode(true)}
-                  className="text-sm font-semibold text-blue-400 hover:text-blue-300 cursor-pointer"
-                >
-                  Don't have an account? Register as Franchise Partner
+                <div className="relative flex py-2 items-center">
+                  <div className="flex-grow border-t border-slate-800"></div>
+                  <span className="flex-shrink mx-4 text-slate-500 text-xs font-bold uppercase tracking-wider">OR</span>
+                  <div className="flex-grow border-t border-slate-800"></div>
+                </div>
+
+                <button type="button" className="w-full py-3 px-4 bg-white hover:bg-slate-100 text-slate-900 rounded-xl font-semibold text-xs tracking-wide shadow-md transition-all flex items-center justify-center gap-2.5 cursor-pointer">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.859-3.578-7.859-8s3.53-8 7.86-8c2.46 0 4.105 1.025 5.047 1.926l3.227-3.107C18.29 1.838 15.539.8 12.24.8 6.033.8 1 5.833 1 12.04s5.033 11.24 11.24 11.24c6.478 0 10.793-4.537 10.793-10.985 0-.746-.08-1.32-.176-1.88H12.24z"/></svg>
+                  <span>Continue with Google</span>
                 </button>
-              </div>
-            </form>
-          ) : (
-            /* Register Form */
-            <form className="mt-8 space-y-4" onSubmit={handleRegister}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Franchise Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="GoMotarCar Station"
-                    value={regForm.franchiseName}
-                    onChange={(e) => setRegForm({ ...regForm, franchiseName: e.target.value })}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Franchise Type</label>
-                  <select
-                    value={regForm.type}
-                    onChange={(e) => setRegForm({ ...regForm, type: e.target.value })}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="cleaning_station">CSP (Car Service Point)</option>
-                    <option value="steam_car_wash">Steam Car Wash</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Owner Name</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Owner Full Name"
-                    value={regForm.ownerName}
-                    onChange={(e) => setRegForm({ ...regForm, ownerName: e.target.value })}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Mobile Number</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="+919876543210"
-                    value={regForm.phone}
-                    onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="owner@email.com"
-                    value={regForm.email}
-                    onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
-                  <div className="relative">
-                    <input
-                      type={showRegPassword ? "text" : "password"}
-                      required
-                      placeholder="Create Password"
-                      value={regForm.password}
-                      onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
-                      className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+
+                <div className="text-center pt-4">
+                  <p className="text-slate-400 text-xs">
+                    Don't have an account?{" "}
                     <button
                       type="button"
-                      onClick={() => setShowRegPassword(!showRegPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white focus:outline-none cursor-pointer"
+                      onClick={() => setIsRegisterMode(true)}
+                      className="text-blue-500 hover:text-blue-400 font-bold hover:underline"
                     >
-                      {showRegPassword ? "👁️ Hide" : "👁️ Show"}
+                      Sign Up
                     </button>
+                  </p>
+                </div>
+              </form>
+            ) : (
+              /* Register Form */
+              <form className="space-y-4" onSubmit={handleRegister}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Franchise Name</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter franchise name"
+                      value={regForm.franchiseName}
+                      onChange={(e) => setRegForm({ ...regForm, franchiseName: e.target.value })}
+                      className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 p-3 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Franchise Type</label>
+                    <select
+                      value={regForm.type}
+                      onChange={(e) => setRegForm({ ...regForm, type: e.target.value })}
+                      className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-sm"
+                    >
+                      <option value="cleaning_station">CSP (Car Service Point)</option>
+                      <option value="service_center">Authorized Service Center</option>
+                      <option value="workshop">Workshop</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Owner Name</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Owner full name"
+                      value={regForm.ownerName}
+                      onChange={(e) => setRegForm({ ...regForm, ownerName: e.target.value })}
+                      className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 p-3 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Mobile Number</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="10 digit number"
+                      value={regForm.phone}
+                      onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })}
+                      className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 p-3 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Email Address</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="owner@email.com"
+                      value={regForm.email}
+                      onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
+                      className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 p-3 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
+                    <div className="relative">
+                      <input
+                        type={showRegPassword ? "text" : "password"}
+                        required
+                        placeholder="Create password"
+                        value={regForm.password}
+                        onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
+                        className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowRegPassword(!showRegPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-white focus:outline-none cursor-pointer"
+                      >
+                        {showRegPassword ? "Hide" : "Show"}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Business Address</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Shop address, Sector/Street name"
+                      value={regForm.address}
+                      onChange={(e) => setRegForm({ ...regForm, address: e.target.value })}
+                      className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 p-3 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">City</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Gurgaon"
+                      value={regForm.city}
+                      onChange={(e) => setRegForm({ ...regForm, city: e.target.value })}
+                      className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 p-3 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Pincode</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="122001"
+                      value={regForm.pincode}
+                      onChange={(e) => setRegForm({ ...regForm, pincode: e.target.value })}
+                      className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 p-3 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-sm"
+                    />
                   </div>
                 </div>
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Business Address</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Shop address, Sector/Street name"
-                    value={regForm.address}
-                    onChange={(e) => setRegForm({ ...regForm, address: e.target.value })}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">City</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Gurgaon"
-                    value={regForm.city}
-                    onChange={(e) => setRegForm({ ...regForm, city: e.target.value })}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">State</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Haryana"
-                    value={regForm.state}
-                    onChange={(e) => setRegForm({ ...regForm, state: e.target.value })}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Pincode</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="122001"
-                    value={regForm.pincode}
-                    onChange={(e) => setRegForm({ ...regForm, pincode: e.target.value })}
-                    className="mt-1 block w-full rounded-xl bg-slate-900 border border-slate-700 text-white p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
 
-              <div className="pt-4 flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => setIsRegisterMode(false)}
-                  className="flex-1 py-3 bg-slate-700 hover:bg-slate-650 text-white rounded-xl font-semibold cursor-pointer transition-all text-sm"
-                >
-                  Back to Sign In
-                </button>
-                <button
-                  type="submit"
-                  disabled={authLoading}
-                  className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold cursor-pointer transition-all text-sm disabled:opacity-50"
-                >
-                  {authLoading ? "Registering..." : "Submit Application"}
-                </button>
-              </div>
-            </form>
-          )}
+                <div className="pt-4 flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsRegisterMode(false)}
+                    className="flex-1 py-3 bg-[#1E293B] hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl font-bold transition-all text-xs tracking-wider uppercase cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={authLoading}
+                    className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all text-xs tracking-wider uppercase cursor-pointer disabled:opacity-50"
+                  >
+                    {authLoading ? "Registering..." : "Submit"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     );

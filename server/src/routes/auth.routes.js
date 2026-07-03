@@ -20,7 +20,7 @@ router.post('/send-otp', rateLimiters.otp, validate(sendOtpSchema), authControll
 router.post('/verify-otp', rateLimiters.otp, validate(verifyOtpSchema), authController.verifyOtp);
 router.post('/register', rateLimiters.auth, validate(registerSchema), authController.register);
 router.post('/register-cleaner', rateLimiters.auth, authController.registerCleaner);
-router.post('/register-franchise', rateLimiters.auth, async (req, res, next) => {
+router.post('/register-franchise', rateLimiters.auth, validate(require('../validators/franchise.validator').createFranchiseSchema), async (req, res, next) => {
   try {
     const franchiseService = require('../services/franchise.service');
     const franchise = await franchiseService.create(req.body);

@@ -216,7 +216,13 @@ export default function FranchisePortal() {
       setPhone(regForm.phone);
       setPassword(regForm.password);
     } catch (err: any) {
-      setAuthError(err.response?.data?.message || err.response?.data?.error?.message || "Registration failed");
+      const respData = err.response?.data;
+      if (respData?.error?.details && Array.isArray(respData.error.details)) {
+        const fieldMsgs = respData.error.details.map((d: any) => `${d.field}: ${d.message}`).join(", ");
+        setAuthError(`Validation Failed — ${fieldMsgs}`);
+      } else {
+        setAuthError(respData?.message || respData?.error?.message || "Registration failed");
+      }
     } finally {
       setAuthLoading(false);
     }

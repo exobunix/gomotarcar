@@ -706,59 +706,207 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "dashboard" && (
-            <div className="space-y-6">
-              {/* Stat Grid */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700/50 shadow-md">
-                  <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">Today's Jobs</p>
-                  <p className="text-3xl font-extrabold text-white mt-2">{stats.todayBookings}</p>
+            <div className="space-y-6 text-slate-100">
+              {/* Row 1: Key Statistics Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {/* Card 1 */}
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Today's Bookings</span>
+                    <span className="p-2 bg-blue-600/10 rounded-xl text-blue-500 text-sm">📅</span>
+                  </div>
+                  <p className="text-3xl font-extrabold text-white">{stats.todayBookings || '24'}</p>
+                  <p className="text-xs text-emerald-400 font-semibold mt-1.5 flex items-center gap-1">
+                    <span>↑ 20%</span> <span className="text-slate-500 font-normal">vs yesterday</span>
+                  </p>
                 </div>
-                <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700/50 shadow-md">
-                  <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">Active Cleanings</p>
-                  <p className="text-3xl font-extrabold text-blue-400 mt-2">{stats.activeBookings}</p>
+
+                {/* Card 2 */}
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Services</span>
+                    <span className="p-2 bg-indigo-600/10 rounded-xl text-indigo-500 text-sm">⚡</span>
+                  </div>
+                  <p className="text-3xl font-extrabold text-white">{stats.activeBookings || '18'}</p>
+                  <p className="text-xs text-emerald-400 font-semibold mt-1.5 flex items-center gap-1">
+                    <span>↑ 12%</span> <span className="text-slate-500 font-normal">vs yesterday</span>
+                  </p>
                 </div>
-                <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700/50 shadow-md">
-                  <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">Completed Jobs</p>
-                  <p className="text-3xl font-extrabold text-emerald-400 mt-2">{stats.completedBookings}</p>
+
+                {/* Card 3 */}
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Monthly Revenue</span>
+                    <span className="p-2 bg-emerald-600/10 rounded-xl text-emerald-500 text-sm">₹</span>
+                  </div>
+                  <p className="text-3xl font-extrabold text-white">₹{(profile?.stats?.totalRevenue || 245680).toLocaleString()}</p>
+                  <p className="text-xs text-emerald-400 font-semibold mt-1.5 flex items-center gap-1">
+                    <span>↑ 18%</span> <span className="text-slate-500 font-normal">vs last month</span>
+                  </p>
                 </div>
-                <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700/50 shadow-md">
-                  <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">Total Bookings</p>
-                  <p className="text-3xl font-extrabold text-purple-400 mt-2">{stats.totalBookings}</p>
+
+                {/* Card 4 */}
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending Payments</span>
+                    <span className="p-2 bg-amber-600/10 rounded-xl text-amber-500 text-sm">💳</span>
+                  </div>
+                  <p className="text-3xl font-extrabold text-white">₹{Math.round((profile?.stats?.totalRevenue || 245680) * 0.19).toLocaleString()}</p>
+                  <p className="text-xs text-rose-500 font-semibold mt-1.5 flex items-center gap-1">
+                    <span>↓ 8%</span> <span className="text-slate-500 font-normal">vs last month</span>
+                  </p>
                 </div>
               </div>
 
-              {/* Quick action buttons */}
-              <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700/50">
-                <h3 className="text-md font-bold text-white mb-4">Quick Actions</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <button
-                    onClick={() => setActiveTab("bookings")}
-                    className="flex flex-col items-center justify-center p-4 bg-slate-900 hover:bg-slate-800/80 rounded-xl border border-slate-700 transition-all cursor-pointer group"
-                  >
-                    <span className="text-2xl group-hover:scale-110 transition-transform">📋</span>
-                    <span className="text-xs font-medium text-slate-300 mt-2">Manage Bookings</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("staff")}
-                    className="flex flex-col items-center justify-center p-4 bg-slate-900 hover:bg-slate-800/80 rounded-xl border border-slate-700 transition-all cursor-pointer group"
-                  >
-                    <span className="text-2xl group-hover:scale-110 transition-transform">➕</span>
-                    <span className="text-xs font-medium text-slate-300 mt-2">Add Staff</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("profile")}
-                    className="flex flex-col items-center justify-center p-4 bg-slate-900 hover:bg-slate-800/80 rounded-xl border border-slate-700 transition-all cursor-pointer group"
-                  >
-                    <span className="text-2xl group-hover:scale-110 transition-transform">💼</span>
-                    <span className="text-xs font-medium text-slate-300 mt-2">Business Settings</span>
-                  </button>
-                  <button
-                    onClick={handleRefresh}
-                    className="flex flex-col items-center justify-center p-4 bg-slate-900 hover:bg-slate-800/80 rounded-xl border border-slate-700 transition-all cursor-pointer group"
-                  >
-                    <span className="text-2xl group-hover:scale-110 transition-transform">🔄</span>
-                    <span className="text-xs font-medium text-slate-300 mt-2">Sync Dashboard</span>
-                  </button>
+              {/* Row 2: Secondary stats and charts */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                {/* Stat 1 */}
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Staff Present</span>
+                    <span className="text-xs text-slate-400">👥</span>
+                  </div>
+                  <p className="text-2xl font-extrabold text-white">12 / 15</p>
+                  <p className="text-xs text-slate-400 mt-1">80% Present</p>
+                  <div className="w-full h-1.5 bg-slate-800 rounded-full mt-3 overflow-hidden">
+                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: '80%' }}></div>
+                  </div>
+                </div>
+
+                {/* Stat 2 */}
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">New Customers</span>
+                    <span className="text-xs text-slate-400">👤</span>
+                  </div>
+                  <p className="text-2xl font-extrabold text-white">36</p>
+                  <p className="text-xs text-emerald-400 font-semibold mt-1">↑ 15% <span className="text-slate-500 font-normal">vs last month</span></p>
+                </div>
+
+                {/* Stat 3 */}
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Customer Ratings</span>
+                    <span className="text-xs text-slate-400">⭐</span>
+                  </div>
+                  <p className="text-2xl font-extrabold text-white">{profile?.stats?.rating || '4.7'} / 5</p>
+                  <p className="text-xs text-emerald-400 font-semibold mt-1">↑ 0.3 <span className="text-slate-500 font-normal">vs last month</span></p>
+                </div>
+
+                {/* Stat 4 */}
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending Complaints</span>
+                    <span className="text-xs text-slate-400">⚠️</span>
+                  </div>
+                  <p className="text-2xl font-extrabold text-white">5</p>
+                  <p className="text-xs text-rose-500 font-semibold mt-1">↓ 10% <span className="text-slate-500 font-normal">vs last month</span></p>
+                </div>
+              </div>
+
+              {/* Row 3: Appointments, Activities, and Quick Actions */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Column 1: Appointments */}
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-sm font-bold text-white tracking-wide">Upcoming Appointments</h3>
+                      <button onClick={() => setActiveTab("bookings")} className="text-xs text-blue-500 hover:text-blue-400 font-semibold">View All</button>
+                    </div>
+                    <div className="space-y-4">
+                      {[
+                        { time: '10:00 AM', name: 'Ravi Sharma', service: 'Steam Wash', plate: 'DL 10 AB 1234' },
+                        { time: '11:30 AM', name: 'Neha Gupta', service: 'Interior Cleaning', plate: 'HR 26 CD 5678' },
+                        { time: '01:00 PM', name: 'Amit Verma', service: 'Foam Wash', plate: 'UP 16 EF 9012' },
+                        { time: '03:30 PM', name: 'Pooja Singh', service: 'Ceramic Coating', plate: 'MH 02 GH 3456' },
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-800/40">
+                          <div>
+                            <span className="text-xs font-bold text-blue-400">{item.time}</span>
+                            <p className="text-xs font-bold text-white mt-0.5">{item.name}</p>
+                            <span className="text-[10px] text-slate-400">{item.plate} | {item.service}</span>
+                          </div>
+                          <span className="text-[10px] px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded-md font-bold uppercase">Upcoming</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Column 2: Recent Activities */}
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-sm font-bold text-white tracking-wide">Recent Activities</h3>
+                      <button className="text-xs text-blue-500 hover:text-blue-400 font-semibold">View All</button>
+                    </div>
+                    <div className="space-y-4">
+                      {[
+                        { title: 'New booking created', time: '10:15 AM', desc: 'Ravi Sharma - Steam Wash' },
+                        { title: 'Payment received', time: '09:45 AM', desc: '₹1,250 from Neha Gupta' },
+                        { title: 'New customer added', time: '09:30 AM', desc: 'Amit Verma' },
+                        { title: 'Service completed', time: '09:10 AM', desc: 'Foam Wash - UP 14 GH 3456' },
+                        { title: 'Complaint raised', time: '08:50 AM', desc: 'Water leakage issue' },
+                      ].map((act, idx) => (
+                        <div key={idx} className="flex justify-between items-start gap-4">
+                          <div className="flex-1">
+                            <p className="text-xs font-bold text-white">{act.title}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">{act.desc}</p>
+                          </div>
+                          <span className="text-[10px] text-slate-500 font-medium whitespace-nowrap">{act.time}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Column 3: Quick Actions */}
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-white tracking-wide mb-4">Quick Actions</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button onClick={() => setActiveTab("bookings")} className="flex flex-col items-center justify-center p-5 bg-blue-600/10 hover:bg-blue-600/15 rounded-2xl border border-blue-500/20 gap-2 cursor-pointer transition-all">
+                        <span className="text-xl">📅</span>
+                        <span className="text-xs font-semibold text-blue-400">Create Booking</span>
+                      </button>
+                      <button onClick={() => setActiveTab("profile")} className="flex flex-col items-center justify-center p-5 bg-emerald-600/10 hover:bg-emerald-600/15 rounded-2xl border border-emerald-500/20 gap-2 cursor-pointer transition-all">
+                        <span className="text-xl">👤</span>
+                        <span className="text-xs font-semibold text-emerald-400">Add Customer</span>
+                      </button>
+                      <button onClick={() => setActiveTab("staff")} className="flex flex-col items-center justify-center p-5 bg-purple-600/10 hover:bg-purple-600/15 rounded-2xl border border-purple-500/20 gap-2 cursor-pointer transition-all">
+                        <span className="text-xl">👥</span>
+                        <span className="text-xs font-semibold text-purple-400">Add Staff</span>
+                      </button>
+                      <button className="flex flex-col items-center justify-center p-5 bg-rose-600/10 hover:bg-rose-600/15 rounded-2xl border border-rose-500/20 gap-2 cursor-pointer transition-all">
+                        <span className="text-xl">⚠️</span>
+                        <span className="text-xs font-semibold text-rose-400">Raise Complaint</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 4: Notifications Bar */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-sm font-bold text-white tracking-wide">Notifications</h3>
+                  <button className="text-xs text-blue-500 hover:text-blue-400 font-semibold">Mark all as read</button>
+                </div>
+                <div className="space-y-3.5">
+                  {[
+                    { title: 'New booking received for today at 04:30 PM', desc: 'Customer: Vikram Patel | Service: Steam Wash', time: '5m ago' },
+                    { title: 'Payment of ₹2,450 received successfully', desc: 'Booking ID: BK-1256', time: '15m ago' },
+                    { title: 'Complaint raised by Neha Gupta', desc: 'Regarding: Service delay', time: '1h ago' },
+                    { title: 'Monthly report is ready', desc: 'Click to view your April 2025 performance report', time: '2h ago' },
+                  ].map((notif, idx) => (
+                    <div key={idx} className="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-850/60">
+                      <div>
+                        <p className="text-xs font-semibold text-white">{notif.title}</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{notif.desc}</p>
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-medium whitespace-nowrap">{notif.time}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

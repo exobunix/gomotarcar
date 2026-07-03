@@ -34,7 +34,13 @@ class FranchiseService {
       ownerName,
       phone,
       email,
-      address,
+      address: {
+        ...address,
+        coordinates: {
+          type: 'Point',
+          coordinates: [0, 0]
+        }
+      },
       type: type || 'cleaning_station',
       servicesOffered: servicesOffered || [],
       serviceZones: serviceZones || [],

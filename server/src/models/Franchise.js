@@ -32,7 +32,7 @@ const franchiseSchema = new mongoose.Schema({
     state: { type: String, required: true },
     pincode: { type: String },
     coordinates: {
-      type: { type: String, enum: ['Point'] },
+      type: { type: String, enum: ['Point'], default: 'Point' },
       coordinates: { type: [Number], default: [0, 0] },
     },
   },

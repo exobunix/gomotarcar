@@ -94,7 +94,7 @@ const BookingCard = ({ item, onStart, onComplete }: any) => {
           ) : null}
         </View>
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -103,6 +103,7 @@ const BookingsScreen = () => {
   const { items, loading } = useSelector((state: any) => state.bookings);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'ongoing' | 'completed' | 'cancelled'>('upcoming');
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
 
   const loadBookings = () => {
     dispatch(fetchBookings({}) as any);
@@ -130,6 +131,105 @@ const BookingsScreen = () => {
   };
 
   const filteredData = getFilteredBookings();
+
+  // If a booking is selected, render the details screen layout
+  if (selectedBookingId) {
+    const b = items?.find((item: any) => item._id === selectedBookingId) || items?.[0] || {
+      _id: selectedBookingId,
+      bookingId: 'GMF12580',
+      status: 'Confirmed',
+      slotDate: new Date('2025-05-26T10:00:00Z'),
+      slotTime: '10:00 AM',
+      customerName: 'Rahul Sharma',
+      vehicleNumber: 'UP 16 AB 1234',
+      serviceName: 'Premium Steam Wash',
+      totalAmount: 1250,
+      paymentStatus: 'paid'
+    };
+
+    return (
+      <View style={styles.container}>
+        {/* Header */}
+        <LinearGradient colors={['#090D1A', '#02040A']} style={styles.header}>
+          <TouchableOpacity onPress={() => setSelectedBookingId(null)} style={styles.backBtn}>
+            <Text style={styles.backBtnText}>← Back to Bookings</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Booking Details</Text>
+          <Text style={styles.headerSub}>ID: {b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</Text>
+        </LinearGradient>
+
+        <ScrollView contentContainerStyle={styles.detailsScroll}>
+          {/* Status info */}
+          <View style={styles.detailsSection}>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Status</Text>
+              <Text style={[styles.detailVal, { color: '#3B82F6', fontWeight: '800' }]}>{(b.status || 'Upcoming').toUpperCase()}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Date & Time</Text>
+              <Text style={styles.detailVal}>{b.slotDate ? new Date(b.slotDate).toLocaleDateString() : '26 May 2025'} • {b.slotTime || '10:00 AM'}</Text>
+            </View>
+          </View>
+
+          {/* Customer Details */}
+          <View style={styles.card}>
+            <Text style={styles.cardSecTitle}>👤 1. Customer Details</Text>
+            <Text style={styles.infoText}>{b.customerName || 'Rahul Sharma'}</Text>
+            <Text style={styles.infoSubText}>📞 +91 98765 43210</Text>
+            <Text style={styles.infoSubText}>📍 Sector 62, Noida, UP - 201301</Text>
+          </View>
+
+          {/* Vehicle Info */}
+          <View style={styles.card}>
+            <Text style={styles.cardSecTitle}>🚗 2. Vehicle Information</Text>
+            <Text style={styles.infoText}>{b.vehicleNumber || 'Toyota Fortuner'}</Text>
+            <Text style={styles.infoSubText}>UP 16 AB 1234 • White • Diesel</Text>
+          </View>
+
+          {/* Service Package */}
+          <View style={styles.card}>
+            <Text style={styles.cardSecTitle}>📦 3. Service Package</Text>
+            <Text style={styles.infoText}>{b.serviceName || 'Premium Steam Wash'}</Text>
+            <Text style={[styles.infoText, { color: '#10B981', marginTop: 4 }]}>Amount: ₹{b.totalAmount || '1,250'}</Text>
+          </View>
+
+          {/* Timeline details */}
+          <View style={styles.card}>
+            <Text style={styles.cardSecTitle}>⏱️ 4. Timeline</Text>
+            <View style={styles.timelineRow}>
+              <View style={styles.timelineDot} />
+              <View>
+                <Text style={styles.timelineTitle}>Booking Created</Text>
+                <Text style={styles.timelineSub}>24 May 2025, 09:15 AM</Text>
+              </View>
+            </View>
+            <View style={styles.timelineRow}>
+              <View style={styles.timelineDot} />
+              <View>
+                <Text style={styles.timelineTitle}>Booking Confirmed</Text>
+                <Text style={styles.timelineSub}>24 May 2025, 09:16 AM</Text>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Footer stick actions */}
+        {b.status !== 'completed' && b.status !== 'cancelled' && (
+          <View style={styles.stickyFooter}>
+            {b.status !== 'in_progress' ? (
+              <TouchableOpacity style={styles.footerStartBtn}>
+                <Text style={styles.btnText}>Start Service</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.footerCompleteBtn}>
+                <Text style={styles.btnText}>Complete Service</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -162,7 +262,7 @@ const BookingsScreen = () => {
       <FlatList
         data={filteredData}
         keyExtractor={(item: any) => item._id}
-        renderItem={({ item }: any) => <BookingCard item={item} onStart={() => {}} onComplete={() => {}} />}
+        renderItem={({ item }: any) => <BookingCard item={item} onPress={() => setSelectedBookingId(item._id)} onStart={() => {}} onComplete={() => {}} />}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3B82F6" />}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
@@ -180,6 +280,8 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: 20, paddingTop: 50, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: '#1E293B' },
   headerTitle: { fontSize: 20, fontWeight: '800', color: '#fff' },
   headerSub: { fontSize: 12, color: '#64748B', marginTop: 4 },
+  backBtn: { marginBottom: 8 },
+  backBtnText: { color: '#3B82F6', fontSize: 12, fontWeight: '700' },
   tabsContainer: { backgroundColor: '#0F172A', borderBottomWidth: 1, borderBottomColor: '#1E293B', paddingVertical: 10 },
   tabsScroll: { paddingHorizontal: 16, gap: 8 },
   tabBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 12, backgroundColor: '#1E293B/30', borderHorizontal: 1, borderColor: '#1E293B' },
@@ -227,7 +329,20 @@ const styles = StyleSheet.create({
   completeBtn: { backgroundColor: '#10B981', borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
   btnText: { fontSize: 11, fontWeight: '750', color: '#fff' },
   emptyContainer: { paddingVertical: 40, alignItems: 'center' },
-  empty: { fontSize: 11, color: '#475569', textAlign: 'center' }
+  empty: { fontSize: 11, color: '#475569', textAlign: 'center' },
+  detailsScroll: { padding: 16, paddingBottom: 100 },
+  detailsSection: { backgroundColor: '#0F172A', borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#1E293B', gap: 12 },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  detailLabel: { fontSize: 11, color: '#64748B', fontWeight: '600' },
+  detailVal: { fontSize: 11, color: '#fff', fontWeight: '700' },
+  cardSecTitle: { fontSize: 12, fontWeight: '800', color: '#fff', borderBottomWidth: 1, borderBottomColor: '#1E293B', paddingBottom: 8, marginBottom: 10 },
+  timelineRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', marginBottom: 12 },
+  timelineDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#3B82F6', marginTop: 4 },
+  timelineTitle: { fontSize: 11, fontWeight: '750', color: '#fff' },
+  timelineSub: { fontSize: 9, color: '#64748B', marginTop: 1 },
+  stickyFooter: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#0F172A', borderTopWidth: 1, borderTopColor: '#1E293B', padding: 16 },
+  footerStartBtn: { backgroundColor: '#3B82F6', borderRadius: 16, paddingVertical: 14, alignItems: 'center' },
+  footerCompleteBtn: { backgroundColor: '#10B981', borderRadius: 16, paddingVertical: 14, alignItems: 'center' }
 });
 
 export default BookingsScreen;

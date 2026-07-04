@@ -28,7 +28,7 @@ export default function FranchisePortal() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "inventory" | "profile">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "inventory" | "earnings" | "wallet" | "transactions" | "invoices" | "profile">("dashboard");
 
   // Auth/Register Toggle
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -694,6 +694,46 @@ export default function FranchisePortal() {
             }`}
           >
             <span>📦</span> Inventory
+          </button>
+          <button
+            onClick={() => setActiveTab("earnings")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "earnings"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>📊</span> Earnings
+          </button>
+          <button
+            onClick={() => setActiveTab("wallet")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "wallet"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>💳</span> Wallet
+          </button>
+          <button
+            onClick={() => setActiveTab("transactions")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "transactions"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>🔄</span> Transactions
+          </button>
+          <button
+            onClick={() => setActiveTab("invoices")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "invoices"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>🧾</span> Invoices
           </button>
           <button
             onClick={() => setActiveTab("profile")}
@@ -2825,6 +2865,293 @@ export default function FranchisePortal() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "earnings" && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Earnings Dashboard</h2>
+                  <p className="text-xs text-slate-400 mt-1">Overview of your earnings and business performance.</p>
+                </div>
+                <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold cursor-pointer">
+                  Download Report 📥
+                </button>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Today's Earnings</span>
+                  <p className="text-2xl font-black text-white mt-1">₹24,560</p>
+                  <p className="text-[9px] text-emerald-450 mt-1">↑ 12.5% vs yesterday</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Weekly Earnings</span>
+                  <p className="text-2xl font-black text-white mt-1">₹1,72,450</p>
+                  <p className="text-[9px] text-emerald-450 mt-1">↑ 18.7% vs last week</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Monthly Earnings</span>
+                  <p className="text-2xl font-black text-white mt-1">₹7,45,230</p>
+                  <p className="text-[9px] text-emerald-450 mt-1">↑ 22.3% vs last month</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Net Profit</span>
+                  <p className="text-2xl font-black text-emerald-400 mt-1">₹4,28,310</p>
+                  <p className="text-[9px] text-emerald-450 mt-1">↑ 19.4% vs last month</p>
+                </div>
+              </div>
+
+              {/* Earnings Split Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Earnings Overview</h3>
+                  <div className="h-48 bg-slate-900/40 rounded-xl border border-slate-850 flex items-center justify-center text-slate-500 text-xs">
+                    Earnings Analytics Chart Area
+                  </div>
+                </div>
+
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Earnings by Service Category</h3>
+                  <div className="space-y-3 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Exterior Wash</span>
+                      <span className="text-white font-bold">₹2,45,670 (32.9%)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Interior Cleaning</span>
+                      <span className="text-white font-bold">₹1,65,430 (22.2%)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "wallet" && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Wallet Balance</h2>
+                  <p className="text-xs text-slate-400 mt-1">Manage your wallet balance, withdraw funds and track settlements.</p>
+                </div>
+                <div className="flex gap-3">
+                  <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                    Wallet Settings
+                  </button>
+                  <button className="px-4 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                    + Withdraw
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Current Balance</span>
+                  <p className="text-2xl font-black text-white mt-1">₹1,24,560.00</p>
+                  <p className="text-[9px] text-emerald-450 mt-1">↑ 12.6% vs last month</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Earnings</span>
+                  <p className="text-2xl font-black text-white mt-1">₹7,45,230.00</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Withdrawn</span>
+                  <p className="text-2xl font-black text-white mt-1">₹5,80,670.00</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Pending Settlement</span>
+                  <p className="text-2xl font-black text-amber-500 mt-1">₹75,430.00</p>
+                </div>
+              </div>
+
+              {/* Split Settlement History Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Settlement History</h3>
+                  <div className="space-y-4">
+                    {[
+                      { id: 'SET-2025-0526-001', date: '26 May 2025', amt: '₹85,430.00', status: 'Pending' },
+                      { id: 'SET-2025-0519-002', date: '19 May 2025', amt: '₹92,650.00', status: 'Completed' },
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-850/60 text-xs">
+                        <div>
+                          <p className="font-bold text-white">{item.id}</p>
+                          <p className="text-[10px] text-slate-500 mt-0.5">Date: {item.date}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-black text-white">{item.amt}</p>
+                          <span className={`text-[9px] font-bold uppercase ${item.status === 'Completed' ? 'text-emerald-455' : 'text-amber-500'}`}>{item.status}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-slate-400 space-y-4">
+                  <h3 className="text-sm font-bold text-white tracking-wide">Wallet Summary</h3>
+                  <div className="flex justify-between">
+                    <span>Current Balance</span>
+                    <span className="text-white font-bold">₹1,24,560.00</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Withdraw Limit</span>
+                    <span className="text-white font-bold">₹1,24,560.00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "transactions" && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Transactions</h2>
+                  <p className="text-xs text-slate-400 mt-1">View all payment transactions and their current status.</p>
+                </div>
+                <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold cursor-pointer">
+                  Export 📤
+                </button>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Transactions</span>
+                  <p className="text-2xl font-black text-white mt-1">1,248</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Successful Transactions</span>
+                  <p className="text-2xl font-black text-emerald-450 mt-1">1,068</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Pending Transactions</span>
+                  <p className="text-2xl font-black text-amber-500 mt-1">112</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Failed Transactions</span>
+                  <p className="text-2xl font-black text-rose-500 mt-1">68</p>
+                </div>
+              </div>
+
+              {/* Transactions list row cards */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
+                      <th className="pb-3">Transaction ID</th>
+                      <th className="pb-3">Customer</th>
+                      <th className="pb-3">Amount</th>
+                      <th className="pb-3">Payment Mode</th>
+                      <th className="pb-3">Date & Time</th>
+                      <th className="pb-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-850">
+                    {[
+                      { id: 'TRX-2025-0526-001', cust: 'Rahul Sharma', amt: '₹1,250.00', mode: 'UPI', date: '26 May 2025, 10:35 AM', status: 'Success' },
+                      { id: 'TRX-2025-0526-002', cust: 'Priya Verma', amt: '₹2,800.00', mode: 'Credit Card', date: '26 May 2025, 09:20 AM', status: 'Success' },
+                      { id: 'TRX-2025-0525-018', cust: 'Amit Gupta', amt: '₹950.00', mode: 'UPI', date: '25 May 2025, 08:45 PM', status: 'Pending' },
+                    ].map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
+                        <td className="py-4 font-bold text-blue-500">{item.id}</td>
+                        <td className="py-4 font-bold text-white">{item.cust}</td>
+                        <td className="py-4 font-black text-white">{item.amt}</td>
+                        <td className="py-4 text-slate-450">{item.mode}</td>
+                        <td className="py-4 text-slate-400">{item.date}</td>
+                        <td className="py-4">
+                          <span className={`text-[10px] font-bold uppercase ${
+                            item.status === 'Success' ? 'text-emerald-400' : item.status === 'Pending' ? 'text-amber-400' : 'text-rose-500'
+                          }`}>{item.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "invoices" && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Invoice Management</h2>
+                  <p className="text-xs text-slate-400 mt-1">Manage and track all your invoices in one place.</p>
+                </div>
+                <div className="flex gap-3">
+                  <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold cursor-pointer">
+                    Export Invoices 📤
+                  </button>
+                  <button className="px-4 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold cursor-pointer">
+                    + Create Invoice
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Invoices</span>
+                  <p className="text-2xl font-extrabold text-white mt-1">1,248</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Paid Invoices</span>
+                  <p className="text-2xl font-extrabold text-emerald-450 mt-1">952</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Pending Invoices</span>
+                  <p className="text-2xl font-extrabold text-amber-500 mt-1">241</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
+                  <span className="text-[10px] text-slate-550 uppercase font-bold">Overdue Invoices</span>
+                  <p className="text-2xl font-extrabold text-rose-500 mt-1">55</p>
+                </div>
+              </div>
+
+              {/* Table details list */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
+                      <th className="pb-3">Invoice Number</th>
+                      <th className="pb-3">Customer</th>
+                      <th className="pb-3">Invoice Date</th>
+                      <th className="pb-3">Due Date</th>
+                      <th className="pb-3">Amount</th>
+                      <th className="pb-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-850">
+                    {[
+                      { id: 'INV-2025-0526-001', cust: 'Rahul Sharma', date: '26 May 2025', due: '02 Jun 2025', amt: '₹2,450.00', status: 'Paid' },
+                      { id: 'INV-2025-0526-002', cust: 'Priya Verma', date: '26 May 2025', due: '02 Jun 2025', amt: '₹4,750.00', status: 'Paid' },
+                      { id: 'INV-2025-0525-018', cust: 'Amit Gupta', date: '25 May 2025', due: '01 Jun 2025', amt: '₹850.00', status: 'Pending' },
+                    ].map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
+                        <td className="py-4 font-bold text-blue-500">{item.id}</td>
+                        <td className="py-4 font-bold text-white">{item.cust}</td>
+                        <td className="py-4 text-slate-400">{item.date}</td>
+                        <td className="py-4 text-slate-400">{item.due}</td>
+                        <td className="py-4 font-black text-white">{item.amt}</td>
+                        <td className="py-4">
+                          <span className={`text-[10px] font-bold uppercase ${
+                            item.status === 'Paid' ? 'text-emerald-400' : 'text-amber-400'
+                          }`}>{item.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

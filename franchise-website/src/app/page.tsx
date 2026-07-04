@@ -284,7 +284,7 @@ export default function FranchisePortal() {
     return (
       <div className="flex min-h-screen bg-[#090D1A] overflow-hidden text-slate-100 font-sans" style={{ fontFamily: "'Inter', sans-serif" }}>
         {/* Left Side: Splash Banner */}
-        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: "linear-gradient(to bottom, rgba(5, 10, 30, 0.7), rgba(9, 13, 26, 0.95)), url('https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&w=1200&q=80')" }}>
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: "linear-gradient(to bottom, rgba(5, 10, 30, 0.45), rgba(9, 13, 26, 0.9)), url('https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=1200&q=80')" }}>
           {/* Logo */}
           <div className="flex items-center gap-3.5 z-10">
             <div className="bg-blue-600/5 p-2 rounded-2xl border border-blue-500/10 flex items-center justify-center">
@@ -306,9 +306,28 @@ export default function FranchisePortal() {
               Franchise
             </h1>
             <div className="h-1.5 w-16 bg-blue-500 rounded-full mb-6"></div>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-slate-400 text-sm leading-relaxed mb-6">
               Manage bookings, customers, earnings and your team all in one place. Scale your business operations effortlessly.
             </p>
+            
+            <div className="space-y-3.5 text-xs text-slate-350 border-t border-slate-800/60 pt-6">
+              <div className="flex items-center gap-3">
+                <span className="text-blue-500 text-sm">🛡️</span>
+                <span>Trusted Service</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-blue-500 text-sm">✨</span>
+                <span>Premium Care</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-blue-500 text-sm">⏱️</span>
+                <span>On-Time Service</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-blue-500 text-sm">👤</span>
+                <span>Expert Cleaners</span>
+              </div>
+            </div>
           </div>
 
           {/* Footer Badge */}
@@ -317,9 +336,9 @@ export default function FranchisePortal() {
               <span className="text-blue-500">🛡️</span> Secure. Reliable. Everywhere.
             </div>
             <div className="flex gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-              <span className="w-2 h-2 rounded-full bg-slate-700"></span>
-              <span className="w-2 h-2 rounded-full bg-slate-700"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-800"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-slate-800"></span>
             </div>
           </div>
         </div>

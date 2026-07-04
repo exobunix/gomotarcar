@@ -28,7 +28,7 @@ export default function FranchisePortal() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "inventory" | "earnings" | "wallet" | "transactions" | "invoices" | "offers" | "ratings" | "complaints" | "profile">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "inventory" | "earnings" | "wallet" | "transactions" | "invoices" | "offers" | "ratings" | "complaints" | "reports" | "notifications" | "support" | "business_profile" | "profile">("dashboard");
 
   // Auth/Register Toggle
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -770,6 +770,46 @@ export default function FranchisePortal() {
             <span>⚠️</span> Complaints
           </button>
           <button
+            onClick={() => setActiveTab("reports")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "reports"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>📊</span> Reports
+          </button>
+          <button
+            onClick={() => setActiveTab("notifications")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "notifications"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>🔔</span> Notifications
+          </button>
+          <button
+            onClick={() => setActiveTab("support")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "support"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>🎧</span> Support Center
+          </button>
+          <button
+            onClick={() => setActiveTab("business_profile")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "business_profile"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>👤</span> Business Profile
+          </button>
+          <button
             onClick={() => setActiveTab("profile")}
             className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
               activeTab === "profile"
@@ -777,7 +817,7 @@ export default function FranchisePortal() {
                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
-            <span>👤</span> Profile Info
+            <span>⚙️</span> Settings
           </button>
         </nav>
         <div className="p-4 border-t border-slate-800">
@@ -3456,13 +3496,92 @@ export default function FranchisePortal() {
                             item.priority === 'High' ? 'text-red-500' : 'text-yellow-500'
                           }`}>{item.priority}</span>
                         </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  <h3 className="text-sm font-bold text-white tracking-wide">My Support Tickets</h3>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-slate-900/40 rounded-xl border border-slate-850">
+                      <div className="flex justify-between">
+                        <span className="font-bold text-white">#TKT-2025-0578</span>
+                        <span className="text-rose-500 font-bold uppercase text-[9px]">Open</span>
+                      </div>
+                      <p className="text-[10px] text-slate-550 mt-0.5">Payment not refunded</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
+
+          {activeTab === "business_profile" && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Franchise Profile Dashboard</h2>
+                  <p className="text-xs text-slate-450 mt-1">Overview of your franchise business information and status.</p>
+                </div>
+                <button className="px-4 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold cursor-pointer">
+                  Edit Profile
+                </button>
+              </div>
+
+              {/* Profile split summary layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 flex gap-4 items-center">
+                  <div className="w-16 h-16 bg-blue-600/10 border border-blue-500/25 rounded-2xl flex items-center justify-center text-blue-400 text-xl font-bold">RM</div>
+                  <div>
+                    <h3 className="text-base font-black text-white">Roy Motors</h3>
+                    <p className="text-[10px] text-blue-450 font-bold">GMF12345</p>
+                    <p className="text-[10px] text-slate-500 mt-1">📍 Sector 45, Noida, Uttar Pradesh</p>
+                  </div>
+                </div>
+
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs">
+                  <span className="text-[10px] text-slate-550 uppercase">Membership Status</span>
+                  <p className="text-sm font-bold text-white mt-1.5">Premium Member</p>
+                  <p className="text-[9px] text-emerald-455 mt-0.5">Valid till: 15 Feb 2026</p>
+                </div>
+
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-center">
+                  <span className="text-[10px] text-slate-550 uppercase">Franchise Rating</span>
+                  <p className="text-xl font-black text-amber-500 mt-1.5">⭐ 4.6</p>
+                  <p className="text-[9px] text-slate-550 mt-0.5">128 Reviews</p>
+                </div>
+              </div>
+
+              {/* Franchise Details Table lists */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                <div className="space-y-3">
+                  <h4 className="font-bold text-white">Franchise Overview</h4>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Franchise Name</span>
+                    <span className="text-white font-semibold">Roy Motors</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Established On</span>
+                    <span className="text-white font-semibold">10 Jan 2024</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Number of Staff</span>
+                    <span className="text-white font-semibold">18</span>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-bold text-white">Documents KYC Status</h4>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">GST Certificate</span>
+                    <span className="text-emerald-455 font-bold uppercase text-[9px]">Verified</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Bank Details</span>
+                    <span className="text-emerald-455 font-bold uppercase text-[9px]">Verified</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "profile" && (
             <div className="max-w-3xl mx-auto space-y-6">
               <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700/50 shadow-md text-center">
                 <div className="w-20 h-20 rounded-full bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-3xl mx-auto mb-4">

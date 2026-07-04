@@ -28,7 +28,7 @@ export default function FranchisePortal() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "staff" | "profile">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "staff" | "profile">("dashboard");
 
   // Auth/Register Toggle
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -630,6 +630,16 @@ export default function FranchisePortal() {
             }`}
           >
             <span>👤</span> Customers
+          </button>
+          <button
+            onClick={() => setActiveTab("vehicles")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "vehicles"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>🚗</span> Vehicles
           </button>
           <button
             onClick={() => setActiveTab("staff")}
@@ -1975,38 +1985,158 @@ export default function FranchisePortal() {
             </div>
           )}
 
+          {activeTab === "vehicles" && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Vehicle Management</h2>
+                  <p className="text-xs text-slate-400 mt-1">Manage all vehicles registered with your franchise.</p>
+                </div>
+                <div className="flex gap-3">
+                  <button className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700/60 rounded-xl text-xs text-slate-350">Export 📤</button>
+                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">+ Add Vehicle</button>
+                </div>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Vehicles</span>
+                  <p className="text-3xl font-extrabold text-white mt-1.5">128</p>
+                  <p className="text-[10px] text-slate-400 mt-1">All registered vehicles</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Active Vehicles</span>
+                  <p className="text-3xl font-extrabold text-emerald-400 mt-1.5">104</p>
+                  <p className="text-[10px] text-slate-400 mt-1">Currently active</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Inactive Vehicles</span>
+                  <p className="text-3xl font-extrabold text-slate-400 mt-1.5">16</p>
+                  <p className="text-[10px] text-slate-400 mt-1">Not used recently</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">This Month Added</span>
+                  <p className="text-3xl font-extrabold text-blue-400 mt-1.5">8</p>
+                  <p className="text-[10px] text-slate-400 mt-1">New vehicles added</p>
+                </div>
+              </div>
+
+              {/* Grid cards list */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  { plate: 'UP16AB1234', brand: 'Toyota Fortuner', type: 'SUV', color: 'White', fuel: 'Diesel', status: 'Active' },
+                  { plate: 'UP14CD5678', brand: 'Honda City', type: 'Sedan', color: 'Blue', fuel: 'Petrol', status: 'Active' },
+                  { plate: 'UP16EF9012', brand: 'Hyundai Creta', type: 'SUV', color: 'White', fuel: 'Diesel', status: 'Active' },
+                  { plate: 'UP14GH3456', brand: 'Mahindra Thar', type: 'SUV', color: 'Black', fuel: 'Diesel', status: 'Active' },
+                ].map((v, idx) => (
+                  <div key={idx} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xs font-bold text-blue-500">{v.plate}</span>
+                      <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-450 rounded-full text-[9px] font-bold uppercase">{v.status}</span>
+                    </div>
+                    <p className="text-sm font-black text-white">{v.brand}</p>
+                    <p className="text-xs text-slate-400 mt-1">{v.type} • {v.color} • {v.fuel}</p>
+                    <div className="flex gap-2.5 mt-4">
+                      <button className="flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all">Edit</button>
+                      <button className="flex-1 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold transition-all">View Details</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {activeTab === "staff" && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white">Staff Management</h3>
-                <button
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Staff Dashboard</h2>
+                  <p className="text-xs text-slate-400 mt-1">Manage & monitor your staff and their activities.</p>
+                </div>
+                <button 
                   onClick={() => setShowAddStaffModal(true)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-semibold cursor-pointer transition-all flex items-center gap-1.5"
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
                 >
-                  <span>➕</span> Add Staff
+                  + Add New Staff
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {staffList.map((item) => (
-                  <div key={item._id} className="bg-slate-800 p-5 rounded-2xl border border-slate-700/50 shadow-md flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-extrabold text-lg">
-                      {(item.firstName || item.name || "S").charAt(0)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-white font-bold truncate">
-                        {item.firstName ? `${item.firstName} ${item.lastName || ""}` : item.name}
-                      </h4>
-                      <p className="text-xs text-slate-400 mt-0.5">{item.role || "Cleaner / Executive"}</p>
-                      <p className="text-xs text-slate-500 mt-1">{item.phone || "No phone"}</p>
-                    </div>
-                    <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${
-                      item.isActive ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
-                    }`}>
-                      {item.isActive ? "Active" : "Inactive"}
-                    </span>
+              {/* Stats row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Staff</span>
+                  <p className="text-3xl font-extrabold text-white mt-1.5">32</p>
+                  <p className="text-[10px] text-slate-400 mt-1">All registered staff</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Present Today</span>
+                  <p className="text-3xl font-extrabold text-emerald-450 mt-1.5">24</p>
+                  <p className="text-[10px] text-emerald-400 font-semibold mt-1">75.00% of total</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Absent Today</span>
+                  <p className="text-3xl font-extrabold text-rose-500 mt-1.5">5</p>
+                  <p className="text-[10px] text-rose-450 font-semibold mt-1">15.63% of total</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">On Leave</span>
+                  <p className="text-3xl font-extrabold text-amber-500 mt-1.5">3</p>
+                  <p className="text-[10px] text-amber-450 font-semibold mt-1">9.38% of total</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Staff List table */}
+                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Staff List</h3>
+                  <div className="space-y-4">
+                    {[
+                      { name: 'Amit Verma', role: 'Supervisor', dep: 'Operations', phone: '+91 98765 43210', status: 'Present' },
+                      { name: 'Rahul Sharma', role: 'Technician', dep: 'Cleaning', phone: '+91 91234 56789', status: 'Present' },
+                      { name: 'Vikram Singh', role: 'Cleaner', dep: 'Cleaning', phone: '+91 87654 32109', status: 'Absent' },
+                    ].map((st, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-850/60 text-xs">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold">
+                            {st.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="font-bold text-white">{st.name}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">{st.role} • {st.dep}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-slate-400">{st.phone}</p>
+                          <span className={`text-[9px] font-bold uppercase ${st.status === 'Present' ? 'text-emerald-450' : 'text-rose-400'}`}>{st.status}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+
+                {/* Sidebar details */}
+                <div className="space-y-6">
+                  <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                    <h3 className="text-sm font-bold text-white tracking-wide mb-4">Department wise count</h3>
+                    <div className="space-y-3 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Operations</span>
+                        <span className="text-white font-bold">8</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Cleaning</span>
+                        <span className="text-white font-bold">12</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Detailing</span>
+                        <span className="text-white font-bold">4</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}

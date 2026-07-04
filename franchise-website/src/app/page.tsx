@@ -287,8 +287,8 @@ export default function FranchisePortal() {
         <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: "linear-gradient(to bottom, rgba(5, 10, 30, 0.7), rgba(9, 13, 26, 0.95)), url('https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&w=1200&q=80')" }}>
           {/* Logo */}
           <div className="flex items-center gap-3.5 z-10">
-            <div className="bg-blue-600/10 p-2.5 rounded-2xl border border-blue-500/25 flex items-center justify-center">
-              <span className="text-3xl font-extrabold text-blue-500 tracking-tighter">G</span>
+            <div className="bg-blue-600/5 p-2 rounded-2xl border border-blue-500/10 flex items-center justify-center">
+              <img src="/logo.png" className="w-12 h-12 object-contain" alt="GoMotorCar Logo" />
             </div>
             <div>
               <div className="flex items-center gap-1">

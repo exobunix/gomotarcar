@@ -28,7 +28,7 @@ export default function FranchisePortal() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "profile">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "inventory" | "profile">("dashboard");
 
   // Auth/Register Toggle
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -74,6 +74,8 @@ export default function FranchisePortal() {
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [viewInventoryDashboard, setViewInventoryDashboard] = useState(false);
   const [viewPricingManagement, setViewPricingManagement] = useState(false);
   const [viewNewBooking, setViewNewBooking] = useState(false);
   const [viewProgressTracking, setViewProgressTracking] = useState(false);
@@ -678,6 +680,20 @@ export default function FranchisePortal() {
             }`}
           >
             <span>📅</span> Attendance
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("inventory");
+              setSelectedItemId(null);
+              setViewInventoryDashboard(false);
+            }}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "inventory"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>📦</span> Inventory
           </button>
           <button
             onClick={() => setActiveTab("profile")}
@@ -2566,6 +2582,249 @@ export default function FranchisePortal() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "inventory" && viewInventoryDashboard && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Inventory Dashboard</h2>
+                  <p className="text-xs text-slate-400 mt-1">Overview of your inventory status and stock summary.</p>
+                </div>
+                <button 
+                  onClick={() => setViewInventoryDashboard(false)}
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                >
+                  View Inventory List 📋
+                </button>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Items</span>
+                  <p className="text-3xl font-extrabold text-white mt-1.5">248</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Low Stock Items</span>
+                  <p className="text-3xl font-extrabold text-amber-500 mt-1.5">18</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Pending Orders</span>
+                  <p className="text-3xl font-extrabold text-blue-400 mt-1.5">12</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Value</span>
+                  <p className="text-3xl font-extrabold text-emerald-450 mt-1.5">₹2,45,680</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Stock distribution charts */}
+                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Stock Overview</h3>
+                  <div className="space-y-3 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">🟢 In Stock</span>
+                      <span className="text-white font-bold">196 (79.0%)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">🟡 Low Stock</span>
+                      <span className="text-white font-bold">18 (7.3%)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">🔴 Out of Stock</span>
+                      <span className="text-white font-bold">6 (2.4%)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Alerts pane */}
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Stock Alert</h3>
+                  <div className="space-y-3 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Car Shampoo</span>
+                      <span className="text-rose-500 font-bold">3 left (Min: 10)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Microfiber Cloth</span>
+                      <span className="text-rose-500 font-bold">5 left (Min: 15)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "inventory" && selectedItemId && (
+            (() => {
+              const item = {
+                id: selectedItemId,
+                name: 'Car Shampoo',
+                sku: 'ITM-001',
+                cat: 'Cleaning',
+                unit: 'Litre',
+                location: 'Main Store',
+                stock: 120,
+                minStock: 20,
+                onOrder: 30,
+                desc: 'Premium quality car shampoo for exterior wash. Safe for all types of car paint.'
+              };
+
+              return (
+                <div className="space-y-6 text-slate-100 pb-10">
+                  {/* Header bar */}
+                  <div className="flex items-center justify-between">
+                    <button 
+                      onClick={() => setSelectedItemId(null)}
+                      className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
+                    >
+                      ← Back to Inventory List
+                    </button>
+                    <div className="flex gap-3">
+                      <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold cursor-pointer">
+                        Edit Item
+                      </button>
+                      <button className="px-4 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold cursor-pointer">
+                        Print / Export
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Split details layout */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 space-y-4">
+                      <div>
+                        <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-450 rounded-full text-[9px] font-bold uppercase">In Stock</span>
+                        <h3 className="text-base font-black text-white mt-2">{item.name}</h3>
+                        <p className="text-xs text-slate-400 mt-1">{item.desc}</p>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800 text-xs text-slate-400">
+                        <div>
+                          <p>SKU</p>
+                          <p className="text-white font-bold mt-1">{item.sku}</p>
+                        </div>
+                        <div>
+                          <p>Category</p>
+                          <p className="text-white font-bold mt-1">{item.cat}</p>
+                        </div>
+                        <div>
+                          <p>Location</p>
+                          <p className="text-white font-bold mt-1">{item.location}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-slate-400 space-y-4">
+                      <h3 className="text-sm font-bold text-white tracking-wide">Stock Overview</h3>
+                      <div className="flex justify-between">
+                        <span>Current Stock</span>
+                        <span className="text-white font-bold">{item.stock} {item.unit}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Minimum Stock</span>
+                        <span className="text-white font-bold">{item.minStock} {item.unit}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>On Order</span>
+                        <span className="text-blue-450 font-bold">{item.onOrder} {item.unit}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()
+          )}
+
+          {activeTab === "inventory" && !selectedItemId && !viewInventoryDashboard && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Inventory List</h2>
+                  <p className="text-xs text-slate-400 mt-1">View and manage all inventory items in your stock.</p>
+                </div>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setViewInventoryDashboard(true)}
+                    className="px-4 py-2.5 bg-slate-850 hover:bg-slate-800 text-slate-350 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Inventory Dashboard 📊
+                  </button>
+                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                    + Add New Item
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Items</span>
+                  <p className="text-2xl font-extrabold text-white mt-1">52</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Low Stock Items</span>
+                  <p className="text-2xl font-extrabold text-amber-500 mt-1">7</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Value</span>
+                  <p className="text-xl font-black text-emerald-450 mt-1.5">₹2,45,680</p>
+                </div>
+              </div>
+
+              {/* Filters */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-[#1E293B]/60 p-4 rounded-2xl border border-slate-800/80">
+                <div className="flex flex-wrap items-center gap-3.5 flex-1">
+                  <input 
+                    type="text" 
+                    placeholder="Search items by name, SKU..."
+                    className="rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-550 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs min-w-[240px]"
+                  />
+                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2 px-4 text-xs cursor-pointer">
+                    <option>All Categories</option>
+                  </select>
+                </div>
+                <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700/60 rounded-xl text-xs text-slate-350">
+                  Export 📤
+                </button>
+              </div>
+
+              {/* List grid */}
+              <div className="space-y-4">
+                {[
+                  { id: 'ITM-001', name: 'Car Shampoo', desc: 'Premium car shampoo', stock: 120, unit: 'Litre', status: 'In Stock' },
+                  { id: 'ITM-002', name: 'Cloth', desc: 'Microfiber cloth', stock: 85, unit: 'Pcs', status: 'In Stock' },
+                  { id: 'ITM-003', name: 'Wax', desc: 'Car polish wax', stock: 40, unit: 'Pcs', status: 'In Stock' },
+                ].map((item) => (
+                  <div 
+                    key={item.id}
+                    onClick={() => setSelectedItemId(item.id)}
+                    className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 hover:border-blue-600/30 hover:bg-[#1E293B]/90 transition-all grid grid-cols-1 md:grid-cols-5 gap-5 items-center cursor-pointer"
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-white">{item.name}</p>
+                      <p className="text-[10px] text-slate-550 mt-0.5">{item.desc}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400">SKU: {item.id}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-white font-bold">{item.stock} {item.unit}</p>
+                    </div>
+                    <div>
+                      <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-450 rounded-full text-[9px] font-bold uppercase">{item.status}</span>
+                    </div>
+                    <div className="text-right flex gap-2 justify-end">
+                      <button className="px-3 py-1.5 bg-slate-850 hover:bg-slate-800 text-white rounded-lg text-[10px] font-bold">Issue</button>
+                      <button className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px] font-bold">Receive</button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

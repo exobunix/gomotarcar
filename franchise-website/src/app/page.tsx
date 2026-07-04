@@ -72,6 +72,8 @@ export default function FranchisePortal() {
   const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+  const [viewNewBooking, setViewNewBooking] = useState(false);
+  const [viewProgressTracking, setViewProgressTracking] = useState(false);
 
   // New staff form state
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
@@ -913,13 +915,308 @@ export default function FranchisePortal() {
             </div>
           )}
 
-          {activeTab === "bookings" && selectedBookingId && (
-            (() => {
-              const b = bookings.find(item => item._id === selectedBookingId) || bookings[0] || {
-                _id: selectedBookingId,
-                bookingId: 'GMF12580',
-                status: 'Confirmed',
-                slotDate: new Date('2025-05-26T10:00:00Z'),
+          {activeTab === "bookings" && viewNewBooking && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Back Bar */}
+              <div className="flex items-center justify-between">
+                <button 
+                  onClick={() => setViewNewBooking(false)}
+                  className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
+                >
+                  ← Back to Bookings
+                </button>
+              </div>
+
+              {/* Title */}
+              <div>
+                <h2 className="text-xl font-bold text-white tracking-wide">New Booking</h2>
+                <p className="text-xs text-slate-400 mt-1">Create a new service booking for your customer.</p>
+              </div>
+
+              {/* Section 1: Customer Details */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                <h3 className="text-sm font-bold text-white tracking-wide mb-4 flex items-center gap-2">
+                  <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">👤</span> 1. Customer Details
+                </h3>
+                <div className="space-y-4">
+                  <label className="block text-xs font-semibold text-slate-400">Customer *</label>
+                  <div className="flex gap-3">
+                    <input 
+                      type="text" 
+                      placeholder="Search customer by name or mobile number..." 
+                      className="flex-1 rounded-xl bg-slate-900 border border-slate-850 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs text-white"
+                    />
+                    <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                      + Add New Customer
+                    </button>
+                  </div>
+
+                  <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-850/60 flex items-center justify-between">
+                    <div className="flex gap-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold">RS</div>
+                      <div>
+                        <p className="text-xs font-bold text-white flex items-center gap-2">Rahul Sharma <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[9px] font-bold">VIP</span></p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">📞 +91 98765 43210 | rahulsharma@gmail.com</p>
+                        <p className="text-[9px] text-slate-500 mt-0.5">📍 Sector 62, Noida, Uttar Pradesh - 201301</p>
+                      </div>
+                    </div>
+                    <div className="text-right text-xs">
+                      <p className="text-slate-450">Total Bookings</p>
+                      <p className="text-sm font-bold text-white mt-0.5">24</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Vehicle Details */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                <h3 className="text-sm font-bold text-white tracking-wide mb-4 flex items-center gap-2">
+                  <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">🚗</span> 2. Vehicle Details
+                </h3>
+                <div className="space-y-4">
+                  <label className="block text-xs font-semibold text-slate-400">Vehicle *</label>
+                  <div className="flex gap-3">
+                    <select className="flex-1 rounded-xl bg-slate-900 border border-slate-850 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs text-white">
+                      <option>Select Vehicle</option>
+                      <option selected>Toyota Fortuner (UP 16 AB 1234)</option>
+                    </select>
+                    <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                      + Add New Vehicle
+                    </button>
+                  </div>
+
+                  <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-850/60 flex items-center gap-4">
+                    <div className="w-16 h-10 bg-slate-800 rounded-lg overflow-hidden flex items-center justify-center text-slate-500 text-sm">🚗</div>
+                    <div className="grid grid-cols-3 gap-6 text-[10px]">
+                      <div>
+                        <p className="text-slate-400 font-bold">Toyota Fortuner</p>
+                        <p className="text-blue-500 font-bold mt-0.5">UP 16 AB 1234</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-500 uppercase font-semibold">Color</p>
+                        <p className="text-white font-bold mt-0.5">White</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-500 uppercase font-semibold">Fuel Type</p>
+                        <p className="text-white font-bold mt-0.5">Diesel</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 3: Service Package */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                <h3 className="text-sm font-bold text-white tracking-wide mb-4 flex items-center gap-2">
+                  <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">📦</span> 3. Service Package
+                </h3>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-2">Service Package *</label>
+                  <select className="w-full rounded-xl bg-slate-900 border border-slate-850 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs text-white cursor-pointer">
+                    <option>Select a service package</option>
+                    <option selected>Premium Steam Wash (₹1,250)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Section 4: Schedule Date & Time */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                <h3 className="text-sm font-bold text-white tracking-wide mb-4 flex items-center gap-2">
+                  <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">📅</span> 4. Schedule Date & Time
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+                  <div>
+                    <label className="block text-slate-400 font-semibold mb-2">Schedule Date *</label>
+                    <input 
+                      type="date" 
+                      value="2026-05-26"
+                      className="w-full rounded-xl bg-slate-900 border border-slate-850 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-white cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 font-semibold mb-2">Schedule Time *</label>
+                    <select className="w-full rounded-xl bg-slate-900 border border-slate-850 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-white cursor-pointer">
+                      <option>Select time</option>
+                      <option selected>10:00 AM</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 5: Select Services Checklist */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                <h3 className="text-sm font-bold text-white tracking-wide mb-2 flex items-center gap-2">
+                  <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">🛒</span> 5. Select Services
+                </h3>
+                <p className="text-[10px] text-slate-400 mb-4">Choose one or more services for this booking.</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Exterior Wash', price: '₹300', icon: '🚗' },
+                    { label: 'Interior Cleaning', price: '₹400', icon: '🧼' },
+                    { label: 'Steam Wash', price: '₹500', icon: '💨' },
+                    { label: 'Deep Cleaning', price: '₹700', icon: '✨' },
+                  ].map((srv, idx) => (
+                    <div key={idx} className="bg-slate-900/40 p-4 rounded-xl border border-slate-850/60 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-slate-900 transition-all">
+                      <span className="text-xl">{srv.icon}</span>
+                      <p className="text-xs font-bold text-white">{srv.label}</p>
+                      <span className="text-[10px] text-emerald-450 font-bold">{srv.price}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section 6: Additional Notes */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                <h3 className="text-sm font-bold text-white tracking-wide mb-3">6. Additional Notes (Optional)</h3>
+                <textarea 
+                  placeholder="Enter any special instructions or notes..."
+                  className="w-full h-24 rounded-xl bg-slate-900 border border-slate-850 p-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs text-white"
+                />
+              </div>
+
+              {/* Booking Summary sticky bottom info */}
+              <div className="bg-blue-600/5 p-5 rounded-2xl border border-blue-500/15 flex items-center justify-between text-xs">
+                <div>
+                  <p className="text-slate-400">Estimated Amount</p>
+                  <p className="text-base font-black text-emerald-400 mt-1">₹1,250</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">Selected Services</p>
+                  <p className="text-xs text-white font-bold mt-1">1 Package</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">Duration</p>
+                  <p className="text-xs text-white font-bold mt-1">60 mins</p>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => {
+                  alert("New Booking created successfully!");
+                  setViewNewBooking(false);
+                }}
+                className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-bold transition-all cursor-pointer text-center"
+              >
+                Create Booking 🚀
+              </button>
+            </div>
+          )}
+
+          {activeTab === "bookings" && viewProgressTracking && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Back bar */}
+              <div className="flex items-center justify-between">
+                <button 
+                  onClick={() => setViewProgressTracking(false)}
+                  className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
+                >
+                  ← Back to Booking Details
+                </button>
+              </div>
+
+              {/* Title */}
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-bold text-white tracking-wide">Service Progress Tracking</h2>
+                <span className="px-2 py-0.5 bg-indigo-500/25 text-indigo-400 rounded-full text-[10px] font-bold uppercase animate-pulse">In Progress</span>
+              </div>
+              <p className="text-xs text-slate-400 -mt-4">Track the real-time progress of the service.</p>
+
+              {/* Booking Info Row header info */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 text-xs">
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Booking ID</span>
+                  <p className="text-sm font-black text-blue-500 mt-1">GMF12580</p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Customer</span>
+                  <p className="text-white font-bold mt-1">Rahul Sharma</p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Vehicle</span>
+                  <p className="text-white font-bold mt-1">Toyota Fortuner</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">UP 16 AB 1234</p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Service</span>
+                  <p className="text-white font-bold mt-1">Steam Car Wash</p>
+                  <p className="text-[10px] text-emerald-450 font-bold mt-0.5">₹1,250</p>
+                </div>
+              </div>
+
+              {/* Progress split timeline layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Column 1: Progress Timeline */}
+                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-6">Service Progress Timeline</h3>
+                  <div className="space-y-6 relative pl-6 border-l border-slate-800 ml-3">
+                    {[
+                      { title: 'Booking Accepted', done: true, time: '24 May 2025, 09:15 AM' },
+                      { title: 'Vehicle Received', done: true, time: '24 May 2025, 10:00 AM' },
+                      { title: 'Cleaning Started', done: true, time: '24 May 2025, 10:20 AM' },
+                      { title: 'Work In Progress', current: true, time: '24 May 2025, 11:05 AM' },
+                      { title: 'Quality Check', pending: true, time: 'Pending' },
+                      { title: 'Ready For Delivery', pending: true, time: 'Pending' },
+                      { title: 'Completed', pending: true, time: 'Pending' },
+                    ].map((step, idx) => (
+                      <div key={idx} className="relative">
+                        <div className={`absolute -left-[31px] top-0.5 w-3.5 h-3.5 rounded-full ${
+                          step.done ? 'bg-emerald-500' : step.current ? 'bg-blue-500 animate-ping' : 'bg-slate-800 border border-slate-700'
+                        }`} />
+                        <div className="flex justify-between items-center text-xs">
+                          <div>
+                            <p className={`font-bold ${step.pending ? 'text-slate-550' : 'text-white'}`}>{step.title}</p>
+                            <p className="text-[9px] text-slate-500 mt-0.5">Our team is working on your vehicle</p>
+                          </div>
+                          <span className={`text-[10px] ${step.pending ? 'text-slate-550' : 'text-slate-400'} font-medium`}>{step.time}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Column 2: Media uploads & photos updates */}
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Service Media Updates</h3>
+                  <div className="flex gap-2 mb-4">
+                    <button className="px-3 py-1.5 bg-blue-600/10 border border-blue-500/20 text-blue-400 rounded-lg text-xs font-bold">Before Images</button>
+                    <button className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700/60 rounded-lg text-xs text-slate-450">After Images</button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="h-20 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center text-slate-500 text-xs border border-slate-800">Photo 1</div>
+                    <div className="h-20 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center text-slate-500 text-xs border border-slate-800">Photo 2</div>
+                  </div>
+                  <div className="border border-dashed border-slate-800 p-6 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-slate-900/20 transition-all text-xs">
+                    <span className="text-lg">☁️</span>
+                    <p className="font-bold text-white">Upload Before Images</p>
+                    <span className="text-[9px] text-slate-500">JPG, PNG up to 10MB</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom bar updates */}
+              <div className="flex gap-3 pt-4 border-t border-slate-800">
+                <button className="px-4 py-2.5 bg-red-650/10 hover:bg-red-650/20 text-red-500 border border-red-500/20 rounded-xl text-xs font-bold cursor-pointer">
+                  Cancel Booking
+                </button>
+                <button className="px-4 py-2.5 bg-amber-650/10 hover:bg-amber-650/20 text-amber-500 border border-amber-500/20 rounded-xl text-xs font-bold cursor-pointer">
+                  Reschedule
+                </button>
+                <button 
+                  onClick={() => {
+                    alert("Service completed!");
+                    setViewProgressTracking(false);
+                  }}
+                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold cursor-pointer ml-auto"
+                >
+                  Complete Service
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "bookings" && !selectedBookingId && !viewNewBooking && !viewProgressTracking && (
+            <div className="space-y-6 text-slate-100">
+              {/* Header section with description */}
                 slotTime: '10:00 AM',
                 customerName: 'Rahul Sharma',
                 vehicleNumber: 'UP 16 AB 1234',
@@ -949,11 +1246,19 @@ export default function FranchisePortal() {
                   </div>
 
                   {/* Booking ID Header Title */}
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-bold text-white tracking-wide">Booking Details</h2>
-                    <span className="px-2.5 py-0.5 bg-blue-500/10 text-blue-400 rounded-full text-[10px] font-black uppercase">
-                      {b.status || 'Upcoming'}
-                    </span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-xl font-bold text-white tracking-wide">Booking Details</h2>
+                      <span className="px-2.5 py-0.5 bg-blue-500/10 text-blue-400 rounded-full text-[10px] font-black uppercase">
+                        {b.status || 'Upcoming'}
+                      </span>
+                    </div>
+                    <button 
+                      onClick={() => setViewProgressTracking(true)}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    >
+                      Track Live Progress ⏱️
+                    </button>
                   </div>
                   <p className="text-[10px] text-slate-400 -mt-4">
                     Booking ID: <span className="font-black text-blue-500">{b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</span> | Booked on: 24 May 2025, 09:15 AM
@@ -1219,9 +1524,17 @@ export default function FranchisePortal() {
           {activeTab === "bookings" && !selectedBookingId && (
             <div className="space-y-6 text-slate-100">
               {/* Header section with description */}
-              <div>
-                <h2 className="text-xl font-bold text-white tracking-wide">Booking Dashboard</h2>
-                <p className="text-xs text-slate-400 mt-1">Manage and track all your bookings in one place.</p>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Booking Dashboard</h2>
+                  <p className="text-xs text-slate-400 mt-1">Manage and track all your bookings in one place.</p>
+                </div>
+                <button 
+                  onClick={() => setViewNewBooking(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>➕</span> New Booking
+                </button>
               </div>
 
               {/* Status Tab buttons with count badges */}

@@ -913,88 +913,163 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "bookings" && (
-            <div className="bg-slate-800 rounded-2xl border border-slate-700/50 overflow-hidden shadow-lg">
-              <div className="p-5 border-b border-slate-700/60 flex items-center justify-between">
-                <h3 className="text-md font-bold text-white">Live Bookings Queue</h3>
-                <span className="text-xs bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full font-semibold">
-                  {bookings.length} found
-                </span>
+            <div className="space-y-6 text-slate-100">
+              {/* Header section with description */}
+              <div>
+                <h2 className="text-xl font-bold text-white tracking-wide">Booking Dashboard</h2>
+                <p className="text-xs text-slate-400 mt-1">Manage and track all your bookings in one place.</p>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-900/50 text-slate-400 text-xs font-semibold uppercase tracking-wider">
-                      <th className="py-4 px-6">Vehicle / Customer</th>
-                      <th className="py-4 px-6">Date & Slot</th>
-                      <th className="py-4 px-6">Service Name</th>
-                      <th className="py-4 px-6">Amount</th>
-                      <th className="py-4 px-6">Status</th>
-                      <th className="py-4 px-6 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-700/40 text-sm">
-                    {bookings.map((b) => (
-                      <tr key={b._id} className="hover:bg-slate-700/20 transition-all">
-                        <td className="py-4 px-6">
-                          <p className="font-bold text-white">{b.vehicleNumber || "N/A"}</p>
-                          <p className="text-xs text-slate-400">{b.customerName || "Customer"}</p>
-                        </td>
-                        <td className="py-4 px-6">
-                          <p className="text-white">{b.slotDate ? new Date(b.slotDate).toLocaleDateString() : "N/A"}</p>
-                          <p className="text-xs text-slate-400">{b.slotTime || "Standard slot"}</p>
-                        </td>
-                        <td className="py-4 px-6 text-slate-300 font-medium">
-                          {b.serviceName || "Premium Wash"}
-                        </td>
-                        <td className="py-4 px-6 text-emerald-400 font-bold">
-                          ₹{b.totalAmount || 0}
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                            b.status === "completed"
-                              ? "bg-emerald-500/20 text-emerald-400"
-                              : b.status === "cancelled"
-                              ? "bg-red-500/20 text-red-400"
-                              : b.status === "in_progress"
-                              ? "bg-blue-500/20 text-blue-400"
-                              : "bg-amber-500/20 text-amber-400"
-                          }`}>
-                            {b.status || "pending"}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6 text-right whitespace-nowrap">
-                          {b.status !== "completed" && b.status !== "cancelled" && (
-                            <div className="flex items-center justify-end gap-2">
-                              {b.status !== "in_progress" && (
-                                <button
-                                  onClick={() => handleUpdateBookingStatus(b._id, "in_progress")}
-                                  disabled={actionLoading === b._id}
-                                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold cursor-pointer disabled:opacity-50 transition-all"
-                                >
-                                  Start Job
-                                </button>
-                              )}
-                              <button
-                                onClick={() => handleUpdateBookingStatus(b._id, "completed")}
-                                disabled={actionLoading === b._id}
-                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold cursor-pointer disabled:opacity-50 transition-all"
-                              >
-                                Complete
-                              </button>
-                            </div>
+
+              {/* Status Tab buttons with count badges */}
+              <div className="flex border-b border-slate-800 bg-[#1E293B]/40 p-1.5 rounded-2xl gap-2 overflow-x-auto">
+                <button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold transition-all whitespace-nowrap">
+                  <span>Upcoming</span>
+                  <span className="px-2 py-0.5 bg-white/25 rounded-md text-[10px] font-extrabold">{bookings.filter(b => !['completed', 'cancelled', 'in_progress'].includes(b.status)).length || '24'}</span>
+                </button>
+                <button className="flex items-center gap-2 px-4 py-2.5 text-slate-400 hover:text-white rounded-xl text-xs font-medium transition-all whitespace-nowrap">
+                  <span>Ongoing</span>
+                  <span className="px-2 py-0.5 bg-slate-800 rounded-md text-[10px] font-extrabold">{bookings.filter(b => b.status === 'in_progress').length || '8'}</span>
+                </button>
+                <button className="flex items-center gap-2 px-4 py-2.5 text-slate-400 hover:text-white rounded-xl text-xs font-medium transition-all whitespace-nowrap">
+                  <span>Completed</span>
+                  <span className="px-2 py-0.5 bg-slate-800 rounded-md text-[10px] font-extrabold">{bookings.filter(b => b.status === 'completed').length || '156'}</span>
+                </button>
+                <button className="flex items-center gap-2 px-4 py-2.5 text-slate-400 hover:text-white rounded-xl text-xs font-medium transition-all whitespace-nowrap">
+                  <span>Cancelled</span>
+                  <span className="px-2 py-0.5 bg-slate-800 rounded-md text-[10px] font-extrabold">{bookings.filter(b => b.status === 'cancelled').length || '12'}</span>
+                </button>
+              </div>
+
+              {/* Filters & search panel */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-[#1E293B]/60 p-4 rounded-2xl border border-slate-800/80">
+                <div className="flex flex-wrap items-center gap-3.5 flex-1">
+                  <div className="relative min-w-[240px]">
+                    <input
+                      type="text"
+                      placeholder="Search by Booking ID, Customer or Mobile..."
+                      className="w-full rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                  </div>
+
+                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs cursor-pointer">
+                    <option>Select Date</option>
+                  </select>
+
+                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs cursor-pointer">
+                    <option>Status</option>
+                  </select>
+
+                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs cursor-pointer">
+                    <option>Service Type</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button className="px-4 py-2.5 bg-blue-600/10 hover:bg-blue-600/15 text-blue-400 border border-blue-500/20 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                    Filter ⚙️
+                  </button>
+                  <button className="text-xs text-slate-400 hover:text-white font-medium cursor-pointer">
+                    Clear All
+                  </button>
+                </div>
+              </div>
+
+              {/* Bookings rows list */}
+              <div className="space-y-4">
+                {bookings.map((b) => (
+                  <div key={b._id} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 hover:border-slate-700/60 transition-all grid grid-cols-1 md:grid-cols-5 gap-5 items-center">
+                    {/* Col 1: Booking ID & Date */}
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Booking ID</span>
+                      <p className="text-sm font-black text-blue-500 mt-1">{b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</p>
+                      <div className="flex items-center gap-1.5 text-slate-400 text-xs mt-2">
+                        <span>📅</span>
+                        <span>{b.slotDate ? new Date(b.slotDate).toLocaleDateString() : '26 May 2025'}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-0.5 ml-5">{b.slotTime || '10:00 AM'}</p>
+                    </div>
+
+                    {/* Col 2: Customer Details */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-sm">
+                        {String(b.customerName || 'U').charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">{b.customerName || 'Ravi Sharma'}</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">📞 +91 98765 43210</p>
+                        <p className="text-[9px] text-slate-500 truncate mt-1">📍 Sector 62, Noida</p>
+                      </div>
+                    </div>
+
+                    {/* Col 3: Vehicle Details */}
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Vehicle Details</span>
+                      <p className="text-xs font-bold text-white mt-1">{b.vehicleNumber || 'Toyota Fortuner'}</p>
+                      <p className="text-[10px] text-slate-400">UP 16 AB 1234 • White</p>
+                    </div>
+
+                    {/* Col 4: Service & Amount */}
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Service</span>
+                      <p className="text-xs font-bold text-white mt-1">{b.serviceName || 'Steam Car Wash'}</p>
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <span className="text-[10px] text-slate-400">Amount</span>
+                        <span className="text-xs font-black text-emerald-400">₹{b.totalAmount || '1,250'}</span>
+                      </div>
+                    </div>
+
+                    {/* Col 5: Status & Actions */}
+                    <div className="flex flex-col md:items-end gap-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                          b.status === "completed"
+                            ? "bg-emerald-500/20 text-emerald-400"
+                            : b.status === "cancelled"
+                            ? "bg-red-500/20 text-red-400"
+                            : b.status === "in_progress"
+                            ? "bg-indigo-500/20 text-indigo-400"
+                            : "bg-blue-500/20 text-blue-400"
+                        }`}>
+                          {b.status || 'Upcoming'}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                          b.paymentStatus === 'paid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
+                        }`}>
+                          {b.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+                        </span>
+                      </div>
+
+                      {b.status !== 'completed' && b.status !== 'cancelled' && (
+                        <div className="flex gap-2 w-full md:w-auto">
+                          {b.status !== 'in_progress' ? (
+                            <button
+                              onClick={() => handleUpdateBookingStatus(b._id, 'in_progress')}
+                              disabled={actionLoading === b._id}
+                              className="flex-1 md:flex-none px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 transition-all"
+                            >
+                              Start Ongoing
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleUpdateBookingStatus(b._id, 'completed')}
+                              disabled={actionLoading === b._id}
+                              className="flex-1 md:flex-none px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 transition-all"
+                            >
+                              Complete
+                            </button>
                           )}
-                        </td>
-                      </tr>
-                    ))}
-                    {bookings.length === 0 && (
-                      <tr>
-                        <td colSpan={6} className="text-center py-10 text-slate-500">
-                          No active bookings or services scheduled.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {bookings.length === 0 && (
+                  <div className="text-center py-16 bg-[#1E293B]/40 rounded-2xl border border-dashed border-slate-800 text-slate-500 text-xs">
+                    No bookings found matching selected category.
+                  </div>
+                )}
               </div>
             </div>
           )}

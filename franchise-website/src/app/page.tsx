@@ -28,7 +28,7 @@ export default function FranchisePortal() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "inventory" | "earnings" | "wallet" | "transactions" | "invoices" | "offers" | "ratings" | "complaints" | "reports" | "notifications" | "support" | "business_profile" | "profile">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "inventory" | "earnings" | "wallet" | "transactions" | "invoices" | "offers" | "ratings" | "complaints" | "reports" | "notifications" | "support" | "business_profile" | "profile" | "settings">("dashboard");
 
   // Auth/Register Toggle
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -817,7 +817,17 @@ export default function FranchisePortal() {
                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
-            <span>⚙️</span> Settings
+            <span>⚙️</span> Profile & Account
+          </button>
+          <button
+            onClick={() => setActiveTab("settings")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "settings"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>🔒</span> Security Settings
           </button>
         </nav>
         <div className="p-4 border-t border-slate-800">
@@ -3582,34 +3592,178 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "profile" && (
-            <div className="max-w-3xl mx-auto space-y-6">
-              <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700/50 shadow-md text-center">
-                <div className="w-20 h-20 rounded-full bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-3xl mx-auto mb-4">
-                  {profile?.name?.charAt(0) || "F"}
-                </div>
-                <h3 className="text-xl font-bold text-white">{profile?.name || "GoMotarCar Service Center"}</h3>
-                <p className="text-xs text-slate-400 uppercase tracking-widest mt-1">
-                  {profile?.type?.replace("_", " ") || "Authorized Station"}
-                </p>
+            <div className="space-y-6 text-slate-100 pb-10">
+              <div>
+                <h2 className="text-xl font-bold text-white tracking-wide">Profile & Account</h2>
+                <p className="text-xs text-slate-400 mt-1">Manage your personal information, documents and account settings.</p>
               </div>
 
-              <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700/50 shadow-md space-y-4">
-                <h4 className="text-md font-bold text-white pb-2 border-b border-slate-700/50">Business Details</h4>
-                <div className="grid grid-cols-2 gap-y-4 text-sm">
-                  <div className="text-slate-400">Owner / Manager</div>
-                  <div className="text-white text-right font-medium">{profile?.owner || "Partner Name"}</div>
+              {/* Sub tabs list row */}
+              <div className="flex gap-4 border-b border-slate-800 pb-3 text-xs font-bold text-slate-450">
+                <span className="text-blue-500 border-b-2 border-blue-500 pb-3.5 cursor-pointer">👤 Personal Details</span>
+                <span className="cursor-pointer hover:text-slate-200">🏦 Bank Details</span>
+                <span className="cursor-pointer hover:text-slate-200">📁 Documents</span>
+              </div>
 
-                  <div className="text-slate-400">Registered Phone</div>
-                  <div className="text-white text-right font-medium">{user?.phone || "+91-9876543210"}</div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Personal Information form fields */}
+                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 space-y-4 text-xs">
+                  <div className="flex items-center gap-4 pb-4 border-b border-slate-800">
+                    <div className="w-14 h-14 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center text-blue-400 font-bold text-base">RM</div>
+                    <div>
+                      <p className="font-bold text-white">Profile Picture</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">JPG, PNG or WEBP. Max size of 2MB.</p>
+                    </div>
+                  </div>
 
-                  <div className="text-slate-400">Email Address</div>
-                  <div className="text-white text-right font-medium truncate">{user?.email || "partner@gomotarcar.com"}</div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-400 font-semibold mb-1">Full Name *</label>
+                      <input type="text" defaultValue="Roy Motors" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 font-semibold mb-1">Email Address *</label>
+                      <input type="email" defaultValue="roymotors@gmail.com" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+                    </div>
+                  </div>
 
-                  <div className="text-slate-400">Commission Rate</div>
-                  <div className="text-white text-right font-medium text-emerald-400">
-                    {profile?.commission || 15}%
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-400 font-semibold mb-1">Mobile Number *</label>
+                      <input type="text" defaultValue="+91 98765 43210" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 font-semibold mb-1">Nationality</label>
+                      <select className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
+                        <option>Indian</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 font-semibold mb-1">Address *</label>
+                    <textarea defaultValue="123, Green Park Avenue, Sector 45, Noida, Uttar Pradesh - 201301" rows={3} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+                  </div>
+
+                  <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-550 text-white rounded-xl font-bold cursor-pointer transition-all">Save Changes</button>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Account overview values list */}
+                  <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-slate-400 space-y-4">
+                    <h3 className="text-sm font-bold text-white tracking-wide">Account Overview</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span>Account Type</span>
+                        <span className="text-white font-semibold">Franchise</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Franchise ID</span>
+                        <span className="text-white font-semibold">GMF12345</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Account Status</span>
+                        <span className="text-emerald-450 font-bold uppercase text-[10px]">Active</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "settings" && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Title Header */}
+              <div>
+                <h2 className="text-xl font-bold text-white tracking-wide">Security Settings</h2>
+                <p className="text-xs text-slate-400 mt-1">Manage your account security and keep your data safe.</p>
+              </div>
+
+              {/* Password Change forms & input sections */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs space-y-4">
+                <h3 className="text-sm font-bold text-white tracking-wide">Change Password</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-slate-400 font-semibold mb-1">Current Password</label>
+                    <input type="password" placeholder="••••••••" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 font-semibold mb-1">New Password</label>
+                    <input type="password" placeholder="••••••••" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 font-semibold mb-1">Confirm New Password</label>
+                    <input type="password" placeholder="••••••••" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+                  </div>
+                </div>
+                <button className="px-4 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl font-bold transition-all cursor-pointer">
+                  Change Password
+                </button>
+              </div>
+
+              {/* Toggles settings options layout */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 space-y-4">
+                  <h3 className="text-sm font-bold text-white tracking-wide">Biometric Login</h3>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-bold text-white">Fingerprint Login</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">Login quickly using fingerprint sensor.</p>
+                    </div>
+                    <span className="text-blue-550 font-bold uppercase text-[10px]">Enabled</span>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-slate-850 pt-3">
+                    <div>
+                      <p className="font-bold text-white">Face ID Login</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">Login using face recognition.</p>
+                    </div>
+                    <span className="text-blue-550 font-bold uppercase text-[10px]">Enabled</span>
+                  </div>
+                </div>
+
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 space-y-4">
+                  <h3 className="text-sm font-bold text-white tracking-wide">Two-Factor Authentication (2FA)</h3>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-bold text-white">2FA Authentication</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">Add an extra layer of security to your account.</p>
+                    </div>
+                    <span className="text-emerald-450 font-bold uppercase text-[10px]">Enabled</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sessions Management devices table */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto text-xs">
+                <h3 className="text-sm font-bold text-white tracking-wide mb-4">Session Management</h3>
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
+                      <th className="pb-3">Device</th>
+                      <th className="pb-3">Location</th>
+                      <th className="pb-3">IP Address</th>
+                      <th className="pb-3">Last Active</th>
+                      <th className="pb-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-850">
+                    <tr className="hover:bg-slate-900/20 transition-all">
+                      <td className="py-4 font-bold text-white">Windows • Chrome</td>
+                      <td className="py-4 text-slate-400">Noida, India</td>
+                      <td className="py-4 text-slate-400">103.21.45.78</td>
+                      <td className="py-4 text-slate-450">Just now</td>
+                      <td className="py-4 text-emerald-450 font-bold">Active</td>
+                    </tr>
+                    <tr className="hover:bg-slate-900/20 transition-all">
+                      <td className="py-4 font-bold text-white">Android • Mobile App</td>
+                      <td className="py-4 text-slate-400">Ghaziabad, India</td>
+                      <td className="py-4 text-slate-400">103.21.45.91</td>
+                      <td className="py-4 text-slate-450">2 hours ago</td>
+                      <td className="py-4 text-emerald-450 font-bold">Active</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

@@ -28,7 +28,7 @@ export default function FranchisePortal() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "inventory" | "earnings" | "wallet" | "transactions" | "invoices" | "profile">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "inventory" | "earnings" | "wallet" | "transactions" | "invoices" | "offers" | "ratings" | "complaints" | "profile">("dashboard");
 
   // Auth/Register Toggle
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -76,6 +76,7 @@ export default function FranchisePortal() {
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [viewInventoryDashboard, setViewInventoryDashboard] = useState(false);
+  const [viewCouponManagement, setViewCouponManagement] = useState(false);
   const [viewPricingManagement, setViewPricingManagement] = useState(false);
   const [viewNewBooking, setViewNewBooking] = useState(false);
   const [viewProgressTracking, setViewProgressTracking] = useState(false);
@@ -734,6 +735,39 @@ export default function FranchisePortal() {
             }`}
           >
             <span>🧾</span> Invoices
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("offers");
+              setViewCouponManagement(false);
+            }}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "offers"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>🏷️</span> Offers & Promotions
+          </button>
+          <button
+            onClick={() => setActiveTab("ratings")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "ratings"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>⭐</span> Ratings & Reviews
+          </button>
+          <button
+            onClick={() => setActiveTab("complaints")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "complaints"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>⚠️</span> Complaints
           </button>
           <button
             onClick={() => setActiveTab("profile")}
@@ -3156,7 +3190,279 @@ export default function FranchisePortal() {
             </div>
           )}
 
-          {activeTab === "profile" && (
+          {activeTab === "offers" && viewCouponManagement && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Back Bar */}
+              <div className="flex items-center justify-between">
+                <button 
+                  onClick={() => setViewCouponManagement(false)}
+                  className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
+                >
+                  ← Back to Offers Dashboard
+                </button>
+              </div>
+
+              {/* Title */}
+              <div>
+                <h2 className="text-xl font-bold text-white tracking-wide">Coupon Management</h2>
+                <p className="text-xs text-slate-400 mt-1">Create, manage and track all your coupons.</p>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Coupons</span>
+                  <p className="text-2xl font-black text-white mt-1">56</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Active Coupons</span>
+                  <p className="text-2xl font-black text-emerald-450 mt-1">34</p>
+                </div>
+              </div>
+
+              {/* Table details list */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
+                      <th className="pb-3">Code</th>
+                      <th className="pb-3">Coupon Name</th>
+                      <th className="pb-3">Discount</th>
+                      <th className="pb-3">Min. Order</th>
+                      <th className="pb-3">Expiry Date</th>
+                      <th className="pb-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-850">
+                    {[
+                      { code: 'SUMMER100', name: 'Summer Special 100', disc: '₹100', min: '₹499', exp: '31 May 2025', status: 'Active' },
+                      { code: 'WEEKEND20', name: 'Weekend 20% OFF', disc: '20%', min: '₹300', exp: '25 May 2025', status: 'Expired' },
+                    ].map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
+                        <td className="py-4 font-bold text-blue-500">{item.code}</td>
+                        <td className="py-4 font-bold text-white">{item.name}</td>
+                        <td className="py-4 text-emerald-450 font-bold">{item.disc}</td>
+                        <td className="py-4 text-slate-400">{item.min}</td>
+                        <td className="py-4 text-slate-400">{item.exp}</td>
+                        <td className="py-4">
+                          <span className={`text-[10px] font-bold uppercase ${
+                            item.status === 'Active' ? 'text-emerald-400' : 'text-rose-500'
+                          }`}>{item.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "offers" && !viewCouponManagement && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Offers Dashboard</h2>
+                  <p className="text-xs text-slate-400 mt-1">Create, manage and track all offers and promotions.</p>
+                </div>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setViewCouponManagement(true)}
+                    className="px-4 py-2.5 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Coupon Management 🎫
+                  </button>
+                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-555 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                    + Create Offer
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Offers</span>
+                  <p className="text-2xl font-black text-white mt-1">32</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Active Offers</span>
+                  <p className="text-2xl font-black text-emerald-450 mt-1">18</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Scheduled Offers</span>
+                  <p className="text-2xl font-black text-blue-450 mt-1">7</p>
+                </div>
+              </div>
+
+              {/* Table details list */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
+                      <th className="pb-3">Offer Name</th>
+                      <th className="pb-3">Offer Type</th>
+                      <th className="pb-3">Discount</th>
+                      <th className="pb-3">Target</th>
+                      <th className="pb-3">Validity</th>
+                      <th className="pb-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-850">
+                    {[
+                      { name: 'Summer Special Flat 100', type: 'Flat Discount', disc: '₹100', target: 'All Services', val: '20 May 2025 - 31 May 2025', status: 'Active' },
+                      { name: 'Weekend 20% OFF', type: 'Percentage Discount', disc: '20%', target: 'Exterior Wash', val: '23 May 2025 - 25 May 2025', status: 'Active' },
+                    ].map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
+                        <td className="py-4 font-bold text-white">{item.name}</td>
+                        <td className="py-4 text-blue-450 font-bold">{item.type}</td>
+                        <td className="py-4 text-emerald-455 font-bold">{item.disc}</td>
+                        <td className="py-4 text-slate-400">{item.target}</td>
+                        <td className="py-4 text-slate-400">{item.val}</td>
+                        <td className="py-4">
+                          <span className={`text-[10px] font-bold uppercase ${
+                            item.status === 'Active' ? 'text-emerald-400' : 'text-rose-500'
+                          }`}>{item.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "ratings" && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Ratings Dashboard</h2>
+                  <p className="text-xs text-slate-400 mt-1">Track your overall ratings, reviews and customer feedback.</p>
+                </div>
+                <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold cursor-pointer">
+                  Export Report 📤
+                </button>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Average Rating</span>
+                  <p className="text-2xl font-black text-amber-500 mt-1">⭐ 4.6</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Reviews</span>
+                  <p className="text-2xl font-black text-white mt-1">1,248</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Reviews Feed list */}
+                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Customer Reviews Feed</h3>
+                  <div className="space-y-4">
+                    {[
+                      { name: 'Rahul Sharma', rating: '5.0', date: '26 May 2025', comment: 'Excellent service! My car was cleaned perfectly.' },
+                      { name: 'Priya Verma', rating: '4.5', date: '25 May 2025', comment: 'Good service and friendly staff. Will definitely come again.' },
+                    ].map((st, idx) => (
+                      <div key={idx} className="p-3.5 bg-slate-900/40 rounded-xl border border-slate-850/60 text-xs">
+                        <div className="flex justify-between items-center">
+                          <p className="font-bold text-white">{st.name}</p>
+                          <span className="text-amber-500 font-bold">⭐ {st.rating}</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-1">{st.date}</p>
+                        <p className="text-slate-400 mt-2">{st.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-slate-400 space-y-4">
+                  <h3 className="text-sm font-bold text-white tracking-wide">Ratings Breakdown</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>5 Star</span>
+                      <span className="text-white font-bold">742 (59.5%)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>4 Star</span>
+                      <span className="text-white font-bold">312 (25.0%)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "complaints" && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Complaint Dashboard</h2>
+                  <p className="text-xs text-slate-400 mt-1">Track and manage all complaints raised by customers.</p>
+                </div>
+                <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold cursor-pointer">
+                  + Raise New Complaint
+                </button>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Complaints</span>
+                  <p className="text-2xl font-black text-white mt-1">325</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Open Complaints</span>
+                  <p className="text-2xl font-black text-rose-500 mt-1">86</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Pending Complaints</span>
+                  <p className="text-2xl font-black text-amber-500 mt-1">112</p>
+                </div>
+              </div>
+
+              {/* Table details list */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
+                      <th className="pb-3">Complaint ID</th>
+                      <th className="pb-3">Customer</th>
+                      <th className="pb-3">Category</th>
+                      <th className="pb-3">Subject</th>
+                      <th className="pb-3">Status</th>
+                      <th className="pb-3">Priority</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-850">
+                    {[
+                      { id: 'CMP-2025-0526-001', cust: 'Rahul Sharma', cat: 'Customer', sub: 'Poor service experience', status: 'Open', priority: 'High' },
+                      { id: 'CMP-2025-0526-002', cust: 'Priya Verma', cat: 'Payment', sub: 'Payment not refunded', status: 'Pending', priority: 'Medium' },
+                    ].map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
+                        <td className="py-4 font-bold text-blue-500">{item.id}</td>
+                        <td className="py-4 font-bold text-white">{item.cust}</td>
+                        <td className="py-4 text-blue-450 font-bold">{item.cat}</td>
+                        <td className="py-4 text-slate-400">{item.sub}</td>
+                        <td className="py-4">
+                          <span className={`text-[10px] font-bold uppercase ${
+                            item.status === 'Open' ? 'text-rose-500' : 'text-amber-400'
+                          }`}>{item.status}</span>
+                        </td>
+                        <td className="py-4">
+                          <span className={`text-[10px] font-bold uppercase ${
+                            item.priority === 'High' ? 'text-red-500' : 'text-yellow-500'
+                          }`}>{item.priority}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
             <div className="max-w-3xl mx-auto space-y-6">
               <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700/50 shadow-md text-center">
                 <div className="w-20 h-20 rounded-full bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-3xl mx-auto mb-4">

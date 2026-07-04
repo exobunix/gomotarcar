@@ -28,7 +28,7 @@ export default function FranchisePortal() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "staff" | "profile">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "staff" | "profile">("dashboard");
 
   // Auth/Register Toggle
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -72,6 +72,7 @@ export default function FranchisePortal() {
   const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [viewNewBooking, setViewNewBooking] = useState(false);
   const [viewProgressTracking, setViewProgressTracking] = useState(false);
 
@@ -616,6 +617,19 @@ export default function FranchisePortal() {
             }`}
           >
             <span>📅</span> Bookings
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("customers");
+              setSelectedCustomerId(null);
+            }}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "customers"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>👤</span> Customers
           </button>
           <button
             onClick={() => setActiveTab("staff")}
@@ -1691,6 +1705,272 @@ export default function FranchisePortal() {
                     No bookings found matching selected category.
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "customers" && selectedCustomerId && (
+            (() => {
+              const c = {
+                id: selectedCustomerId,
+                name: 'Rahul Sharma',
+                phone: '+91 98765 43210',
+                email: 'rahulsharma@gmail.com',
+                address: 'Sector 62, Noida, Uttar Pradesh - 201301',
+                points: 760,
+                tier: 'Gold',
+                visits: 18,
+                spent: 28450
+              };
+
+              return (
+                <div className="space-y-6 text-slate-100 pb-10">
+                  {/* Back Nav */}
+                  <div className="flex items-center justify-between">
+                    <button 
+                      onClick={() => setSelectedCustomerId(null)}
+                      className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
+                    >
+                      ← Back to Customer List
+                    </button>
+                    <div className="flex gap-3">
+                      <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                        Edit Customer
+                      </button>
+                      <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                        📞 Call Customer
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Title Header */}
+                  <div>
+                    <h2 className="text-xl font-bold text-white tracking-wide">Customer Profile</h2>
+                    <p className="text-xs text-slate-400 mt-1">Detailed insights and history of your customer.</p>
+                  </div>
+
+                  {/* Split Layout */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left details pane */}
+                    <div className="lg:col-span-2 space-y-6">
+                      {/* Card 1: Basic Info */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <div className="flex gap-4 pb-4 border-b border-slate-800">
+                          <div className="w-14 h-14 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-lg">
+                            {c.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="text-base font-black text-white flex items-center gap-2">
+                              {c.name} <span className="px-1.5 py-0.5 bg-blue-600/10 text-blue-400 rounded text-[9px] font-bold">VIP</span>
+                            </p>
+                            <p className="text-xs text-slate-400 mt-1">📞 {c.phone}</p>
+                            <p className="text-xs text-slate-400 mt-0.5">✉️ {c.email}</p>
+                            <p className="text-xs text-slate-400 mt-1">📍 {c.address}</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-y-4 pt-4 text-xs text-slate-400">
+                          <div>
+                            <p>Customer Type</p>
+                            <p className="text-white font-bold mt-1">VIP Partner</p>
+                          </div>
+                          <div>
+                            <p>Registration Date</p>
+                            <p className="text-white font-bold mt-1">12 Jan 2024</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Card 2: Vehicles List */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-sm font-bold text-white tracking-wide">Vehicles (2)</h3>
+                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">+ Add Vehicle</button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-850/60 flex items-center gap-3">
+                            <span className="text-xl">🚗</span>
+                            <div>
+                              <p className="text-xs font-bold text-white">Toyota Fortuner</p>
+                              <p className="text-[10px] text-blue-450 font-bold mt-0.5">UP 16 AB 1234</p>
+                              <p className="text-[9px] text-slate-500 mt-0.5">Color: White • Year: 2021</p>
+                            </div>
+                          </div>
+                          <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-850/60 flex items-center gap-3">
+                            <span className="text-xl">🚗</span>
+                            <div>
+                              <p className="text-xs font-bold text-white">Honda City</p>
+                              <p className="text-[10px] text-blue-450 font-bold mt-0.5">UP 14 CD 5678</p>
+                              <p className="text-[9px] text-slate-500 mt-0.5">Color: Blue • Year: 2019</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Card 3: Recent Bookings */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-sm font-bold text-white tracking-wide">Recent Bookings</h3>
+                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">View All Bookings</button>
+                        </div>
+                        <div className="space-y-3">
+                          {[
+                            { id: 'GMF12580', srv: 'Steam Car Wash', date: '24 May 2025', amt: '₹1,250', status: 'Completed' },
+                            { id: 'GMF12345', srv: 'Interior Cleaning', date: '22 May 2025', amt: '₹850', status: 'Completed' },
+                            { id: 'GMF12021', srv: 'Foam Wash', date: '15 May 2025', amt: '₹650', status: 'Completed' },
+                          ].map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-850/60 text-xs">
+                              <div>
+                                <p className="font-bold text-white">{item.srv} ({item.id})</p>
+                                <p className="text-[10px] text-slate-500 mt-0.5">Date: {item.date}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-black text-emerald-450">{item.amt}</p>
+                                <span className="text-[9px] text-emerald-400 uppercase font-bold mt-0.5">{item.status}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right column pane */}
+                    <div className="space-y-6">
+                      {/* Customer Insights metrics */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Customer Insights</h3>
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3 p-3.5 bg-slate-900/40 rounded-xl border border-slate-850/60">
+                            <span className="text-xl">💰</span>
+                            <div>
+                              <p className="text-[10px] text-slate-450 uppercase font-bold">Lifetime Value</p>
+                              <p className="text-base font-black text-emerald-400 mt-0.5">₹{c.spent.toLocaleString()}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 p-3.5 bg-slate-900/40 rounded-xl border border-slate-850/60">
+                            <span className="text-xl">📊</span>
+                            <div>
+                              <p className="text-[10px] text-slate-450 uppercase font-bold">Visit Frequency</p>
+                              <p className="text-base font-black text-white mt-0.5">{c.visits} visits</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Loyalty & Rewards details */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Loyalty & Rewards</h3>
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-[10px] text-slate-500 uppercase font-bold">Loyalty Points</p>
+                            <p className="text-base font-black text-blue-450 mt-1">{c.points} Points</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[10px] text-slate-500 uppercase font-bold">Current Tier</p>
+                            <p className="text-xs font-black text-amber-500 mt-1">⭐ {c.tier}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()
+          )}
+
+          {activeTab === "customers" && !selectedCustomerId && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Customer List</h2>
+                  <p className="text-xs text-slate-400 mt-1">Manage all your customers in one place.</p>
+                </div>
+                <button 
+                  onClick={() => setViewNewBooking(true)}
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                >
+                  + Add New Customer
+                </button>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Customers</span>
+                  <p className="text-3xl font-extrabold text-white mt-1.5">1,248</p>
+                  <p className="text-[10px] text-emerald-400 font-semibold mt-1">↑ 12.5% vs last month</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Repeat Customers</span>
+                  <p className="text-3xl font-extrabold text-white mt-1.5">856</p>
+                  <p className="text-[10px] text-emerald-400 font-semibold mt-1">↑ 15.3% vs last month</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">New Customers</span>
+                  <p className="text-3xl font-extrabold text-white mt-1.5">392</p>
+                  <p className="text-[10px] text-emerald-400 font-semibold mt-1">↑ 8.7% vs last month</p>
+                </div>
+              </div>
+
+              {/* Filter controls row */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-[#1E293B]/60 p-4 rounded-2xl border border-slate-800/80">
+                <div className="flex flex-wrap items-center gap-3.5 flex-1">
+                  <input 
+                    type="text" 
+                    placeholder="Search by name or mobile number..."
+                    className="rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-550 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs min-w-[240px]"
+                  />
+                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2 px-4 text-xs">
+                    <option>All Vehicles</option>
+                  </select>
+                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2 px-4 text-xs">
+                    <option>Last Visit</option>
+                  </select>
+                </div>
+                <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700/60 rounded-xl text-xs text-slate-350">
+                  Export 📤
+                </button>
+              </div>
+
+              {/* List grid */}
+              <div className="space-y-4">
+                {[
+                  { id: '101', name: 'Rahul Sharma', phone: '+91 98765 43210', email: 'rahulsharma@gmail.com', vehicle: 'Toyota Fortuner', visits: 18, type: 'Repeat' },
+                  { id: '102', name: 'Neha Gupta', phone: '+91 91234 56789', email: 'neha.gupta@email.com', vehicle: 'Honda City', visits: 9, type: 'Repeat' },
+                  { id: '103', name: 'Amit Verma', phone: '+91 99887 66554', email: 'amit.verma@email.com', vehicle: 'Hyundai Creta', visits: 6, type: 'Repeat' },
+                ].map((item) => (
+                  <div 
+                    key={item.id}
+                    onClick={() => setSelectedCustomerId(item.id)}
+                    className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 hover:border-blue-600/30 hover:bg-[#1E293B]/90 transition-all grid grid-cols-1 md:grid-cols-5 gap-5 items-center cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-sm">
+                        {item.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white flex items-center gap-1.5">{item.name} <span className="px-1 py-0.5 bg-blue-500/10 text-blue-450 rounded text-[8px] font-bold">VIP</span></p>
+                        <p className="text-[10px] text-slate-500 mt-0.5">{item.email}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-white">{item.phone}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-white font-semibold">{item.vehicle}</p>
+                      <p className="text-[9px] text-slate-550 mt-0.5">UP 16 AB 1234</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-white font-bold">{item.visits} visits</p>
+                      <span className="text-[9px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-450 rounded font-bold uppercase">{item.type}</span>
+                    </div>
+                    <div className="text-right">
+                      <button className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px] font-bold cursor-pointer">
+                        View Profile
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

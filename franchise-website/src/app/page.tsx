@@ -71,6 +71,7 @@ export default function FranchisePortal() {
   ]);
   const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
 
   // New staff form state
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
@@ -912,7 +913,310 @@ export default function FranchisePortal() {
             </div>
           )}
 
-          {activeTab === "bookings" && (
+          {activeTab === "bookings" && selectedBookingId && (
+            (() => {
+              const b = bookings.find(item => item._id === selectedBookingId) || bookings[0] || {
+                _id: selectedBookingId,
+                bookingId: 'GMF12580',
+                status: 'Confirmed',
+                slotDate: new Date('2025-05-26T10:00:00Z'),
+                slotTime: '10:00 AM',
+                customerName: 'Rahul Sharma',
+                vehicleNumber: 'UP 16 AB 1234',
+                serviceName: 'Premium Steam Wash',
+                totalAmount: 1250,
+                paymentStatus: 'paid'
+              };
+
+              return (
+                <div className="space-y-6 text-slate-100 pb-10">
+                  {/* Back Navigation Bar */}
+                  <div className="flex items-center justify-between">
+                    <button 
+                      onClick={() => setSelectedBookingId(null)}
+                      className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
+                    >
+                      ← Back to Bookings
+                    </button>
+                    <div className="flex gap-3">
+                      <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                        Print Invoice
+                      </button>
+                      <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                        Share
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Booking ID Header Title */}
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-bold text-white tracking-wide">Booking Details</h2>
+                    <span className="px-2.5 py-0.5 bg-blue-500/10 text-blue-400 rounded-full text-[10px] font-black uppercase">
+                      {b.status || 'Upcoming'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 -mt-4">
+                    Booking ID: <span className="font-black text-blue-500">{b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</span> | Booked on: 24 May 2025, 09:15 AM
+                  </p>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left Column: Details Cards */}
+                    <div className="lg:col-span-2 space-y-6">
+                      {/* Section 1: Customer Details */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
+                            <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">👤</span> 1. Customer Details
+                          </h3>
+                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">Edit</button>
+                        </div>
+                        <div className="flex gap-4">
+                          <div className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-base">
+                            {String(b.customerName || 'U').charAt(0)}
+                          </div>
+                          <div>
+                            <p className="text-sm font-black text-white flex items-center gap-2">
+                              {b.customerName || 'Rahul Sharma'} 
+                              <span className="px-1.5 py-0.5 bg-blue-600/10 text-blue-400 rounded text-[9px] font-bold">VIP</span>
+                            </p>
+                            <p className="text-xs text-slate-400 mt-1">📞 +91 98765 43210</p>
+                            <p className="text-xs text-slate-400 mt-0.5">✉️ rahulsharma@gmail.com</p>
+                            <p className="text-xs text-slate-400 mt-1">📍 Sector 62, Noida, Uttar Pradesh - 201301</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section 2: Vehicle Information */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
+                            <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">🚗</span> 2. Vehicle Information
+                          </h3>
+                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">Edit</button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-xs">
+                          <div>
+                            <p className="text-slate-400">Vehicle Name</p>
+                            <p className="text-sm font-bold text-white mt-1">{b.vehicleNumber || 'Toyota Fortuner'}</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-400">Plate Number</p>
+                            <p className="text-sm font-bold text-blue-400 mt-1">UP 16 AB 1234</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-400">Color</p>
+                            <p className="text-white mt-0.5">White</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-400">Fuel Type</p>
+                            <p className="text-white mt-0.5">Diesel</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section 3: Service Package */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
+                            <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">📦</span> 3. Service Package
+                          </h3>
+                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">Edit</button>
+                        </div>
+                        <div className="flex justify-between items-start pb-4 border-b border-slate-800">
+                          <div>
+                            <p className="text-sm font-black text-white">{b.serviceName || 'Premium Steam Wash'}</p>
+                            <p className="text-xs text-slate-400 mt-1">Includes 6 detailed cleaning services</p>
+                          </div>
+                          <p className="text-sm font-black text-emerald-400">₹{b.totalAmount || '1,250'}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 mt-4 text-[11px] text-slate-400">
+                          <div className="flex items-center gap-1.5">✓ Exterior Foam Wash</div>
+                          <div className="flex items-center gap-1.5">✓ Tyre & Rim Cleaning</div>
+                          <div className="flex items-center gap-1.5">✓ Interior Vacuum Cleaning</div>
+                          <div className="flex items-center gap-1.5">✓ Dashboard Polishing</div>
+                          <div className="flex items-center gap-1.5">✓ Steam Disinfection</div>
+                        </div>
+                      </div>
+
+                      {/* Section 4: Assigned Staff */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
+                            <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">👥</span> 4. Assigned Staff
+                          </h3>
+                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">Edit</button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="flex items-center gap-3 p-3 bg-slate-900/40 rounded-xl border border-slate-800/40">
+                            <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs">AV</div>
+                            <div>
+                              <p className="text-xs font-bold text-white">Amit Verma</p>
+                              <p className="text-[10px] text-slate-400">Senior Technician • ⭐ 4.8</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 p-3 bg-slate-900/40 rounded-xl border border-slate-800/40">
+                            <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs">RK</div>
+                            <div>
+                              <p className="text-xs font-bold text-white">Rohit Kumar</p>
+                              <p className="text-[10px] text-slate-400">Helper • ⭐ 4.6</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section 5: Payment Details */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
+                            <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">💳</span> 5. Payment Details
+                          </h3>
+                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">Edit</button>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs pb-4 border-b border-slate-800">
+                          <div>
+                            <p className="text-slate-400">Payment Method</p>
+                            <p className="text-white font-bold mt-1">UPI (Google Pay)</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-400">Transaction ID</p>
+                            <p className="text-white font-bold mt-1">UPI41589632578</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-400">Subtotal</p>
+                            <p className="text-white mt-1">₹1,250</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-400">Discount</p>
+                            <p className="text-white mt-1">-₹0</p>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center pt-4">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            b.paymentStatus === 'paid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
+                          }`}>
+                            {b.paymentStatus === 'paid' ? 'PAID' : 'PENDING'}
+                          </span>
+                          <div className="text-right">
+                            <span className="text-xs text-slate-400 mr-2">Total Amount</span>
+                            <span className="text-base font-black text-emerald-400">₹{b.totalAmount || '1,250'}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Section 6: Timeline */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2 mb-4">
+                          <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">⏱️</span> 6. Timeline
+                        </h3>
+                        <div className="space-y-4 relative pl-5 border-l border-slate-800">
+                          <div className="relative">
+                            <div className="absolute -left-[25px] top-1 w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+                            <p className="text-xs font-bold text-white">Booking Created</p>
+                            <p className="text-[10px] text-slate-500 mt-0.5">24 May 2025, 09:15 AM</p>
+                          </div>
+                          <div className="relative">
+                            <div className="absolute -left-[25px] top-1 w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+                            <p className="text-xs font-bold text-white">Booking Confirmed</p>
+                            <p className="text-[10px] text-slate-500 mt-0.5">24 May 2025, 09:16 AM</p>
+                          </div>
+                          <div className="relative">
+                            <div className="absolute -left-[25px] top-1 w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700"></div>
+                            <p className="text-xs font-bold text-slate-400">Customer Arrived</p>
+                            <p className="text-[10px] text-slate-500 mt-0.5">-</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Column: Overview cards */}
+                    <div className="space-y-6">
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Booking Overview</h3>
+                        <div className="space-y-3.5 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Booking ID</span>
+                            <span className="text-blue-500 font-bold">{b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Booking Date</span>
+                            <span className="text-white font-bold">24 May 2025, 09:15 AM</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Booking Type</span>
+                            <span className="px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded text-[10px]">Walk-in</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Payment Status</span>
+                            <span className="text-emerald-400 font-bold uppercase">{b.paymentStatus || 'Paid'}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Price Summary</h3>
+                        <div className="space-y-3 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Service Amount</span>
+                            <span className="text-white">₹{b.totalAmount || '1,250'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Discount</span>
+                            <span className="text-white">₹0</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Tax</span>
+                            <span className="text-white">₹0</span>
+                          </div>
+                          <div className="flex justify-between pt-3 border-t border-slate-850">
+                            <span className="font-bold text-white">Total Amount</span>
+                            <span className="font-black text-emerald-400 text-sm">₹{b.totalAmount || '1,250'}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <h3 className="text-sm font-bold text-white tracking-wide mb-3">Notes</h3>
+                        <p className="text-xs text-slate-400 leading-relaxed">
+                          Customer requested extra interior fragrance.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Action Controls Sticky Bar */}
+                  <div className="flex flex-wrap gap-4 pt-4 border-t border-slate-800">
+                    <button className="px-5 py-3 bg-red-600/10 hover:bg-red-600/20 text-red-500 border border-red-500/20 rounded-xl text-xs font-bold cursor-pointer transition-all">
+                      Cancel Booking
+                    </button>
+                    <button className="px-5 py-3 bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 border border-amber-500/20 rounded-xl text-xs font-bold cursor-pointer transition-all">
+                      Reschedule
+                    </button>
+                    {b.status !== 'completed' && b.status !== 'cancelled' && (
+                      <>
+                        {b.status !== 'in_progress' ? (
+                          <button 
+                            onClick={() => handleUpdateBookingStatus(b._id, 'in_progress')}
+                            className="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-all ml-auto"
+                          >
+                            Start Service
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => handleUpdateBookingStatus(b._id, 'completed')}
+                            className="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-all ml-auto"
+                          >
+                            Complete Service
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })()
+          )}
+
+          {activeTab === "bookings" && !selectedBookingId && (
             <div className="space-y-6 text-slate-100">
               {/* Header section with description */}
               <div>
@@ -978,7 +1282,11 @@ export default function FranchisePortal() {
               {/* Bookings rows list */}
               <div className="space-y-4">
                 {bookings.map((b) => (
-                  <div key={b._id} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 hover:border-slate-700/60 transition-all grid grid-cols-1 md:grid-cols-5 gap-5 items-center">
+                  <div
+                    key={b._id}
+                    onClick={() => setSelectedBookingId(b._id)}
+                    className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 hover:border-blue-600/30 hover:bg-[#1E293B]/90 transition-all grid grid-cols-1 md:grid-cols-5 gap-5 items-center cursor-pointer"
+                  >
                     {/* Col 1: Booking ID & Date */}
                     <div>
                       <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Booking ID</span>

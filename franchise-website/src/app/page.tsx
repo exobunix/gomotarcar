@@ -28,7 +28,7 @@ export default function FranchisePortal() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "staff" | "profile">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "profile">("dashboard");
 
   // Auth/Register Toggle
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -73,6 +73,8 @@ export default function FranchisePortal() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
+  const [viewPricingManagement, setViewPricingManagement] = useState(false);
   const [viewNewBooking, setViewNewBooking] = useState(false);
   const [viewProgressTracking, setViewProgressTracking] = useState(false);
 
@@ -642,14 +644,40 @@ export default function FranchisePortal() {
             <span>🚗</span> Vehicles
           </button>
           <button
-            onClick={() => setActiveTab("staff")}
+            onClick={() => {
+              setActiveTab("services");
+              setViewPricingManagement(false);
+            }}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "services"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>🛠️</span> Services
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("staff");
+              setSelectedStaffId(null);
+            }}
             className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
               activeTab === "staff"
                 ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
-            <span>👥</span> Staff List
+            <span>👥</span> Staff
+          </button>
+          <button
+            onClick={() => setActiveTab("attendance")}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
+              activeTab === "attendance"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+            }`}
+          >
+            <span>📅</span> Attendance
           </button>
           <button
             onClick={() => setActiveTab("profile")}
@@ -2048,7 +2076,144 @@ export default function FranchisePortal() {
             </div>
           )}
 
-          {activeTab === "staff" && (
+          {activeTab === "staff" && selectedStaffId && (
+            (() => {
+              const st = {
+                id: selectedStaffId,
+                name: 'Amit Verma',
+                role: 'Supervisor',
+                dep: 'Operations',
+                phone: '+91 98765 43210',
+                email: 'amit.verma@email.com',
+                experience: '5 Years',
+                rating: '4.7',
+                attendance: '84.6%',
+                salary: '₹20,000'
+              };
+
+              return (
+                <div className="space-y-6 text-slate-100 pb-10">
+                  {/* Back Navigation Bar */}
+                  <div className="flex items-center justify-between">
+                    <button 
+                      onClick={() => setSelectedStaffId(null)}
+                      className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
+                    >
+                      ← Back to Staff Dashboard
+                    </button>
+                    <div className="flex gap-3">
+                      <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                        Edit Profile
+                      </button>
+                      <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                        📞 Call Staff
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Profile Header Card */}
+                  <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 flex flex-wrap justify-between items-center gap-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xl">
+                        AV
+                      </div>
+                      <div>
+                        <p className="text-base font-black text-white flex items-center gap-2">
+                          {st.name} <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-450 rounded text-[9px] font-bold">Active</span>
+                        </p>
+                        <p className="text-xs text-slate-400 mt-1">Supervisor • STF001</p>
+                        <p className="text-xs text-slate-400 mt-0.5">📞 {st.phone} | {st.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-6 text-center text-xs">
+                      <div>
+                        <p className="text-slate-500">Department</p>
+                        <p className="text-white font-bold mt-1">{st.dep}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-500">Experience</p>
+                        <p className="text-white font-bold mt-1">{st.experience}</p>
+                      </div>
+                      <div className="px-4 py-2 bg-slate-900/60 rounded-xl border border-slate-850">
+                        <p className="text-slate-500">Rating</p>
+                        <p className="text-sm font-black text-amber-500 mt-0.5">⭐ {st.rating}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Grid details splits */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 space-y-6">
+                      {/* Personal Info */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Personal Information</h3>
+                        <div className="grid grid-cols-2 gap-y-4 text-xs text-slate-400">
+                          <div>
+                            <p>Full Name</p>
+                            <p className="text-white font-bold mt-1">{st.name}</p>
+                          </div>
+                          <div>
+                            <p>Date of Birth</p>
+                            <p className="text-white font-bold mt-1">12 Aug 1993</p>
+                          </div>
+                          <div>
+                            <p>Email Address</p>
+                            <p className="text-white font-bold mt-1">{st.email}</p>
+                          </div>
+                          <div>
+                            <p>Emergency Contact</p>
+                            <p className="text-white font-bold mt-1">Pooja Verma (Wife)</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Attendance overview */}
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Attendance Overview</h3>
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div className="p-4 bg-slate-900/40 rounded-xl border border-slate-850/65">
+                            <span className="text-[10px] text-slate-550 uppercase">Total Days</span>
+                            <p className="text-xl font-black text-white mt-1">26</p>
+                          </div>
+                          <div className="p-4 bg-slate-900/40 rounded-xl border border-slate-850/65">
+                            <span className="text-[10px] text-slate-550 uppercase">Present</span>
+                            <p className="text-xl font-black text-emerald-400 mt-1">22</p>
+                          </div>
+                          <div className="p-4 bg-slate-900/40 rounded-xl border border-slate-850/65">
+                            <span className="text-[10px] text-slate-550 uppercase">Rate</span>
+                            <p className="text-xl font-black text-blue-450 mt-1">{st.attendance}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right column sidebar */}
+                    <div className="space-y-6">
+                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-slate-400">
+                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Other Information</h3>
+                        <div className="space-y-3">
+                          <div className="flex justify-between">
+                            <span>Employee ID</span>
+                            <span className="text-white font-bold">STF001</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Shift Timing</span>
+                            <span className="text-white font-bold">09:00 AM - 06:00 PM</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Basic Salary</span>
+                            <span className="text-emerald-450 font-bold">{st.salary}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()
+          )}
+
+          {activeTab === "staff" && !selectedStaffId && (
             <div className="space-y-6 text-slate-100 pb-10">
               {/* Header */}
               <div className="flex justify-between items-center">
@@ -2094,11 +2259,15 @@ export default function FranchisePortal() {
                   <h3 className="text-sm font-bold text-white tracking-wide mb-4">Staff List</h3>
                   <div className="space-y-4">
                     {[
-                      { name: 'Amit Verma', role: 'Supervisor', dep: 'Operations', phone: '+91 98765 43210', status: 'Present' },
-                      { name: 'Rahul Sharma', role: 'Technician', dep: 'Cleaning', phone: '+91 91234 56789', status: 'Present' },
-                      { name: 'Vikram Singh', role: 'Cleaner', dep: 'Cleaning', phone: '+91 87654 32109', status: 'Absent' },
+                      { id: 'STF001', name: 'Amit Verma', role: 'Supervisor', dep: 'Operations', phone: '+91 98765 43210', status: 'Present' },
+                      { id: 'STF002', name: 'Rahul Sharma', role: 'Technician', dep: 'Cleaning', phone: '+91 91234 56789', status: 'Present' },
+                      { id: 'STF003', name: 'Vikram Singh', role: 'Cleaner', dep: 'Cleaning', phone: '+91 87654 32109', status: 'Absent' },
                     ].map((st, idx) => (
-                      <div key={idx} className="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-850/60 text-xs">
+                      <div 
+                        key={idx} 
+                        onClick={() => setSelectedStaffId(st.id)}
+                        className="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-850/60 text-xs cursor-pointer hover:bg-slate-900/80 transition-all"
+                      >
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold">
                             {st.name.charAt(0)}
@@ -2137,6 +2306,266 @@ export default function FranchisePortal() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "services" && viewPricingManagement && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Back Bar */}
+              <div className="flex items-center justify-between">
+                <button 
+                  onClick={() => setViewPricingManagement(false)}
+                  className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
+                >
+                  ← Back to Service List
+                </button>
+              </div>
+
+              {/* Title */}
+              <div>
+                <h2 className="text-xl font-bold text-white tracking-wide">Pricing Management</h2>
+                <p className="text-xs text-slate-400 mt-1">Manage service pricing and offer prices.</p>
+              </div>
+
+              {/* Stats row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Services</span>
+                  <p className="text-3xl font-extrabold text-white mt-1.5">12</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Active Pricing</span>
+                  <p className="text-3xl font-extrabold text-emerald-450 mt-1.5">12</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Services On Offer</span>
+                  <p className="text-3xl font-extrabold text-amber-500 mt-1.5">6</p>
+                </div>
+              </div>
+
+              {/* Bulk Update Controls */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 space-y-4">
+                <h3 className="text-sm font-bold text-white tracking-wide">Bulk Price Update</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                  <div>
+                    <label className="block text-slate-400 font-semibold mb-2">Update Type</label>
+                    <select className="w-full rounded-xl bg-slate-900 border border-slate-850 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-white cursor-pointer">
+                      <option>Offer Price</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 font-semibold mb-2">Update Value</label>
+                    <input 
+                      type="text" 
+                      placeholder="Enter amount"
+                      className="w-full rounded-xl bg-slate-900 border border-slate-850 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-white"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <button className="w-full py-2.5 bg-blue-600 hover:bg-blue-550 text-white rounded-xl font-bold cursor-pointer transition-all">
+                      Apply to Selected
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pricing Rows Table List */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
+                      <th className="pb-3 text-center w-10">Select</th>
+                      <th className="pb-3">Service</th>
+                      <th className="pb-3">Category</th>
+                      <th className="pb-3">Price</th>
+                      <th className="pb-3">Offer Price</th>
+                      <th className="pb-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-850">
+                    {[
+                      { name: 'Exterior Wash', cat: 'Wash', price: '₹299', offer: '₹249', status: 'Active' },
+                      { name: 'Interior Cleaning', cat: 'Cleaning', price: '₹499', offer: '₹399', status: 'Active' },
+                      { name: 'Steam Wash', cat: 'Wash', price: '₹699', offer: '₹599', status: 'Active' },
+                    ].map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
+                        <td className="py-4 text-center">
+                          <input type="checkbox" className="rounded bg-slate-900 border-slate-800 cursor-pointer" />
+                        </td>
+                        <td className="py-4 font-bold text-white">{item.name}</td>
+                        <td className="py-4 text-blue-450 font-bold">{item.cat}</td>
+                        <td className="py-4 text-slate-400">{item.price}</td>
+                        <td className="py-4 text-emerald-450 font-bold">{item.offer}</td>
+                        <td className="py-4 text-emerald-400 font-bold">{item.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "services" && !viewPricingManagement && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white tracking-wide">Service Management</h2>
+                  <p className="text-xs text-slate-400 mt-1">Manage all your car wash and detailing services.</p>
+                </div>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => setViewPricingManagement(true)}
+                    className="px-4 py-2.5 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Pricing Management ⚙️
+                  </button>
+                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                    + Add Service
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Services</span>
+                  <p className="text-3xl font-extrabold text-white mt-1.5">7</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Active Services</span>
+                  <p className="text-3xl font-extrabold text-emerald-450 mt-1.5">7</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Inactive Services</span>
+                  <p className="text-3xl font-extrabold text-slate-400 mt-1.5">0</p>
+                </div>
+              </div>
+
+              {/* Table list rows */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
+                      <th className="pb-3">Service Name</th>
+                      <th className="pb-3">Category</th>
+                      <th className="pb-3">Price</th>
+                      <th className="pb-3">Duration</th>
+                      <th className="pb-3">Status</th>
+                      <th className="pb-3">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-850">
+                    {[
+                      { name: 'Exterior Wash', cat: 'Wash', price: '₹299', dur: '30 mins', status: 'Active', desc: 'Complete exterior wash' },
+                      { name: 'Interior Cleaning', cat: 'Cleaning', price: '₹499', dur: '45 mins', status: 'Active', desc: 'Complete interior cleaning' },
+                      { name: 'Steam Wash', cat: 'Wash', price: '₹699', dur: '60 mins', status: 'Active', desc: 'High pressure steam wash' },
+                    ].map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
+                        <td className="py-4 font-bold text-white">{item.name}</td>
+                        <td className="py-4 text-blue-450 font-bold">{item.cat}</td>
+                        <td className="py-4 text-emerald-455 font-bold">{item.price}</td>
+                        <td className="py-4 text-slate-400">{item.dur}</td>
+                        <td className="py-4 text-emerald-400 font-bold">{item.status}</td>
+                        <td className="py-4 text-slate-450">{item.desc}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "attendance" && (
+            <div className="space-y-6 text-slate-100 pb-10">
+              {/* Title */}
+              <div>
+                <h2 className="text-xl font-bold text-white tracking-wide">Attendance Management</h2>
+                <p className="text-xs text-slate-400 mt-1">Mark and manage staff attendance with accuracy.</p>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Staff</span>
+                  <p className="text-3xl font-extrabold text-white mt-1.5">32</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Present Today</span>
+                  <p className="text-3xl font-extrabold text-emerald-455 mt-1.5">24</p>
+                </div>
+                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Absent Today</span>
+                  <p className="text-3xl font-extrabold text-rose-500 mt-1.5">5</p>
+                </div>
+              </div>
+
+              {/* Mark Attendance section */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-4">
+                  <div className="p-4 bg-slate-900 border border-blue-500/35 rounded-xl flex items-center justify-between cursor-pointer">
+                    <span className="text-xs text-white font-bold">Manual Attendance</span>
+                    <input type="radio" checked className="cursor-pointer" />
+                  </div>
+                  <div className="p-4 bg-slate-900/60 border border-slate-850 rounded-xl flex items-center justify-between cursor-pointer">
+                    <span className="text-xs text-slate-400">Selfie Attendance</span>
+                    <input type="radio" className="cursor-pointer" />
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center justify-center text-center gap-2 border-l border-r border-slate-850 px-6">
+                  <div className="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xl">AV</div>
+                  <p className="text-xs font-bold text-white mt-2">Attendance Marked</p>
+                  <p className="text-[10px] text-slate-500">26 May 2025, 09:15 AM</p>
+                </div>
+
+                <div className="text-xs text-slate-400 space-y-3 pl-4">
+                  <h4 className="font-bold text-white">Today's Attendance Summary</h4>
+                  <div className="flex justify-between">
+                    <span>Check In Time</span>
+                    <span className="text-white font-semibold">09:15 AM</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Location</span>
+                    <span className="text-white font-semibold">Sector 62, Noida</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Status</span>
+                    <span className="text-emerald-450 font-bold">Present</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Table details list */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
+                      <th className="pb-3">Staff Member</th>
+                      <th className="pb-3">Department</th>
+                      <th className="pb-3">Role</th>
+                      <th className="pb-3">Check In</th>
+                      <th className="pb-3">Check Out</th>
+                      <th className="pb-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-850">
+                    {[
+                      { name: 'Amit Verma', dep: 'Operations', role: 'Supervisor', checkin: '09:15 AM', checkout: '06:05 PM', status: 'Present' },
+                      { name: 'Rahul Sharma', dep: 'Cleaning', role: 'Technician', checkin: '08:58 AM', checkout: '05:42 PM', status: 'Present' },
+                    ].map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
+                        <td className="py-4 font-bold text-white">{item.name}</td>
+                        <td className="py-4 text-slate-400">{item.dep}</td>
+                        <td className="py-4 text-slate-400">{item.role}</td>
+                        <td className="py-4 text-emerald-450 font-semibold">{item.checkin}</td>
+                        <td className="py-4 text-slate-400">{item.checkout}</td>
+                        <td className="py-4 text-emerald-400 font-bold">{item.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

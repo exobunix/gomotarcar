@@ -156,6 +156,18 @@ export default function FranchisePortal() {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedVehicleDetails, setSelectedVehicleDetails] = useState<any | null>(null);
   const [editingVehicle, setEditingVehicle] = useState<any | null>(null);
+  const [editingService, setEditingService] = useState<any | null>(null);
+  const [selectedServiceDetails, setSelectedServiceDetails] = useState<any | null>(null);
+  const [servicesList, setServicesList] = useState<any[]>([
+    { _id: 'ser_1', name: 'Exterior Wash', cat: 'Wash', price: 299, dur: '30 mins', status: 'Active', desc: 'Complete exterior cleaning with foam wash and polish.', img: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&q=60&w=120', badge: 'bg-blue-50 text-blue-600' },
+    { _id: 'ser_2', name: 'Interior Cleaning', cat: 'Cleaning', price: 499, dur: '45 mins', status: 'Active', desc: 'Complete vacuuming, dashboard cleaning and interior detailing.', img: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=60&w=120', badge: 'bg-emerald-50 text-emerald-600' },
+    { _id: 'ser_3', name: 'Steam Wash', cat: 'Wash', price: 699, dur: '60 mins', status: 'Active', desc: 'High pressure steam wash for exterior and interior.', img: 'https://images.unsplash.com/photo-1552930294-6b595f4c2974?auto=format&fit=crop&q=60&w=120', badge: 'bg-blue-50 text-blue-600' },
+    { _id: 'ser_4', name: 'Deep Cleaning', cat: 'Detailing', price: 999, dur: '90 mins', status: 'Active', desc: 'Advanced deep cleaning for complete car transformation.', img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=60&w=120', badge: 'bg-purple-50 text-purple-600' },
+    { _id: 'ser_5', name: 'Ceramic Coating', cat: 'Coating', price: 4999, dur: '120 mins', status: 'Active', desc: 'Long lasting ceramic coating for ultimate protection.', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=60&w=120', badge: 'bg-amber-50 text-amber-600' },
+    { _id: 'ser_6', name: 'Foam Wash', cat: 'Wash', price: 399, dur: '30 mins', status: 'Active', desc: 'Foam wash to remove dirt and grime effectively.', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=60&w=120', badge: 'bg-blue-50 text-blue-600' },
+    { _id: 'ser_7', name: 'Engine Wash', cat: 'Engine', price: 599, dur: '45 mins', status: 'Active', desc: 'Engine bay deep cleaning and degreasing.', img: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=60&w=120', badge: 'bg-red-50 text-red-650' },
+  ]);
+
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [viewInventoryDashboard, setViewInventoryDashboard] = useState(false);
@@ -196,6 +208,22 @@ export default function FranchisePortal() {
     email: "",
     password: "",
   });
+
+  const handleEditServiceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingService) return;
+    setServicesList(prev => prev.map(item => 
+      item._id === editingService._id ? {
+        ...editingService,
+        badge: editingService.cat === 'Wash' ? 'bg-blue-50 text-blue-600' :
+               editingService.cat === 'Cleaning' ? 'bg-emerald-50 text-emerald-600' :
+               editingService.cat === 'Detailing' ? 'bg-purple-50 text-purple-600' :
+               editingService.cat === 'Coating' ? 'bg-amber-50 text-amber-600' :
+               'bg-red-50 text-red-650'
+      } : item
+    ));
+    setEditingService(null);
+  };
 
   const handleEditVehicleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -3950,16 +3978,8 @@ export default function FranchisePortal() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
-                      {[
-                        { name: 'Exterior Wash', cat: 'Wash', price: '₹299', dur: '30 mins', status: 'Active', desc: 'Complete exterior cleaning with foam wash and polish.', img: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&q=60&w=120', badge: 'bg-blue-50 text-blue-600' },
-                        { name: 'Interior Cleaning', cat: 'Cleaning', price: '₹499', dur: '45 mins', status: 'Active', desc: 'Complete vacuuming, dashboard cleaning and interior detailing.', img: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=60&w=120', badge: 'bg-emerald-50 text-emerald-600' },
-                        { name: 'Steam Wash', cat: 'Wash', price: '₹699', dur: '60 mins', status: 'Active', desc: 'High pressure steam wash for exterior and interior.', img: 'https://images.unsplash.com/photo-1552930294-6b595f4c2974?auto=format&fit=crop&q=60&w=120', badge: 'bg-blue-50 text-blue-600' },
-                        { name: 'Deep Cleaning', cat: 'Detailing', price: '₹999', dur: '90 mins', status: 'Active', desc: 'Advanced deep cleaning for complete car transformation.', img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=60&w=120', badge: 'bg-purple-50 text-purple-600' },
-                        { name: 'Ceramic Coating', cat: 'Coating', price: '₹4,999', dur: '120 mins', status: 'Active', desc: 'Long lasting ceramic coating for ultimate protection.', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=60&w=120', badge: 'bg-amber-50 text-amber-600' },
-                        { name: 'Foam Wash', cat: 'Wash', price: '₹399', dur: '30 mins', status: 'Active', desc: 'Foam wash to remove dirt and grime effectively.', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=60&w=120', badge: 'bg-blue-50 text-blue-600' },
-                        { name: 'Engine Wash', cat: 'Engine', price: '₹599', dur: '45 mins', status: 'Active', desc: 'Engine bay deep cleaning and degreasing.', img: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=60&w=120', badge: 'bg-red-50 text-red-650' },
-                      ].map((item, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                      {servicesList.map((item, idx) => (
+                        <tr key={item._id || idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-4.5 px-6">
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-8 rounded-lg overflow-hidden border border-slate-100 bg-slate-50 shadow-sm flex items-center justify-center">
@@ -3973,25 +3993,41 @@ export default function FranchisePortal() {
                               {item.cat}
                             </span>
                           </td>
-                          <td className="py-4.5 px-4 font-black text-slate-800">{item.price}</td>
+                          <td className="py-4.5 px-4 font-black text-slate-800">₹{item.price}</td>
                           <td className="py-4.5 px-4 text-slate-500 font-semibold flex items-center gap-1 mt-3">
                             <span>⏱️</span> {item.dur}
                           </td>
                           <td className="py-4.5 px-4">
-                            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black uppercase">
+                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
+                              item.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                            }`}>
                               {item.status}
                             </span>
                           </td>
                           <td className="py-4.5 px-4 text-slate-455 font-medium max-w-xs truncate">{item.desc}</td>
                           <td className="py-4.5 px-4 text-center">
                             <div className="flex items-center justify-center gap-2">
-                              <button className="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-lg shadow-sm">
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); setEditingService(item); }}
+                                className="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-lg shadow-sm cursor-pointer"
+                              >
                                 ✏️
                               </button>
-                              <button className="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-red-500 rounded-lg shadow-sm">
+                              <button 
+                                onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  if (confirm('Are you sure you want to delete this service?')) {
+                                    setServicesList(prev => prev.filter(s => s._id !== item._id));
+                                  }
+                                }}
+                                className="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-red-505 rounded-lg shadow-sm cursor-pointer"
+                              >
                                 🗑️
                               </button>
-                              <button className="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-400 rounded-lg shadow-sm">
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); setSelectedServiceDetails(item); }}
+                                className="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-400 rounded-lg shadow-sm cursor-pointer"
+                              >
                                 ⋮
                               </button>
                             </div>
@@ -5243,6 +5279,157 @@ export default function FranchisePortal() {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Service Details Modal */}
+      {selectedServiceDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white border border-slate-150 rounded-3xl p-6 w-full max-w-md shadow-2xl text-slate-800 relative">
+            <button 
+              onClick={() => setSelectedServiceDetails(null)}
+              className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 text-lg font-bold"
+            >
+              ✕
+            </button>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-14 h-10 rounded-xl overflow-hidden border border-slate-100 bg-slate-50 shadow-sm flex items-center justify-center">
+                <img src={selectedServiceDetails.img} alt={selectedServiceDetails.name} className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-900 tracking-wide">{selectedServiceDetails.name}</h3>
+                <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${selectedServiceDetails.badge}`}>{selectedServiceDetails.cat}</span>
+              </div>
+            </div>
+
+            <div className="space-y-3.5 text-xs mt-4">
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Price</span>
+                <span className="text-slate-800 font-black">₹{selectedServiceDetails.price}</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Duration</span>
+                <span className="text-slate-800 font-bold">⏱️ {selectedServiceDetails.dur}</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Status</span>
+                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black uppercase">{selectedServiceDetails.status}</span>
+              </div>
+              <div className="border-b border-slate-100 pb-2">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px] block mb-1">Description</span>
+                <span className="text-slate-700 font-medium leading-relaxed">{selectedServiceDetails.desc}</span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-5 mt-2 border-t border-slate-100">
+              <button
+                onClick={() => {
+                  setSelectedServiceDetails(null);
+                  setEditingService(selectedServiceDetails);
+                }}
+                className="flex-1 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
+              >
+                ✏️ Edit Service
+              </button>
+              <button
+                onClick={() => setSelectedServiceDetails(null)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer text-center"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Service Modal */}
+      {editingService && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white border border-slate-150 rounded-3xl p-6 w-full max-w-md shadow-2xl text-slate-800">
+            <h3 className="text-lg font-black text-slate-900 mb-4 tracking-wide">Edit Service Details</h3>
+            <form onSubmit={handleEditServiceSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Service Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editingService.name || ""}
+                  onChange={(e) => setEditingService({ ...editingService, name: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Category</label>
+                <select
+                  value={editingService.cat || "Wash"}
+                  onChange={(e) => setEditingService({ ...editingService, cat: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                >
+                  <option value="Wash">Wash</option>
+                  <option value="Cleaning">Cleaning</option>
+                  <option value="Detailing">Detailing</option>
+                  <option value="Coating">Coating</option>
+                  <option value="Engine">Engine</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Price (₹)</label>
+                <input
+                  type="number"
+                  required
+                  value={editingService.price || 0}
+                  onChange={(e) => setEditingService({ ...editingService, price: Number(e.target.value) })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Duration</label>
+                <input
+                  type="text"
+                  required
+                  value={editingService.dur || ""}
+                  onChange={(e) => setEditingService({ ...editingService, dur: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</label>
+                <select
+                  value={editingService.status || "Active"}
+                  onChange={(e) => setEditingService({ ...editingService, status: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Description</label>
+                <textarea
+                  value={editingService.desc || ""}
+                  onChange={(e) => setEditingService({ ...editingService, desc: e.target.value })}
+                  rows={2}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingService(null)}
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer text-center"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

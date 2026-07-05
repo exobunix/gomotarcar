@@ -3835,72 +3835,182 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "services" && !viewPricingManagement && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Header */}
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Service Management</h2>
-                  <p className="text-xs text-slate-400 mt-1">Manage all your car wash and detailing services.</p>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Service Management</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Service Management</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Service Management</h2>
+                  <p className="text-xs text-slate-505 mt-1">Manage all your car wash and detailing services.</p>
                 </div>
                 <div className="flex gap-3">
                   <button 
                     onClick={() => setViewPricingManagement(true)}
-                    className="px-4 py-2.5 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
                   >
-                    Pricing Management ⚙️
+                    <span>⚙️</span> Pricing Management
                   </button>
-                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
-                    + Add Service
+                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    <span>➕</span> Add Service
                   </button>
                 </div>
               </div>
 
               {/* Stats overview row */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Services</span>
-                  <p className="text-3xl font-extrabold text-white mt-1.5">7</p>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Services</span>
+                    <p className="text-2xl font-black text-slate-800 mt-1.5">7</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">All services available</p>
+                  </div>
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-650 text-lg">
+                    🧼
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Active Services</span>
-                  <p className="text-3xl font-extrabold text-emerald-450 mt-1.5">7</p>
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Services</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">7</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">Currently active</p>
+                  </div>
+                  <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-lg">
+                    🟢
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Inactive Services</span>
-                  <p className="text-3xl font-extrabold text-slate-400 mt-1.5">0</p>
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Inactive Services</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">0</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">Currently inactive</p>
+                  </div>
+                  <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-lg">
+                    🟡
+                  </div>
+                </div>
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Categories</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">4</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">Service categories</p>
+                  </div>
+                  <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 text-lg">
+                    👥
+                  </div>
                 </div>
               </div>
 
+              {/* Filter controls row */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-3xl border border-slate-150 shadow-sm">
+                <div className="flex flex-wrap items-center gap-3 flex-1">
+                  <div className="relative min-w-[280px]">
+                    <input 
+                      type="text" 
+                      placeholder="Search services by name..."
+                      className="w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                  </div>
+                  <select className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs cursor-pointer">
+                    <option value="">All Categories</option>
+                    <option value="wash">Wash</option>
+                    <option value="cleaning">Cleaning</option>
+                    <option value="detailing">Detailing</option>
+                    <option value="coating">Coating</option>
+                    <option value="engine">Engine</option>
+                  </select>
+                  <select className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs cursor-pointer">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+                <button className="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                  <span>⚙️</span> Filters
+                </button>
+              </div>
+
               {/* Table list rows */}
-              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
-                      <th className="pb-3">Service Name</th>
-                      <th className="pb-3">Category</th>
-                      <th className="pb-3">Price</th>
-                      <th className="pb-3">Duration</th>
-                      <th className="pb-3">Status</th>
-                      <th className="pb-3">Description</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-850">
-                    {[
-                      { name: 'Exterior Wash', cat: 'Wash', price: '₹299', dur: '30 mins', status: 'Active', desc: 'Complete exterior wash' },
-                      { name: 'Interior Cleaning', cat: 'Cleaning', price: '₹499', dur: '45 mins', status: 'Active', desc: 'Complete interior cleaning' },
-                      { name: 'Steam Wash', cat: 'Wash', price: '₹699', dur: '60 mins', status: 'Active', desc: 'High pressure steam wash' },
-                    ].map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
-                        <td className="py-4 font-bold text-white">{item.name}</td>
-                        <td className="py-4 text-blue-450 font-bold">{item.cat}</td>
-                        <td className="py-4 text-emerald-455 font-bold">{item.price}</td>
-                        <td className="py-4 text-slate-400">{item.dur}</td>
-                        <td className="py-4 text-emerald-400 font-bold">{item.status}</td>
-                        <td className="py-4 text-slate-450">{item.desc}</td>
+              <div className="bg-white rounded-3xl border border-slate-150 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                        <th className="py-4.5 px-6">Service Name</th>
+                        <th className="py-4.5 px-4">Category</th>
+                        <th className="py-4.5 px-4">Price (₹)</th>
+                        <th className="py-4.5 px-4">Duration</th>
+                        <th className="py-4.5 px-4">Status</th>
+                        <th className="py-4.5 px-4">Description</th>
+                        <th className="py-4.5 px-4 text-center">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
+                      {[
+                        { name: 'Exterior Wash', cat: 'Wash', price: '₹299', dur: '30 mins', status: 'Active', desc: 'Complete exterior cleaning with foam wash and polish.', img: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&q=60&w=120', badge: 'bg-blue-50 text-blue-600' },
+                        { name: 'Interior Cleaning', cat: 'Cleaning', price: '₹499', dur: '45 mins', status: 'Active', desc: 'Complete vacuuming, dashboard cleaning and interior detailing.', img: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=60&w=120', badge: 'bg-emerald-50 text-emerald-600' },
+                        { name: 'Steam Wash', cat: 'Wash', price: '₹699', dur: '60 mins', status: 'Active', desc: 'High pressure steam wash for exterior and interior.', img: 'https://images.unsplash.com/photo-1552930294-6b595f4c2974?auto=format&fit=crop&q=60&w=120', badge: 'bg-blue-50 text-blue-600' },
+                        { name: 'Deep Cleaning', cat: 'Detailing', price: '₹999', dur: '90 mins', status: 'Active', desc: 'Advanced deep cleaning for complete car transformation.', img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=60&w=120', badge: 'bg-purple-50 text-purple-600' },
+                        { name: 'Ceramic Coating', cat: 'Coating', price: '₹4,999', dur: '120 mins', status: 'Active', desc: 'Long lasting ceramic coating for ultimate protection.', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=60&w=120', badge: 'bg-amber-50 text-amber-600' },
+                        { name: 'Foam Wash', cat: 'Wash', price: '₹399', dur: '30 mins', status: 'Active', desc: 'Foam wash to remove dirt and grime effectively.', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=60&w=120', badge: 'bg-blue-50 text-blue-600' },
+                        { name: 'Engine Wash', cat: 'Engine', price: '₹599', dur: '45 mins', status: 'Active', desc: 'Engine bay deep cleaning and degreasing.', img: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=60&w=120', badge: 'bg-red-50 text-red-650' },
+                      ].map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-4.5 px-6">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-8 rounded-lg overflow-hidden border border-slate-100 bg-slate-50 shadow-sm flex items-center justify-center">
+                                <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                              </div>
+                              <span className="font-bold text-slate-800">{item.name}</span>
+                            </div>
+                          </td>
+                          <td className="py-4.5 px-4">
+                            <span className={`px-2.5 py-0.5 rounded-md text-[9px] font-black uppercase ${item.badge}`}>
+                              {item.cat}
+                            </span>
+                          </td>
+                          <td className="py-4.5 px-4 font-black text-slate-800">{item.price}</td>
+                          <td className="py-4.5 px-4 text-slate-500 font-semibold flex items-center gap-1 mt-3">
+                            <span>⏱️</span> {item.dur}
+                          </td>
+                          <td className="py-4.5 px-4">
+                            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black uppercase">
+                              {item.status}
+                            </span>
+                          </td>
+                          <td className="py-4.5 px-4 text-slate-455 font-medium max-w-xs truncate">{item.desc}</td>
+                          <td className="py-4.5 px-4 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <button className="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-lg shadow-sm">
+                                ✏️
+                              </button>
+                              <button className="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-red-500 rounded-lg shadow-sm">
+                                🗑️
+                              </button>
+                              <button className="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-400 rounded-lg shadow-sm">
+                                ⋮
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Bottom Pagination */}
+              <div className="bg-white rounded-3xl border border-slate-150 p-4 shadow-sm flex items-center justify-between text-xs text-slate-500 mt-6">
+                <p>Showing 1 to 7 of 7 services</p>
+                <div className="flex items-center gap-1">
+                  <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-650 hover:bg-slate-50 cursor-pointer">Previous</button>
+                  <button className="p-1 px-2.5 bg-blue-600 text-white border border-blue-600 rounded-md font-extrabold shadow-sm">1</button>
+                  <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-650 hover:bg-slate-50 cursor-pointer">Next</button>
+                </div>
               </div>
             </div>
           )}

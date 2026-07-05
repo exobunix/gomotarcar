@@ -168,6 +168,10 @@ export default function FranchisePortal() {
   const [bookingDateFilter, setBookingDateFilter] = useState("");
   const [bookingServiceFilter, setBookingServiceFilter] = useState("");
 
+  // Search & Filter States for Customers
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [vehicleFilter, setVehicleFilter] = useState("");
+
   // Create Booking Form States
   const [newBookingCustomerSearch, setNewBookingCustomerSearch] = useState("");
   const [selectedCustomerForBooking, setSelectedCustomerForBooking] = useState<any>(null);
@@ -205,17 +209,115 @@ export default function FranchisePortal() {
   const fetchCustomersData = async () => {
     try {
       const response = await api.get("/customer", { params: { limit: 100 } });
-      const items = response.data?.data?.items || response.data?.data || [];
-      if (items.length > 0) {
-        setCustomersList(items);
-      } else {
-        setCustomersList([
-          { _id: "cust_1", firstName: "Rahul", lastName: "Sharma", phone: "+91 98765 43210", email: "rahulsharma@gmail.com" },
-          { _id: "cust_2", firstName: "Neha", lastName: "Gupta", phone: "+91 91234 56789", email: "nehagupta@gmail.com" },
-          { _id: "cust_3", firstName: "Amit", lastName: "Verma", phone: "+91 99887 66554", email: "amitverma@gmail.com" },
-          { _id: "cust_4", firstName: "Karan", lastName: "Singh", phone: "+91 88990 11223", email: "karansingh@gmail.com" }
-        ]);
-      }
+      const apiItems = response.data?.data?.items || response.data?.data || [];
+      
+      const defaultCusts = [
+        {
+          _id: "default_cust_1",
+          name: "Rahul Sharma",
+          email: "rahul.sharma@email.com",
+          phone: "+91 98765 43210",
+          vehicle: "Toyota Fortuner",
+          plateNumber: "UP 16 AB 1234",
+          lastVisitDate: "24 May 2025",
+          lastVisitTime: "09:15 AM",
+          bookingsCount: 18,
+          type: "Repeat",
+          isVip: true
+        },
+        {
+          _id: "default_cust_2",
+          name: "Neha Gupta",
+          email: "neha.gupta@email.com",
+          phone: "+91 91234 56789",
+          vehicle: "Honda City",
+          plateNumber: "UP 14 CD 5678",
+          lastVisitDate: "22 May 2025",
+          lastVisitTime: "11:30 AM",
+          bookingsCount: 9,
+          type: "Repeat",
+          isVip: false
+        },
+        {
+          _id: "default_cust_3",
+          name: "Amit Verma",
+          email: "amit.verma@email.com",
+          phone: "+91 99887 66554",
+          vehicle: "Hyundai Creta",
+          plateNumber: "UP 14 EF 9012",
+          lastVisitDate: "20 May 2025",
+          lastVisitTime: "04:45 PM",
+          bookingsCount: 6,
+          type: "Repeat",
+          isVip: false
+        },
+        {
+          _id: "default_cust_4",
+          name: "Pooja Singh",
+          email: "pooja.singh@email.com",
+          phone: "+91 87654 32109",
+          vehicle: "Maruti Swift",
+          plateNumber: "UP 16 GH 7890",
+          lastVisitDate: "15 May 2025",
+          lastVisitTime: "10:20 AM",
+          bookingsCount: 3,
+          type: "Repeat",
+          isVip: false
+        },
+        {
+          _id: "default_cust_5",
+          name: "Vikram Patel",
+          email: "vikram.patel@email.com",
+          phone: "+91 96325 47896",
+          vehicle: "Mahindra Thar",
+          plateNumber: "UP 14 GH 3456",
+          lastVisitDate: "10 May 2025",
+          lastVisitTime: "03:10 PM",
+          bookingsCount: 1,
+          type: "New",
+          isVip: false
+        },
+        {
+          _id: "default_cust_6",
+          name: "Anjali Mehta",
+          email: "anjali.mehta@email.com",
+          phone: "+91 84562 36987",
+          vehicle: "Skoda Slavia",
+          plateNumber: "UP 16 KL 1122",
+          lastVisitDate: "08 May 2025",
+          lastVisitTime: "02:40 PM",
+          bookingsCount: 1,
+          type: "New",
+          isVip: false
+        }
+      ];
+
+      const merged = [...defaultCusts];
+      apiItems.forEach((apiItem: any) => {
+        // Find matching customer vehicle
+        const customerVeh = vehiclesList.find(v => v.customerId === apiItem._id) || {};
+        const normalized = {
+          _id: apiItem._id,
+          name: `${apiItem.firstName || ""} ${apiItem.lastName || ""}`.trim() || "Customer",
+          email: apiItem.email || "no-email@gomotarcar.com",
+          phone: apiItem.phone || "+91 98765 43210",
+          vehicle: customerVeh.brand ? `${customerVeh.brand} ${customerVeh.model || ""}` : "Toyota Fortuner",
+          plateNumber: customerVeh.plateNumber || customerVeh.vehicleNumber || "UP 16 AB 1234",
+          lastVisitDate: "26 May 2025",
+          lastVisitTime: "10:00 AM",
+          bookingsCount: apiItem.totalBookings || 1,
+          type: (apiItem.totalBookings || 1) > 1 ? "Repeat" : "New",
+          isVip: (apiItem.totalBookings || 1) > 5
+        };
+        const existingIdx = merged.findIndex(x => x.phone === normalized.phone || x._id === normalized._id);
+        if (existingIdx !== -1) {
+          merged[existingIdx] = { ...merged[existingIdx], ...normalized };
+        } else {
+          merged.push(normalized);
+        }
+      });
+
+      setCustomersList(merged);
     } catch (e) {
       console.error(e);
     }
@@ -1094,33 +1196,33 @@ export default function FranchisePortal() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className={`${activeTab === "bookings" ? "bg-white border-b border-slate-200" : "bg-slate-950 border-b border-slate-800"} px-6 py-4 flex items-center justify-between`}>
+        <header className={`${["bookings", "customers"].includes(activeTab) ? "bg-white border-b border-slate-200" : "bg-slate-950 border-b border-slate-800"} px-6 py-4 flex items-center justify-between`}>
           <div className="flex items-center gap-3 md:hidden">
             <span className="text-2xl">🚗</span>
-            <h1 className={`font-bold ${activeTab === "bookings" ? "text-slate-850" : "text-white"} text-lg`}>GoMotorCar Franchise</h1>
+            <h1 className={`font-bold ${["bookings", "customers"].includes(activeTab) ? "text-slate-850" : "text-white"} text-lg`}>GoMotorCar Franchise</h1>
           </div>
           <div className="hidden md:block">
-            <h2 className={`text-xl font-bold ${activeTab === "bookings" ? "text-slate-850" : "text-white"}`}>
+            <h2 className={`text-xl font-bold ${["bookings", "customers"].includes(activeTab) ? "text-slate-850" : "text-white"}`}>
               {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
             </h2>
           </div>
           <div className="flex items-center gap-4">
             <button
               onClick={handleRefresh}
-              className={`p-2 ${activeTab === "bookings" ? "text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200" : "text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800"} rounded-lg transition-all cursor-pointer`}
+              className={`p-2 ${["bookings", "customers"].includes(activeTab) ? "text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200" : "text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800"} rounded-lg transition-all cursor-pointer`}
               title="Refresh Data"
             >
               🔄
             </button>
             <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-full ${activeTab === "bookings" ? "bg-blue-50 border border-blue-100 text-blue-600" : "bg-blue-600/20 border border-blue-500/40 text-blue-400"} flex items-center justify-center font-bold`}>
+              <div className={`w-9 h-9 rounded-full ${["bookings", "customers"].includes(activeTab) ? "bg-blue-50 border border-blue-100 text-blue-600" : "bg-blue-600/20 border border-blue-500/40 text-blue-400"} flex items-center justify-center font-bold`}>
                 {profile?.name?.charAt(0) || "F"}
               </div>
               <div className="hidden sm:block text-left">
-                <p className={`text-sm font-semibold ${activeTab === "bookings" ? "text-slate-800" : "text-white"} leading-tight`}>
+                <p className={`text-sm font-semibold ${["bookings", "customers"].includes(activeTab) ? "text-slate-800" : "text-white"} leading-tight`}>
                   {profile?.name || "Partner"}
                 </p>
-                <p className={`text-xs ${activeTab === "bookings" ? "text-slate-500" : "text-slate-400"}`}>
+                <p className={`text-xs ${["bookings", "customers"].includes(activeTab) ? "text-slate-500" : "text-slate-400"}`}>
                   Franchise ID: {profile?.franchiseId || "GMF12345"}
                 </p>
               </div>
@@ -1129,7 +1231,7 @@ export default function FranchisePortal() {
         </header>
 
         {/* Dynamic Mobile Tab bar */}
-        <div className={`md:hidden flex ${activeTab === "bookings" ? "bg-white border-b border-slate-200" : "bg-slate-950 border-b border-slate-800"}`}>
+        <div className={`md:hidden flex ${["bookings", "customers"].includes(activeTab) ? "bg-white border-b border-slate-200" : "bg-slate-950 border-b border-slate-800"}`}>
           {(["dashboard", "bookings", "staff", "profile"] as const).map((t) => (
             <button
               key={t}
@@ -1144,7 +1246,7 @@ export default function FranchisePortal() {
         </div>
 
         {/* Main Body */}
-        <main className={`flex-1 overflow-y-auto p-6 ${activeTab === "bookings" ? "bg-slate-50" : "bg-slate-900"}`}>
+        <main className={`flex-1 overflow-y-auto p-6 ${["bookings", "customers"].includes(activeTab) ? "bg-slate-50" : "bg-slate-900"}`}>
           {refreshing && (
             <div className="text-center py-2 text-xs text-blue-400 animate-pulse">
               Syncing live data...
@@ -2685,99 +2787,225 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "customers" && !selectedCustomerId && (
-            <div className="space-y-6 text-slate-100 pb-10">
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
               {/* Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Customer List</h2>
-                  <p className="text-xs text-slate-400 mt-1">Manage all your customers in one place.</p>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Customer List</h2>
+                  <p className="text-xs text-slate-500 mt-1">Manage all your customers in one place.</p>
                 </div>
                 <button 
                   onClick={() => setViewNewBooking(true)}
-                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
                 >
-                  + Add New Customer
+                  <span>➕</span> Add New Customer
                 </button>
               </div>
 
               {/* Stats overview row */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Customers</span>
-                  <p className="text-3xl font-extrabold text-white mt-1.5">1,248</p>
-                  <p className="text-[10px] text-emerald-400 font-semibold mt-1">↑ 12.5% vs last month</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Customers</span>
+                    <p className="text-3xl font-black text-slate-800 mt-2">1,248</p>
+                    <p className="text-xs text-emerald-600 font-bold mt-1.5 flex items-center gap-1">
+                      <span>↑ 12.5%</span> <span className="text-slate-400 font-normal">vs last month</span>
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 text-xl font-bold">
+                    👥
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Repeat Customers</span>
-                  <p className="text-3xl font-extrabold text-white mt-1.5">856</p>
-                  <p className="text-[10px] text-emerald-400 font-semibold mt-1">↑ 15.3% vs last month</p>
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Repeat Customers</span>
+                    <p className="text-3xl font-black text-slate-800 mt-2">856</p>
+                    <p className="text-xs text-emerald-600 font-bold mt-1.5 flex items-center gap-1">
+                      <span>↑ 15.3%</span> <span className="text-slate-400 font-normal">vs last month</span>
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 text-xl font-bold">
+                    🔄
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">New Customers</span>
-                  <p className="text-3xl font-extrabold text-white mt-1.5">392</p>
-                  <p className="text-[10px] text-emerald-400 font-semibold mt-1">↑ 8.7% vs last month</p>
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">New Customers</span>
+                    <p className="text-3xl font-black text-slate-800 mt-2">392</p>
+                    <p className="text-xs text-emerald-600 font-bold mt-1.5 flex items-center gap-1">
+                      <span>↑ 8.7%</span> <span className="text-slate-400 font-normal">vs last month</span>
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 text-xl font-bold">
+                    👤
+                  </div>
                 </div>
               </div>
 
               {/* Filter controls row */}
-              <div className="flex flex-wrap items-center justify-between gap-4 bg-[#1E293B]/60 p-4 rounded-2xl border border-slate-800/80">
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-150 shadow-sm">
                 <div className="flex flex-wrap items-center gap-3.5 flex-1">
-                  <input 
-                    type="text" 
-                    placeholder="Search by name or mobile number..."
-                    className="rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-550 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs min-w-[240px]"
-                  />
-                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2 px-4 text-xs">
-                    <option>All Vehicles</option>
+                  <div className="relative min-w-[280px]">
+                    <input 
+                      type="text" 
+                      placeholder="Search by name or mobile number..."
+                      value={customerSearch}
+                      onChange={(e) => setCustomerSearch(e.target.value)}
+                      className="w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                  </div>
+                  
+                  <select 
+                    value={vehicleFilter}
+                    onChange={(e) => setVehicleFilter(e.target.value)}
+                    className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs cursor-pointer"
+                  >
+                    <option value="">All Vehicles</option>
+                    <option value="Fortuner">Toyota Fortuner</option>
+                    <option value="City">Honda City</option>
+                    <option value="Creta">Hyundai Creta</option>
+                    <option value="Thar">Mahindra Thar</option>
                   </select>
-                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2 px-4 text-xs">
+
+                  <select className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs cursor-pointer">
                     <option>Last Visit</option>
                   </select>
                 </div>
-                <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700/60 rounded-xl text-xs text-slate-350">
-                  Export 📤
-                </button>
+                <div className="flex items-center gap-3">
+                  <button className="px-4 py-2.5 bg-blue-600/5 hover:bg-blue-600/10 text-blue-600 border border-blue-100 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                    More Filters ⚙️
+                  </button>
+                  <button className="px-4 py-2.5 bg-blue-600/5 hover:bg-blue-600/10 text-blue-600 border border-blue-100 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1">
+                    Export 📤
+                  </button>
+                </div>
               </div>
 
-              {/* List grid */}
-              <div className="space-y-4">
-                {[
-                  { id: '101', name: 'Rahul Sharma', phone: '+91 98765 43210', email: 'rahulsharma@gmail.com', vehicle: 'Toyota Fortuner', visits: 18, type: 'Repeat' },
-                  { id: '102', name: 'Neha Gupta', phone: '+91 91234 56789', email: 'neha.gupta@email.com', vehicle: 'Honda City', visits: 9, type: 'Repeat' },
-                  { id: '103', name: 'Amit Verma', phone: '+91 99887 66554', email: 'amit.verma@email.com', vehicle: 'Hyundai Creta', visits: 6, type: 'Repeat' },
-                ].map((item) => (
-                  <div 
-                    key={item.id}
-                    onClick={() => setSelectedCustomerId(item.id)}
-                    className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 hover:border-blue-600/30 hover:bg-[#1E293B]/90 transition-all grid grid-cols-1 md:grid-cols-5 gap-5 items-center cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-sm">
-                        {item.name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-white flex items-center gap-1.5">{item.name} <span className="px-1 py-0.5 bg-blue-500/10 text-blue-450 rounded text-[8px] font-bold">VIP</span></p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">{item.email}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-xs text-white">{item.phone}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-white font-semibold">{item.vehicle}</p>
-                      <p className="text-[9px] text-slate-550 mt-0.5">UP 16 AB 1234</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-white font-bold">{item.visits} visits</p>
-                      <span className="text-[9px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-450 rounded font-bold uppercase">{item.type}</span>
-                    </div>
-                    <div className="text-right">
-                      <button className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px] font-bold cursor-pointer">
-                        View Profile
-                      </button>
-                    </div>
+              {/* Table rendering list */}
+              <div className="bg-white rounded-3xl border border-slate-150 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                        <th className="py-4.5 px-6">Customer</th>
+                        <th className="py-4.5 px-4">Mobile</th>
+                        <th className="py-4.5 px-4">Vehicle</th>
+                        <th className="py-4.5 px-4">Last Visit</th>
+                        <th className="py-4.5 px-4 text-center">Total Bookings</th>
+                        <th className="py-4.5 px-4 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                      {customersList
+                        .filter((item) => {
+                          const nameSearch = (item.name || "").toLowerCase();
+                          const phSearch = (item.phone || "").toLowerCase();
+                          const searchStr = customerSearch.toLowerCase();
+                          if (customerSearch && !nameSearch.includes(searchStr) && !phSearch.includes(searchStr)) return false;
+                          
+                          if (vehicleFilter) {
+                            const vehicleStr = (item.vehicle || "").toLowerCase();
+                            if (!vehicleStr.includes(vehicleFilter.toLowerCase())) return false;
+                          }
+                          return true;
+                        })
+                        .map((item) => (
+                          <tr 
+                            key={item._id}
+                            onClick={() => setSelectedCustomerId(item._id)}
+                            className="hover:bg-slate-50/50 transition-colors cursor-pointer"
+                          >
+                            <td className="py-4.5 px-6">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
+                                  {String(item.name || 'C').charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                    {item.name} 
+                                    {item.isVip && (
+                                      <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[8px] font-black uppercase tracking-wider">VIP</span>
+                                    )}
+                                  </p>
+                                  <p className="text-[10px] text-slate-400 mt-0.5">{item.email}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4.5 px-4 text-xs font-medium text-slate-650">
+                              {item.phone}
+                            </td>
+                            <td className="py-4.5 px-4">
+                              <div className="flex items-center gap-2">
+                                <span className="text-base">🚗</span>
+                                <div>
+                                  <p className="text-xs font-bold text-slate-800">{item.vehicle}</p>
+                                  <p className="text-[10px] text-slate-400 font-semibold">{item.plateNumber}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4.5 px-4">
+                              <div className="flex items-center gap-1.5 text-slate-500 text-xs">
+                                <span>📅</span>
+                                <div>
+                                  <p className="text-xs font-semibold text-slate-755">{item.lastVisitDate || '26 May 2025'}</p>
+                                  <p className="text-[10px] text-slate-400">{item.lastVisitTime || '10:00 AM'}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4.5 px-4 text-center">
+                              <div className="inline-flex flex-col items-center gap-1">
+                                <span className="text-xs font-black text-slate-800">{item.bookingsCount}</span>
+                                <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide ${
+                                  item.type === "Repeat" ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600"
+                                }`}>
+                                  {item.type || 'New'}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="py-4.5 px-4 text-center">
+                              <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                <button 
+                                  onClick={() => setSelectedCustomerId(item._id)}
+                                  className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm"
+                                  title="View Details"
+                                >
+                                  👁️ <span className="hidden lg:inline text-[10px]">View</span>
+                                </button>
+                                <a 
+                                  href={`tel:${item.phone}`}
+                                  className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
+                                  title="Call Customer"
+                                >
+                                  📞 <span className="hidden lg:inline text-[10px]">Call</span>
+                                </a>
+                                <button 
+                                  className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-650 border border-slate-150 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm cursor-pointer"
+                                  title="Edit Customer"
+                                >
+                                  ✏️ <span className="hidden lg:inline text-[10px]">Edit</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* Pagination */}
+                <div className="bg-slate-50/50 px-6 py-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                  <p>Showing 1 to {customersList.length} of 1,248 customers</p>
+                  <div className="flex items-center gap-1">
+                    <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer">Previous</button>
+                    <button className="p-1 px-2.5 bg-blue-600 text-white border border-blue-600 rounded-md font-extrabold shadow-sm">1</button>
+                    <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer">2</button>
+                    <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer">3</button>
+                    <span className="px-1 text-slate-400">...</span>
+                    <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer">125</button>
+                    <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer">Next</button>
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           )}

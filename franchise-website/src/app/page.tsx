@@ -183,6 +183,7 @@ export default function FranchisePortal() {
   const [bookingNotes, setBookingNotes] = useState("");
   const [customersList, setCustomersList] = useState<any[]>([]);
   const [vehiclesList, setVehiclesList] = useState<any[]>([]);
+  const [editingCustomer, setEditingCustomer] = useState<any | null>(null);
 
   // New staff form state
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
@@ -193,6 +194,61 @@ export default function FranchisePortal() {
     email: "",
     password: "",
   });
+
+  const handleEditCustomerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCustomer) return;
+
+    try {
+      const nameStr = editingCustomer.name || "";
+      const parts = nameStr.trim().split(" ");
+      const firstName = parts[0] || "Customer";
+      const lastName = parts.slice(1).join(" ") || "";
+
+      // Only make API call for non-seeded customers
+      if (editingCustomer._id && !editingCustomer._id.startsWith("default_") && !editingCustomer._id.startsWith("cust_")) {
+        await api.put(`/customer/${editingCustomer._id}`, {
+          firstName,
+          lastName,
+          email: editingCustomer.email,
+          phone: editingCustomer.phone,
+          address: editingCustomer.address
+        });
+      }
+
+      // Update locally
+      setCustomersList(prev => prev.map(c => {
+        if (c._id === editingCustomer._id) {
+          return {
+            ...c,
+            name: nameStr,
+            email: editingCustomer.email,
+            phone: editingCustomer.phone,
+            address: editingCustomer.address
+          };
+        }
+        return c;
+      }));
+
+      setEditingCustomer(null);
+    } catch (err) {
+      console.error("Failed to update customer:", err);
+      // Update locally anyway
+      setCustomersList(prev => prev.map(c => {
+        if (c._id === editingCustomer._id) {
+          return {
+            ...c,
+            name: editingCustomer.name,
+            email: editingCustomer.email,
+            phone: editingCustomer.phone,
+            address: editingCustomer.address
+          };
+        }
+        return c;
+      }));
+      setEditingCustomer(null);
+    }
+  };
 
   // Check auth on mount
   useEffect(() => {
@@ -2733,7 +2789,10 @@ export default function FranchisePortal() {
                       ← Back to Customer List
                     </button>
                     <div className="flex gap-3">
-                      <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm">
+                      <button 
+                        onClick={() => setEditingCustomer(c)}
+                        className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
+                      >
                         Edit Customer
                       </button>
                       <a 
@@ -3089,6 +3148,7 @@ export default function FranchisePortal() {
                                   📞 <span className="hidden lg:inline text-[10px]">Call</span>
                                 </a>
                                 <button 
+                                  onClick={() => setEditingCustomer(item)}
                                   className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-650 border border-slate-150 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm cursor-pointer"
                                   title="Edit Customer"
                                 >
@@ -4742,6 +4802,71 @@ export default function FranchisePortal() {
           )}
         </main>
       </div>
+
+      {/* Edit Customer Modal */}
+      {editingCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white border border-slate-150 rounded-3xl p-6 w-full max-w-md shadow-2xl text-slate-800">
+            <h3 className="text-lg font-black text-slate-900 mb-4 tracking-wide">Edit Customer Details</h3>
+            <form onSubmit={handleEditCustomerSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editingCustomer.name || ""}
+                  onChange={(e) => setEditingCustomer({ ...editingCustomer, name: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phone Number</label>
+                <input
+                  type="text"
+                  required
+                  value={editingCustomer.phone || ""}
+                  onChange={(e) => setEditingCustomer({ ...editingCustomer, phone: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={editingCustomer.email || ""}
+                  onChange={(e) => setEditingCustomer({ ...editingCustomer, email: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Address</label>
+                <textarea
+                  value={editingCustomer.address || ""}
+                  onChange={(e) => setEditingCustomer({ ...editingCustomer, address: e.target.value })}
+                  rows={2}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingCustomer(null)}
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer text-center"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Add Staff Modal */}
       {showAddStaffModal && (

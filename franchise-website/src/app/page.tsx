@@ -2005,8 +2005,21 @@ export default function FranchisePortal() {
                         <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">Edit</button>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-4 items-center">
-                        <div className="w-32 h-20 bg-slate-50 border border-slate-150 rounded-2xl flex items-center justify-center text-3xl shadow-sm">
-                          🚘
+                        <div className="w-32 h-20 bg-slate-50 border border-slate-150 rounded-2xl overflow-hidden shadow-sm flex items-center justify-center">
+                          <img 
+                            src={
+                              (b.vehicleNumber || '').toLowerCase().includes('fortuner') ? 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=60&w=300' :
+                              (b.vehicleNumber || '').toLowerCase().includes('city') ? 'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&q=60&w=300' :
+                              (b.vehicleNumber || '').toLowerCase().includes('creta') ? 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&q=60&w=300' :
+                              (b.vehicleNumber || '').toLowerCase().includes('thar') ? 'https://images.unsplash.com/photo-1632245889029-e406faaa34cd?auto=format&fit=crop&q=60&w=300' :
+                              (b.vehicleNumber || '').toLowerCase().includes('slavia') ? 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&q=60&w=300' :
+                              (b.vehicleNumber || '').toLowerCase().includes('swift') ? 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&q=60&w=300' :
+                              (b.vehicleNumber || '').toLowerCase().includes('virtus') ? 'https://images.unsplash.com/photo-1616422285623-13ff0162193c?auto=format&fit=crop&q=60&w=300' :
+                              'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&q=60&w=300'
+                            } 
+                            alt="Vehicle"
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                         <div className="flex-1 space-y-2 text-xs text-slate-500">
                           <div className="flex items-center gap-2">
@@ -3400,14 +3413,14 @@ export default function FranchisePortal() {
               {/* Grid cards list */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                  { plate: 'UP16AB1234', brand: 'Toyota Fortuner', type: 'SUV', color: 'White', status: 'Active' },
-                  { plate: 'UP14CD5678', brand: 'Honda City', type: 'Sedan', color: 'Blue', status: 'Active' },
-                  { plate: 'UP16EF9012', brand: 'Hyundai Creta', type: 'SUV', color: 'White', status: 'Active' },
-                  { plate: 'UP14GH3456', brand: 'Mahindra Thar', type: 'SUV', color: 'Black', status: 'Active' },
-                  { plate: 'UP16KL1122', brand: 'Skoda Slavia', type: 'Sedan', color: 'Silver', status: 'Active' },
-                  { plate: 'UP14MN7788', brand: 'Maruti Suzuki Swift', type: 'Hatchback', color: 'Red', status: 'Inactive' },
-                  { plate: 'UP16OP3344', brand: 'Volkswagen Virtus', type: 'Sedan', color: 'Blue', status: 'Inactive' },
-                  { plate: 'UP14QR5566', brand: 'Tata Altroz', type: 'Hatchback', color: 'White', status: 'Inactive' },
+                  { plate: 'UP16AB1234', brand: 'Toyota Fortuner', type: 'SUV', color: 'White', status: 'Active', imgUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=60&w=300' },
+                  { plate: 'UP14CD5678', brand: 'Honda City', type: 'Sedan', color: 'Blue', status: 'Active', imgUrl: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&q=60&w=300' },
+                  { plate: 'UP16EF9012', brand: 'Hyundai Creta', type: 'SUV', color: 'White', status: 'Active', imgUrl: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&q=60&w=300' },
+                  { plate: 'UP14GH3456', brand: 'Mahindra Thar', type: 'SUV', color: 'Black', status: 'Active', imgUrl: 'https://images.unsplash.com/photo-1632245889029-e406faaa34cd?auto=format&fit=crop&q=60&w=300' },
+                  { plate: 'UP16KL1122', brand: 'Skoda Slavia', type: 'Sedan', color: 'Silver', status: 'Active', imgUrl: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&q=60&w=300' },
+                  { plate: 'UP14MN7788', brand: 'Maruti Suzuki Swift', type: 'Hatchback', color: 'Red', status: 'Inactive', imgUrl: 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&q=60&w=300' },
+                  { plate: 'UP16OP3344', brand: 'Volkswagen Virtus', type: 'Sedan', color: 'Blue', status: 'Inactive', imgUrl: 'https://images.unsplash.com/photo-1616422285623-13ff0162193c?auto=format&fit=crop&q=60&w=300' },
+                  { plate: 'UP14QR5566', brand: 'Tata Altroz', type: 'Hatchback', color: 'White', status: 'Inactive', imgUrl: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&q=60&w=300' },
                 ]
                 .filter(v => {
                   if (vehicleFilter) {
@@ -3430,9 +3443,13 @@ export default function FranchisePortal() {
                         </div>
                       </div>
 
-                      {/* Mock vehicle image */}
-                      <div className="h-28 w-full bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-sm">
-                        🚘
+                      {/* Real vehicle image */}
+                      <div className="h-28 w-full bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden mb-4 shadow-sm flex items-center justify-center">
+                        <img 
+                          src={v.imgUrl} 
+                          alt={v.brand} 
+                          className="w-full h-full object-cover hover:scale-105 transition-all duration-300"
+                        />
                       </div>
 
                       <p className="text-sm font-black text-slate-800">{v.brand}</p>

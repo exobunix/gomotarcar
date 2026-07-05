@@ -262,7 +262,7 @@ export default function FranchisePortal() {
     }
   }, []);
 
-  const fetchCustomersData = async () => {
+  const fetchCustomersData = async (currentVehicles?: any[]) => {
     try {
       const response = await api.get("/customer", { params: { limit: 100 } });
       const apiItems = response.data?.data?.items || response.data?.data || [];
@@ -351,7 +351,8 @@ export default function FranchisePortal() {
       const merged = [...defaultCusts];
       apiItems.forEach((apiItem: any) => {
         // Find matching customer vehicle
-        const customerVeh = (vehiclesList || []).find(v => v?.customerId === apiItem?._id) || {};
+        const vList = currentVehicles || vehiclesList || [];
+        const customerVeh = vList.find(v => v?.customerId === apiItem?._id) || {};
         const normalized = {
           _id: apiItem._id,
           name: `${apiItem.firstName || ""} ${apiItem.lastName || ""}`.trim() || "Customer",
@@ -464,29 +465,38 @@ export default function FranchisePortal() {
     try {
       const response = await api.get("/vehicle", { params: { limit: 100 } });
       const items = response.data?.data?.items || response.data?.data || [];
-      if (items.length > 0) {
-        setVehiclesList(items);
-      } else {
-        setVehiclesList([
-          { _id: "veh_1", customerId: "cust_1", brand: "Toyota", model: "Fortuner", plateNumber: "UP 16 AB 1234", color: "White", fuelType: "Diesel" },
-          { _id: "veh_2", customerId: "cust_2", brand: "Honda", model: "City", plateNumber: "UP 14 CD 5678", color: "Blue", fuelType: "Petrol" },
-          { _id: "veh_3", customerId: "cust_3", brand: "Hyundai", model: "Creta", plateNumber: "UP 14 EF 9012", color: "Silver", fuelType: "Petrol" },
-          { _id: "veh_4", customerId: "cust_4", brand: "Mahindra", model: "Thar", plateNumber: "UP 14 GH 3456", color: "Black", fuelType: "Diesel" }
-        ]);
-      }
+      const list = items.length > 0 ? items : [
+        { _id: "veh_1", customerId: "cust_1", brand: "Toyota", model: "Fortuner", plateNumber: "UP 16 AB 1234", color: "White", fuelType: "Diesel" },
+        { _id: "veh_2", customerId: "cust_2", brand: "Honda", model: "City", plateNumber: "UP 14 CD 5678", color: "Blue", fuelType: "Petrol" },
+        { _id: "veh_3", customerId: "cust_3", brand: "Hyundai", model: "Creta", plateNumber: "UP 14 EF 9012", color: "Silver", fuelType: "Petrol" },
+        { _id: "veh_4", customerId: "cust_4", brand: "Mahindra", model: "Thar", plateNumber: "UP 14 GH 3456", color: "Black", fuelType: "Diesel" }
+      ];
+      setVehiclesList(list);
+      return list;
     } catch (e) {
       console.error(e);
+      const fallback = [
+        { _id: "veh_1", customerId: "cust_1", brand: "Toyota", model: "Fortuner", plateNumber: "UP 16 AB 1234", color: "White", fuelType: "Diesel" },
+        { _id: "veh_2", customerId: "cust_2", brand: "Honda", model: "City", plateNumber: "UP 14 CD 5678", color: "Blue", fuelType: "Petrol" },
+        { _id: "veh_3", customerId: "cust_3", brand: "Hyundai", model: "Creta", plateNumber: "UP 14 EF 9012", color: "Silver", fuelType: "Petrol" },
+        { _id: "veh_4", customerId: "cust_4", brand: "Mahindra", model: "Thar", plateNumber: "UP 14 GH 3456", color: "Black", fuelType: "Diesel" }
+      ];
+      setVehiclesList(fallback);
+      return fallback;
     }
   };
 
   // Fetch data when authenticated
   useEffect(() => {
     if (isAuthenticated) {
+      const initData = async () => {
+        const vList = await fetchVehiclesData();
+        await fetchCustomersData(vList);
+      };
       fetchDashboardData();
       fetchBookingsData();
       fetchStaffData();
-      fetchCustomersData();
-      fetchVehiclesData();
+      initData();
     }
   }, [isAuthenticated]);
 
@@ -1898,310 +1908,410 @@ export default function FranchisePortal() {
 
           {activeTab === "bookings" && selectedBookingId && !viewNewBooking && !viewProgressTracking && (() => {
             const b = bookings.find(item => item._id === selectedBookingId) || {
-              bookingId: 'GMF-12345',
+              bookingId: 'GMF12580',
               slotDate: '2025-05-24',
               slotTime: '10:00 AM',
               customerName: 'Rahul Sharma',
               vehicleNumber: 'UP 16 AB 1234',
               serviceName: 'Premium Steam Wash',
               totalAmount: 1250,
-              paymentStatus: 'paid'
+              paymentStatus: 'paid',
+              status: 'upcoming'
             };
+
+            const statusLabel = (b.status || 'upcoming').toLowerCase();
+            const isPaid = (b.paymentStatus || 'paid').toLowerCase() === 'paid';
+
             return (
-              <div className="space-y-6 text-slate-100 pb-10">
-                  {/* Back Navigation Bar */}
-                  <div className="flex items-center justify-between">
-                    <button 
-                      onClick={() => setSelectedBookingId(null)}
-                      className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
-                    >
-                      ← Back to Bookings
+              <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+                {/* Back Nav bar */}
+                <div className="flex items-center justify-between">
+                  <button 
+                    onClick={() => setSelectedBookingId(null)}
+                    className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-850 cursor-pointer transition-all bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-sm"
+                  >
+                    ← Back to Bookings
+                  </button>
+                  <div className="flex gap-3">
+                    <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                      <span>🖨️</span> Print Invoice
                     </button>
-                    <div className="flex gap-3">
-                      <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer">
-                        Print Invoice
-                      </button>
-                      <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer">
-                        Share
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Booking ID Header Title */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <h2 className="text-xl font-bold text-white tracking-wide">Booking Details</h2>
-                      <span className="px-2.5 py-0.5 bg-blue-500/10 text-blue-400 rounded-full text-[10px] font-black uppercase">
-                        {b.status || 'Upcoming'}
-                      </span>
-                    </div>
-                    <button 
-                      onClick={() => setViewProgressTracking(true)}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
-                    >
-                      Track Live Progress ⏱️
+                    <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                      <span>🔗</span> Share
                     </button>
-                  </div>
-                  <p className="text-[10px] text-slate-400 -mt-4">
-                    Booking ID: <span className="font-black text-blue-500">{b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</span> | Booked on: 24 May 2025, 09:15 AM
-                  </p>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Left Column: Details Cards */}
-                    <div className="lg:col-span-2 space-y-6">
-                      {/* Section 1: Customer Details */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                            <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">👤</span> 1. Customer Details
-                          </h3>
-                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">Edit</button>
-                        </div>
-                        <div className="flex gap-4">
-                          <div className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-base">
-                            {String(b.customerName || 'U').charAt(0)}
-                          </div>
-                          <div>
-                            <p className="text-sm font-black text-white flex items-center gap-2">
-                              {b.customerName || 'Rahul Sharma'} 
-                              <span className="px-1.5 py-0.5 bg-blue-600/10 text-blue-400 rounded text-[9px] font-bold">VIP</span>
-                            </p>
-                            <p className="text-xs text-slate-400 mt-1">📞 +91 98765 43210</p>
-                            <p className="text-xs text-slate-400 mt-0.5">✉️ rahulsharma@gmail.com</p>
-                            <p className="text-xs text-slate-400 mt-1">📍 Sector 62, Noida, Uttar Pradesh - 201301</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Section 2: Vehicle Information */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                            <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">🚗</span> 2. Vehicle Information
-                          </h3>
-                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">Edit</button>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 text-xs">
-                          <div>
-                            <p className="text-slate-400">Vehicle Name</p>
-                            <p className="text-sm font-bold text-white mt-1">{b.vehicleNumber || 'Toyota Fortuner'}</p>
-                          </div>
-                          <div>
-                            <p className="text-slate-400">Plate Number</p>
-                            <p className="text-sm font-bold text-blue-400 mt-1">UP 16 AB 1234</p>
-                          </div>
-                          <div>
-                            <p className="text-slate-400">Color</p>
-                            <p className="text-white mt-0.5">White</p>
-                          </div>
-                          <div>
-                            <p className="text-slate-400">Fuel Type</p>
-                            <p className="text-white mt-0.5">Diesel</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Section 3: Service Package */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                            <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">📦</span> 3. Service Package
-                          </h3>
-                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">Edit</button>
-                        </div>
-                        <div className="flex justify-between items-start pb-4 border-b border-slate-800">
-                          <div>
-                            <p className="text-sm font-black text-white">{b.serviceName || 'Premium Steam Wash'}</p>
-                            <p className="text-xs text-slate-400 mt-1">Includes 6 detailed cleaning services</p>
-                          </div>
-                          <p className="text-sm font-black text-emerald-400">₹{b.totalAmount || '1,250'}</p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 mt-4 text-[11px] text-slate-400">
-                          <div className="flex items-center gap-1.5">✓ Exterior Foam Wash</div>
-                          <div className="flex items-center gap-1.5">✓ Tyre & Rim Cleaning</div>
-                          <div className="flex items-center gap-1.5">✓ Interior Vacuum Cleaning</div>
-                          <div className="flex items-center gap-1.5">✓ Dashboard Polishing</div>
-                          <div className="flex items-center gap-1.5">✓ Steam Disinfection</div>
-                        </div>
-                      </div>
-
-                      {/* Section 4: Assigned Staff */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                            <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">👥</span> 4. Assigned Staff
-                          </h3>
-                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">Edit</button>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="flex items-center gap-3 p-3 bg-slate-900/40 rounded-xl border border-slate-800/40">
-                            <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs">AV</div>
-                            <div>
-                              <p className="text-xs font-bold text-white">Amit Verma</p>
-                              <p className="text-[10px] text-slate-400">Senior Technician • ⭐ 4.8</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3 p-3 bg-slate-900/40 rounded-xl border border-slate-800/40">
-                            <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs">RK</div>
-                            <div>
-                              <p className="text-xs font-bold text-white">Rohit Kumar</p>
-                              <p className="text-[10px] text-slate-400">Helper • ⭐ 4.6</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Section 5: Payment Details */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                            <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">💳</span> 5. Payment Details
-                          </h3>
-                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">Edit</button>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs pb-4 border-b border-slate-800">
-                          <div>
-                            <p className="text-slate-400">Payment Method</p>
-                            <p className="text-white font-bold mt-1">UPI (Google Pay)</p>
-                          </div>
-                          <div>
-                            <p className="text-slate-400">Transaction ID</p>
-                            <p className="text-white font-bold mt-1">UPI41589632578</p>
-                          </div>
-                          <div>
-                            <p className="text-slate-400">Subtotal</p>
-                            <p className="text-white mt-1">₹1,250</p>
-                          </div>
-                          <div>
-                            <p className="text-slate-400">Discount</p>
-                            <p className="text-white mt-1">-₹0</p>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center pt-4">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            b.paymentStatus === 'paid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
-                          }`}>
-                            {b.paymentStatus === 'paid' ? 'PAID' : 'PENDING'}
-                          </span>
-                          <div className="text-right">
-                            <span className="text-xs text-slate-400 mr-2">Total Amount</span>
-                            <span className="text-base font-black text-emerald-400">₹{b.totalAmount || '1,250'}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Section 6: Timeline */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <h3 className="text-sm font-bold text-white tracking-wide flex items-center gap-2 mb-4">
-                          <span className="p-1.5 bg-blue-500/10 rounded-lg text-blue-400 text-xs">⏱️</span> 6. Timeline
-                        </h3>
-                        <div className="space-y-4 relative pl-5 border-l border-slate-800">
-                          <div className="relative">
-                            <div className="absolute -left-[25px] top-1 w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-                            <p className="text-xs font-bold text-white">Booking Created</p>
-                            <p className="text-[10px] text-slate-500 mt-0.5">24 May 2025, 09:15 AM</p>
-                          </div>
-                          <div className="relative">
-                            <div className="absolute -left-[25px] top-1 w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-                            <p className="text-xs font-bold text-white">Booking Confirmed</p>
-                            <p className="text-[10px] text-slate-500 mt-0.5">24 May 2025, 09:16 AM</p>
-                          </div>
-                          <div className="relative">
-                            <div className="absolute -left-[25px] top-1 w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700"></div>
-                            <p className="text-xs font-bold text-slate-400">Customer Arrived</p>
-                            <p className="text-[10px] text-slate-500 mt-0.5">-</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right Column: Overview cards */}
-                    <div className="space-y-6">
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Booking Overview</h3>
-                        <div className="space-y-3.5 text-xs">
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Booking ID</span>
-                            <span className="text-blue-500 font-bold">{b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Booking Date</span>
-                            <span className="text-white font-bold">24 May 2025, 09:15 AM</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Booking Type</span>
-                            <span className="px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded text-[10px]">Walk-in</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Payment Status</span>
-                            <span className="text-emerald-400 font-bold uppercase">{b.paymentStatus || 'Paid'}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Price Summary</h3>
-                        <div className="space-y-3 text-xs">
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Service Amount</span>
-                            <span className="text-white">₹{b.totalAmount || '1,250'}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Discount</span>
-                            <span className="text-white">₹0</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">Tax</span>
-                            <span className="text-white">₹0</span>
-                          </div>
-                          <div className="flex justify-between pt-3 border-t border-slate-850">
-                            <span className="font-bold text-white">Total Amount</span>
-                            <span className="font-black text-emerald-400 text-sm">₹{b.totalAmount || '1,250'}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <h3 className="text-sm font-bold text-white tracking-wide mb-3">Notes</h3>
-                        <p className="text-xs text-slate-400 leading-relaxed">
-                          Customer requested extra interior fragrance.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom Action Controls Sticky Bar */}
-                  <div className="flex flex-wrap gap-4 pt-4 border-t border-slate-800">
-                    <button className="px-5 py-3 bg-red-600/10 hover:bg-red-600/20 text-red-500 border border-red-500/20 rounded-xl text-xs font-bold cursor-pointer transition-all">
-                      Cancel Booking
-                    </button>
-                    <button className="px-5 py-3 bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 border border-amber-500/20 rounded-xl text-xs font-bold cursor-pointer transition-all">
-                      Reschedule
-                    </button>
-                    {b.status !== 'completed' && b.status !== 'cancelled' && (
-                      <>
-                        {b.status !== 'in_progress' ? (
-                          <button 
-                            onClick={() => handleUpdateBookingStatus(b._id, 'in_progress')}
-                            className="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-all ml-auto"
-                          >
-                            Start Service
-                          </button>
-                        ) : (
-                          <button 
-                            onClick={() => handleUpdateBookingStatus(b._id, 'completed')}
-                            className="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-all ml-auto"
-                          >
-                            Complete Service
-                          </button>
-                        )}
-                      </>
-                    )}
                   </div>
                 </div>
-              );
-            })()
-          }
+
+                {/* Header title */}
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-2xl font-black text-slate-900 tracking-wide">Booking Details</h2>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                        statusLabel === 'completed' ? 'bg-emerald-50 text-emerald-600' :
+                        statusLabel === 'cancelled' ? 'bg-red-50 text-red-600' :
+                        statusLabel === 'in_progress' ? 'bg-blue-50 text-blue-600' :
+                        'bg-amber-50 text-amber-600'
+                      }`}>
+                        {statusLabel}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-505 mt-1">
+                      Booking ID: <span className="font-bold text-blue-600">{b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</span> | Booked on: 24 May 2025, 09:15 AM
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => setViewProgressTracking(true)}
+                    className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                  >
+                    <span>⏱️</span> Track Live Progress
+                  </button>
+                </div>
+
+                {/* Split Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Left columns */}
+                  <div className="lg:col-span-2 space-y-6">
+                    {/* 1. Customer Details */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm relative">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                          <span className="text-blue-600 text-sm">👤</span> 1. Customer Details
+                        </h3>
+                        <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">Edit</button>
+                      </div>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-14 h-14 rounded-full overflow-hidden border border-slate-150 flex items-center justify-center bg-blue-50 text-blue-600 text-lg font-black shadow-sm">
+                          {String(b.customerName || 'U').charAt(0)}
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-slate-800 flex items-center gap-2">
+                            {b.customerName || 'Rahul Sharma'} 
+                            <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-black uppercase">VIP</span>
+                          </p>
+                          <p className="text-xs text-slate-500 mt-1.5">📞 +91 98765 43210</p>
+                          <p className="text-xs text-slate-550 mt-0.5">✉️ rahulsharma@gmail.com</p>
+                          <p className="text-xs text-slate-550 mt-1">📍 Sector 62, Noida, Uttar Pradesh - 201301</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 2. Vehicle Information */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                          <span className="text-blue-600 text-sm">🚗</span> 2. Vehicle Information
+                        </h3>
+                        <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">Edit</button>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-4 items-center">
+                        <div className="w-32 h-20 bg-slate-50 border border-slate-150 rounded-2xl flex items-center justify-center text-3xl shadow-sm">
+                          🚘
+                        </div>
+                        <div className="flex-1 space-y-2 text-xs text-slate-500">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-black text-slate-800">{b.vehicleNumber || 'Toyota Fortuner'}</span>
+                            <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-black">{b.plateNumber || 'UP 16 AB 1234'}</span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-4 pt-1">
+                            <div>
+                              <p className="text-[10px] text-slate-400 uppercase font-bold">Color</p>
+                              <p className="text-slate-800 font-bold mt-0.5">White</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-slate-400 uppercase font-bold">Model Year</p>
+                              <p className="text-slate-800 font-bold mt-0.5">2021</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-slate-400 uppercase font-bold">Fuel Type</p>
+                              <p className="text-slate-800 font-bold mt-0.5">Diesel</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3. Service Package */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                          <span className="text-blue-600 text-sm">🧼</span> 3. Service Package
+                        </h3>
+                        <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">Edit</button>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-4 items-start">
+                        <div className="w-16 h-16 bg-blue-50 border border-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl shadow-sm">
+                          💧
+                        </div>
+                        <div className="flex-1 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h4 className="text-sm font-black text-slate-800">{b.serviceName || 'Premium Steam Wash'}</h4>
+                              <p className="text-[10px] text-slate-405 font-medium mt-0.5">Includes 6 detailed cleaning services</p>
+                            </div>
+                            <span className="text-sm font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-xl">₹{b.totalAmount || '1,250'}</span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600 pt-1 border-t border-slate-100">
+                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600">
+                              <span className="text-emerald-500 font-bold">✓</span> Exterior Foam Wash
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600">
+                              <span className="text-emerald-500 font-bold">✓</span> Tyre & Rim Cleaning
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600">
+                              <span className="text-emerald-500 font-bold">✓</span> Interior Vacuum Cleaning
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600">
+                              <span className="text-emerald-500 font-bold">✓</span> Dashboard Polishing
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600">
+                              <span className="text-emerald-500 font-bold">✓</span> Steam Disinfection
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 4. Assigned Staff */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                          <span className="text-blue-600 text-sm">👥</span> 4. Assigned Staff
+                        </h3>
+                        <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">Edit</button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex items-center gap-3 p-4 bg-slate-50/50 rounded-2xl border border-slate-150 shadow-sm">
+                          <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-black text-xs">AV</div>
+                          <div>
+                            <p className="text-xs font-bold text-slate-800">Amit Verma</p>
+                            <p className="text-[10px] text-slate-405 font-medium">Senior Technician</p>
+                            <p className="text-[9px] text-amber-500 mt-0.5">⭐ 4.8 <span className="text-slate-400">(126 reviews)</span></p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-4 bg-slate-50/50 rounded-2xl border border-slate-150 shadow-sm">
+                          <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-black text-xs">RK</div>
+                          <div>
+                            <p className="text-xs font-bold text-slate-800">Rohit Kumar</p>
+                            <p className="text-[10px] text-slate-405 font-medium">Helper</p>
+                            <p className="text-[9px] text-amber-500 mt-0.5">⭐ 4.6 <span className="text-slate-400">(89 reviews)</span></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 5. Payment Details */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                          <span className="text-blue-600 text-sm">💳</span> 5. Payment Details
+                        </h3>
+                        <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">Edit</button>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs pb-4 border-b border-slate-100">
+                        <div>
+                          <p className="text-slate-400 uppercase tracking-wider text-[9px] font-bold">Payment Method</p>
+                          <p className="text-slate-800 font-black mt-1">UPI (Google Pay)</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 uppercase tracking-wider text-[9px] font-bold">Transaction ID</p>
+                          <p className="text-slate-800 font-black mt-1">UPI41589632578</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 uppercase tracking-wider text-[9px] font-bold">Subtotal</p>
+                          <p className="text-slate-850 font-bold mt-1">₹1,250</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 uppercase tracking-wider text-[9px] font-bold">Discount</p>
+                          <p className="text-slate-855 font-bold mt-1">-₹0</p>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center pt-4">
+                        <span className={`px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider ${
+                          isPaid ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                        }`}>
+                          {isPaid ? 'PAID' : 'PENDING'}
+                        </span>
+                        <div className="text-right">
+                          <span className="text-xs text-slate-400 mr-2 font-bold">Total Amount</span>
+                          <span className="text-lg font-black text-emerald-600">₹{b.totalAmount || '1,250'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 6. Timeline */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mb-5">
+                        <span className="text-blue-600 text-sm">⏱️</span> 6. Timeline
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2 space-y-5 relative pl-5 border-l border-slate-200 ml-2">
+                          <div className="relative">
+                            <div className="absolute -left-[26px] top-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm flex items-center justify-center">
+                              <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </div>
+                            <p className="text-xs font-bold text-slate-800">Booking Created</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">24 May 2025, 09:15 AM</p>
+                          </div>
+                          <div className="relative">
+                            <div className="absolute -left-[26px] top-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm flex items-center justify-center">
+                              <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                            </div>
+                            <p className="text-xs font-bold text-slate-800">Booking Confirmed</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">24 May 2025, 09:16 AM</p>
+                          </div>
+                          <div className="relative">
+                            <div className="absolute -left-[26px] top-1 w-3.5 h-3.5 rounded-full bg-slate-200 border-2 border-white shadow-sm"></div>
+                            <p className="text-xs font-bold text-slate-400">Customer Arrived</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">-</p>
+                          </div>
+                          <div className="relative">
+                            <div className="absolute -left-[26px] top-1 w-3.5 h-3.5 rounded-full bg-slate-200 border-2 border-white shadow-sm"></div>
+                            <p className="text-xs font-bold text-slate-400">Service Started</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">-</p>
+                          </div>
+                          <div className="relative">
+                            <div className="absolute -left-[26px] top-1 w-3.5 h-3.5 rounded-full bg-slate-200 border-2 border-white shadow-sm"></div>
+                            <p className="text-xs font-bold text-slate-400">Service Completed</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">-</p>
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-2xl flex items-center gap-3">
+                            <span className="text-xl">⏱️</span>
+                            <div>
+                              <p className="text-[9px] text-slate-400 uppercase font-black">Estimated Duration</p>
+                              <p className="text-xs font-bold text-blue-650 mt-0.5">60 mins</p>
+                            </div>
+                          </div>
+                          <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-2xl flex items-center gap-3">
+                            <span className="text-xl">📅</span>
+                            <div>
+                              <p className="text-[9px] text-slate-400 uppercase font-black">Preferred Date & Time</p>
+                              <p className="text-xs font-bold text-blue-655 mt-0.5">26 May 2025, 10:00 AM</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-6">
+                    {/* Booking Overview */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                      <h3 className="text-sm font-black text-slate-800 tracking-wide mb-4">Booking Overview</h3>
+                      <div className="space-y-3.5 text-xs text-slate-500">
+                        <div className="flex justify-between">
+                          <span>Booking ID</span>
+                          <span className="text-blue-600 font-bold">{b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Booking Date</span>
+                          <span className="text-slate-800 font-bold">24 May 2025, 09:15 AM</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Booking Type</span>
+                          <span className="px-1.5 py-0.5 bg-slate-50 text-slate-600 rounded text-[10px] font-bold">Walk-in</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Payment Status</span>
+                          <span className="text-emerald-600 font-bold uppercase">{b.paymentStatus || 'Paid'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Booking Status</span>
+                          <span className="text-blue-600 font-bold uppercase">{b.status || 'Upcoming'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Price Summary */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                      <h3 className="text-sm font-black text-slate-800 tracking-wide mb-4">Price Summary</h3>
+                      <div className="space-y-3 text-xs text-slate-505">
+                        <div className="flex justify-between">
+                          <span>Service Amount</span>
+                          <span className="text-slate-800">₹{b.totalAmount || '1,250'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Discount</span>
+                          <span className="text-slate-800">₹0</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Tax</span>
+                          <span className="text-slate-800">₹0</span>
+                        </div>
+                        <div className="flex justify-between pt-3 border-t border-slate-100">
+                          <span className="font-bold text-slate-800">Total Amount</span>
+                          <span className="font-black text-blue-600 text-sm">₹{b.totalAmount || '1,250'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Notes */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                      <h3 className="text-sm font-black text-slate-800 tracking-wide mb-3 flex items-center gap-1.5">
+                        <span>📝</span> Notes
+                      </h3>
+                      <p className="text-xs text-slate-505 leading-relaxed font-medium">
+                        Customer requested extra interior fragrance.
+                      </p>
+                    </div>
+
+                    {/* Attachments */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                      <h3 className="text-sm font-black text-slate-800 tracking-wide mb-3 flex items-center gap-1.5">
+                        <span>📎</span> Attachments
+                      </h3>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-lg transition-all">
+                          <span className="text-slate-600 font-medium">Vehicle Photo</span>
+                          <button className="text-blue-650 hover:text-blue-600 font-bold flex items-center gap-1">👁️ View</button>
+                        </div>
+                        <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-lg transition-all">
+                          <span className="text-slate-600 font-medium">Damage Photo</span>
+                          <button className="text-blue-650 hover:text-blue-600 font-bold flex items-center gap-1">👁️ View</button>
+                        </div>
+                        <div className="flex justify-between items-center p-2 hover:bg-slate-50 rounded-lg transition-all">
+                          <span className="text-slate-600 font-medium">Invoice</span>
+                          <button className="text-blue-655 hover:text-blue-600 font-bold flex items-center gap-1">👁️ View</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Action controls */}
+                <div className="flex flex-wrap gap-4 pt-5 border-t border-slate-200">
+                  <button className="px-6 py-3 bg-white hover:bg-red-50 text-red-505 border border-red-200 hover:border-red-300 rounded-xl text-xs font-black cursor-pointer transition-all shadow-sm">
+                    Cancel Booking
+                  </button>
+                  <button className="px-6 py-3 bg-white hover:bg-amber-50 text-amber-600 border border-amber-200 hover:border-amber-300 rounded-xl text-xs font-black cursor-pointer transition-all shadow-sm">
+                    Reschedule
+                  </button>
+                  {b.status !== 'completed' && b.status !== 'cancelled' && (
+                    <>
+                      {b.status !== 'in_progress' ? (
+                        <button 
+                          onClick={() => handleUpdateBookingStatus(b._id, 'in_progress')}
+                          className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black cursor-pointer transition-all ml-auto shadow-md"
+                        >
+                          Start Service
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => handleUpdateBookingStatus(b._id, 'completed')}
+                          className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black cursor-pointer transition-all ml-auto shadow-md"
+                        >
+                          Complete Service
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
           {activeTab === "bookings" && viewNewBooking && (
             <div className="space-y-6 text-slate-800 bg-white p-8 rounded-3xl shadow-sm border border-slate-100 pb-10 max-w-5xl mx-auto">
@@ -2975,7 +3085,7 @@ export default function FranchisePortal() {
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Customers</span>
-                    <p className="text-3xl font-black text-slate-800 mt-2">1,248</p>
+                    <p className="text-3xl font-black text-slate-800 mt-2">{customersList.length}</p>
                     <p className="text-xs text-emerald-600 font-bold mt-1.5 flex items-center gap-1">
                       <span>↑ 12.5%</span> <span className="text-slate-400 font-normal">vs last month</span>
                     </p>
@@ -2987,7 +3097,9 @@ export default function FranchisePortal() {
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Repeat Customers</span>
-                    <p className="text-3xl font-black text-slate-800 mt-2">856</p>
+                    <p className="text-3xl font-black text-slate-800 mt-2">
+                      {customersList.filter(c => (c.bookingsCount || 0) > 1 || c.type === "Repeat").length}
+                    </p>
                     <p className="text-xs text-emerald-600 font-bold mt-1.5 flex items-center gap-1">
                       <span>↑ 15.3%</span> <span className="text-slate-400 font-normal">vs last month</span>
                     </p>
@@ -2999,7 +3111,9 @@ export default function FranchisePortal() {
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">New Customers</span>
-                    <p className="text-3xl font-black text-slate-800 mt-2">392</p>
+                    <p className="text-3xl font-black text-slate-800 mt-2">
+                      {customersList.filter(c => (c.bookingsCount || 0) <= 1 && c.type !== "Repeat").length}
+                    </p>
                     <p className="text-xs text-emerald-600 font-bold mt-1.5 flex items-center gap-1">
                       <span>↑ 8.7%</span> <span className="text-slate-400 font-normal">vs last month</span>
                     </p>
@@ -3164,7 +3278,7 @@ export default function FranchisePortal() {
                 
                 {/* Pagination */}
                 <div className="bg-slate-50/50 px-6 py-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                  <p>Showing 1 to {customersList.length} of 1,248 customers</p>
+                  <p>Showing 1 to {customersList.length} of {customersList.length} customers</p>
                   <div className="flex items-center gap-1">
                     <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer">Previous</button>
                     <button className="p-1 px-2.5 bg-blue-600 text-white border border-blue-600 rounded-md font-extrabold shadow-sm">1</button>
@@ -3180,64 +3294,178 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "vehicles" && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Header */}
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Vehicle Management</h2>
-                  <p className="text-xs text-slate-400 mt-1">Manage all vehicles registered with your franchise.</p>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Vehicle Management</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Vehicle List</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Vehicle Management</h2>
+                  <p className="text-xs text-slate-505 mt-1">Manage all vehicles registered with your franchise.</p>
                 </div>
                 <div className="flex gap-3">
-                  <button className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700/60 rounded-xl text-xs text-slate-350">Export 📤</button>
-                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">+ Add Vehicle</button>
+                  <button className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    <span>📤</span> Export
+                  </button>
+                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    <span>➕</span> Add Vehicle
+                  </button>
                 </div>
               </div>
 
               {/* Stats overview row */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Vehicles</span>
-                  <p className="text-3xl font-extrabold text-white mt-1.5">128</p>
-                  <p className="text-[10px] text-slate-400 mt-1">All registered vehicles</p>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Vehicles</span>
+                    <p className="text-2xl font-black text-slate-800 mt-1.5">128</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">All registered vehicles</p>
+                  </div>
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-650 text-lg">
+                    🚙
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Active Vehicles</span>
-                  <p className="text-3xl font-extrabold text-emerald-400 mt-1.5">104</p>
-                  <p className="text-[10px] text-slate-400 mt-1">Currently active</p>
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Vehicles</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">104</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">Currently active</p>
+                  </div>
+                  <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-lg">
+                    🟢
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Inactive Vehicles</span>
-                  <p className="text-3xl font-extrabold text-slate-400 mt-1.5">16</p>
-                  <p className="text-[10px] text-slate-400 mt-1">Not used recently</p>
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Inactive Vehicles</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">16</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">Not used recently</p>
+                  </div>
+                  <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-lg">
+                    🟡
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">This Month Added</span>
-                  <p className="text-3xl font-extrabold text-blue-400 mt-1.5">8</p>
-                  <p className="text-[10px] text-slate-400 mt-1">New vehicles added</p>
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">This Month Added</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">8</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">New vehicles added</p>
+                  </div>
+                  <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 text-lg">
+                    ✨
+                  </div>
                 </div>
+              </div>
+
+              {/* Filter controls row */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-3xl border border-slate-150 shadow-sm">
+                <div className="flex flex-wrap items-center gap-3 flex-1">
+                  <div className="relative min-w-[280px]">
+                    <input 
+                      type="text" 
+                      placeholder="Search by vehicle number, brand or model..."
+                      value={vehicleFilter}
+                      onChange={(e) => setVehicleFilter(e.target.value)}
+                      className="w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                  </div>
+                  <select className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs cursor-pointer">
+                    <option value="">All Brands</option>
+                    <option value="toyota">Toyota</option>
+                    <option value="honda">Honda</option>
+                    <option value="hyundai">Hyundai</option>
+                    <option value="mahindra">Mahindra</option>
+                  </select>
+                  <select className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs cursor-pointer">
+                    <option value="">All Types</option>
+                    <option value="suv">SUV</option>
+                    <option value="sedan">Sedan</option>
+                    <option value="hatchback">Hatchback</option>
+                  </select>
+                  <select className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs cursor-pointer">
+                    <option value="">Status: All</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+                <button className="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                  <span>⚙️</span> Filters
+                </button>
               </div>
 
               {/* Grid cards list */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                  { plate: 'UP16AB1234', brand: 'Toyota Fortuner', type: 'SUV', color: 'White', fuel: 'Diesel', status: 'Active' },
-                  { plate: 'UP14CD5678', brand: 'Honda City', type: 'Sedan', color: 'Blue', fuel: 'Petrol', status: 'Active' },
-                  { plate: 'UP16EF9012', brand: 'Hyundai Creta', type: 'SUV', color: 'White', fuel: 'Diesel', status: 'Active' },
-                  { plate: 'UP14GH3456', brand: 'Mahindra Thar', type: 'SUV', color: 'Black', fuel: 'Diesel', status: 'Active' },
-                ].map((v, idx) => (
-                  <div key={idx} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-xs font-bold text-blue-500">{v.plate}</span>
-                      <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-450 rounded-full text-[9px] font-bold uppercase">{v.status}</span>
+                  { plate: 'UP16AB1234', brand: 'Toyota Fortuner', type: 'SUV', color: 'White', status: 'Active' },
+                  { plate: 'UP14CD5678', brand: 'Honda City', type: 'Sedan', color: 'Blue', status: 'Active' },
+                  { plate: 'UP16EF9012', brand: 'Hyundai Creta', type: 'SUV', color: 'White', status: 'Active' },
+                  { plate: 'UP14GH3456', brand: 'Mahindra Thar', type: 'SUV', color: 'Black', status: 'Active' },
+                  { plate: 'UP16KL1122', brand: 'Skoda Slavia', type: 'Sedan', color: 'Silver', status: 'Active' },
+                  { plate: 'UP14MN7788', brand: 'Maruti Suzuki Swift', type: 'Hatchback', color: 'Red', status: 'Inactive' },
+                  { plate: 'UP16OP3344', brand: 'Volkswagen Virtus', type: 'Sedan', color: 'Blue', status: 'Inactive' },
+                  { plate: 'UP14QR5566', brand: 'Tata Altroz', type: 'Hatchback', color: 'White', status: 'Inactive' },
+                ]
+                .filter(v => {
+                  if (vehicleFilter) {
+                    const searchStr = vehicleFilter.toLowerCase();
+                    return v.brand.toLowerCase().includes(searchStr) || v.plate.toLowerCase().includes(searchStr);
+                  }
+                  return true;
+                })
+                .map((v, idx) => (
+                  <div key={idx} className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between hover:border-blue-200 transition-colors">
+                    <div>
+                      {/* Card Header */}
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-xs font-extrabold text-slate-800">{v.plate}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
+                            v.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                          }`}>{v.status}</span>
+                          <button className="text-slate-400 hover:text-slate-600 text-xs">⋮</button>
+                        </div>
+                      </div>
+
+                      {/* Mock vehicle image */}
+                      <div className="h-28 w-full bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-sm">
+                        🚘
+                      </div>
+
+                      <p className="text-sm font-black text-slate-800">{v.brand}</p>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[10px] text-slate-455 font-bold">
+                        <span className="flex items-center gap-1">🚙 {v.type}</span>
+                        <span className="flex items-center gap-1">⚪ {v.color}</span>
+                      </div>
                     </div>
-                    <p className="text-sm font-black text-white">{v.brand}</p>
-                    <p className="text-xs text-slate-400 mt-1">{v.type} • {v.color} • {v.fuel}</p>
-                    <div className="flex gap-2.5 mt-4">
-                      <button className="flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all">Edit</button>
-                      <button className="flex-1 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold transition-all">View Details</button>
+
+                    <div className="flex gap-2.5 mt-5 pt-3 border-t border-slate-100">
+                      <button className="flex-1 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1">
+                        ✏️ Edit
+                      </button>
+                      <button className="flex-1 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1">
+                        👁️ View Details
+                      </button>
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Bottom Pagination */}
+              <div className="bg-white rounded-3xl border border-slate-150 p-4 shadow-sm flex items-center justify-between text-xs text-slate-500 mt-6">
+                <p>Showing 1 to 8 of 128 vehicles</p>
+                <div className="flex items-center gap-1">
+                  <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-650 hover:bg-slate-50 cursor-pointer">Previous</button>
+                  <button className="p-1 px-2.5 bg-blue-600 text-white border border-blue-600 rounded-md font-extrabold shadow-sm">1</button>
+                  <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-650 hover:bg-slate-50 cursor-pointer">2</button>
+                  <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-650 hover:bg-slate-50 cursor-pointer">3</button>
+                  <span className="px-1 text-slate-400">...</span>
+                  <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-650 hover:bg-slate-50 cursor-pointer">16</button>
+                  <button className="p-1 px-2.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-650 hover:bg-slate-50 cursor-pointer">Next</button>
+                </div>
               </div>
             </div>
           )}

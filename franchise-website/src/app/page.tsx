@@ -2701,42 +2701,60 @@ export default function FranchisePortal() {
 
           {activeTab === "customers" && selectedCustomerId && (
             (() => {
-              const c = {
-                id: selectedCustomerId,
+              const c = (customersList || []).find(cust => cust._id === selectedCustomerId) || {
+                _id: selectedCustomerId,
                 name: 'Rahul Sharma',
+                email: 'rahul.sh.99@email.com',
                 phone: '+91 98765 43210',
-                email: 'rahulsharma@gmail.com',
                 address: 'Sector 62, Noida, Uttar Pradesh - 201301',
                 points: 760,
                 tier: 'Gold',
-                visits: 18,
-                spent: 28450
+                bookingsCount: 18,
+                totalAmount: 28450,
+                vehicle: 'Toyota Fortuner',
+                plateNumber: 'UP 16 AB 1234'
               };
 
+              // Look up all vehicles belonging to this customer
+              const customerVehicles = (vehiclesList || []).filter(v => v?.customerId === c._id);
+              const displayVehicles = customerVehicles.length > 0 ? customerVehicles : [
+                { brand: 'Toyota', model: 'Fortuner', plateNumber: 'UP 16 AB 1234', color: 'White', year: '2021' },
+                { brand: 'Honda', model: 'City', plateNumber: 'UP 14 CD 5678', color: 'Blue', year: '2019' }
+              ];
+
               return (
-                <div className="space-y-6 text-slate-100 pb-10">
+                <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
                   {/* Back Nav */}
                   <div className="flex items-center justify-between">
                     <button 
                       onClick={() => setSelectedCustomerId(null)}
-                      className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
+                      className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer transition-all bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-sm"
                     >
                       ← Back to Customer List
                     </button>
                     <div className="flex gap-3">
-                      <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                      <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm">
                         Edit Customer
                       </button>
-                      <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                      <a 
+                        href={`tel:${c.phone}`}
+                        className="px-4 py-2 bg-emerald-650 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                      >
                         📞 Call Customer
-                      </button>
+                      </a>
                     </div>
                   </div>
 
                   {/* Title Header */}
                   <div>
-                    <h2 className="text-xl font-bold text-white tracking-wide">Customer Profile</h2>
-                    <p className="text-xs text-slate-400 mt-1">Detailed insights and history of your customer.</p>
+                    {/* Breadcrumbs */}
+                    <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                      <span>Customer Management</span>
+                      <span className="text-slate-300">/</span>
+                      <span className="text-slate-600">Customer Profile</span>
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-900 tracking-wide">Customer Profile</h2>
+                    <p className="text-xs text-slate-505 mt-1">Detailed insights and history of your customer.</p>
                   </div>
 
                   {/* Split Layout */}
@@ -2744,63 +2762,66 @@ export default function FranchisePortal() {
                     {/* Left details pane */}
                     <div className="lg:col-span-2 space-y-6">
                       {/* Card 1: Basic Info */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <div className="flex gap-4 pb-4 border-b border-slate-800">
-                          <div className="w-14 h-14 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-lg">
-                            {c.name.charAt(0)}
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                        <div className="flex gap-4 pb-4 border-b border-slate-100">
+                          <div className="w-14 h-14 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg shadow-sm">
+                            {String(c.name || 'C').charAt(0)}
                           </div>
                           <div>
-                            <p className="text-base font-black text-white flex items-center gap-2">
-                              {c.name} <span className="px-1.5 py-0.5 bg-blue-600/10 text-blue-400 rounded text-[9px] font-bold">VIP</span>
+                            <p className="text-base font-black text-slate-800 flex items-center gap-2">
+                              {c.name} 
+                              <span className="px-1.5 py-0.5 bg-blue-50 text-blue-650 rounded text-[9px] font-black uppercase tracking-wider">VIP</span>
                             </p>
-                            <p className="text-xs text-slate-400 mt-1">📞 {c.phone}</p>
-                            <p className="text-xs text-slate-400 mt-0.5">✉️ {c.email}</p>
-                            <p className="text-xs text-slate-400 mt-1">📍 {c.address}</p>
+                            <p className="text-xs text-slate-505 mt-1.5 flex items-center gap-1"><span>📞</span> {c.phone}</p>
+                            <p className="text-xs text-slate-550 mt-0.5 flex items-center gap-1"><span>✉️</span> {c.email}</p>
+                            <p className="text-xs text-slate-550 mt-1 flex items-center gap-1"><span>📍</span> {c.address || 'Sector 62, Noida, Uttar Pradesh - 201301'}</p>
                           </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-y-4 pt-4 text-xs text-slate-400">
+                        <div className="grid grid-cols-2 gap-y-4 pt-4 text-xs text-slate-500">
                           <div>
-                            <p>Customer Type</p>
-                            <p className="text-white font-bold mt-1">VIP Partner</p>
+                            <p className="font-bold text-slate-400 uppercase tracking-wider text-[9px]">Customer Type</p>
+                            <p className="text-slate-800 font-black mt-1">VIP Partner</p>
                           </div>
                           <div>
-                            <p>Registration Date</p>
-                            <p className="text-white font-bold mt-1">12 Jan 2024</p>
+                            <p className="font-bold text-slate-400 uppercase tracking-wider text-[9px]">Registration Date</p>
+                            <p className="text-slate-800 font-black mt-1">12 Jan 2024</p>
                           </div>
                         </div>
                       </div>
 
                       {/* Card 2: Vehicles List */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
                         <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-sm font-bold text-white tracking-wide">Vehicles (2)</h3>
-                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">+ Add Vehicle</button>
+                          <h3 className="text-sm font-black text-slate-800 tracking-wide">Vehicles ({displayVehicles.length})</h3>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-850/60 flex items-center gap-3">
-                            <span className="text-xl">🚗</span>
-                            <div>
-                              <p className="text-xs font-bold text-white">Toyota Fortuner</p>
-                              <p className="text-[10px] text-blue-450 font-bold mt-0.5">UP 16 AB 1234</p>
-                              <p className="text-[9px] text-slate-500 mt-0.5">Color: White • Year: 2021</p>
+                          {displayVehicles.map((veh, idx) => (
+                            <div key={idx} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-150 flex items-center gap-3 shadow-sm">
+                              <span className="text-2xl">🚗</span>
+                              <div>
+                                <p className="text-xs font-bold text-slate-800">{veh.brand} {veh.model || ""}</p>
+                                <p className="text-[10px] text-blue-600 font-black mt-0.5">{veh.plateNumber}</p>
+                                <p className="text-[9px] text-slate-455 mt-0.5">Color: {veh.color || 'White'} • Year: {veh.year || '2021'}</p>
+                              </div>
                             </div>
-                          </div>
-                          <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-850/60 flex items-center gap-3">
-                            <span className="text-xl">🚗</span>
-                            <div>
-                              <p className="text-xs font-bold text-white">Honda City</p>
-                              <p className="text-[10px] text-blue-450 font-bold mt-0.5">UP 14 CD 5678</p>
-                              <p className="text-[9px] text-slate-500 mt-0.5">Color: Blue • Year: 2019</p>
-                            </div>
-                          </div>
+                          ))}
                         </div>
                       </div>
 
                       {/* Card 3: Recent Bookings */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
                         <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-sm font-bold text-white tracking-wide">Recent Bookings</h3>
-                          <button className="text-xs text-blue-500 hover:text-blue-400 font-bold">View All Bookings</button>
+                          <h3 className="text-sm font-black text-slate-800 tracking-wide">Recent Bookings</h3>
+                          <button 
+                            onClick={() => {
+                              setActiveTab("bookings");
+                              setBookingSearch(c.name);
+                              setBookingStatusFilter("all");
+                            }}
+                            className="text-xs text-blue-600 hover:text-blue-500 font-black cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-all"
+                          >
+                            View All Bookings
+                          </button>
                         </div>
                         <div className="space-y-3">
                           {[
@@ -2808,14 +2829,14 @@ export default function FranchisePortal() {
                             { id: 'GMF12345', srv: 'Interior Cleaning', date: '22 May 2025', amt: '₹850', status: 'Completed' },
                             { id: 'GMF12021', srv: 'Foam Wash', date: '15 May 2025', amt: '₹650', status: 'Completed' },
                           ].map((item, idx) => (
-                            <div key={idx} className="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-850/60 text-xs">
+                            <div key={idx} className="flex justify-between items-center p-3 bg-slate-50/50 rounded-xl border border-slate-150 text-xs shadow-sm">
                               <div>
-                                <p className="font-bold text-white">{item.srv} ({item.id})</p>
-                                <p className="text-[10px] text-slate-500 mt-0.5">Date: {item.date}</p>
+                                <p className="font-bold text-slate-800">{item.srv} ({item.id})</p>
+                                <p className="text-[10px] text-slate-455 mt-0.5">Date: {item.date}</p>
                               </div>
                               <div className="text-right">
-                                <p className="font-black text-emerald-450">{item.amt}</p>
-                                <span className="text-[9px] text-emerald-400 uppercase font-bold mt-0.5">{item.status}</span>
+                                <p className="font-black text-emerald-650">{item.amt}</p>
+                                <span className="text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-black uppercase tracking-wide mt-0.5 inline-block">{item.status}</span>
                               </div>
                             </div>
                           ))}
@@ -2826,37 +2847,37 @@ export default function FranchisePortal() {
                     {/* Right column pane */}
                     <div className="space-y-6">
                       {/* Customer Insights metrics */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Customer Insights</h3>
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                        <h3 className="text-sm font-black text-slate-800 tracking-wide mb-4">Customer Insights</h3>
                         <div className="space-y-4">
-                          <div className="flex items-center gap-3 p-3.5 bg-slate-900/40 rounded-xl border border-slate-850/60">
+                          <div className="flex items-center gap-3 p-3.5 bg-slate-50/50 rounded-2xl border border-slate-150 shadow-sm">
                             <span className="text-xl">💰</span>
                             <div>
-                              <p className="text-[10px] text-slate-450 uppercase font-bold">Lifetime Value</p>
-                              <p className="text-base font-black text-emerald-400 mt-0.5">₹{c.spent.toLocaleString()}</p>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Lifetime Value</p>
+                              <p className="text-base font-black text-emerald-655 mt-0.5">₹{(c.totalAmount || c.spent || 28450).toLocaleString()}</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3 p-3.5 bg-slate-900/40 rounded-xl border border-slate-850/60">
+                          <div className="flex items-center gap-3 p-3.5 bg-slate-50/50 rounded-2xl border border-slate-150 shadow-sm">
                             <span className="text-xl">📊</span>
                             <div>
-                              <p className="text-[10px] text-slate-450 uppercase font-bold">Visit Frequency</p>
-                              <p className="text-base font-black text-white mt-0.5">{c.visits} visits</p>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Visit Frequency</p>
+                              <p className="text-base font-black text-slate-800 mt-0.5">{(c.bookingsCount || c.visits || 18)} visits</p>
                             </div>
                           </div>
                         </div>
                       </div>
 
                       {/* Loyalty & Rewards details */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Loyalty & Rewards</h3>
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                        <h3 className="text-sm font-black text-slate-800 tracking-wide mb-4">Loyalty & Rewards</h3>
                         <div className="flex justify-between items-center">
                           <div>
-                            <p className="text-[10px] text-slate-500 uppercase font-bold">Loyalty Points</p>
-                            <p className="text-base font-black text-blue-450 mt-1">{c.points} Points</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Loyalty Points</p>
+                            <p className="text-base font-black text-blue-600 mt-1">{(c.points || 760)} Points</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-[10px] text-slate-500 uppercase font-bold">Current Tier</p>
-                            <p className="text-xs font-black text-amber-500 mt-1">⭐ {c.tier}</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Current Tier</p>
+                            <p className="text-xs font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded mt-1 inline-block">⭐ {c.tier || 'Gold'}</p>
                           </div>
                         </div>
                       </div>

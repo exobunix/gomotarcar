@@ -3534,18 +3534,113 @@ export default function FranchisePortal() {
 
           {activeTab === "staff" && selectedStaffId && (
             (() => {
-              const st = {
-                id: selectedStaffId,
-                name: 'Amit Verma',
-                role: 'Supervisor',
-                dep: 'Operations',
-                phone: '+91 98765 43210',
-                email: 'amit.verma@email.com',
-                experience: '5 Years',
-                rating: '4.7',
-                attendance: '84.6%',
-                salary: '₹20,000'
+              const staffProfiles: Record<string, any> = {
+                'STF001': {
+                  id: 'STF001',
+                  name: 'Amit Verma',
+                  role: 'Supervisor',
+                  dep: 'Operations',
+                  phone: '+91 98765 43210',
+                  email: 'amit.verma@email.com',
+                  experience: '5 Years',
+                  rating: '4.7',
+                  reviews: 28,
+                  dob: '12 Aug 1993',
+                  gender: 'Male',
+                  address: 'Sector 62, Noida, Uttar Pradesh - 201301',
+                  emergency: 'Pooja Verma (Wife) • +91 98765 43211',
+                  blood: 'B+',
+                  nationality: 'Indian',
+                  aadhaar: 'XXXX XXXX 1234',
+                  pan: 'ABCDE1234F',
+                  joinDate: '15 Jan 2023',
+                  reportingTo: 'Vikram Singh',
+                  timing: '09:00 AM - 06:00 PM',
+                  empType: 'Full Time',
+                  salType: 'Monthly',
+                  basicSalary: '₹20,000',
+                  workingDays: '26 Days / Month',
+                  avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150',
+                  skills: ['Team Management', 'Customer Handling', 'Quality Check', 'Car Wash Expert', 'Staff Training'],
+                  attendanceOverview: { total: 26, present: 22, absent: 2, leave: 2, rate: '84.6' },
+                  earnings: { month: '₹22,450', lastMonth: '₹21,000', year: '₹1,28,450', total: '₹2,85,650' },
+                  jobs: [
+                    { id: 'JOB12345', cust: 'Rahul Sharma', svc: 'Exterior Wash', veh: 'UP16AB1234', dt: '26 May 2025, 10:00 AM', status: 'Ongoing', badge: 'bg-blue-50 text-blue-600' },
+                    { id: 'JOB12344', cust: 'Neha Gupta', svc: 'Interior Cleaning', veh: 'UP14CD5678', dt: '26 May 2025, 12:30 PM', status: 'Upcoming', badge: 'bg-amber-50 text-amber-600' },
+                    { id: 'JOB12343', cust: 'Amitabh Singh', svc: 'Steam Wash', veh: 'UP16EF9012', dt: '27 May 2025, 11:00 AM', status: 'Upcoming', badge: 'bg-amber-50 text-amber-600' },
+                    { id: 'JOB12342', cust: 'Vikram Patel', svc: 'Deep Cleaning', veh: 'UP14GH3456', dt: '27 May 2025, 02:30 PM', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
+                    { id: 'JOB12341', cust: 'Anjali Mehta', svc: 'Foam Wash', veh: 'UP16KL1122', dt: '25 May 2025, 09:30 AM', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
+                  ]
+                },
+                'STF002': {
+                  id: 'STF002',
+                  name: 'Rahul Sharma',
+                  role: 'Technician',
+                  dep: 'Cleaning',
+                  phone: '+91 91234 56789',
+                  email: 'rahul.sharma@email.com',
+                  experience: '3 Years',
+                  rating: '4.5',
+                  reviews: 19,
+                  dob: '05 Mar 1995',
+                  gender: 'Male',
+                  address: 'Sector 45, Noida, Uttar Pradesh - 201303',
+                  emergency: 'Sushila Sharma (Mother) • +91 91234 56780',
+                  blood: 'O+',
+                  nationality: 'Indian',
+                  aadhaar: 'XXXX XXXX 5678',
+                  pan: 'FGHIJ5678K',
+                  joinDate: '10 Feb 2024',
+                  reportingTo: 'Amit Verma',
+                  timing: '09:00 AM - 06:00 PM',
+                  empType: 'Full Time',
+                  salType: 'Monthly',
+                  basicSalary: '₹15,000',
+                  workingDays: '26 Days / Month',
+                  avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150',
+                  skills: ['Exterior foam wash', 'Tyre & Rim cleaning', 'Vacuum cleaning', 'Car Wash Expert'],
+                  attendanceOverview: { total: 26, present: 24, absent: 1, leave: 1, rate: '92.3' },
+                  earnings: { month: '₹16,500', lastMonth: '₹15,200', year: '₹95,450', total: '₹1,95,650' },
+                  jobs: [
+                    { id: 'JOB12340', cust: 'Rohit Kumar', svc: 'Foam Wash', veh: 'UP16KL1122', dt: '25 May 2025, 11:30 AM', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' }
+                  ]
+                },
+                'STF003': {
+                  id: 'STF003',
+                  name: 'Vikram Singh',
+                  role: 'Cleaner',
+                  dep: 'Cleaning',
+                  phone: '+91 87654 32109',
+                  email: 'vikram.singh@email.com',
+                  experience: '2 Years',
+                  rating: '4.2',
+                  reviews: 12,
+                  dob: '20 Jul 1997',
+                  gender: 'Male',
+                  address: 'Sector 12, Noida, Uttar Pradesh - 201301',
+                  emergency: 'Karan Singh (Brother) • +91 87654 32100',
+                  blood: 'A+',
+                  nationality: 'Indian',
+                  aadhaar: 'XXXX XXXX 9012',
+                  pan: 'LMNOP9012Q',
+                  joinDate: '01 Mar 2024',
+                  reportingTo: 'Amit Verma',
+                  timing: '09:00 AM - 06:00 PM',
+                  empType: 'Full Time',
+                  salType: 'Monthly',
+                  basicSalary: '₹12,000',
+                  workingDays: '26 Days / Month',
+                  avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=150',
+                  skills: ['Interior cleaning', 'Dashboard polishing', 'Helper'],
+                  attendanceOverview: { total: 26, present: 20, absent: 4, leave: 2, rate: '76.9' },
+                  earnings: { month: '₹13,100', lastMonth: '₹12,200', year: '₹75,450', total: '₹1,50,650' },
+                  jobs: [
+                    { id: 'JOB12339', cust: 'Karan Malhotra', svc: 'Interior Cleaning', veh: 'UP14CD5678', dt: '25 May 2025, 03:00 PM', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' }
+                  ]
+                }
               };
+
+              const st = staffProfiles[selectedStaffId] || staffProfiles['STF001'];
 
               return (
                 <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
@@ -3557,7 +3652,7 @@ export default function FranchisePortal() {
                         <span className="text-slate-300">/</span>
                         <span className="hover:text-slate-650 cursor-pointer" onClick={() => setSelectedStaffId(null)}>Staff List</span>
                         <span className="text-slate-300">/</span>
-                        <span className="text-slate-600">Amit Verma</span>
+                        <span className="text-slate-600">{st.name}</span>
                       </div>
                     </div>
                     <div className="flex gap-3">
@@ -3576,8 +3671,8 @@ export default function FranchisePortal() {
                     <div className="lg:col-span-2 flex gap-5 items-center">
                       <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-slate-100 shadow-sm flex items-center justify-center bg-slate-100">
                         <img 
-                          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150" 
-                          alt="Amit Verma"
+                          src={st.avatarUrl} 
+                          alt={st.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -3587,13 +3682,13 @@ export default function FranchisePortal() {
                           <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black uppercase">Active</span>
                         </div>
                         <div className="flex items-center gap-2 text-xs text-slate-500">
-                          <span className="font-bold text-slate-800">Supervisor</span>
+                          <span className="font-bold text-slate-800">{st.role}</span>
                           <span className="text-slate-300">|</span>
-                          <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-bold">STF001</span>
+                          <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-bold">{st.id}</span>
                         </div>
-                        <p className="text-xs text-slate-455">📞 +91 98765 43210</p>
-                        <p className="text-xs text-slate-455">✉️ amit.verma@email.com</p>
-                        <p className="text-xs text-slate-455">📍 Noida, Uttar Pradesh - 201301</p>
+                        <p className="text-xs text-slate-455">📞 {st.phone}</p>
+                        <p className="text-xs text-slate-455">✉️ {st.email}</p>
+                        <p className="text-xs text-slate-455">📍 {st.address}</p>
                       </div>
                     </div>
 
@@ -3605,15 +3700,15 @@ export default function FranchisePortal() {
                       </div>
                       <div>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Join Date</p>
-                        <p className="text-slate-800 font-black mt-1">15 Jan 2023</p>
+                        <p className="text-slate-800 font-black mt-1">{st.joinDate}</p>
                       </div>
                       <div>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Experience</p>
-                        <p className="text-slate-800 font-black mt-1">5 Years</p>
+                        <p className="text-slate-800 font-black mt-1">{st.experience}</p>
                       </div>
                       <div>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Reporting To</p>
-                        <p className="text-slate-800 font-black mt-1">Vikram Singh</p>
+                        <p className="text-slate-800 font-black mt-1">{st.reportingTo}</p>
                       </div>
                     </div>
 
@@ -3625,11 +3720,11 @@ export default function FranchisePortal() {
                           <path className="text-yellow-500" strokeWidth="3" strokeDasharray="94, 100" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                         </svg>
                         <div className="absolute flex flex-col items-center justify-center">
-                          <p className="text-base font-black text-slate-850">4.7⭐</p>
+                          <p className="text-base font-black text-slate-850">{st.rating}⭐</p>
                           <p className="text-[8px] text-slate-400 uppercase font-bold">Rating</p>
                         </div>
                       </div>
-                      <p className="text-[10px] text-slate-400 mt-2 font-medium">Based on 28 reviews</p>
+                      <p className="text-[10px] text-slate-400 mt-2 font-medium">Based on {st.reviews} reviews</p>
                     </div>
                   </div>
 
@@ -3649,22 +3744,22 @@ export default function FranchisePortal() {
                       {/* Personal Information Card */}
                       <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
                         <h3 className="text-sm font-black text-slate-900 tracking-wide mb-4 pb-2 border-b border-slate-100">Personal Information</h3>
-                        <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-xs text-slate-500">
+                        <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-xs text-slate-505">
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase font-bold">Full Name</p>
                             <p className="text-slate-850 font-bold mt-0.5">{st.name}</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase font-bold">Date of Birth</p>
-                            <p className="text-slate-850 font-bold mt-0.5">12 Aug 1993</p>
+                            <p className="text-slate-850 font-bold mt-0.5">{st.dob}</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase font-bold">Gender</p>
-                            <p className="text-slate-850 font-bold mt-0.5">Male</p>
+                            <p className="text-slate-850 font-bold mt-0.5">{st.gender}</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase font-bold">Mobile Number</p>
-                            <p className="text-slate-850 font-bold mt-0.5">+91 98765 43210</p>
+                            <p className="text-slate-850 font-bold mt-0.5">{st.phone}</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase font-bold">Email Address</p>
@@ -3672,27 +3767,27 @@ export default function FranchisePortal() {
                           </div>
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase font-bold">Address</p>
-                            <p className="text-slate-850 font-bold mt-0.5">Sector 62, Noida, Uttar Pradesh - 201301</p>
+                            <p className="text-slate-850 font-bold mt-0.5">{st.address}</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase font-bold">Emergency Contact</p>
-                            <p className="text-slate-850 font-bold mt-0.5">Pooja Verma (Wife) • +91 98765 43211</p>
+                            <p className="text-slate-850 font-bold mt-0.5">{st.emergency}</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase font-bold">Blood Group</p>
-                            <p className="text-slate-850 font-bold mt-0.5">B+</p>
+                            <p className="text-slate-850 font-bold mt-0.5">{st.blood}</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase font-bold">Nationality</p>
-                            <p className="text-slate-850 font-bold mt-0.5">Indian</p>
+                            <p className="text-slate-850 font-bold mt-0.5">{st.nationality}</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase font-bold">Aadhaar Number</p>
-                            <p className="text-slate-850 font-bold mt-0.5">XXXX XXXX 1234</p>
+                            <p className="text-slate-850 font-bold mt-0.5">{st.aadhaar}</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-slate-400 uppercase font-bold">PAN Number</p>
-                            <p className="text-slate-850 font-bold mt-0.5">ABCDE1234F</p>
+                            <p className="text-slate-850 font-bold mt-0.5">{st.pan}</p>
                           </div>
                         </div>
                       </div>
@@ -3704,19 +3799,19 @@ export default function FranchisePortal() {
                           <div className="md:col-span-4 grid grid-cols-4 gap-4 text-center">
                             <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm">
                               <span className="text-[9px] text-slate-400 uppercase font-bold">Total Days</span>
-                              <p className="text-xl font-black text-slate-800 mt-1">26</p>
+                              <p className="text-xl font-black text-slate-800 mt-1">{st.attendanceOverview.total}</p>
                             </div>
                             <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm">
                               <span className="text-[9px] text-slate-400 uppercase font-bold">Present</span>
-                              <p className="text-xl font-black text-emerald-600 mt-1">22</p>
+                              <p className="text-xl font-black text-emerald-600 mt-1">{st.attendanceOverview.present}</p>
                             </div>
                             <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm">
                               <span className="text-[9px] text-slate-400 uppercase font-bold">Absent</span>
-                              <p className="text-xl font-black text-rose-500 mt-1">2</p>
+                              <p className="text-xl font-black text-rose-500 mt-1">{st.attendanceOverview.absent}</p>
                             </div>
                             <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm">
                               <span className="text-[9px] text-slate-400 uppercase font-bold">On Leave</span>
-                              <p className="text-xl font-black text-amber-500 mt-1">2</p>
+                              <p className="text-xl font-black text-amber-500 mt-1">{st.attendanceOverview.leave}</p>
                             </div>
                           </div>
                           
@@ -3725,10 +3820,10 @@ export default function FranchisePortal() {
                             <div className="relative w-16 h-16 flex items-center justify-center">
                               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                                 <path className="text-slate-100" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                <path className="text-emerald-500" strokeWidth="3" strokeDasharray="84.6, 100" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path className="text-emerald-500" strokeWidth="3" strokeDasharray={`${st.attendanceOverview.rate}, 100`} strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                               </svg>
                               <div className="absolute">
-                                <p className="text-xs font-black text-slate-800">84.6%</p>
+                                <p className="text-xs font-black text-slate-800">{st.attendanceOverview.rate}%</p>
                               </div>
                             </div>
                             <p className="text-[8px] text-slate-400 uppercase font-bold mt-1">Attendance</p>
@@ -3745,35 +3840,35 @@ export default function FranchisePortal() {
                         <div className="space-y-3.5">
                           <div className="flex justify-between border-b border-slate-50 pb-1.5">
                             <span>Employee ID</span>
-                            <span className="text-slate-850 font-bold">STF001</span>
+                            <span className="text-slate-850 font-bold">{st.id}</span>
                           </div>
                           <div className="flex justify-between border-b border-slate-50 pb-1.5">
                             <span>Designation</span>
-                            <span className="text-slate-850 font-bold">Supervisor</span>
+                            <span className="text-slate-850 font-bold">{st.role}</span>
                           </div>
                           <div className="flex justify-between border-b border-slate-50 pb-1.5">
                             <span>Department</span>
-                            <span className="text-slate-850 font-bold">Operations</span>
+                            <span className="text-slate-850 font-bold">{st.dep}</span>
                           </div>
                           <div className="flex justify-between border-b border-slate-50 pb-1.5">
                             <span>Shift Timing</span>
-                            <span className="text-slate-850 font-bold">09:00 AM - 06:00 PM</span>
+                            <span className="text-slate-850 font-bold">{st.timing}</span>
                           </div>
                           <div className="flex justify-between border-b border-slate-50 pb-1.5">
                             <span>Employment Type</span>
-                            <span className="text-slate-850 font-bold">Full Time</span>
+                            <span className="text-slate-850 font-bold">{st.empType}</span>
                           </div>
                           <div className="flex justify-between border-b border-slate-50 pb-1.5">
                             <span>Salary Type</span>
-                            <span className="text-slate-850 font-bold">Monthly</span>
+                            <span className="text-slate-850 font-bold">{st.salType}</span>
                           </div>
                           <div className="flex justify-between border-b border-slate-50 pb-1.5">
                             <span>Basic Salary</span>
-                            <span className="text-emerald-600 font-black">₹20,000</span>
+                            <span className="text-emerald-600 font-black">{st.basicSalary}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>Working Days</span>
-                            <span className="text-slate-850 font-bold">26 Days / Month</span>
+                            <span className="text-slate-850 font-bold">{st.workingDays}</span>
                           </div>
                         </div>
                       </div>
@@ -3782,11 +3877,9 @@ export default function FranchisePortal() {
                       <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm text-xs text-slate-500">
                         <h3 className="text-sm font-black text-slate-900 tracking-wide mb-4 pb-2 border-b border-slate-100">Skills</h3>
                         <div className="flex flex-wrap gap-2">
-                          <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-xl font-bold">Team Management</span>
-                          <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-xl font-bold">Customer Handling</span>
-                          <span className="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-xl font-bold">Quality Check</span>
-                          <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-xl font-bold">Car Wash Expert</span>
-                          <span className="px-2.5 py-1 bg-purple-50 text-purple-650 rounded-xl font-bold">Staff Training</span>
+                          {st.skills.map((skill: string, sIdx: number) => (
+                            <span key={sIdx} className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-xl font-bold">{skill}</span>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -3798,24 +3891,24 @@ export default function FranchisePortal() {
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
                       <div className="p-4 bg-slate-50/50 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
                         <div>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase">This Month (May)</p>
-                          <p className="text-lg font-black text-slate-850 mt-1">₹22,450</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">This Month</p>
+                          <p className="text-lg font-black text-slate-855 mt-1">{st.earnings.month}</p>
                           <button className="text-[10px] text-blue-600 font-bold hover:text-blue-500 mt-2 block">View Details</button>
                         </div>
                         <span className="text-2xl">💰</span>
                       </div>
                       <div className="p-4 bg-slate-50/50 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
                         <div>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase">Last Month (Apr)</p>
-                          <p className="text-lg font-black text-slate-850 mt-1">₹21,000</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">Last Month</p>
+                          <p className="text-lg font-black text-slate-855 mt-1">{st.earnings.lastMonth}</p>
                           <button className="text-[10px] text-blue-600 font-bold hover:text-blue-500 mt-2 block">View Details</button>
                         </div>
                         <span className="text-2xl">💵</span>
                       </div>
                       <div className="p-4 bg-slate-50/50 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
                         <div>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase">This Year (2025)</p>
-                          <p className="text-lg font-black text-slate-850 mt-1">₹1,28,450</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">This Year</p>
+                          <p className="text-lg font-black text-slate-855 mt-1">{st.earnings.year}</p>
                           <button className="text-[10px] text-blue-600 font-bold hover:text-blue-500 mt-2 block">View Details</button>
                         </div>
                         <span className="text-2xl">📈</span>
@@ -3823,7 +3916,7 @@ export default function FranchisePortal() {
                       <div className="p-4 bg-slate-50/50 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
                         <div>
                           <p className="text-[10px] text-slate-400 font-bold uppercase">Total Earnings</p>
-                          <p className="text-lg font-black text-slate-850 mt-1">₹2,85,650</p>
+                          <p className="text-lg font-black text-slate-855 mt-1">{st.earnings.total}</p>
                           <button className="text-[10px] text-blue-600 font-bold hover:text-blue-500 mt-2 block">View Details</button>
                         </div>
                         <span className="text-2xl">🏦</span>
@@ -3850,17 +3943,11 @@ export default function FranchisePortal() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50 text-slate-700">
-                          {[
-                            { id: 'JOB12345', cust: 'Rahul Sharma', svc: 'Exterior Wash', veh: 'UP16AB1234', dt: '26 May 2025, 10:00 AM', status: 'Ongoing', badge: 'bg-blue-50 text-blue-600' },
-                            { id: 'JOB12344', cust: 'Neha Gupta', svc: 'Interior Cleaning', veh: 'UP14CD5678', dt: '26 May 2025, 12:30 PM', status: 'Upcoming', badge: 'bg-amber-50 text-amber-600' },
-                            { id: 'JOB12343', cust: 'Amitabh Singh', svc: 'Steam Wash', veh: 'UP16EF9012', dt: '27 May 2025, 11:00 AM', status: 'Upcoming', badge: 'bg-amber-50 text-amber-600' },
-                            { id: 'JOB12342', cust: 'Vikram Patel', svc: 'Deep Cleaning', veh: 'UP14GH3456', dt: '27 May 2025, 02:30 PM', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
-                            { id: 'JOB12341', cust: 'Anjali Mehta', svc: 'Foam Wash', veh: 'UP16KL1122', dt: '25 May 2025, 09:30 AM', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
-                          ].map((job, idx) => (
-                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                          {st.jobs.map((job: any, jIdx: number) => (
+                            <tr key={jIdx} className="hover:bg-slate-50/50 transition-colors">
                               <td className="py-3.5 px-4 font-bold text-blue-600">{job.id}</td>
                               <td className="py-3.5 px-4 font-bold text-slate-800">{job.cust}</td>
-                              <td className="py-3.5 px-4 font-medium text-slate-600">{job.svc}</td>
+                              <td className="py-3.5 px-4 font-medium text-slate-650">{job.svc}</td>
                               <td className="py-3.5 px-4 font-semibold text-slate-700">{job.veh}</td>
                               <td className="py-3.5 px-4 text-slate-500 font-semibold">{job.dt}</td>
                               <td className="py-3.5 px-4 text-center">
@@ -3871,7 +3958,7 @@ export default function FranchisePortal() {
                         </tbody>
                       </table>
                     </div>
-                    <button className="w-full text-center py-2.5 mt-4 border-t border-slate-100 hover:bg-slate-50 text-[11px] text-blue-650 font-bold flex items-center justify-center gap-1">
+                    <button className="w-full text-center py-2.5 mt-4 border-t border-slate-100 hover:bg-slate-50 text-[11px] text-blue-655 font-bold flex items-center justify-center gap-1">
                       Show More Jobs <span>∨</span>
                     </button>
                   </div>

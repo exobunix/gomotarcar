@@ -34,7 +34,7 @@ const SplashScreen = ({ navigation }: any) => {
             <Text style={styles.logoText}>G</Text>
           </View>
           <View style={styles.logoInfo}>
-            <Text style={styles.brandTitle}>Go<Text style={styles.blueText}>Motor</Text>Car</Text>
+            <Text style={styles.brandTitle}>Go<Text style={styles.blueText}>Motar</Text>Car</Text>
             <Text style={styles.brandSub}>ANYTHING & EVERYTHING FOR YOUR CAR</Text>
           </View>
         </View>

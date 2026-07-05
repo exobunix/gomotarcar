@@ -17,7 +17,7 @@ router.post('/', authenticate, validate(createVehicleSchema), vehicleController.
 router.get('/customer/:customerId', authenticate, validate(customerIdParamSchema, 'params'), vehicleController.listByCustomer);
 
 // Protected routes (admin/staff)
-router.get('/', authenticate, authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS), validate(listVehiclesSchema, 'query'), vehicleController.list);
+router.get('/', authenticate, authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS, roles.FRANCHISE), validate(listVehiclesSchema, 'query'), vehicleController.list);
 router.get('/stats', authenticate, authorize(roles.SUPER_ADMIN, roles.MANAGER), vehicleController.getStats);
 router.get('/number/:vehicleNumber', authenticate, vehicleController.getByNumber);
 router.get('/:id', authenticate, validate(vehicleIdParamSchema, 'params'), vehicleController.getById);

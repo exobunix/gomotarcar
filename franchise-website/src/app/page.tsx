@@ -62,8 +62,89 @@ export default function FranchisePortal() {
     pendingBookings: 0,
     completedBookings: 0,
     activeBookings: 0,
+    bookingsGrowth: 20,
+    servicesGrowth: 12,
+    monthlyRevenue: 245680,
+    revenueGrowth: 18,
+    pendingPayments: 46679,
+    paymentGrowth: 8,
+    staffPresent: 12,
+    totalStaff: 15,
+    attendancePercentage: 80,
+    newCustomers: 36,
+    customerGrowth: 15,
+    rating: 4.7,
+    ratingGrowth: 0.3,
+    pendingComplaints: 5,
+    complaintReduction: 10,
   });
-  const [bookings, setBookings] = useState<any[]>([]);
+  const defaultBookings = [
+    {
+      _id: "default_1",
+      bookingId: "GMF12580",
+      slotDate: "2026-05-26",
+      slotTime: "10:00 AM",
+      customerName: "Rahul Sharma",
+      phone: "+91 98765 43210",
+      address: "Sector 62, Noida, Uttar Pradesh - 201301",
+      vehicleNumber: "Toyota Fortuner",
+      plateNumber: "UP 16 AB 1234",
+      color: "White",
+      serviceName: "Steam Car Wash",
+      totalAmount: 1250,
+      status: "booked",
+      paymentStatus: "paid"
+    },
+    {
+      _id: "default_2",
+      bookingId: "GMF12579",
+      slotDate: "2026-05-26",
+      slotTime: "11:30 AM",
+      customerName: "Neha Gupta",
+      phone: "+91 91234 56789",
+      address: "Gaur City 2, Noida, Uttar Pradesh - 201009",
+      vehicleNumber: "Honda City",
+      plateNumber: "UP 14 CD 5678",
+      color: "Blue",
+      serviceName: "Interior Cleaning",
+      totalAmount: 850,
+      status: "booked",
+      paymentStatus: "pending"
+    },
+    {
+      _id: "default_3",
+      bookingId: "GMF12578",
+      slotDate: "2026-05-26",
+      slotTime: "01:00 PM",
+      customerName: "Amit Verma",
+      phone: "+91 99887 66554",
+      address: "Wave City, Ghaziabad, Uttar Pradesh - 201015",
+      vehicleNumber: "Hyundai Creta",
+      plateNumber: "UP 14 EF 9012",
+      color: "Silver",
+      serviceName: "Foam Wash",
+      totalAmount: 650,
+      status: "booked",
+      paymentStatus: "paid"
+    },
+    {
+      _id: "default_4",
+      bookingId: "GMF12577",
+      slotDate: "2026-05-26",
+      slotTime: "02:30 PM",
+      customerName: "Karan Singh",
+      phone: "+91 88990 11223",
+      address: "Indirapuram, Ghaziabad, Uttar Pradesh - 201014",
+      vehicleNumber: "Mahindra Thar",
+      plateNumber: "UP 14 GH 3456",
+      color: "Black",
+      serviceName: "Ceramic Coating",
+      totalAmount: 3500,
+      status: "booked",
+      paymentStatus: "pending"
+    }
+  ];
+  const [bookings, setBookings] = useState<any[]>(defaultBookings);
   const [staffList, setStaffList] = useState<any[]>([
     { _id: "1", firstName: "Rajesh", lastName: "Kumar", role: "Mechanic", phone: "+91-9876543210", isActive: true },
     { _id: "2", firstName: "Suresh", lastName: "Patel", role: "Electrician", phone: "+91-9876543211", isActive: true },
@@ -80,6 +161,24 @@ export default function FranchisePortal() {
   const [viewPricingManagement, setViewPricingManagement] = useState(false);
   const [viewNewBooking, setViewNewBooking] = useState(false);
   const [viewProgressTracking, setViewProgressTracking] = useState(false);
+
+  // Search & Filter States for Bookings
+  const [bookingSearch, setBookingSearch] = useState("");
+  const [bookingStatusFilter, setBookingStatusFilter] = useState<"all" | "upcoming" | "ongoing" | "completed" | "cancelled">("all");
+  const [bookingDateFilter, setBookingDateFilter] = useState("");
+  const [bookingServiceFilter, setBookingServiceFilter] = useState("");
+
+  // Create Booking Form States
+  const [newBookingCustomerSearch, setNewBookingCustomerSearch] = useState("");
+  const [selectedCustomerForBooking, setSelectedCustomerForBooking] = useState<any>(null);
+  const [selectedVehicleForBooking, setSelectedVehicleForBooking] = useState<any>(null);
+  const [selectedServicePackage, setSelectedServicePackage] = useState("Premium Steam Wash");
+  const [selectedBookingDate, setSelectedBookingDate] = useState("2026-05-26");
+  const [selectedBookingTime, setSelectedBookingTime] = useState("10:00 AM");
+  const [selectedServicesChecklist, setSelectedServicesChecklist] = useState<string[]>(["Steam Wash"]);
+  const [bookingNotes, setBookingNotes] = useState("");
+  const [customersList, setCustomersList] = useState<any[]>([]);
+  const [vehiclesList, setVehiclesList] = useState<any[]>([]);
 
   // New staff form state
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
@@ -103,12 +202,52 @@ export default function FranchisePortal() {
     }
   }, []);
 
+  const fetchCustomersData = async () => {
+    try {
+      const response = await api.get("/customer", { params: { limit: 100 } });
+      const items = response.data?.data?.items || response.data?.data || [];
+      if (items.length > 0) {
+        setCustomersList(items);
+      } else {
+        setCustomersList([
+          { _id: "cust_1", firstName: "Rahul", lastName: "Sharma", phone: "+91 98765 43210", email: "rahulsharma@gmail.com" },
+          { _id: "cust_2", firstName: "Neha", lastName: "Gupta", phone: "+91 91234 56789", email: "nehagupta@gmail.com" },
+          { _id: "cust_3", firstName: "Amit", lastName: "Verma", phone: "+91 99887 66554", email: "amitverma@gmail.com" },
+          { _id: "cust_4", firstName: "Karan", lastName: "Singh", phone: "+91 88990 11223", email: "karansingh@gmail.com" }
+        ]);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchVehiclesData = async () => {
+    try {
+      const response = await api.get("/vehicle", { params: { limit: 100 } });
+      const items = response.data?.data?.items || response.data?.data || [];
+      if (items.length > 0) {
+        setVehiclesList(items);
+      } else {
+        setVehiclesList([
+          { _id: "veh_1", customerId: "cust_1", brand: "Toyota", model: "Fortuner", plateNumber: "UP 16 AB 1234", color: "White", fuelType: "Diesel" },
+          { _id: "veh_2", customerId: "cust_2", brand: "Honda", model: "City", plateNumber: "UP 14 CD 5678", color: "Blue", fuelType: "Petrol" },
+          { _id: "veh_3", customerId: "cust_3", brand: "Hyundai", model: "Creta", plateNumber: "UP 14 EF 9012", color: "Silver", fuelType: "Petrol" },
+          { _id: "veh_4", customerId: "cust_4", brand: "Mahindra", model: "Thar", plateNumber: "UP 14 GH 3456", color: "Black", fuelType: "Diesel" }
+        ]);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   // Fetch data when authenticated
   useEffect(() => {
     if (isAuthenticated) {
       fetchDashboardData();
       fetchBookingsData();
       fetchStaffData();
+      fetchCustomersData();
+      fetchVehiclesData();
     }
   }, [isAuthenticated]);
 
@@ -117,12 +256,34 @@ export default function FranchisePortal() {
       const response = await api.get("/dashboard/franchise");
       if (response.data?.data) {
         const d = response.data.data;
+        const bookingsCount = d.bookings?.total || 0;
+        const completedCount = d.bookings?.completed || 0;
+        const activeCount = d.bookings?.active || 0;
+        const cleanCt = d.cleaners?.total || 0;
+        const revTotal = d.revenue?.total || 0;
+        const revComm = d.revenue?.commission || 0;
+        
         setStats({
-          todayBookings: d.bookings?.today || d.stats?.todayBookings || 0,
-          totalBookings: d.bookings?.total || d.stats?.totalBookings || 0,
-          pendingBookings: d.bookings?.active || d.stats?.pendingBookings || 0,
-          completedBookings: d.bookings?.completed || d.stats?.completedBookings || 0,
-          activeBookings: d.bookings?.active || 0,
+          todayBookings: d.bookings?.today || d.stats?.todayBookings || activeCount,
+          totalBookings: bookingsCount,
+          pendingBookings: activeCount,
+          completedBookings: completedCount,
+          activeBookings: activeCount,
+          bookingsGrowth: d.stats?.bookingsGrowth || 20,
+          servicesGrowth: d.stats?.servicesGrowth || 12,
+          monthlyRevenue: revTotal,
+          revenueGrowth: d.stats?.revenueGrowth || 18,
+          pendingPayments: Math.round(revTotal * 0.19) || revComm,
+          paymentGrowth: d.stats?.paymentGrowth || 8,
+          staffPresent: cleanCt || 12,
+          totalStaff: cleanCt ? Math.max(cleanCt, 12) : 15,
+          attendancePercentage: cleanCt ? 100 : 80,
+          newCustomers: d.stats?.newCustomers || 36,
+          customerGrowth: d.stats?.customerGrowth || 15,
+          rating: d.profile?.rating || d.stats?.rating || 4.7,
+          ratingGrowth: d.stats?.ratingGrowth || 0.3,
+          pendingComplaints: d.stats?.pendingComplaints || 5,
+          complaintReduction: d.stats?.complaintReduction || 10,
         });
         if (d.profile) {
           setProfile(d.profile);
@@ -136,9 +297,36 @@ export default function FranchisePortal() {
   const fetchBookingsData = async () => {
     try {
       const response = await api.get("/bookings", { params: { limit: 50 } });
-      if (response.data?.data) {
-        setBookings(response.data.data.items || response.data.data || []);
-      }
+      const apiItems = response.data?.data?.items || response.data?.data || [];
+      
+      setBookings(prev => {
+        const merged = [...prev];
+        apiItems.forEach((apiItem: any) => {
+          const normalized = {
+            _id: apiItem._id,
+            bookingId: apiItem.bookingId,
+            slotDate: apiItem.slotDate,
+            slotTime: apiItem.slotTime,
+            customerName: apiItem.customerId ? `${apiItem.customerId.firstName || ""} ${apiItem.customerId.lastName || ""}`.trim() : (apiItem.customerName || "Unknown Customer"),
+            phone: apiItem.customerId?.phone || apiItem.phone || "+91 98765 43210",
+            address: apiItem.customerId?.defaultAddressId?.street || apiItem.address || "Noida, UP",
+            vehicleNumber: apiItem.vehicleId ? `${apiItem.vehicleId.brand || apiItem.vehicleId.make || ""} ${apiItem.vehicleId.model || ""}`.trim() : (apiItem.vehicleNumber || "Toyota Fortuner"),
+            plateNumber: apiItem.vehicleId?.plateNumber || apiItem.vehicleId?.vehicleNumber || apiItem.plateNumber || "UP 16 AB 1234",
+            color: apiItem.vehicleId?.color || apiItem.color || "White",
+            serviceName: apiItem.serviceName || "Steam Car Wash",
+            totalAmount: apiItem.totalAmount || apiItem.basePrice || 1250,
+            status: apiItem.status || "booked",
+            paymentStatus: apiItem.paymentStatus || "pending"
+          };
+          const existingIdx = merged.findIndex(x => x.bookingId === normalized.bookingId || x._id === normalized._id);
+          if (existingIdx !== -1) {
+            merged[existingIdx] = { ...merged[existingIdx], ...normalized };
+          } else {
+            merged.push(normalized);
+          }
+        });
+        return merged;
+      });
     } catch (e) {
       console.error(e);
     }
@@ -249,6 +437,50 @@ export default function FranchisePortal() {
     setUser(null);
     setProfile(null);
     setIsAuthenticated(false);
+  };
+
+  const handleCreateBooking = async () => {
+    if (!selectedCustomerForBooking) {
+      alert("Please select a customer first.");
+      return;
+    }
+    if (!selectedVehicleForBooking) {
+      alert("Please select a vehicle first.");
+      return;
+    }
+
+    try {
+      const payload = {
+        customerId: selectedCustomerForBooking._id,
+        vehicleId: selectedVehicleForBooking._id,
+        serviceName: selectedServicePackage || "Premium Steam Wash",
+        slotDate: selectedBookingDate,
+        slotTime: selectedBookingTime,
+        basePrice: selectedServicesChecklist.includes("Deep Cleaning") ? 700 : selectedServicesChecklist.includes("Steam Wash") ? 500 : 1250,
+        discount: 0,
+        serviceMode: "workshop"
+      };
+
+      const response = await api.post("/bookings", payload);
+      if (response.data) {
+        alert("Booking Created successfully! Booking ID: " + (response.data.data?.bookingId || "Successful"));
+        setViewNewBooking(false);
+        // Reset states
+        setSelectedCustomerForBooking(null);
+        setSelectedVehicleForBooking(null);
+        setNewBookingCustomerSearch("");
+        setSelectedServicePackage("Premium Steam Wash");
+        setSelectedBookingDate("2026-05-26");
+        setSelectedBookingTime("10:00 AM");
+        setSelectedServicesChecklist(["Steam Wash"]);
+        setBookingNotes("");
+        // Refresh bookings & dashboard metrics
+        fetchBookingsData();
+        fetchDashboardData();
+      }
+    } catch (err: any) {
+      alert("Failed to create booking: " + (err.response?.data?.message || err.response?.data?.error?.message || "Unknown error"));
+    }
   };
 
   const handleUpdateBookingStatus = async (bookingId: string, status: string) => {
@@ -617,11 +849,11 @@ export default function FranchisePortal() {
         <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
           <span className="text-3xl">🚗</span>
           <div>
-            <h1 className="font-bold text-white tracking-wide">GoMotarCar</h1>
+            <h1 className="font-bold text-white tracking-wide">GoMotorCar</h1>
             <p className="text-[10px] text-slate-400 uppercase tracking-widest">Franchise Partner</p>
           </div>
         </div>
-        <nav className="flex-1 space-y-1 px-4 py-6">
+        <nav className="flex-1 space-y-1 px-4 py-6 overflow-y-auto">
           <button
             onClick={() => setActiveTab("dashboard")}
             className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all cursor-pointer ${
@@ -862,34 +1094,34 @@ export default function FranchisePortal() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-slate-950 border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+        <header className={`${activeTab === "bookings" ? "bg-white border-b border-slate-200" : "bg-slate-950 border-b border-slate-800"} px-6 py-4 flex items-center justify-between`}>
           <div className="flex items-center gap-3 md:hidden">
             <span className="text-2xl">🚗</span>
-            <h1 className="font-bold text-white text-lg">GoMotarCar Franchise</h1>
+            <h1 className={`font-bold ${activeTab === "bookings" ? "text-slate-850" : "text-white"} text-lg`}>GoMotorCar Franchise</h1>
           </div>
           <div className="hidden md:block">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className={`text-xl font-bold ${activeTab === "bookings" ? "text-slate-850" : "text-white"}`}>
               {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
             </h2>
           </div>
           <div className="flex items-center gap-4">
             <button
               onClick={handleRefresh}
-              className="p-2 text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-all cursor-pointer"
+              className={`p-2 ${activeTab === "bookings" ? "text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200" : "text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800"} rounded-lg transition-all cursor-pointer`}
               title="Refresh Data"
             >
               🔄
             </button>
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold">
+              <div className={`w-9 h-9 rounded-full ${activeTab === "bookings" ? "bg-blue-50 border border-blue-100 text-blue-600" : "bg-blue-600/20 border border-blue-500/40 text-blue-400"} flex items-center justify-center font-bold`}>
                 {profile?.name?.charAt(0) || "F"}
               </div>
               <div className="hidden sm:block text-left">
-                <p className="text-sm font-semibold text-white leading-tight">
+                <p className={`text-sm font-semibold ${activeTab === "bookings" ? "text-slate-800" : "text-white"} leading-tight`}>
                   {profile?.name || "Partner"}
                 </p>
-                <p className="text-xs text-slate-400">
-                  {profile?.type?.replace("_", " ") || "Service Station"}
+                <p className={`text-xs ${activeTab === "bookings" ? "text-slate-500" : "text-slate-400"}`}>
+                  Franchise ID: {profile?.franchiseId || "GMF12345"}
                 </p>
               </div>
             </div>
@@ -897,7 +1129,7 @@ export default function FranchisePortal() {
         </header>
 
         {/* Dynamic Mobile Tab bar */}
-        <div className="md:hidden flex bg-slate-950 border-b border-slate-800">
+        <div className={`md:hidden flex ${activeTab === "bookings" ? "bg-white border-b border-slate-200" : "bg-slate-950 border-b border-slate-800"}`}>
           {(["dashboard", "bookings", "staff", "profile"] as const).map((t) => (
             <button
               key={t}
@@ -912,7 +1144,7 @@ export default function FranchisePortal() {
         </div>
 
         {/* Main Body */}
-        <main className="flex-1 overflow-y-auto p-6 bg-slate-900">
+        <main className={`flex-1 overflow-y-auto p-6 ${activeTab === "bookings" ? "bg-slate-50" : "bg-slate-900"}`}>
           {refreshing && (
             <div className="text-center py-2 text-xs text-blue-400 animate-pulse">
               Syncing live data...
@@ -924,50 +1156,50 @@ export default function FranchisePortal() {
               {/* Row 1: Key Statistics Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {/* Card 1 */}
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                <div onClick={() => setActiveTab("bookings")} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md cursor-pointer hover:bg-slate-800 transition-all">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Today's Bookings</span>
                     <span className="p-2 bg-blue-600/10 rounded-xl text-blue-500 text-sm">📅</span>
                   </div>
-                  <p className="text-3xl font-extrabold text-white">{stats.todayBookings || '24'}</p>
+                  <p className="text-3xl font-extrabold text-white">{stats.todayBookings || 0}</p>
                   <p className="text-xs text-emerald-400 font-semibold mt-1.5 flex items-center gap-1">
-                    <span>↑ 20%</span> <span className="text-slate-500 font-normal">vs yesterday</span>
+                    <span>↑ {stats.bookingsGrowth || 0}%</span> <span className="text-slate-500 font-normal">vs yesterday</span>
                   </p>
                 </div>
 
                 {/* Card 2 */}
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                <div onClick={() => setActiveTab("bookings")} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md cursor-pointer hover:bg-slate-800 transition-all">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Services</span>
                     <span className="p-2 bg-indigo-600/10 rounded-xl text-indigo-500 text-sm">⚡</span>
                   </div>
-                  <p className="text-3xl font-extrabold text-white">{stats.activeBookings || '18'}</p>
+                  <p className="text-3xl font-extrabold text-white">{stats.activeBookings || 0}</p>
                   <p className="text-xs text-emerald-400 font-semibold mt-1.5 flex items-center gap-1">
-                    <span>↑ 12%</span> <span className="text-slate-500 font-normal">vs yesterday</span>
+                    <span>↑ {stats.servicesGrowth || 0}%</span> <span className="text-slate-500 font-normal">vs yesterday</span>
                   </p>
                 </div>
 
                 {/* Card 3 */}
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                <div onClick={() => setActiveTab("earnings")} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md cursor-pointer hover:bg-slate-800 transition-all">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Monthly Revenue</span>
                     <span className="p-2 bg-emerald-600/10 rounded-xl text-emerald-500 text-sm">₹</span>
                   </div>
-                  <p className="text-3xl font-extrabold text-white">₹{(profile?.stats?.totalRevenue || 245680).toLocaleString()}</p>
+                  <p className="text-3xl font-extrabold text-white">₹{(stats.monthlyRevenue || 0).toLocaleString()}</p>
                   <p className="text-xs text-emerald-400 font-semibold mt-1.5 flex items-center gap-1">
-                    <span>↑ 18%</span> <span className="text-slate-500 font-normal">vs last month</span>
+                    <span>↑ {stats.revenueGrowth || 0}%</span> <span className="text-slate-500 font-normal">vs last month</span>
                   </p>
                 </div>
 
                 {/* Card 4 */}
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md">
+                <div onClick={() => setActiveTab("wallet")} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 shadow-md cursor-pointer hover:bg-slate-800 transition-all">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending Payments</span>
                     <span className="p-2 bg-amber-600/10 rounded-xl text-amber-500 text-sm">💳</span>
                   </div>
-                  <p className="text-3xl font-extrabold text-white">₹{Math.round((profile?.stats?.totalRevenue || 245680) * 0.19).toLocaleString()}</p>
+                  <p className="text-3xl font-extrabold text-white">₹{(stats.pendingPayments || 0).toLocaleString()}</p>
                   <p className="text-xs text-rose-500 font-semibold mt-1.5 flex items-center gap-1">
-                    <span>↓ 8%</span> <span className="text-slate-500 font-normal">vs last month</span>
+                    <span>↓ {stats.paymentGrowth || 0}%</span> <span className="text-slate-500 font-normal">vs last month</span>
                   </p>
                 </div>
               </div>
@@ -975,46 +1207,46 @@ export default function FranchisePortal() {
               {/* Row 2: Secondary stats and charts */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {/* Stat 1 */}
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                <div onClick={() => setActiveTab("staff")} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 cursor-pointer hover:bg-slate-800 transition-all">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Staff Present</span>
                     <span className="text-xs text-slate-400">👥</span>
                   </div>
-                  <p className="text-2xl font-extrabold text-white">12 / 15</p>
-                  <p className="text-xs text-slate-400 mt-1">80% Present</p>
+                  <p className="text-2xl font-extrabold text-white">{stats.staffPresent || 0} / {stats.totalStaff || 0}</p>
+                  <p className="text-xs text-slate-400 mt-1">{stats.attendancePercentage || 0}% Present</p>
                   <div className="w-full h-1.5 bg-slate-800 rounded-full mt-3 overflow-hidden">
-                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: '80%' }}></div>
+                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${stats.attendancePercentage || 0}%` }}></div>
                   </div>
                 </div>
 
                 {/* Stat 2 */}
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                <div onClick={() => setActiveTab("customers")} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 cursor-pointer hover:bg-slate-800 transition-all">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">New Customers</span>
                     <span className="text-xs text-slate-400">👤</span>
                   </div>
-                  <p className="text-2xl font-extrabold text-white">36</p>
-                  <p className="text-xs text-emerald-400 font-semibold mt-1">↑ 15% <span className="text-slate-500 font-normal">vs last month</span></p>
+                  <p className="text-2xl font-extrabold text-white">{stats.newCustomers || 0}</p>
+                  <p className="text-xs text-emerald-400 font-semibold mt-1">↑ {stats.customerGrowth || 0}% <span className="text-slate-500 font-normal">vs last month</span></p>
                 </div>
 
                 {/* Stat 3 */}
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                <div onClick={() => setActiveTab("ratings")} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 cursor-pointer hover:bg-slate-800 transition-all">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Customer Ratings</span>
                     <span className="text-xs text-slate-400">⭐</span>
                   </div>
-                  <p className="text-2xl font-extrabold text-white">{profile?.stats?.rating || '4.7'} / 5</p>
-                  <p className="text-xs text-emerald-400 font-semibold mt-1">↑ 0.3 <span className="text-slate-500 font-normal">vs last month</span></p>
+                  <p className="text-2xl font-extrabold text-white">{stats.rating || 0} / 5</p>
+                  <p className="text-xs text-emerald-400 font-semibold mt-1">↑ {stats.ratingGrowth || 0} <span className="text-slate-500 font-normal">vs last month</span></p>
                 </div>
 
                 {/* Stat 4 */}
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
+                <div onClick={() => setActiveTab("complaints")} className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 cursor-pointer hover:bg-slate-800 transition-all">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending Complaints</span>
                     <span className="text-xs text-slate-400">⚠️</span>
                   </div>
-                  <p className="text-2xl font-extrabold text-white">5</p>
-                  <p className="text-xs text-rose-500 font-semibold mt-1">↓ 10% <span className="text-slate-500 font-normal">vs last month</span></p>
+                  <p className="text-2xl font-extrabold text-white">{stats.pendingComplaints || 0}</p>
+                  <p className="text-xs text-rose-500 font-semibold mt-1">↓ {stats.complaintReduction || 0}% <span className="text-slate-500 font-normal">vs last month</span></p>
                 </div>
               </div>
 
@@ -1732,72 +1964,411 @@ export default function FranchisePortal() {
             })()
           }
 
-          {activeTab === "bookings" && !selectedBookingId && (
-            <div className="space-y-6 text-slate-100">
+          {activeTab === "bookings" && viewNewBooking && (
+            <div className="space-y-6 text-slate-800 bg-white p-8 rounded-3xl shadow-sm border border-slate-100 pb-10 max-w-5xl mx-auto">
+              {/* Back Bar */}
+              <div className="flex items-center justify-between">
+                <button 
+                  onClick={() => setViewNewBooking(false)}
+                  className="flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-500 cursor-pointer transition-all bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100"
+                >
+                  ← Back to Bookings
+                </button>
+              </div>
+
+              {/* Title */}
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 tracking-wide">New Booking</h2>
+                <p className="text-xs text-slate-500 mt-1">Create a new service booking for your customer.</p>
+              </div>
+
+              {/* Section 1: Customer Details */}
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-4 flex items-center gap-2">
+                  <span className="p-1.5 bg-blue-100 rounded-lg text-blue-600 text-xs">👤</span> 1. Customer Details
+                </h3>
+                <div className="space-y-4">
+                  <label className="block text-xs font-semibold text-slate-500">Customer *</label>
+                  <div className="flex gap-3">
+                    <input 
+                      type="text" 
+                      placeholder="Search customer by name or mobile number..." 
+                      value={newBookingCustomerSearch}
+                      onChange={(e) => {
+                        setNewBookingCustomerSearch(e.target.value);
+                        const found = customersList.find(c => 
+                          c.firstName?.toLowerCase().includes(e.target.value.toLowerCase()) || 
+                          c.phone?.includes(e.target.value)
+                        );
+                        if (found) {
+                          setSelectedCustomerForBooking(found);
+                          // Auto select first vehicle of this customer
+                          const veh = vehiclesList.find(v => v.customerId === found._id);
+                          if (veh) setSelectedVehicleForBooking(veh);
+                        }
+                      }}
+                      className="flex-1 rounded-xl bg-white border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800"
+                    />
+                    <button 
+                      onClick={() => setActiveTab("customers")}
+                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    >
+                      + Add New Customer
+                    </button>
+                  </div>
+
+                  {selectedCustomerForBooking ? (
+                    <div className="bg-white p-4 rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
+                      <div className="flex gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                          {selectedCustomerForBooking.firstName?.charAt(0) || "U"}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                            {selectedCustomerForBooking.firstName} {selectedCustomerForBooking.lastName} 
+                            <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-bold">VIP</span>
+                          </p>
+                          <p className="text-[10px] text-slate-500 mt-0.5">📞 {selectedCustomerForBooking.phone} | {selectedCustomerForBooking.email || "No email"}</p>
+                          <p className="text-[9px] text-slate-400 mt-0.5">📍 Noida, Uttar Pradesh</p>
+                        </div>
+                      </div>
+                      <div className="text-right text-xs">
+                        <p className="text-slate-400">Total Bookings</p>
+                        <p className="text-sm font-bold text-slate-800 mt-0.5">24</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-slate-400 italic">No customer selected. Type above to filter & select a customer.</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Section 2: Vehicle Details */}
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-4 flex items-center gap-2">
+                  <span className="p-1.5 bg-blue-100 rounded-lg text-blue-600 text-xs">🚗</span> 2. Vehicle Details
+                </h3>
+                <div className="space-y-4">
+                  <label className="block text-xs font-semibold text-slate-500">Vehicle *</label>
+                  <div className="flex gap-3">
+                    <select 
+                      value={selectedVehicleForBooking?._id || ""}
+                      onChange={(e) => {
+                        const veh = vehiclesList.find(v => v._id === e.target.value);
+                        if (veh) setSelectedVehicleForBooking(veh);
+                      }}
+                      className="flex-1 rounded-xl bg-white border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800 cursor-pointer"
+                    >
+                      <option value="">Select Vehicle</option>
+                      {vehiclesList
+                        .filter(v => !selectedCustomerForBooking || v.customerId === selectedCustomerForBooking._id)
+                        .map(v => (
+                          <option key={v._id} value={v._id}>
+                            {v.brand} {v.model} ({v.plateNumber || v.vehicleNumber})
+                          </option>
+                        ))
+                      }
+                      {vehiclesList.length === 0 && <option value="Fortuner">Toyota Fortuner (UP 16 AB 1234)</option>}
+                    </select>
+                    <button 
+                      onClick={() => setActiveTab("vehicles")}
+                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    >
+                      + Add New Vehicle
+                    </button>
+                  </div>
+
+                  {selectedVehicleForBooking ? (
+                    <div className="bg-white p-4 rounded-xl border border-slate-100 flex items-center gap-4 shadow-sm">
+                      <div className="w-12 h-12 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 text-lg border border-slate-100">🚗</div>
+                      <div className="grid grid-cols-3 gap-6 text-[10px]">
+                        <div>
+                          <p className="text-slate-700 font-bold">{selectedVehicleForBooking.brand} {selectedVehicleForBooking.model}</p>
+                          <p className="text-blue-600 font-bold mt-0.5">{selectedVehicleForBooking.plateNumber || selectedVehicleForBooking.vehicleNumber}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 uppercase font-semibold">Color</p>
+                          <p className="text-slate-800 font-bold mt-0.5">{selectedVehicleForBooking.color || "N/A"}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 uppercase font-semibold">Fuel Type</p>
+                          <p className="text-slate-800 font-bold mt-0.5">{selectedVehicleForBooking.fuelType || "Diesel"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white p-4 rounded-xl border border-slate-100 flex items-center gap-4 shadow-sm">
+                      <div className="w-12 h-12 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 text-lg border border-slate-100">🚗</div>
+                      <div className="grid grid-cols-3 gap-6 text-[10px]">
+                        <div>
+                          <p className="text-slate-700 font-bold">Toyota Fortuner</p>
+                          <p className="text-blue-600 font-bold mt-0.5">UP 16 AB 1234</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 uppercase font-semibold">Color</p>
+                          <p className="text-slate-800 font-bold mt-0.5">White</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 uppercase font-semibold">Fuel Type</p>
+                          <p className="text-slate-800 font-bold mt-0.5">Diesel</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Section 3: Service Package */}
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-4 flex items-center gap-2">
+                  <span className="p-1.5 bg-blue-100 rounded-lg text-blue-600 text-xs">📦</span> 3. Service Package
+                </h3>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-2">Service Package *</label>
+                  <select 
+                    value={selectedServicePackage}
+                    onChange={(e) => setSelectedServicePackage(e.target.value)}
+                    className="w-full rounded-xl bg-white border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800 cursor-pointer"
+                  >
+                    <option value="Premium Steam Wash">Premium Steam Wash (₹1,250)</option>
+                    <option value="Interior Cleaning">Interior Cleaning (₹850)</option>
+                    <option value="Foam Wash">Foam Wash (₹650)</option>
+                    <option value="Ceramic Coating">Ceramic Coating (₹3,500)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Section 4: Schedule Date & Time */}
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-4 flex items-center gap-2">
+                  <span className="p-1.5 bg-blue-100 rounded-lg text-blue-600 text-xs">📅</span> 4. Schedule Date & Time
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+                  <div>
+                    <label className="block text-slate-550 font-semibold mb-2">Schedule Date *</label>
+                    <input 
+                      type="date" 
+                      value={selectedBookingDate}
+                      onChange={(e) => setSelectedBookingDate(e.target.value)}
+                      className="w-full rounded-xl bg-white border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-slate-800 cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-550 font-semibold mb-2">Schedule Time *</label>
+                    <select 
+                      value={selectedBookingTime}
+                      onChange={(e) => setSelectedBookingTime(e.target.value)}
+                      className="w-full rounded-xl bg-white border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-slate-800 cursor-pointer"
+                    >
+                      <option value="09:00 AM">09:00 AM</option>
+                      <option value="10:00 AM">10:00 AM</option>
+                      <option value="11:30 AM">11:30 AM</option>
+                      <option value="01:00 PM">01:00 PM</option>
+                      <option value="02:30 PM">02:30 PM</option>
+                      <option value="03:30 PM">03:30 PM</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 5: Select Services Checklist */}
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-2 flex items-center gap-2">
+                  <span className="p-1.5 bg-blue-100 rounded-lg text-blue-600 text-xs">🛒</span> 5. Select Services
+                </h3>
+                <p className="text-[10px] text-slate-500 mb-4">Choose one or more services for this booking.</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Exterior Wash', price: '₹300', icon: '🚗' },
+                    { label: 'Interior Cleaning', price: '₹400', icon: '🧼' },
+                    { label: 'Steam Wash', price: '₹500', icon: '💨' },
+                    { label: 'Deep Cleaning', price: '₹700', icon: '✨' },
+                  ].map((srv) => (
+                    <div 
+                      key={srv.label}
+                      onClick={() => {
+                        if (selectedServicesChecklist.includes(srv.label)) {
+                          setSelectedServicesChecklist(selectedServicesChecklist.filter(x => x !== srv.label));
+                        } else {
+                          setSelectedServicesChecklist([...selectedServicesChecklist, srv.label]);
+                        }
+                      }}
+                      className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+                        selectedServicesChecklist.includes(srv.label)
+                          ? "bg-blue-50 border-blue-300 text-blue-700 shadow-sm"
+                          : "bg-white border-slate-200 text-slate-650 hover:bg-slate-100"
+                      }`}
+                    >
+                      <span className="text-xl">{srv.icon}</span>
+                      <p className="text-xs font-bold">{srv.label}</p>
+                      <span className={`text-[10px] font-bold ${selectedServicesChecklist.includes(srv.label) ? "text-blue-600" : "text-emerald-600"}`}>{srv.price}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section 6: Additional Notes */}
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-3">6. Additional Notes (Optional)</h3>
+                <textarea 
+                  placeholder="Enter any special instructions or notes..."
+                  value={bookingNotes}
+                  onChange={(e) => setBookingNotes(e.target.value)}
+                  className="w-full h-24 rounded-xl bg-white border border-slate-200 p-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800"
+                />
+              </div>
+
+              {/* Booking Summary sticky bottom info */}
+              <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 flex items-center justify-between text-xs">
+                <div>
+                  <p className="text-slate-500">Estimated Amount</p>
+                  <p className="text-base font-black text-emerald-600 mt-1">
+                    ₹{selectedServicePackage === "Premium Steam Wash" ? "1,250" : selectedServicePackage === "Interior Cleaning" ? "850" : selectedServicePackage === "Foam Wash" ? "650" : "3,500"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-slate-500">Selected Services</p>
+                  <p className="text-xs text-slate-800 font-bold mt-1">1 Package</p>
+                </div>
+                <div>
+                  <p className="text-slate-500">Duration</p>
+                  <p className="text-xs text-slate-800 font-bold mt-1">60 mins</p>
+                </div>
+              </div>
+
+              <button 
+                onClick={handleCreateBooking}
+                className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-bold transition-all cursor-pointer text-center shadow-md"
+              >
+                Create Booking 🚀
+              </button>
+            </div>
+          )}
+
+          {activeTab === "bookings" && !selectedBookingId && !viewNewBooking && (
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100">
               {/* Header section with description */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Booking Dashboard</h2>
-                  <p className="text-xs text-slate-400 mt-1">Manage and track all your bookings in one place.</p>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Booking Dashboard</h2>
+                  <p className="text-xs text-slate-500 mt-1">Manage and track all your bookings in one place.</p>
                 </div>
                 <button 
-                  onClick={() => setViewNewBooking(true)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                  onClick={() => {
+                    setViewNewBooking(true);
+                    if (customersList.length > 0) {
+                      setSelectedCustomerForBooking(customersList[0]);
+                      const veh = vehiclesList.find(v => v.customerId === customersList[0]._id);
+                      if (veh) setSelectedVehicleForBooking(veh);
+                    }
+                  }}
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
                 >
                   <span>➕</span> New Booking
                 </button>
               </div>
 
               {/* Status Tab buttons with count badges */}
-              <div className="flex border-b border-slate-800 bg-[#1E293B]/40 p-1.5 rounded-2xl gap-2 overflow-x-auto">
-                <button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold transition-all whitespace-nowrap">
+              <div className="flex border-b border-slate-200 bg-white p-1.5 rounded-2xl gap-2 shadow-sm">
+                <button 
+                  onClick={() => setBookingStatusFilter("upcoming")}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                    bookingStatusFilter === "upcoming" ? "bg-blue-600 text-white shadow-md shadow-blue-500/10" : "text-slate-500 hover:bg-slate-50"
+                  }`}
+                >
                   <span>Upcoming</span>
-                  <span className="px-2 py-0.5 bg-white/25 rounded-md text-[10px] font-extrabold">{bookings.filter(b => !['completed', 'cancelled', 'in_progress'].includes(b.status)).length || '24'}</span>
+                  <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[10px] font-extrabold">
+                    {bookings.filter(b => !['completed', 'cancelled', 'in_progress'].includes(b.status)).length}
+                  </span>
                 </button>
-                <button className="flex items-center gap-2 px-4 py-2.5 text-slate-400 hover:text-white rounded-xl text-xs font-medium transition-all whitespace-nowrap">
+                <button 
+                  onClick={() => setBookingStatusFilter("ongoing")}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                    bookingStatusFilter === "ongoing" ? "bg-blue-600 text-white shadow-md shadow-blue-500/10" : "text-slate-500 hover:bg-slate-50"
+                  }`}
+                >
                   <span>Ongoing</span>
-                  <span className="px-2 py-0.5 bg-slate-800 rounded-md text-[10px] font-extrabold">{bookings.filter(b => b.status === 'in_progress').length || '8'}</span>
+                  <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[10px] font-extrabold">
+                    {bookings.filter(b => b.status === 'in_progress').length}
+                  </span>
                 </button>
-                <button className="flex items-center gap-2 px-4 py-2.5 text-slate-400 hover:text-white rounded-xl text-xs font-medium transition-all whitespace-nowrap">
+                <button 
+                  onClick={() => setBookingStatusFilter("completed")}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                    bookingStatusFilter === "completed" ? "bg-blue-600 text-white shadow-md shadow-blue-500/10" : "text-slate-500 hover:bg-slate-50"
+                  }`}
+                >
                   <span>Completed</span>
-                  <span className="px-2 py-0.5 bg-slate-800 rounded-md text-[10px] font-extrabold">{bookings.filter(b => b.status === 'completed').length || '156'}</span>
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-extrabold">
+                    {bookings.filter(b => b.status === 'completed').length}
+                  </span>
                 </button>
-                <button className="flex items-center gap-2 px-4 py-2.5 text-slate-400 hover:text-white rounded-xl text-xs font-medium transition-all whitespace-nowrap">
+                <button 
+                  onClick={() => setBookingStatusFilter("cancelled")}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                    bookingStatusFilter === "cancelled" ? "bg-blue-600 text-white shadow-md shadow-blue-500/10" : "text-slate-500 hover:bg-slate-50"
+                  }`}
+                >
                   <span>Cancelled</span>
-                  <span className="px-2 py-0.5 bg-slate-800 rounded-md text-[10px] font-extrabold">{bookings.filter(b => b.status === 'cancelled').length || '12'}</span>
+                  <span className="px-2 py-0.5 bg-rose-50 text-rose-600 rounded-md text-[10px] font-extrabold">
+                    {bookings.filter(b => b.status === 'cancelled').length}
+                  </span>
+                </button>
+                <button 
+                  onClick={() => setBookingStatusFilter("all")}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ml-auto ${
+                    bookingStatusFilter === "all" ? "bg-blue-600 text-white shadow-md shadow-blue-500/10" : "text-slate-500 hover:bg-slate-50"
+                  }`}
+                >
+                  <span>All Bookings</span>
                 </button>
               </div>
 
               {/* Filters & search panel */}
-              <div className="flex flex-wrap items-center justify-between gap-4 bg-[#1E293B]/60 p-4 rounded-2xl border border-slate-800/80">
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-150 shadow-sm">
                 <div className="flex flex-wrap items-center gap-3.5 flex-1">
                   <div className="relative min-w-[240px]">
                     <input
                       type="text"
                       placeholder="Search by Booking ID, Customer or Mobile..."
-                      className="w-full rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-500 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs"
+                      value={bookingSearch}
+                      onChange={(e) => setBookingSearch(e.target.value)}
+                      className="w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs"
                     />
                     <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
                   </div>
 
-                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs cursor-pointer">
-                    <option>Select Date</option>
-                  </select>
+                  <input 
+                    type="date"
+                    value={bookingDateFilter}
+                    onChange={(e) => setBookingDateFilter(e.target.value)}
+                    className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs cursor-pointer"
+                  />
 
-                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs cursor-pointer">
-                    <option>Status</option>
-                  </select>
-
-                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs cursor-pointer">
-                    <option>Service Type</option>
+                  <select 
+                    value={bookingServiceFilter}
+                    onChange={(e) => setBookingServiceFilter(e.target.value)}
+                    className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs cursor-pointer"
+                  >
+                    <option value="">Service Type</option>
+                    <option value="Steam Car Wash">Steam Car Wash</option>
+                    <option value="Premium Steam Wash">Premium Steam Wash</option>
+                    <option value="Interior Cleaning">Interior Cleaning</option>
+                    <option value="Foam Wash">Foam Wash</option>
+                    <option value="Ceramic Coating">Ceramic Coating</option>
                   </select>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <button className="px-4 py-2.5 bg-blue-600/10 hover:bg-blue-600/15 text-blue-400 border border-blue-500/20 rounded-xl text-xs font-bold transition-all cursor-pointer">
-                    Filter ⚙️
-                  </button>
-                  <button className="text-xs text-slate-400 hover:text-white font-medium cursor-pointer">
+                  <button 
+                    onClick={() => {
+                      setBookingSearch("");
+                      setBookingDateFilter("");
+                      setBookingServiceFilter("");
+                      setBookingStatusFilter("all");
+                    }}
+                    className="text-xs text-slate-500 hover:text-slate-800 font-bold cursor-pointer bg-slate-50 hover:bg-slate-100 px-4 py-2.5 rounded-xl border border-slate-150 transition-all"
+                  >
                     Clear All
                   </button>
                 </div>
@@ -1805,100 +2376,138 @@ export default function FranchisePortal() {
 
               {/* Bookings rows list */}
               <div className="space-y-4">
-                {bookings.map((b) => (
-                  <div
-                    key={b._id}
-                    onClick={() => setSelectedBookingId(b._id)}
-                    className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 hover:border-blue-600/30 hover:bg-[#1E293B]/90 transition-all grid grid-cols-1 md:grid-cols-5 gap-5 items-center cursor-pointer"
-                  >
-                    {/* Col 1: Booking ID & Date */}
-                    <div>
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Booking ID</span>
-                      <p className="text-sm font-black text-blue-500 mt-1">{b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</p>
-                      <div className="flex items-center gap-1.5 text-slate-400 text-xs mt-2">
-                        <span>📅</span>
-                        <span>{b.slotDate ? new Date(b.slotDate).toLocaleDateString() : '26 May 2025'}</span>
-                      </div>
-                      <p className="text-[10px] text-slate-500 mt-0.5 ml-5">{b.slotTime || '10:00 AM'}</p>
-                    </div>
+                {bookings
+                  .filter((b) => {
+                    // Status filter
+                    if (bookingStatusFilter === "upcoming" && ['completed', 'cancelled', 'in_progress'].includes(b.status)) return false;
+                    if (bookingStatusFilter === "ongoing" && b.status !== 'in_progress') return false;
+                    if (bookingStatusFilter === "completed" && b.status !== 'completed') return false;
+                    if (bookingStatusFilter === "cancelled" && b.status !== 'cancelled') return false;
 
-                    {/* Col 2: Customer Details */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-sm">
-                        {String(b.customerName || 'U').charAt(0)}
-                      </div>
+                    // Text search
+                    if (bookingSearch) {
+                      const query = bookingSearch.toLowerCase();
+                      const bId = (b.bookingId || "").toLowerCase();
+                      const cust = (b.customerName || "").toLowerCase();
+                      const phoneNo = (b.phone || "").toLowerCase();
+                      if (!bId.includes(query) && !cust.includes(query) && !phoneNo.includes(query)) return false;
+                    }
+
+                    // Date filter
+                    if (bookingDateFilter) {
+                      const d1 = new Date(b.slotDate).toDateString();
+                      const d2 = new Date(bookingDateFilter).toDateString();
+                      if (d1 !== d2) return false;
+                    }
+
+                    // Service type filter
+                    if (bookingServiceFilter) {
+                      if ((b.serviceName || "").toLowerCase() !== bookingServiceFilter.toLowerCase()) return false;
+                    }
+
+                    return true;
+                  })
+                  .map((b) => (
+                    <div
+                      key={b._id}
+                      onClick={() => setSelectedBookingId(b._id)}
+                      className="bg-white p-5 rounded-2xl border border-slate-100 hover:border-blue-500/25 hover:shadow-md transition-all grid grid-cols-1 md:grid-cols-5 gap-5 items-center cursor-pointer shadow-sm"
+                    >
+                      {/* Col 1: Booking ID & Date */}
                       <div>
-                        <p className="text-xs font-bold text-white">{b.customerName || 'Ravi Sharma'}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">📞 +91 98765 43210</p>
-                        <p className="text-[9px] text-slate-500 truncate mt-1">📍 Sector 62, Noida</p>
-                      </div>
-                    </div>
-
-                    {/* Col 3: Vehicle Details */}
-                    <div>
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Vehicle Details</span>
-                      <p className="text-xs font-bold text-white mt-1">{b.vehicleNumber || 'Toyota Fortuner'}</p>
-                      <p className="text-[10px] text-slate-400">UP 16 AB 1234 • White</p>
-                    </div>
-
-                    {/* Col 4: Service & Amount */}
-                    <div>
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Service</span>
-                      <p className="text-xs font-bold text-white mt-1">{b.serviceName || 'Steam Car Wash'}</p>
-                      <div className="flex items-center gap-1.5 mt-2">
-                        <span className="text-[10px] text-slate-400">Amount</span>
-                        <span className="text-xs font-black text-emerald-400">₹{b.totalAmount || '1,250'}</span>
-                      </div>
-                    </div>
-
-                    {/* Col 5: Status & Actions */}
-                    <div className="flex flex-col md:items-end gap-2.5">
-                      <div className="flex items-center gap-2">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                          b.status === "completed"
-                            ? "bg-emerald-500/20 text-emerald-400"
-                            : b.status === "cancelled"
-                            ? "bg-red-500/20 text-red-400"
-                            : b.status === "in_progress"
-                            ? "bg-indigo-500/20 text-indigo-400"
-                            : "bg-blue-500/20 text-blue-400"
-                        }`}>
-                          {b.status || 'Upcoming'}
-                        </span>
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
-                          b.paymentStatus === 'paid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
-                        }`}>
-                          {b.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
-                        </span>
-                      </div>
-
-                      {b.status !== 'completed' && b.status !== 'cancelled' && (
-                        <div className="flex gap-2 w-full md:w-auto">
-                          {b.status !== 'in_progress' ? (
-                            <button
-                              onClick={() => handleUpdateBookingStatus(b._id, 'in_progress')}
-                              disabled={actionLoading === b._id}
-                              className="flex-1 md:flex-none px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 transition-all"
-                            >
-                              Start Ongoing
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleUpdateBookingStatus(b._id, 'completed')}
-                              disabled={actionLoading === b._id}
-                              className="flex-1 md:flex-none px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 transition-all"
-                            >
-                              Complete
-                            </button>
-                          )}
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Booking ID</span>
+                        <p className="text-sm font-black text-blue-600 mt-1">{b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</p>
+                        <div className="flex items-center gap-1.5 text-slate-500 text-xs mt-2">
+                          <span>📅</span>
+                          <span>{b.slotDate ? new Date(b.slotDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '26 May 2025'}</span>
                         </div>
-                      )}
+                        <p className="text-[10px] text-slate-400 mt-0.5 ml-5 font-medium">{b.slotTime || '10:00 AM'}</p>
+                      </div>
+
+                      {/* Col 2: Customer Details */}
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
+                          {String(b.customerName || 'U').charAt(0)}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-800">{b.customerName}</p>
+                          <p className="text-[10px] text-slate-500 mt-0.5">📞 {b.phone}</p>
+                          <p className="text-[9px] text-slate-450 mt-1 flex items-center gap-0.5">
+                            <span>📍</span> <span className="truncate max-w-[150px]" title={b.address}>{b.address}</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Col 3: Vehicle Details */}
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-10 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-lg">
+                          🚗
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Vehicle Details</span>
+                          <p className="text-xs font-bold text-slate-800">{b.vehicleNumber}</p>
+                          <p className="text-[10px] text-slate-500 font-medium">{b.plateNumber} • {b.color}</p>
+                        </div>
+                      </div>
+
+                      {/* Col 4: Service & Amount */}
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Service</span>
+                        <p className="text-xs font-bold text-slate-800 mt-1">{b.serviceName || 'Steam Car Wash'}</p>
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <span className="text-[10px] text-slate-400">Amount</span>
+                          <span className="text-xs font-black text-emerald-600">₹{(b.totalAmount || 1250).toLocaleString()}</span>
+                        </div>
+                      </div>
+
+                      {/* Col 5: Status & Actions */}
+                      <div className="flex flex-col md:items-end gap-2.5">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                            b.status === "completed"
+                              ? "bg-emerald-550/10 text-emerald-600"
+                              : b.status === "cancelled"
+                              ? "bg-rose-550/10 text-rose-600"
+                              : b.status === "in_progress"
+                              ? "bg-indigo-550/10 text-indigo-600"
+                              : "bg-blue-550/10 text-blue-600"
+                          }`}>
+                            {b.status || 'Upcoming'}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                            b.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                          }`}>
+                            {b.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+                          </span>
+                        </div>
+
+                        {b.status !== 'completed' && b.status !== 'cancelled' && (
+                          <div className="flex gap-2 w-full md:w-auto" onClick={(e) => e.stopPropagation()}>
+                            {b.status !== 'in_progress' ? (
+                              <button
+                                onClick={() => handleUpdateBookingStatus(b._id, 'in_progress')}
+                                disabled={actionLoading === b._id}
+                                className="flex-1 md:flex-none px-3 py-1.5 bg-blue-650 hover:bg-blue-600 text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 transition-all shadow-sm"
+                              >
+                                Start Ongoing
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleUpdateBookingStatus(b._id, 'completed')}
+                                disabled={actionLoading === b._id}
+                                className="flex-1 md:flex-none px-3 py-1.5 bg-emerald-650 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 transition-all shadow-sm"
+                              >
+                                Complete
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
 
                 {bookings.length === 0 && (
-                  <div className="text-center py-16 bg-[#1E293B]/40 rounded-2xl border border-dashed border-slate-800 text-slate-500 text-xs">
+                  <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs">
                     No bookings found matching selected category.
                   </div>
                 )}

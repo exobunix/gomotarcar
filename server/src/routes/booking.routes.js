@@ -15,8 +15,8 @@ router.use(authenticate);
 router.get('/stats', authorize(roles.SUPER_ADMIN, roles.MANAGER), bookingController.getStats);
 
 // CRUD
-router.get('/', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.SUPERVISOR, roles.OPERATIONS), validate(listBookingsSchema, 'query'), bookingController.list);
-router.post('/', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.CUSTOMER), validate(createBookingSchema), bookingController.create);
+router.get('/', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.SUPERVISOR, roles.OPERATIONS, roles.FRANCHISE), validate(listBookingsSchema, 'query'), bookingController.list);
+router.post('/', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.CUSTOMER, roles.FRANCHISE), validate(createBookingSchema), bookingController.create);
 router.get('/:id', validate(bookingIdParamSchema, 'params'), bookingController.getById);
 router.patch('/:id/status', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.SUPERVISOR, roles.FRANCHISE), validate(bookingIdParamSchema, 'params'), validate(updateBookingStatusSchema), bookingController.updateStatus);
 router.patch('/:id/cancel', validate(bookingIdParamSchema, 'params'), bookingController.cancel);

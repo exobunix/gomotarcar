@@ -22,10 +22,10 @@ router.post('/vehicles', validate(addVehicleSchema), customerController.addVehic
 
 // Admin routes
 router.get('/stats', authorize(roles.SUPER_ADMIN, roles.MANAGER), customerController.getStats);
-router.get('/', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS), validate(listCustomersSchema, 'query'), customerController.list);
-router.post('/', authorize(roles.SUPER_ADMIN, roles.MANAGER), customerController.create);
-router.get('/:id', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS), validate(customerIdParamSchema, 'params'), customerController.getById);
-router.put('/:id', authorize(roles.SUPER_ADMIN, roles.MANAGER), validate(customerIdParamSchema, 'params'), validate(updateCustomerSchema), customerController.update);
+router.get('/', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS, roles.FRANCHISE), validate(listCustomersSchema, 'query'), customerController.list);
+router.post('/', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.FRANCHISE), customerController.create);
+router.get('/:id', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS, roles.FRANCHISE), validate(customerIdParamSchema, 'params'), customerController.getById);
+router.put('/:id', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.FRANCHISE), validate(customerIdParamSchema, 'params'), validate(updateCustomerSchema), customerController.update);
 router.patch('/:id/deactivate', authorize(roles.SUPER_ADMIN, roles.MANAGER), validate(customerIdParamSchema, 'params'), customerController.deactivate);
 
 module.exports = router;

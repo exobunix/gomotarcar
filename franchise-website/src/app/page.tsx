@@ -3548,96 +3548,190 @@ export default function FranchisePortal() {
               };
 
               return (
-                <div className="space-y-6 text-slate-100 pb-10">
-                  {/* Back Navigation Bar */}
+                <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+                  {/* Breadcrumbs & Navigation Bar */}
                   <div className="flex items-center justify-between">
-                    <button 
-                      onClick={() => setSelectedStaffId(null)}
-                      className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
-                    >
-                      ← Back to Staff Dashboard
-                    </button>
+                    <div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <span className="hover:text-slate-650 cursor-pointer" onClick={() => setSelectedStaffId(null)}>Staff Management</span>
+                        <span className="text-slate-300">/</span>
+                        <span className="hover:text-slate-650 cursor-pointer" onClick={() => setSelectedStaffId(null)}>Staff List</span>
+                        <span className="text-slate-300">/</span>
+                        <span className="text-slate-600">Amit Verma</span>
+                      </div>
+                    </div>
                     <div className="flex gap-3">
-                      <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer">
-                        Edit Profile
+                      <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                        ✏️ Edit Profile
                       </button>
-                      <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
+                      <button className="px-4 py-2 bg-[#16A34A] hover:bg-[#15803D] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
                         📞 Call Staff
                       </button>
                     </div>
                   </div>
 
-                  {/* Profile Header Card */}
-                  <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 flex flex-wrap justify-between items-center gap-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xl">
-                        AV
+                  {/* Profile Header Box */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
+                    {/* Left Column: Avatar & Basic Contact */}
+                    <div className="lg:col-span-2 flex gap-5 items-center">
+                      <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-slate-100 shadow-sm flex items-center justify-center bg-slate-100">
+                        <img 
+                          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150" 
+                          alt="Amit Verma"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
-                      <div>
-                        <p className="text-base font-black text-white flex items-center gap-2">
-                          {st.name} <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-450 rounded text-[9px] font-bold">Active</span>
-                        </p>
-                        <p className="text-xs text-slate-400 mt-1">Supervisor • STF001</p>
-                        <p className="text-xs text-slate-400 mt-0.5">📞 {st.phone} | {st.email}</p>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2.5">
+                          <h3 className="text-xl font-black text-slate-900">{st.name}</h3>
+                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-black uppercase">Active</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <span className="font-bold text-slate-800">Supervisor</span>
+                          <span className="text-slate-300">|</span>
+                          <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-bold">STF001</span>
+                        </div>
+                        <p className="text-xs text-slate-455">📞 +91 98765 43210</p>
+                        <p className="text-xs text-slate-455">✉️ amit.verma@email.com</p>
+                        <p className="text-xs text-slate-455">📍 Noida, Uttar Pradesh - 201301</p>
                       </div>
                     </div>
-                    <div className="flex gap-6 text-center text-xs">
+
+                    {/* Middle Column: Metadata */}
+                    <div className="grid grid-cols-2 gap-4 text-xs text-slate-500 border-l border-slate-100 pl-6">
                       <div>
-                        <p className="text-slate-500">Department</p>
-                        <p className="text-white font-bold mt-1">{st.dep}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Department</p>
+                        <p className="text-slate-800 font-black mt-1">Operations</p>
                       </div>
                       <div>
-                        <p className="text-slate-500">Experience</p>
-                        <p className="text-white font-bold mt-1">{st.experience}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Join Date</p>
+                        <p className="text-slate-800 font-black mt-1">15 Jan 2023</p>
                       </div>
-                      <div className="px-4 py-2 bg-slate-900/60 rounded-xl border border-slate-850">
-                        <p className="text-slate-500">Rating</p>
-                        <p className="text-sm font-black text-amber-500 mt-0.5">⭐ {st.rating}</p>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Experience</p>
+                        <p className="text-slate-800 font-black mt-1">5 Years</p>
                       </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Reporting To</p>
+                        <p className="text-slate-800 font-black mt-1">Vikram Singh</p>
+                      </div>
+                    </div>
+
+                    {/* Right Column: Rating Circle */}
+                    <div className="flex flex-col items-center justify-center border-l border-slate-100 pl-6">
+                      <div className="relative w-20 h-20 flex items-center justify-center">
+                        <svg className="w-full h-full transform -rotate-95" viewBox="0 0 36 36">
+                          <path className="text-slate-100" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                          <path className="text-yellow-500" strokeWidth="3" strokeDasharray="94, 100" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div className="absolute flex flex-col items-center justify-center">
+                          <p className="text-base font-black text-slate-850">4.7⭐</p>
+                          <p className="text-[8px] text-slate-400 uppercase font-bold">Rating</p>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-2 font-medium">Based on 28 reviews</p>
                     </div>
                   </div>
 
-                  {/* Grid details splits */}
+                  {/* Sub-tabs Bar */}
+                  <div className="flex border-b border-slate-200 text-xs font-bold text-slate-400">
+                    <button className="px-6 py-3 text-blue-600 border-b-2 border-blue-600 tracking-wide">Personal Info</button>
+                    <button className="px-6 py-3 hover:text-slate-700 tracking-wide">Attendance</button>
+                    <button className="px-6 py-3 hover:text-slate-700 tracking-wide">Earnings</button>
+                    <button className="px-6 py-3 hover:text-slate-700 tracking-wide">Documents</button>
+                    <button className="px-6 py-3 hover:text-slate-700 tracking-wide">Assigned Jobs</button>
+                  </div>
+
+                  {/* Split Layout */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left 2 columns */}
                     <div className="lg:col-span-2 space-y-6">
-                      {/* Personal Info */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Personal Information</h3>
-                        <div className="grid grid-cols-2 gap-y-4 text-xs text-slate-400">
+                      {/* Personal Information Card */}
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                        <h3 className="text-sm font-black text-slate-900 tracking-wide mb-4 pb-2 border-b border-slate-100">Personal Information</h3>
+                        <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-xs text-slate-500">
                           <div>
-                            <p>Full Name</p>
-                            <p className="text-white font-bold mt-1">{st.name}</p>
+                            <p className="text-[10px] text-slate-400 uppercase font-bold">Full Name</p>
+                            <p className="text-slate-850 font-bold mt-0.5">{st.name}</p>
                           </div>
                           <div>
-                            <p>Date of Birth</p>
-                            <p className="text-white font-bold mt-1">12 Aug 1993</p>
+                            <p className="text-[10px] text-slate-400 uppercase font-bold">Date of Birth</p>
+                            <p className="text-slate-850 font-bold mt-0.5">12 Aug 1993</p>
                           </div>
                           <div>
-                            <p>Email Address</p>
-                            <p className="text-white font-bold mt-1">{st.email}</p>
+                            <p className="text-[10px] text-slate-400 uppercase font-bold">Gender</p>
+                            <p className="text-slate-850 font-bold mt-0.5">Male</p>
                           </div>
                           <div>
-                            <p>Emergency Contact</p>
-                            <p className="text-white font-bold mt-1">Pooja Verma (Wife)</p>
+                            <p className="text-[10px] text-slate-400 uppercase font-bold">Mobile Number</p>
+                            <p className="text-slate-850 font-bold mt-0.5">+91 98765 43210</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase font-bold">Email Address</p>
+                            <p className="text-slate-850 font-bold mt-0.5">{st.email}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase font-bold">Address</p>
+                            <p className="text-slate-850 font-bold mt-0.5">Sector 62, Noida, Uttar Pradesh - 201301</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase font-bold">Emergency Contact</p>
+                            <p className="text-slate-850 font-bold mt-0.5">Pooja Verma (Wife) • +91 98765 43211</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase font-bold">Blood Group</p>
+                            <p className="text-slate-850 font-bold mt-0.5">B+</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase font-bold">Nationality</p>
+                            <p className="text-slate-850 font-bold mt-0.5">Indian</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase font-bold">Aadhaar Number</p>
+                            <p className="text-slate-850 font-bold mt-0.5">XXXX XXXX 1234</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-slate-400 uppercase font-bold">PAN Number</p>
+                            <p className="text-slate-850 font-bold mt-0.5">ABCDE1234F</p>
                           </div>
                         </div>
                       </div>
 
-                      {/* Attendance overview */}
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Attendance Overview</h3>
-                        <div className="grid grid-cols-3 gap-4 text-center">
-                          <div className="p-4 bg-slate-900/40 rounded-xl border border-slate-850/65">
-                            <span className="text-[10px] text-slate-550 uppercase">Total Days</span>
-                            <p className="text-xl font-black text-white mt-1">26</p>
+                      {/* Attendance Overview Card */}
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                        <h3 className="text-sm font-black text-slate-900 tracking-wide mb-4 pb-2 border-b border-slate-100">Attendance Overview (This Month)</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-center">
+                          <div className="md:col-span-4 grid grid-cols-4 gap-4 text-center">
+                            <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm">
+                              <span className="text-[9px] text-slate-400 uppercase font-bold">Total Days</span>
+                              <p className="text-xl font-black text-slate-800 mt-1">26</p>
+                            </div>
+                            <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm">
+                              <span className="text-[9px] text-slate-400 uppercase font-bold">Present</span>
+                              <p className="text-xl font-black text-emerald-600 mt-1">22</p>
+                            </div>
+                            <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm">
+                              <span className="text-[9px] text-slate-400 uppercase font-bold">Absent</span>
+                              <p className="text-xl font-black text-rose-500 mt-1">2</p>
+                            </div>
+                            <div className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm">
+                              <span className="text-[9px] text-slate-400 uppercase font-bold">On Leave</span>
+                              <p className="text-xl font-black text-amber-500 mt-1">2</p>
+                            </div>
                           </div>
-                          <div className="p-4 bg-slate-900/40 rounded-xl border border-slate-850/65">
-                            <span className="text-[10px] text-slate-550 uppercase">Present</span>
-                            <p className="text-xl font-black text-emerald-400 mt-1">22</p>
-                          </div>
-                          <div className="p-4 bg-slate-900/40 rounded-xl border border-slate-850/65">
-                            <span className="text-[10px] text-slate-550 uppercase">Rate</span>
-                            <p className="text-xl font-black text-blue-450 mt-1">{st.attendance}</p>
+                          
+                          {/* Circle Progress Rate */}
+                          <div className="flex flex-col items-center justify-center">
+                            <div className="relative w-16 h-16 flex items-center justify-center">
+                              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                <path className="text-slate-100" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path className="text-emerald-500" strokeWidth="3" strokeDasharray="84.6, 100" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                              </svg>
+                              <div className="absolute">
+                                <p className="text-xs font-black text-slate-800">84.6%</p>
+                              </div>
+                            </div>
+                            <p className="text-[8px] text-slate-400 uppercase font-bold mt-1">Attendance</p>
                           </div>
                         </div>
                       </div>
@@ -3645,24 +3739,141 @@ export default function FranchisePortal() {
 
                     {/* Right column sidebar */}
                     <div className="space-y-6">
-                      <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-slate-400">
-                        <h3 className="text-sm font-bold text-white tracking-wide mb-4">Other Information</h3>
-                        <div className="space-y-3">
-                          <div className="flex justify-between">
+                      {/* Other Information Card */}
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm text-xs text-slate-500">
+                        <h3 className="text-sm font-black text-slate-900 tracking-wide mb-4 pb-2 border-b border-slate-100">Other Information</h3>
+                        <div className="space-y-3.5">
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
                             <span>Employee ID</span>
-                            <span className="text-white font-bold">STF001</span>
+                            <span className="text-slate-850 font-bold">STF001</span>
                           </div>
-                          <div className="flex justify-between">
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                            <span>Designation</span>
+                            <span className="text-slate-850 font-bold">Supervisor</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                            <span>Department</span>
+                            <span className="text-slate-850 font-bold">Operations</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
                             <span>Shift Timing</span>
-                            <span className="text-white font-bold">09:00 AM - 06:00 PM</span>
+                            <span className="text-slate-850 font-bold">09:00 AM - 06:00 PM</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                            <span>Employment Type</span>
+                            <span className="text-slate-850 font-bold">Full Time</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                            <span>Salary Type</span>
+                            <span className="text-slate-850 font-bold">Monthly</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                            <span>Basic Salary</span>
+                            <span className="text-emerald-600 font-black">₹20,000</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Basic Salary</span>
-                            <span className="text-emerald-450 font-bold">{st.salary}</span>
+                            <span>Working Days</span>
+                            <span className="text-slate-850 font-bold">26 Days / Month</span>
                           </div>
                         </div>
                       </div>
+
+                      {/* Skills Card */}
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm text-xs text-slate-500">
+                        <h3 className="text-sm font-black text-slate-900 tracking-wide mb-4 pb-2 border-b border-slate-100">Skills</h3>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-xl font-bold">Team Management</span>
+                          <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-xl font-bold">Customer Handling</span>
+                          <span className="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-xl font-bold">Quality Check</span>
+                          <span className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-xl font-bold">Car Wash Expert</span>
+                          <span className="px-2.5 py-1 bg-purple-50 text-purple-650 rounded-xl font-bold">Staff Training</span>
+                        </div>
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Earnings Summary Card */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                    <h3 className="text-sm font-black text-slate-900 tracking-wide mb-4 pb-2 border-b border-slate-100">Earnings Summary</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                      <div className="p-4 bg-slate-50/50 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">This Month (May)</p>
+                          <p className="text-lg font-black text-slate-850 mt-1">₹22,450</p>
+                          <button className="text-[10px] text-blue-600 font-bold hover:text-blue-500 mt-2 block">View Details</button>
+                        </div>
+                        <span className="text-2xl">💰</span>
+                      </div>
+                      <div className="p-4 bg-slate-50/50 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">Last Month (Apr)</p>
+                          <p className="text-lg font-black text-slate-850 mt-1">₹21,000</p>
+                          <button className="text-[10px] text-blue-600 font-bold hover:text-blue-500 mt-2 block">View Details</button>
+                        </div>
+                        <span className="text-2xl">💵</span>
+                      </div>
+                      <div className="p-4 bg-slate-50/50 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">This Year (2025)</p>
+                          <p className="text-lg font-black text-slate-850 mt-1">₹1,28,450</p>
+                          <button className="text-[10px] text-blue-600 font-bold hover:text-blue-500 mt-2 block">View Details</button>
+                        </div>
+                        <span className="text-2xl">📈</span>
+                      </div>
+                      <div className="p-4 bg-slate-50/50 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">Total Earnings</p>
+                          <p className="text-lg font-black text-slate-850 mt-1">₹2,85,650</p>
+                          <button className="text-[10px] text-blue-600 font-bold hover:text-blue-500 mt-2 block">View Details</button>
+                        </div>
+                        <span className="text-2xl">🏦</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Recent Assigned Jobs Card */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                      <h3 className="text-sm font-black text-slate-900 tracking-wide">Recent Assigned Jobs</h3>
+                      <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">View All Jobs</button>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-100 text-slate-400 font-black uppercase text-[10px] tracking-wider">
+                            <th className="pb-3 px-4">Job ID</th>
+                            <th className="pb-3 px-4">Customer</th>
+                            <th className="pb-3 px-4">Service</th>
+                            <th className="pb-3 px-4">Vehicle</th>
+                            <th className="pb-3 px-4">Date & Time</th>
+                            <th className="pb-3 px-4 text-center">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50 text-slate-700">
+                          {[
+                            { id: 'JOB12345', cust: 'Rahul Sharma', svc: 'Exterior Wash', veh: 'UP16AB1234', dt: '26 May 2025, 10:00 AM', status: 'Ongoing', badge: 'bg-blue-50 text-blue-600' },
+                            { id: 'JOB12344', cust: 'Neha Gupta', svc: 'Interior Cleaning', veh: 'UP14CD5678', dt: '26 May 2025, 12:30 PM', status: 'Upcoming', badge: 'bg-amber-50 text-amber-600' },
+                            { id: 'JOB12343', cust: 'Amitabh Singh', svc: 'Steam Wash', veh: 'UP16EF9012', dt: '27 May 2025, 11:00 AM', status: 'Upcoming', badge: 'bg-amber-50 text-amber-600' },
+                            { id: 'JOB12342', cust: 'Vikram Patel', svc: 'Deep Cleaning', veh: 'UP14GH3456', dt: '27 May 2025, 02:30 PM', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
+                            { id: 'JOB12341', cust: 'Anjali Mehta', svc: 'Foam Wash', veh: 'UP16KL1122', dt: '25 May 2025, 09:30 AM', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
+                          ].map((job, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="py-3.5 px-4 font-bold text-blue-600">{job.id}</td>
+                              <td className="py-3.5 px-4 font-bold text-slate-800">{job.cust}</td>
+                              <td className="py-3.5 px-4 font-medium text-slate-600">{job.svc}</td>
+                              <td className="py-3.5 px-4 font-semibold text-slate-700">{job.veh}</td>
+                              <td className="py-3.5 px-4 text-slate-500 font-semibold">{job.dt}</td>
+                              <td className="py-3.5 px-4 text-center">
+                                <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${job.badge}`}>{job.status}</span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <button className="w-full text-center py-2.5 mt-4 border-t border-slate-100 hover:bg-slate-50 text-[11px] text-blue-650 font-bold flex items-center justify-center gap-1">
+                      Show More Jobs <span>∨</span>
+                    </button>
                   </div>
                 </div>
               );

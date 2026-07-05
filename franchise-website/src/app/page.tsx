@@ -3881,50 +3881,76 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "staff" && !selectedStaffId && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Header */}
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Staff Dashboard</h2>
-                  <p className="text-xs text-slate-400 mt-1">Manage & monitor your staff and their activities.</p>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Staff Management</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Staff List</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Staff Dashboard</h2>
+                  <p className="text-xs text-slate-505 mt-1">Manage & monitor your staff and their activities.</p>
                 </div>
                 <button 
                   onClick={() => setShowAddStaffModal(true)}
-                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                  className="px-4 py-2.5 bg-blue-655 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
                 >
-                  + Add New Staff
+                  <span>➕</span> Add New Staff
                 </button>
               </div>
 
-              {/* Stats row */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Staff</span>
-                  <p className="text-3xl font-extrabold text-white mt-1.5">32</p>
-                  <p className="text-[10px] text-slate-400 mt-1">All registered staff</p>
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Staff</span>
+                    <p className="text-2xl font-black text-slate-800 mt-1.5">32</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">All registered staff</p>
+                  </div>
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-650 text-lg">
+                    👥
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Present Today</span>
-                  <p className="text-3xl font-extrabold text-emerald-450 mt-1.5">24</p>
-                  <p className="text-[10px] text-emerald-400 font-semibold mt-1">75.00% of total</p>
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Present Today</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">24</p>
+                    <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">75.0% of total</p>
+                  </div>
+                  <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-lg">
+                    🟢
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Absent Today</span>
-                  <p className="text-3xl font-extrabold text-rose-500 mt-1.5">5</p>
-                  <p className="text-[10px] text-rose-450 font-semibold mt-1">15.63% of total</p>
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Absent Today</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">5</p>
+                    <p className="text-[10px] text-rose-500 font-semibold mt-0.5">15.6% of total</p>
+                  </div>
+                  <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500 text-lg">
+                    🔴
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">On Leave</span>
-                  <p className="text-3xl font-extrabold text-amber-500 mt-1.5">3</p>
-                  <p className="text-[10px] text-amber-450 font-semibold mt-1">9.38% of total</p>
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">On Leave</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">3</p>
+                    <p className="text-[10px] text-amber-500 font-semibold mt-0.5">9.4% of total</p>
+                  </div>
+                  <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-lg">
+                    🟡
+                  </div>
                 </div>
               </div>
 
+              {/* Grid Content */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Staff List table */}
-                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Staff List</h3>
-                  <div className="space-y-4">
+                {/* Left columns: Staff List table */}
+                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                  <h3 className="text-sm font-black text-slate-850 tracking-wide mb-4 pb-2 border-b border-slate-100">Staff List</h3>
+                  <div className="space-y-3.5">
                     {[
                       { id: 'STF001', name: 'Amit Verma', role: 'Supervisor', dep: 'Operations', phone: '+91 98765 43210', status: 'Present' },
                       { id: 'STF002', name: 'Rahul Sharma', role: 'Technician', dep: 'Cleaning', phone: '+91 91234 56789', status: 'Present' },
@@ -3933,42 +3959,42 @@ export default function FranchisePortal() {
                       <div 
                         key={idx} 
                         onClick={() => setSelectedStaffId(st.id)}
-                        className="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-850/60 text-xs cursor-pointer hover:bg-slate-900/80 transition-all"
+                        className="flex justify-between items-center p-3.5 bg-slate-50/50 rounded-2xl border border-slate-100 text-xs cursor-pointer hover:border-blue-200 hover:bg-white transition-all shadow-sm"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold">
+                          <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-black text-sm shadow-sm">
                             {st.name.charAt(0)}
                           </div>
                           <div>
-                            <p className="font-bold text-white">{st.name}</p>
-                            <p className="text-[10px] text-slate-400 mt-0.5">{st.role} • {st.dep}</p>
+                            <p className="font-bold text-slate-800 flex items-center gap-1.5">{st.name} <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">{st.id}</span></p>
+                            <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{st.role} • {st.dep}</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-slate-400">{st.phone}</p>
-                          <span className={`text-[9px] font-bold uppercase ${st.status === 'Present' ? 'text-emerald-450' : 'text-rose-400'}`}>{st.status}</span>
+                          <p className="text-slate-500 font-semibold">{st.phone}</p>
+                          <span className={`text-[9px] font-black uppercase mt-1 inline-block ${st.status === 'Present' ? 'text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded' : 'text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded'}`}>{st.status}</span>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Sidebar details */}
+                {/* Right column sidebar */}
                 <div className="space-y-6">
-                  <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                    <h3 className="text-sm font-bold text-white tracking-wide mb-4">Department wise count</h3>
-                    <div className="space-y-3 text-xs">
-                      <div className="flex justify-between">
-                        <span className="text-slate-400">Operations</span>
-                        <span className="text-white font-bold">8</span>
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                    <h3 className="text-sm font-black text-slate-850 tracking-wide mb-4 pb-2 border-b border-slate-100">Department wise count</h3>
+                    <div className="space-y-3.5 text-xs text-slate-500">
+                      <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                        <span>Operations</span>
+                        <span className="text-slate-800 font-black">8</span>
+                      </div>
+                      <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                        <span>Cleaning</span>
+                        <span className="text-slate-800 font-black">12</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Cleaning</span>
-                        <span className="text-white font-bold">12</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-400">Detailing</span>
-                        <span className="text-white font-bold">4</span>
+                        <span>Detailing</span>
+                        <span className="text-slate-800 font-black">4</span>
                       </div>
                     </div>
                   </div>

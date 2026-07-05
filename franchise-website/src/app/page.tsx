@@ -154,6 +154,8 @@ export default function FranchisePortal() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [selectedVehicleDetails, setSelectedVehicleDetails] = useState<any | null>(null);
+  const [editingVehicle, setEditingVehicle] = useState<any | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [viewInventoryDashboard, setViewInventoryDashboard] = useState(false);
@@ -194,6 +196,15 @@ export default function FranchisePortal() {
     email: "",
     password: "",
   });
+
+  const handleEditVehicleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingVehicle) return;
+    setVehiclesList(prev => prev.map(item => 
+      (item.plate === editingVehicle.plate || item._id === editingVehicle._id) ? editingVehicle : item
+    ));
+    setEditingVehicle(null);
+  };
 
   const handleEditCustomerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -3460,10 +3471,16 @@ export default function FranchisePortal() {
                     </div>
 
                     <div className="flex gap-2.5 mt-5 pt-3 border-t border-slate-100">
-                      <button className="flex-1 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setEditingVehicle(v); }}
+                        className="flex-1 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1"
+                      >
                         ✏️ Edit
                       </button>
-                      <button className="flex-1 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setSelectedVehicleDetails(v); }}
+                        className="flex-1 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1"
+                      >
                         👁️ View Details
                       </button>
                     </div>
@@ -5047,6 +5064,158 @@ export default function FranchisePortal() {
           )}
         </main>
       </div>
+
+      {/* Vehicle Details Modal */}
+      {selectedVehicleDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white border border-slate-150 rounded-3xl p-6 w-full max-w-md shadow-2xl text-slate-800 relative">
+            <button 
+              onClick={() => setSelectedVehicleDetails(null)}
+              className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 text-lg font-bold"
+            >
+              ✕
+            </button>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-2xl">🚗</span>
+              <div>
+                <h3 className="text-base font-black text-slate-900 tracking-wide">{selectedVehicleDetails.brand}</h3>
+                <span className="px-2.5 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[10px] font-black">{selectedVehicleDetails.plate}</span>
+              </div>
+            </div>
+            
+            <div className="h-40 w-full rounded-2xl overflow-hidden mb-4 border border-slate-100 shadow-sm">
+              <img 
+                src={selectedVehicleDetails.imgUrl} 
+                alt={selectedVehicleDetails.brand}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            <div className="space-y-3.5 text-xs">
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Vehicle Type</span>
+                <span className="text-slate-800 font-bold">{selectedVehicleDetails.type}</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Body Color</span>
+                <span className="text-slate-800 font-bold">{selectedVehicleDetails.color}</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Status</span>
+                <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${
+                  selectedVehicleDetails.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                }`}>{selectedVehicleDetails.status}</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Owner Link</span>
+                <span className="text-blue-600 font-bold">Rahul Sharma (VIP)</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Preferred Workshop</span>
+                <span className="text-slate-800 font-medium">Noida Sector 62</span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-5 mt-2 border-t border-slate-100">
+              <button
+                onClick={() => {
+                  setSelectedVehicleDetails(null);
+                  setEditingVehicle(selectedVehicleDetails);
+                }}
+                className="flex-1 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
+              >
+                ✏️ Edit Vehicle
+              </button>
+              <button
+                onClick={() => setSelectedVehicleDetails(null)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer text-center"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Vehicle Modal */}
+      {editingVehicle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white border border-slate-150 rounded-3xl p-6 w-full max-w-md shadow-2xl text-slate-800">
+            <h3 className="text-lg font-black text-slate-900 mb-4 tracking-wide">Edit Vehicle Details</h3>
+            <form onSubmit={handleEditVehicleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Brand & Model</label>
+                <input
+                  type="text"
+                  required
+                  value={editingVehicle.brand || ""}
+                  onChange={(e) => setEditingVehicle({ ...editingVehicle, brand: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Plate Number</label>
+                <input
+                  type="text"
+                  required
+                  value={editingVehicle.plate || ""}
+                  onChange={(e) => setEditingVehicle({ ...editingVehicle, plate: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vehicle Type</label>
+                <select
+                  value={editingVehicle.type || "SUV"}
+                  onChange={(e) => setEditingVehicle({ ...editingVehicle, type: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                >
+                  <option value="SUV">SUV</option>
+                  <option value="Sedan">Sedan</option>
+                  <option value="Hatchback">Hatchback</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Body Color</label>
+                <input
+                  type="text"
+                  required
+                  value={editingVehicle.color || ""}
+                  onChange={(e) => setEditingVehicle({ ...editingVehicle, color: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</label>
+                <select
+                  value={editingVehicle.status || "Active"}
+                  onChange={(e) => setEditingVehicle({ ...editingVehicle, status: e.target.value })}
+                  className="mt-1.5 block w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 p-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingVehicle(null)}
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer text-center"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Edit Customer Modal */}
       {editingCustomer && (

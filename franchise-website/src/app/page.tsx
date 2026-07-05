@@ -1425,19 +1425,19 @@ export default function FranchisePortal() {
             </div>
           )}
 
-          {activeTab === "bookings" && !selectedBookingId && !viewNewBooking && !viewProgressTracking && (
-            <div className="space-y-6 text-slate-100">
-              {/* Header section with description */}
-                slotTime: '10:00 AM',
-                customerName: 'Rahul Sharma',
-                vehicleNumber: 'UP 16 AB 1234',
-                serviceName: 'Premium Steam Wash',
-                totalAmount: 1250,
-                paymentStatus: 'paid'
-              };
-
-              return (
-                <div className="space-y-6 text-slate-100 pb-10">
+          {activeTab === "bookings" && selectedBookingId && !viewNewBooking && !viewProgressTracking && (() => {
+            const b = bookings.find(item => item._id === selectedBookingId) || {
+              bookingId: 'GMF-12345',
+              slotDate: '2025-05-24',
+              slotTime: '10:00 AM',
+              customerName: 'Rahul Sharma',
+              vehicleNumber: 'UP 16 AB 1234',
+              serviceName: 'Premium Steam Wash',
+              totalAmount: 1250,
+              paymentStatus: 'paid'
+            };
+            return (
+              <div className="space-y-6 text-slate-100 pb-10">
                   {/* Back Navigation Bar */}
                   <div className="flex items-center justify-between">
                     <button 
@@ -1730,7 +1730,7 @@ export default function FranchisePortal() {
                 </div>
               );
             })()
-          )}
+          }
 
           {activeTab === "bookings" && !selectedBookingId && (
             <div className="space-y-6 text-slate-100">
@@ -3525,15 +3525,22 @@ export default function FranchisePortal() {
                             item.priority === 'High' ? 'text-red-500' : 'text-yellow-500'
                           }`}>{item.priority}</span>
                         </td>
-                  <h3 className="text-sm font-bold text-white tracking-wide">My Support Tickets</h3>
-                  <div className="space-y-3">
-                    <div className="p-3 bg-slate-900/40 rounded-xl border border-slate-850">
-                      <div className="flex justify-between">
-                        <span className="font-bold text-white">#TKT-2025-0578</span>
-                        <span className="text-rose-500 font-bold uppercase text-[9px]">Open</span>
-                      </div>
-                      <p className="text-[10px] text-slate-550 mt-0.5">Payment not refunded</p>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Support Tickets Section */}
+              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
+                <h3 className="text-sm font-bold text-white tracking-wide">My Support Tickets</h3>
+                <div className="space-y-3 mt-4">
+                  <div className="p-3 bg-slate-900/40 rounded-xl border border-slate-850">
+                    <div className="flex justify-between">
+                      <span className="font-bold text-white">#TKT-2025-0578</span>
+                      <span className="text-rose-500 font-bold uppercase text-[9px]">Open</span>
                     </div>
+                    <p className="text-[10px] text-slate-550 mt-0.5">Payment not refunded</p>
                   </div>
                 </div>
               </div>

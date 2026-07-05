@@ -2278,7 +2278,7 @@ export default function FranchisePortal() {
                 >
                   <span>Upcoming</span>
                   <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[10px] font-extrabold">
-                    {bookings.filter(b => !['completed', 'cancelled', 'in_progress'].includes(b.status)).length}
+                    {bookings.filter(b => !['completed', 'cancelled', 'in_progress'].includes((b.status || "").toLowerCase())).length}
                   </span>
                 </button>
                 <button 
@@ -2289,7 +2289,7 @@ export default function FranchisePortal() {
                 >
                   <span>Ongoing</span>
                   <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[10px] font-extrabold">
-                    {bookings.filter(b => b.status === 'in_progress').length}
+                    {bookings.filter(b => (b.status || "").toLowerCase() === 'in_progress').length}
                   </span>
                 </button>
                 <button 
@@ -2300,7 +2300,7 @@ export default function FranchisePortal() {
                 >
                   <span>Completed</span>
                   <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-extrabold">
-                    {bookings.filter(b => b.status === 'completed').length}
+                    {bookings.filter(b => (b.status || "").toLowerCase() === 'completed').length}
                   </span>
                 </button>
                 <button 
@@ -2311,7 +2311,7 @@ export default function FranchisePortal() {
                 >
                   <span>Cancelled</span>
                   <span className="px-2 py-0.5 bg-rose-50 text-rose-600 rounded-md text-[10px] font-extrabold">
-                    {bookings.filter(b => b.status === 'cancelled').length}
+                    {bookings.filter(b => (b.status || "").toLowerCase() === 'cancelled').length}
                   </span>
                 </button>
                 <button 
@@ -2378,11 +2378,12 @@ export default function FranchisePortal() {
               <div className="space-y-4">
                 {bookings
                   .filter((b) => {
+                    const bStatus = (b.status || "").toLowerCase();
                     // Status filter
-                    if (bookingStatusFilter === "upcoming" && ['completed', 'cancelled', 'in_progress'].includes(b.status)) return false;
-                    if (bookingStatusFilter === "ongoing" && b.status !== 'in_progress') return false;
-                    if (bookingStatusFilter === "completed" && b.status !== 'completed') return false;
-                    if (bookingStatusFilter === "cancelled" && b.status !== 'cancelled') return false;
+                    if (bookingStatusFilter === "upcoming" && ['completed', 'cancelled', 'in_progress'].includes(bStatus)) return false;
+                    if (bookingStatusFilter === "ongoing" && bStatus !== 'in_progress') return false;
+                    if (bookingStatusFilter === "completed" && bStatus !== 'completed') return false;
+                    if (bookingStatusFilter === "cancelled" && bStatus !== 'cancelled') return false;
 
                     // Text search
                     if (bookingSearch) {
@@ -2464,26 +2465,26 @@ export default function FranchisePortal() {
                       <div className="flex flex-col md:items-end gap-2.5">
                         <div className="flex items-center gap-2">
                           <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                            b.status === "completed"
+                            (b.status || "").toLowerCase() === "completed"
                               ? "bg-emerald-550/10 text-emerald-600"
-                              : b.status === "cancelled"
+                              : (b.status || "").toLowerCase() === "cancelled"
                               ? "bg-rose-550/10 text-rose-600"
-                              : b.status === "in_progress"
+                              : (b.status || "").toLowerCase() === "in_progress"
                               ? "bg-indigo-550/10 text-indigo-600"
                               : "bg-blue-550/10 text-blue-600"
                           }`}>
-                            {b.status || 'Upcoming'}
+                            {(b.status || 'Upcoming').replace("_", " ")}
                           </span>
                           <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
-                            b.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                            (b.paymentStatus || "").toLowerCase() === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
                           }`}>
-                            {b.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+                            {(b.paymentStatus || 'Pending').toLowerCase() === 'paid' ? 'Paid' : 'Pending'}
                           </span>
                         </div>
 
-                        {b.status !== 'completed' && b.status !== 'cancelled' && (
+                        {!['completed', 'cancelled'].includes((b.status || "").toLowerCase()) && (
                           <div className="flex gap-2 w-full md:w-auto" onClick={(e) => e.stopPropagation()}>
-                            {b.status !== 'in_progress' ? (
+                            {(b.status || "").toLowerCase() !== 'in_progress' ? (
                               <button
                                 onClick={() => handleUpdateBookingStatus(b._id, 'in_progress')}
                                 disabled={actionLoading === b._id}

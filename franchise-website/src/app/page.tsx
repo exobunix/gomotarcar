@@ -31,7 +31,7 @@ export default function FranchisePortal() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "inventory" | "earnings" | "wallet" | "transactions" | "invoices" | "offers" | "ratings" | "complaints" | "reports" | "notifications" | "support" | "business_profile" | "profile" | "settings">("dashboard");
   const [profileSubTab, setProfileSubTab] = useState<"dashboard" | "details" | "working_hours" | "gallery">("dashboard");
   const [settingsSubTab, setSettingsSubTab] = useState<"general" | "security" | "notifications" | "language" | "theme" | "payment" | "printer">("general");
-  const [profileSection, setProfileSection] = useState<"personal" | "bank" | "documents">("personal");
+  const [profileSection, setProfileSection] = useState<"personal" | "bank" | "documents" | "password">("personal");
   // Auth/Register Toggle
   const [isRegisterMode, setIsRegisterMode] = useState(false);
 
@@ -8752,106 +8752,271 @@ export default function FranchisePortal() {
 
           {activeTab === "profile" && (
             <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
-              {/* Header */}
+              {/* Breadcrumbs & Header */}
               <div>
+                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                  <span>Profile & Account</span>
+                  <span className="text-slate-300">/</span>
+                  <span className="text-slate-600">
+                    {profileSection === "personal" && "Personal Details"}
+                    {profileSection === "bank" && "Bank Details"}
+                    {profileSection === "documents" && "Documents"}
+                    {profileSection === "password" && "Password"}
+                  </span>
+                </div>
                 <h2 className="text-2xl font-black text-slate-900 tracking-wide">Profile & Account</h2>
                 <p className="text-xs text-slate-555 mt-1">Manage your personal information, documents and account settings.</p>
               </div>
 
               {/* Sub tabs list row */}
-              <div className="flex gap-6 border-b border-slate-100 pb-1 text-xs font-bold text-slate-400">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-1 mb-2">
+                <div className="flex gap-6 text-xs font-bold text-slate-400">
+                  <button 
+                    onClick={() => setProfileSection("personal")}
+                    className={`pb-2 px-1 transition-all flex items-center gap-1.5 ${profileSection === "personal" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                  >
+                    👤 Personal Details
+                  </button>
+                  <button 
+                    onClick={() => setProfileSection("bank")}
+                    className={`pb-2 px-1 transition-all flex items-center gap-1.5 ${profileSection === "bank" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                  >
+                    🏦 Bank Details
+                  </button>
+                  <button 
+                    onClick={() => setProfileSection("documents")}
+                    className={`pb-2 px-1 transition-all flex items-center gap-1.5 ${profileSection === "documents" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                  >
+                    📁 Documents
+                  </button>
+                  <button 
+                    onClick={() => setProfileSection("password" as any)}
+                    className={`pb-2 px-1 transition-all flex items-center gap-1.5 ${profileSection === ("password" as any) ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                  >
+                    🔑 Password
+                  </button>
+                </div>
                 <button 
-                  onClick={() => setProfileSection("personal")}
-                  className={`pb-2 px-1 transition-all ${profileSection === "personal" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                  onClick={() => {
+                    localStorage.removeItem("franchise_token");
+                    window.location.reload();
+                  }}
+                  className="pb-2 px-1 text-red-500 hover:text-red-650 text-xs font-bold transition-all flex items-center gap-1.5"
                 >
-                  👤 Personal Details
-                </button>
-                <button 
-                  onClick={() => setProfileSection("bank")}
-                  className={`pb-2 px-1 transition-all ${profileSection === "bank" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
-                >
-                  🏦 Bank Details
-                </button>
-                <button 
-                  onClick={() => setProfileSection("documents")}
-                  className={`pb-2 px-1 transition-all ${profileSection === "documents" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
-                >
-                  📁 Documents
+                  🚪 Logout
                 </button>
               </div>
 
-              {/* Personal Details Panel */}
+              {/* ========================================================== */}
+              {/* SECTION 1: PERSONAL DETAILS */}
+              {/* ========================================================== */}
               {profileSection === "personal" && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs font-semibold text-slate-700">
-                  <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-5">
-                    <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-                      <div className="w-14 h-14 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-lg">RM</div>
-                      <div>
-                        <p className="font-bold text-slate-800 text-sm">Profile Picture</p>
-                        <p className="text-[10px] text-slate-400 font-bold mt-0.5">JPG, PNG or WEBP. Max size of 2MB.</p>
-                      </div>
-                      <button className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-[10px] font-black shadow-sm ml-auto">Upload Photo</button>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-slate-455 font-bold mb-1.5">Full Name *</label>
-                        <input type="text" defaultValue="Roy Motors" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-slate-455 font-bold mb-1.5">Email Address *</label>
-                        <input type="email" defaultValue="roymotors@gmail.com" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-slate-455 font-bold mb-1.5">Mobile Number *</label>
-                        <input type="text" defaultValue="+91 98765 43210" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-slate-455 font-bold mb-1.5">Nationality</label>
-                        <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none cursor-pointer">
-                          <option>Indian</option>
-                        </select>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs font-semibold text-slate-700">
+                  {/* Left Form Column */}
+                  <div className="lg:col-span-8 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-6">
+                    {/* Profile Picture card */}
+                    <div className="space-y-3.5">
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Profile Picture</h3>
+                      <div className="flex items-center gap-6">
+                        <div className="relative w-20 h-20 rounded-full overflow-hidden border border-slate-200 bg-slate-900 shadow-sm flex items-center justify-center flex-shrink-0">
+                          {/* Dark blue background avatar matching mockup */}
+                          <img src="https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=200" alt="Roy Motors" className="w-full h-full object-cover opacity-90" />
+                          <button className="absolute bottom-1 right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px] border border-white shadow-sm cursor-pointer">
+                            📷
+                          </button>
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-[10px] text-slate-400 font-bold">JPG, PNG or WEBP. Max size of 2MB.</p>
+                          <div className="flex items-center gap-2">
+                            <button className="px-3.5 py-1.5 bg-white border border-blue-200 hover:bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black transition-all cursor-pointer shadow-sm">
+                              Upload New Photo
+                            </button>
+                            <button className="px-3.5 py-1.5 bg-white border border-red-200 hover:bg-red-50 text-red-650 rounded-xl text-[10px] font-black transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                              🗑️ Remove Photo
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-slate-455 font-bold mb-1.5">Address *</label>
-                      <textarea defaultValue="123, Green Park Avenue, Sector 45, Noida, Uttar Pradesh - 201301" rows={3} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                    <div className="pt-2 border-t border-slate-100 space-y-4">
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Personal Information</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-slate-455 font-bold mb-1.5">Full Name *</label>
+                          <input type="text" defaultValue="Roy Motors" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-slate-455 font-bold mb-1.5">Email Address *</label>
+                          <input type="email" defaultValue="roymotors@gmail.com" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="md:col-span-1">
+                          <label className="block text-slate-455 font-bold mb-1.5">Mobile Number *</label>
+                          <input type="text" defaultValue="+91 98765 43210" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                        </div>
+                        <div className="md:col-span-1">
+                          <label className="block text-slate-455 font-bold mb-1.5">Date of Birth</label>
+                          <div className="relative">
+                            <input type="text" defaultValue="15 Aug 1990" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">📅</span>
+                          </div>
+                        </div>
+                        <div className="md:col-span-1">
+                          <label className="block text-slate-455 font-bold mb-1.5">Gender</label>
+                          <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-805 font-bold focus:outline-none cursor-pointer">
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-slate-455 font-bold mb-1.5">Nationality</label>
+                          <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none cursor-pointer">
+                            <option>Indian</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                        <div className="md:col-span-6">
+                          <label className="block text-slate-455 font-bold mb-1.5">Address *</label>
+                          <textarea defaultValue="123, Green Park Avenue, Sector 45, Noida, Uttar Pradesh - 201301" rows={3} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-slate-455 font-bold mb-1.5">City</label>
+                          <input type="text" defaultValue="Noida" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-slate-455 font-bold mb-1.5">State</label>
+                          <input type="text" defaultValue="Uttar Pradesh" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-slate-455 font-bold mb-1.5">Pincode</label>
+                          <input type="text" defaultValue="201301" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                        </div>
+                      </div>
                     </div>
 
-                    <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Save Changes</button>
+                    <div className="flex justify-end gap-3 pt-2">
+                      <button className="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-bold shadow-sm transition-all cursor-pointer">
+                        Cancel
+                      </button>
+                      <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all cursor-pointer">
+                        💾 Save Changes
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="space-y-6">
+                  {/* Right Column details */}
+                  <div className="lg:col-span-4 space-y-6">
                     {/* Account Overview */}
                     <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700">
                       <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100">Account Overview</h3>
-                      <div className="space-y-3 pt-1">
-                        <div className="flex justify-between">
-                          <span>Account Type</span>
+                      <div className="space-y-3.5 pt-1">
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1.5 text-slate-400">🛡️ Account Type</span>
                           <span className="text-slate-800 font-bold">Franchise</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Franchise ID</span>
-                          <span className="text-slate-800 font-bold">GMF12345</span>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1.5 text-slate-400">👤 Franchise Name</span>
+                          <span className="text-slate-800 font-bold">Roy Motors</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Account Status</span>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1.5 text-slate-400">🆔 Franchise ID</span>
+                          <span className="text-blue-600 font-bold">GMF12345</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1.5 text-slate-400">⏱️ Member Since</span>
+                          <span className="text-slate-800 font-bold">12 Jan 2024</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1.5 text-slate-400">⚙️ Account Status</span>
                           <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-50 text-emerald-650">Active</span>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700">
+                      <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100">Quick Actions</h3>
+                      <div className="space-y-2">
+                        <button 
+                          onClick={() => setProfileSection("bank")}
+                          className="w-full flex items-center justify-between p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-100 rounded-2xl text-left transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm">🏦</span>
+                            <div>
+                              <span className="font-bold text-slate-800 block leading-tight">Bank Details</span>
+                              <span className="text-[8.5px] text-slate-400 font-semibold block mt-0.5">Manage your bank account information</span>
+                            </div>
+                          </div>
+                          <span className="text-blue-600">→</span>
+                        </button>
+
+                        <button 
+                          onClick={() => setProfileSection("documents")}
+                          className="w-full flex items-center justify-between p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-100 rounded-2xl text-left transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm">📁</span>
+                            <div>
+                              <span className="font-bold text-slate-800 block leading-tight">Documents</span>
+                              <span className="text-[8.5px] text-slate-400 font-semibold block mt-0.5">Upload and manage your documents</span>
+                            </div>
+                          </div>
+                          <span className="text-blue-600">→</span>
+                        </button>
+
+                        <button 
+                          onClick={() => setProfileSection("password" as any)}
+                          className="w-full flex items-center justify-between p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-100 rounded-2xl text-left transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm">🔑</span>
+                            <div>
+                              <span className="font-bold text-slate-800 block leading-tight">Change Password</span>
+                              <span className="text-[8.5px] text-slate-400 font-semibold block mt-0.5">Update your account password</span>
+                            </div>
+                          </div>
+                          <span className="text-blue-600">→</span>
+                        </button>
+
+                        <button 
+                          onClick={() => {
+                            localStorage.removeItem("franchise_token");
+                            window.location.reload();
+                          }}
+                          className="w-full flex items-center justify-between p-3 bg-rose-50/30 hover:bg-rose-50/50 border border-rose-100 rounded-2xl text-left transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm text-red-500">🚪</span>
+                            <div>
+                              <span className="font-bold text-red-650 block leading-tight">Logout</span>
+                              <span className="text-[8.5px] text-red-400 font-semibold block mt-0.5">Sign out from your account</span>
+                            </div>
+                          </div>
+                          <span className="text-red-500">→</span>
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Bank Details Panel */}
+              {/* ========================================================== */}
+              {/* SECTION 2: BANK DETAILS */}
+              {/* ========================================================== */}
               {profileSection === "bank" && (
                 <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-5 text-xs font-semibold text-slate-700 max-w-3xl">
-                  <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100">Bank Details</h3>
+                  <h3 className="text-sm font-black text-slate-855 pb-2 border-b border-slate-100">Bank Details</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-slate-455 font-bold mb-1.5">Bank Name</label>
@@ -8874,14 +9039,16 @@ export default function FranchisePortal() {
                     </div>
                   </div>
 
-                  <button className="px-5 py-2.5 bg-blue-655 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Save Bank Details</button>
+                  <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Save Bank Details</button>
                 </div>
               )}
 
-              {/* Documents Panel */}
+              {/* ========================================================== */}
+              {/* SECTION 3: DOCUMENTS */}
+              {/* ========================================================== */}
               {profileSection === "documents" && (
                 <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700 max-w-3xl">
-                  <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100">Uploaded Documents</h3>
+                  <h3 className="text-sm font-black text-slate-855 pb-2 border-b border-slate-100">Uploaded Documents</h3>
                   
                   <div className="space-y-3.5">
                     {[
@@ -8899,17 +9066,46 @@ export default function FranchisePortal() {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <button className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded text-[10px] font-black shadow-sm">View</button>
-                          <button className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded text-[10px] font-black shadow-sm">Re-upload</button>
+                          <button className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-55 text-slate-700 rounded text-[10px] font-black shadow-sm">View</button>
+                          <button className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-55 text-slate-700 rounded text-[10px] font-black shadow-sm">Re-upload</button>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
+
+              {/* ========================================================== */}
+              {/* SECTION 4: PASSWORD */}
+              {/* ========================================================== */}
+              {profileSection === ("password" as any) && (
+                <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700 max-w-3xl">
+                  <h3 className="text-sm font-black text-slate-855 pb-2 border-b border-slate-100">Change Password</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-slate-455 font-bold mb-1.5">Current Password</label>
+                      <input type="password" placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-455 font-bold mb-1.5">New Password</label>
+                      <input type="password" placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-455 font-bold mb-1.5">Confirm New Password</label>
+                      <input type="password" placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
+                    </div>
+                  </div>
+                  <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Change Password</button>
+                </div>
+              )}
+
+              {/* bottom secure banner */}
+              <div className="p-4 bg-blue-50/20 rounded-3xl border border-blue-150 text-blue-700 text-xs font-semibold flex items-center gap-3 shadow-sm">
+                <span className="text-lg">🛡️</span>
+                <span>Your account information is secure and encrypted. We never share your personal information with anyone.</span>
+              </div>
             </div>
           )}
-
           {activeTab === "settings" && (
             <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
               {/* Header */}

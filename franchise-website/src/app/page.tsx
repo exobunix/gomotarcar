@@ -5925,77 +5925,214 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "invoices" && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Header */}
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Invoice Management</h2>
-                  <p className="text-xs text-slate-400 mt-1">Manage and track all your invoices in one place.</p>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Payment & Earnings</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Invoice Management</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Invoice Management</h2>
+                  <p className="text-xs text-slate-555 mt-1">Manage and track all your invoices in one place.</p>
                 </div>
                 <div className="flex gap-3">
-                  <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold cursor-pointer">
-                    Export Invoices 📤
+                  <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    <span>➕</span> Create Invoice
                   </button>
-                  <button className="px-4 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold cursor-pointer">
-                    + Create Invoice
+                  <button className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-55 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    <span>📥</span> Export Invoices
                   </button>
                 </div>
               </div>
 
               {/* Stats overview row */}
               <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
-                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Invoices</span>
-                  <p className="text-2xl font-extrabold text-white mt-1">1,248</p>
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Invoices</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">1,248</p>
+                    <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
+                  </div>
+                  <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-lg shadow-sm">
+                    📋
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Paid Invoices</span>
-                  <p className="text-2xl font-extrabold text-emerald-450 mt-1">952</p>
+
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Paid Invoices</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">952</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">76.3%</p>
+                  </div>
+                  <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-650 text-lg shadow-sm">
+                    ✓
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Pending Invoices</span>
-                  <p className="text-2xl font-extrabold text-amber-500 mt-1">241</p>
+
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Pending Invoices</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">241</p>
+                    <p className="text-[9px] text-amber-500 font-bold mt-1">19.3%</p>
+                  </div>
+                  <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-lg shadow-sm">
+                    ⌛
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
-                  <span className="text-[10px] text-slate-550 uppercase font-bold">Overdue Invoices</span>
-                  <p className="text-2xl font-extrabold text-rose-500 mt-1">55</p>
+
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Overdue Invoices</span>
+                    <p className="text-2xl font-black text-slate-855 mt-1">55</p>
+                    <p className="text-[9px] text-rose-500 font-bold mt-1">4.4%</p>
+                  </div>
+                  <div className="w-10 h-10 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 text-lg shadow-sm">
+                    ⚠️
+                  </div>
+                </div>
+
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Revenue</span>
+                    <p className="text-[15px] font-black text-slate-855 mt-2">₹24,58,320.00</p>
+                    <p className="text-[9px] text-slate-400 font-bold mt-1.5">This Month</p>
+                  </div>
+                  <div className="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-650 text-lg shadow-sm">
+                    ₹
+                  </div>
                 </div>
               </div>
 
-              {/* Table details list */}
-              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
-                      <th className="pb-3">Invoice Number</th>
-                      <th className="pb-3">Customer</th>
-                      <th className="pb-3">Invoice Date</th>
-                      <th className="pb-3">Due Date</th>
-                      <th className="pb-3">Amount</th>
-                      <th className="pb-3">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-850">
-                    {[
-                      { id: 'INV-2025-0526-001', cust: 'Rahul Sharma', date: '26 May 2025', due: '02 Jun 2025', amt: '₹2,450.00', status: 'Paid' },
-                      { id: 'INV-2025-0526-002', cust: 'Priya Verma', date: '26 May 2025', due: '02 Jun 2025', amt: '₹4,750.00', status: 'Paid' },
-                      { id: 'INV-2025-0525-018', cust: 'Amit Gupta', date: '25 May 2025', due: '01 Jun 2025', amt: '₹850.00', status: 'Pending' },
-                    ].map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
-                        <td className="py-4 font-bold text-blue-500">{item.id}</td>
-                        <td className="py-4 font-bold text-white">{item.cust}</td>
-                        <td className="py-4 text-slate-400">{item.date}</td>
-                        <td className="py-4 text-slate-400">{item.due}</td>
-                        <td className="py-4 font-black text-white">{item.amt}</td>
-                        <td className="py-4">
-                          <span className={`text-[10px] font-bold uppercase ${
-                            item.status === 'Paid' ? 'text-emerald-400' : 'text-amber-400'
-                          }`}>{item.status}</span>
-                        </td>
+              {/* Filters bar */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-3xl border border-slate-150 shadow-sm">
+                <div className="flex flex-wrap items-center gap-3.5 flex-1">
+                  <div className="relative min-w-[280px]">
+                    <input 
+                      type="text" 
+                      placeholder="Search by Invoice Number or Customer..."
+                      className="w-full rounded-xl bg-slate-55 border border-slate-200 text-slate-800 placeholder-slate-400 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+                  </div>
+
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📅</span>
+                    <select className="pl-8 pr-4 py-2 bg-slate-55 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-550/20 cursor-pointer">
+                      <option>01 May 2025 - 26 May 2025</option>
+                    </select>
+                  </div>
+
+                  <select className="rounded-xl bg-slate-55 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold cursor-pointer">
+                    <option>All Status</option>
+                    <option>Paid</option>
+                    <option>Pending</option>
+                    <option>Overdue</option>
+                  </select>
+                </div>
+                <div className="flex gap-3">
+                  <button className="px-4 py-2.5 bg-slate-55 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                    ⚙️ Filters
+                  </button>
+                </div>
+              </div>
+
+              {/* Invoices Table list */}
+              <div className="bg-white rounded-3xl border border-slate-150 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                        <th className="py-4.5 px-6">Invoice Number</th>
+                        <th className="py-4.5 px-4">Customer</th>
+                        <th className="py-4.5 px-4">Invoice Date</th>
+                        <th className="py-4.5 px-4">Due Date</th>
+                        <th className="py-4.5 px-4">Amount</th>
+                        <th className="py-4.5 px-4 text-center">Status</th>
+                        <th className="py-4.5 px-4 text-center">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
+                      {[
+                        { id: 'INV-2025-0526-001', svc: 'Car Wash Service', cust: 'Rahul Sharma', phone: '+91 98765 43210', initial: 'RS', bg: 'bg-blue-50 text-blue-600', date: '26 May 2025', due: '02 Jun 2025', amt: '₹2,450.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
+                        { id: 'INV-2025-0526-002', svc: 'Interior Cleaning', cust: 'Priya Verma', phone: '+91 87654 32109', initial: 'PV', bg: 'bg-purple-50 text-purple-600', date: '26 May 2025', due: '02 Jun 2025', amt: '₹4,750.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
+                        { id: 'INV-2025-0525-018', svc: 'Exterior Wash', cust: 'Amit Gupta', phone: '+91 76543 21098', initial: 'AG', bg: 'bg-blue-50 text-blue-600', date: '25 May 2025', due: '01 Jun 2025', amt: '₹850.00', status: 'Pending', badge: 'bg-amber-50 text-amber-600' },
+                        { id: 'INV-2025-0525-017', svc: 'Full Car Detailing', cust: 'Neha Singh', phone: '+91 65432 10987', initial: 'NS', bg: 'bg-purple-50 text-purple-600', date: '25 May 2025', due: '01 Jun 2025', amt: '₹6,250.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
+                        { id: 'INV-2025-0525-016', svc: 'Steam Wash', cust: 'Vikram Patel', phone: '+91 54321 09876', initial: 'VP', bg: 'bg-yellow-50 text-yellow-600', date: '25 May 2025', due: '01 Jun 2025', amt: '₹1,950.00', status: 'Overdue', badge: 'bg-rose-50 text-rose-600' },
+                        { id: 'INV-2025-0524-014', svc: 'Interior + Exterior', cust: 'Karan Mehta', phone: '+91 43210 98765', initial: 'KM', bg: 'bg-blue-50 text-blue-600', date: '24 May 2025', due: '31 May 2025', amt: '₹3,150.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
+                        { id: 'INV-2025-0524-013', svc: 'Ceramic Coating', cust: 'Sneha Reddy', phone: '+91 32109 87654', initial: 'SR', bg: 'bg-cyan-50 text-cyan-600', date: '24 May 2025', due: '31 May 2025', amt: '₹8,900.00', status: 'Pending', badge: 'bg-amber-50 text-amber-600' },
+                        { id: 'INV-2025-0524-012', svc: 'Foam Wash', cust: 'Manish Kumar', phone: '+91 21098 76543', initial: 'MK', bg: 'bg-blue-50 text-blue-600', date: '24 May 2025', due: '31 May 2025', amt: '₹650.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
+                        { id: 'INV-2025-0523-011', svc: 'Engine Cleaning', cust: 'Pooja Iyer', phone: '+91 10987 65432', initial: 'PI', bg: 'bg-yellow-50 text-yellow-600', date: '23 May 2025', due: '30 May 2025', amt: '₹2,250.00', status: 'Overdue', badge: 'bg-rose-50 text-rose-600' },
+                        { id: 'INV-2025-0523-010', svc: 'Windshield Treatment', cust: 'Sagar Joshi', phone: '+91 09876 54321', initial: 'SJ', bg: 'bg-blue-50 text-blue-600', date: '23 May 2025', due: '30 May 2025', amt: '₹1,150.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' }
+                      ].map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-4 px-6">
+                            <span className="font-bold text-blue-600 block">{item.id}</span>
+                            <span className="text-[10px] text-slate-400 font-semibold">{item.svc}</span>
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="flex items-center gap-2.5">
+                              <div className={`w-8 h-8 rounded-full ${item.bg} flex items-center justify-center font-bold text-xs shadow-sm`}>
+                                {item.initial}
+                              </div>
+                              <div>
+                                <span className="font-bold text-slate-800 block leading-tight">{item.cust}</span>
+                                <span className="text-[9px] text-slate-400 font-semibold">{item.phone}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4 font-semibold text-slate-500">{item.date}</td>
+                          <td className="py-4 px-4 font-semibold text-slate-500">{item.due}</td>
+                          <td className="py-4 px-4 font-black text-slate-800">{item.amt}</td>
+                          <td className="py-4 px-4 text-center">
+                            <span className={`px-2.5 py-0.5 rounded text-[8px] font-black uppercase ${item.badge}`}>{item.status}</span>
+                          </td>
+                          <td className="py-4 px-4 text-center">
+                            <div className="flex items-center justify-center gap-1.5">
+                              <button className="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-[9px] font-black transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                                👁️ View
+                              </button>
+                              <button className="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-[9px] font-black transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                                📥 Download
+                              </button>
+                              <button className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[9px] font-black transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                                🔗 Share
+                              </button>
+                              <button className="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-400 rounded-lg shadow-sm">
+                                ⋮
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-t border-slate-100 text-xs font-semibold text-slate-550 bg-slate-50/30">
+                  <span>Showing 1 to 10 of 1,248 invoices</span>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5">
+                      <span>Items per page:</span>
+                      <select className="border border-slate-200 rounded px-1.5 py-0.5 font-bold cursor-pointer bg-white text-slate-800 text-[11px]">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">‹</button>
+                      <button className="px-3 py-1.5 bg-blue-600 text-white rounded-lg transition-all cursor-pointer">1</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">2</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">3</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">...</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">125</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">›</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}

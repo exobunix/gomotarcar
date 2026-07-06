@@ -4566,66 +4566,313 @@ export default function FranchisePortal() {
                 stock: 120,
                 minStock: 20,
                 onOrder: 30,
+                reorder: 25,
                 desc: 'Premium quality car shampoo for exterior wash. Safe for all types of car paint.'
               };
 
               return (
-                <div className="space-y-6 text-slate-100 pb-10">
-                  {/* Header bar */}
+                <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+                  {/* Breadcrumbs & Navigation Bar */}
                   <div className="flex items-center justify-between">
-                    <button 
-                      onClick={() => setSelectedItemId(null)}
-                      className="flex items-center gap-2 text-xs font-bold text-blue-500 hover:text-blue-400 cursor-pointer transition-all"
-                    >
-                      ← Back to Inventory List
-                    </button>
+                    <div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <span className="hover:text-slate-650 cursor-pointer" onClick={() => setSelectedItemId(null)}>Inventory Management</span>
+                        <span className="text-slate-300">/</span>
+                        <span className="hover:text-slate-650 cursor-pointer" onClick={() => setSelectedItemId(null)}>Inventory List</span>
+                        <span className="text-slate-300">/</span>
+                        <span className="text-slate-600">Inventory Details</span>
+                      </div>
+                      <h2 className="text-2xl font-black text-slate-900 tracking-wide">Inventory Details</h2>
+                      <p className="text-xs text-slate-550 mt-1">View complete details, history and alerts for the selected item.</p>
+                    </div>
                     <div className="flex gap-3">
-                      <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold cursor-pointer">
-                        Edit Item
+                      <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                        ✏️ Edit Item
                       </button>
-                      <button className="px-4 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold cursor-pointer">
-                        Print / Export
+                      <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                        📥 Print / Export
                       </button>
                     </div>
                   </div>
 
-                  {/* Split details layout */}
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 space-y-4">
-                      <div>
-                        <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-450 rounded-full text-[9px] font-bold uppercase">In Stock</span>
-                        <h3 className="text-base font-black text-white mt-2">{item.name}</h3>
-                        <p className="text-xs text-slate-400 mt-1">{item.desc}</p>
+                  {/* Profile Header Box */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    {/* Left Column: Avatar & Basic Details */}
+                    <div className="lg:col-span-4 flex gap-4 items-center">
+                      <div className="w-20 h-20 rounded-2xl overflow-hidden border border-slate-100 shadow-sm flex items-center justify-center bg-slate-50">
+                        <img 
+                          src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=60&w=120" 
+                          alt="Car Shampoo"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
-                      <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800 text-xs text-slate-400">
-                        <div>
-                          <p>SKU</p>
-                          <p className="text-white font-bold mt-1">{item.sku}</p>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-base font-black text-slate-900">{item.name}</h3>
+                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[8px] font-black uppercase">In Stock</span>
                         </div>
-                        <div>
-                          <p>Category</p>
-                          <p className="text-white font-bold mt-1">{item.cat}</p>
-                        </div>
-                        <div>
-                          <p>Location</p>
-                          <p className="text-white font-bold mt-1">{item.location}</p>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[10px] text-slate-500 pt-1">
+                          <div>
+                            <span className="text-slate-400 block font-bold uppercase tracking-wider text-[8px]">SKU</span>
+                            <span className="text-slate-800 font-bold">{item.sku}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block font-bold uppercase tracking-wider text-[8px]">Category</span>
+                            <span className="text-slate-800 font-bold">{item.cat}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block font-bold uppercase tracking-wider text-[8px]">Unit</span>
+                            <span className="text-slate-800 font-bold">{item.unit}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block font-bold uppercase tracking-wider text-[8px]">Location</span>
+                            <span className="text-slate-800 font-bold">{item.location}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-slate-400 space-y-4">
-                      <h3 className="text-sm font-bold text-white tracking-wide">Stock Overview</h3>
-                      <div className="flex justify-between">
-                        <span>Current Stock</span>
-                        <span className="text-white font-bold">{item.stock} {item.unit}</span>
+                    {/* Middle Column: Description */}
+                    <div className="lg:col-span-3 text-xs text-slate-500 border-l border-slate-100 pl-6 space-y-1.5">
+                      <span className="text-slate-400 block font-bold uppercase tracking-wider text-[8px]">Description</span>
+                      <p className="text-slate-700 font-semibold leading-relaxed">{item.desc}</p>
+                    </div>
+
+                    {/* Right Column: Stock Summary Indicators */}
+                    <div className="lg:col-span-5 grid grid-cols-4 gap-3 border-l border-slate-100 pl-6">
+                      <div className="p-2.5 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm text-center">
+                        <p className="text-[7px] text-slate-400 uppercase font-black tracking-wider">Current Stock</p>
+                        <p className="text-sm font-black text-slate-800 mt-1">{item.stock} L</p>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Minimum Stock</span>
-                        <span className="text-white font-bold">{item.minStock} {item.unit}</span>
+                      <div className="p-2.5 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm text-center">
+                        <p className="text-[7px] text-slate-400 uppercase font-black tracking-wider">Min Stock</p>
+                        <p className="text-sm font-black text-slate-800 mt-1">{item.minStock} L</p>
                       </div>
-                      <div className="flex justify-between">
-                        <span>On Order</span>
-                        <span className="text-blue-450 font-bold">{item.onOrder} {item.unit}</span>
+                      <div className="p-2.5 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm text-center">
+                        <p className="text-[7px] text-slate-400 uppercase font-black tracking-wider">On Order</p>
+                        <p className="text-sm font-black text-blue-600 mt-1">{item.onOrder} L</p>
+                      </div>
+                      <div className="p-2.5 bg-slate-50/50 rounded-2xl border border-slate-100 shadow-sm text-center">
+                        <p className="text-[7px] text-slate-400 uppercase font-black tracking-wider">Reorder Level</p>
+                        <p className="text-sm font-black text-slate-800 mt-1">{item.reorder} L</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sub-tabs Navigation */}
+                  <div className="flex border-b border-slate-200 text-xs font-bold text-slate-400">
+                    <button className="px-6 py-3 text-blue-600 border-b-2 border-blue-600 tracking-wide">Stock History</button>
+                    <button className="px-6 py-3 hover:text-slate-700 tracking-wide">Usage History</button>
+                    <button className="px-6 py-3 hover:text-slate-700 tracking-wide">Low Stock Alerts</button>
+                  </div>
+
+                  {/* Split Content Body */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left 2 Columns */}
+                    <div className="lg:col-span-2 space-y-6">
+                      {/* Stock History Panel */}
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                        <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                          <div>
+                            <h3 className="text-sm font-black text-slate-900 tracking-wide">Stock History</h3>
+                            <p className="text-[10px] text-slate-455 mt-0.5">All stock in and stock out transactions.</p>
+                          </div>
+                          <button className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-blue-600 rounded-xl text-[10px] font-black transition-all cursor-pointer shadow-sm">
+                            📥 Export
+                          </button>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse text-xs">
+                            <thead>
+                              <tr className="border-b border-slate-100 text-slate-400 font-black uppercase text-[9px] tracking-wider">
+                                <th className="pb-3 px-3">Date & Time</th>
+                                <th className="pb-3 px-3">Type</th>
+                                <th className="pb-3 px-3">Reference No.</th>
+                                <th className="pb-3 px-3">Quantity</th>
+                                <th className="pb-3 px-3">Balance</th>
+                                <th className="pb-3 px-3">Performed By</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50 text-slate-700">
+                              {[
+                                { dt: '26 May 2025, 09:30 AM', type: 'Stock In', typeColor: 'text-emerald-600 bg-emerald-50', ref: 'GRN-2025-056', qty: '+50 Litre', bal: '120 Litre', by: 'Admin' },
+                                { dt: '24 May 2025, 04:15 PM', type: 'Stock Out', typeColor: 'text-rose-600 bg-rose-50', ref: 'ISS-2025-042', qty: '-15 Litre', bal: '70 Litre', by: 'Rohit Sharma' },
+                                { dt: '22 May 2025, 11:10 AM', type: 'Stock In', typeColor: 'text-emerald-600 bg-emerald-50', ref: 'GRN-2025-041', qty: '+40 Litre', bal: '85 Litre', by: 'Admin' },
+                                { dt: '20 May 2025, 03:20 PM', type: 'Stock Out', typeColor: 'text-rose-600 bg-rose-50', ref: 'ISS-2025-033', qty: '-20 Litre', bal: '45 Litre', by: 'Vikram Singh' },
+                                { dt: '18 May 2025, 10:05 AM', type: 'Stock In', typeColor: 'text-emerald-600 bg-emerald-50', ref: 'GRN-2025-028', qty: '+60 Litre', bal: '65 Litre', by: 'Admin' }
+                              ].map((item, idx) => (
+                                <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                                  <td className="py-3 px-3 font-semibold text-slate-500">{item.dt}</td>
+                                  <td className="py-3 px-3">
+                                    <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${item.typeColor}`}>{item.type}</span>
+                                  </td>
+                                  <td className="py-3 px-3 font-bold text-slate-800">{item.ref}</td>
+                                  <td className="py-3 px-3 font-black text-slate-800">{item.qty}</td>
+                                  <td className="py-3 px-3 font-bold text-slate-650">{item.bal}</td>
+                                  <td className="py-3 px-3 font-bold text-slate-600">{item.by}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        <button className="w-full text-center py-2.5 mt-4 border-t border-slate-100 hover:bg-slate-50 text-[11px] text-blue-650 font-bold flex items-center justify-center gap-1">
+                          View All Stock History <span>→</span>
+                        </button>
+                      </div>
+
+                      {/* Usage History Panel */}
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                        <div className="md:col-span-7 space-y-4">
+                          <div>
+                            <h3 className="text-sm font-black text-slate-900 tracking-wide">Usage History</h3>
+                            <p className="text-[10px] text-slate-455 mt-0.5">Track how this item is used over time.</p>
+                          </div>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse text-xs">
+                              <thead>
+                                <tr className="border-b border-slate-100 text-slate-400 font-black uppercase text-[9px] tracking-wider">
+                                  <th className="pb-2.5">Date</th>
+                                  <th className="pb-2.5">Used In</th>
+                                  <th className="pb-2.5 text-center">Qty Used</th>
+                                  <th className="pb-2.5">By</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-50 text-slate-700">
+                                {[
+                                  { dt: '26 May 2025', desc: 'Service #SVC-2025-189', qty: '5 Litre', by: 'Rohit Sharma' },
+                                  { dt: '26 May 2025', desc: 'Service #SVC-2025-188', qty: '4 Litre', by: 'Amit Verma' },
+                                  { dt: '25 May 2025', desc: 'Service #SVC-2025-183', qty: '6 Litre', by: 'Vikram Singh' },
+                                  { dt: '25 May 2025', desc: 'Service #SVC-2025-181', qty: '5 Litre', by: 'Rohit Sharma' },
+                                  { dt: '24 May 2025', desc: 'Service #SVC-2025-179', qty: '7 Litre', by: 'Amit Verma' }
+                                ].map((row, idx) => (
+                                  <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="py-2.5 text-slate-500 font-semibold">{row.dt}</td>
+                                    <td className="py-2.5 font-bold text-slate-800">{row.desc}</td>
+                                    <td className="py-2.5 text-center font-black text-slate-850">{row.qty}</td>
+                                    <td className="py-2.5 font-bold text-slate-600">{row.by}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                          <button className="text-[11px] text-blue-650 font-bold hover:text-blue-500 flex items-center gap-1 mt-2">
+                            View All Usage History <span>→</span>
+                          </button>
+                        </div>
+
+                        {/* Usage Trend Chart */}
+                        <div className="md:col-span-5 flex flex-col justify-between">
+                          <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                            <span className="text-xs font-black text-slate-850">Usage Trend (Last 7 Days)</span>
+                            <span className="text-[9px] text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded font-bold">Last 7 Days ∨</span>
+                          </div>
+                          {/* Sparkline chart visual */}
+                          <div className="relative h-32 w-full mt-4 flex items-end">
+                            <svg className="w-full h-full text-blue-600" viewBox="0 0 100 50" preserveAspectRatio="none" fill="none">
+                              <path d="M0 40 L 15 32 L 30 20 L 45 35 L 60 15 L 75 10 L 90 22 L 100 25" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                              <path d="M0 40 L 15 32 L 30 20 L 45 35 L 60 15 L 75 10 L 90 22 L 100 25 L 100 50 L 0 50 Z" fill="url(#blue-gradient)" opacity="0.1" />
+                              <defs>
+                                <linearGradient id="blue-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                  <stop offset="0%" stopColor="rgb(59, 130, 246)" />
+                                  <stop offset="100%" stopColor="rgba(59, 130, 246, 0)" />
+                                </linearGradient>
+                              </defs>
+                            </svg>
+                            <div className="absolute inset-0 flex justify-between text-[7px] text-slate-400 font-bold items-start pt-1">
+                              <span>40</span>
+                              <span>20</span>
+                              <span>0</span>
+                            </div>
+                            <div className="absolute bottom-0 inset-x-0 flex justify-between text-[7px] text-slate-400 font-bold pt-1">
+                              <span>20 May</span>
+                              <span>22 May</span>
+                              <span>24 May</span>
+                              <span>26 May</span>
+                            </div>
+                          </div>
+                          <button className="text-[11px] text-blue-650 font-bold hover:text-blue-500 mt-4 flex items-center gap-1 justify-center">
+                            View Full Usage Report <span>→</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right column sidebar */}
+                    <div className="space-y-6">
+                      {/* Low Stock Alerts Card */}
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm">
+                        <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                          <h3 className="text-sm font-black text-slate-850">Low Stock Alerts</h3>
+                          <select className="text-[10px] text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded font-bold cursor-pointer">
+                            <option>All Locations</option>
+                          </select>
+                        </div>
+                        <div className="space-y-3">
+                          {[
+                            { name: 'Microfiber Cloth', loc: 'Main Store', curr: '15 Pcs', min: '15 Pcs', img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=60&w=60' },
+                            { name: 'Active Foam', loc: 'Main Store', curr: '15 Litre', min: '15 Litre', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=60&w=60' },
+                            { name: 'Steam Chemicals', loc: 'Branch Store', curr: '10 Litre', min: '10 Litre', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=60&w=60' },
+                            { name: 'Uniform', loc: 'Branch Store', curr: '10 Set', min: '10 Set', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=60&w=60' }
+                          ].map((alertRow, alertIdx) => (
+                            <div key={alertIdx} className="p-3 border border-slate-100 bg-slate-50/30 rounded-2xl flex items-center justify-between shadow-sm">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-lg overflow-hidden border border-slate-100 bg-slate-50 shadow-sm flex items-center justify-center">
+                                  <img src={alertRow.img} alt={alertRow.name} className="w-full h-full object-cover" />
+                                </div>
+                                <div className="text-left">
+                                  <p className="text-xs font-bold text-slate-800 leading-tight">{alertRow.name}</p>
+                                  <p className="text-[9px] text-slate-400 font-semibold mt-0.5">{alertRow.loc}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-[9px] text-slate-400 font-semibold">Current: {alertRow.curr}</p>
+                                <p className="text-[9px] text-slate-400 font-semibold">Min: {alertRow.min}</p>
+                                <span className="inline-block mt-1 text-[8px] bg-rose-50 text-rose-600 px-1.5 py-0.5 rounded font-black uppercase">Low Stock</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <button className="w-full text-center py-2.5 mt-4 border-t border-slate-100 hover:bg-slate-50 text-[11px] text-blue-650 font-bold flex items-center justify-center gap-1">
+                          View All Low Stock Alerts <span>→</span>
+                        </button>
+                      </div>
+
+                      {/* Item Information Card */}
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm text-xs text-slate-500">
+                        <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                          <h3 className="text-sm font-black text-slate-900 tracking-wide">Item Information</h3>
+                          <button className="text-[10px] text-blue-600 hover:text-blue-500 font-bold">📝 Edit Info</button>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                            <span>Brand</span>
+                            <span className="text-slate-850 font-bold">GoMotorCar</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                            <span>Shelf Life</span>
+                            <span className="text-slate-850 font-bold">24 Months</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                            <span>Supplier</span>
+                            <span className="text-slate-850 font-bold">Auto Care Pvt. Ltd.</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                            <span>Last Purchased</span>
+                            <span className="text-slate-850 font-bold">26 May 2025</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                            <span>Purchase Price</span>
+                            <span className="text-slate-850 font-bold">₹120.00 / Litre</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                            <span>HSN Code</span>
+                            <span className="text-slate-850 font-bold">3402</span>
+                          </div>
+                          <div className="border-b border-slate-50 pb-1.5">
+                            <span className="text-slate-400 block mb-1">Notes</span>
+                            <span className="text-slate-700 font-medium">Store in a cool and dry place.</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -4635,90 +4882,237 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "inventory" && !selectedItemId && !viewInventoryDashboard && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Header */}
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Inventory List</h2>
-                  <p className="text-xs text-slate-400 mt-1">View and manage all inventory items in your stock.</p>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Inventory Management</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Inventory List</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Inventory List</h2>
+                  <p className="text-xs text-slate-550 mt-1">View and manage all inventory items in your stock.</p>
                 </div>
                 <div className="flex gap-3">
                   <button 
                     onClick={() => setViewInventoryDashboard(true)}
-                    className="px-4 py-2.5 bg-slate-850 hover:bg-slate-800 text-slate-350 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
                   >
-                    Inventory Dashboard 📊
+                    📊 Inventory Dashboard
                   </button>
-                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
-                    + Add New Item
+                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    ➕ Add New Item
+                  </button>
+                  <button className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    📥 Import Items
                   </button>
                 </div>
               </div>
 
               {/* Stats overview row */}
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
-                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Items</span>
-                  <p className="text-2xl font-extrabold text-white mt-1">52</p>
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-6">
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Items</span>
+                    <p className="text-2xl font-black text-slate-800 mt-1">52</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">All inventory items</p>
+                  </div>
+                  <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center text-blue-650 text-base shadow-sm">📦</div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Low Stock Items</span>
-                  <p className="text-2xl font-extrabold text-amber-500 mt-1">7</p>
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Low Stock Items</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">7</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">Require attention</p>
+                  </div>
+                  <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-base shadow-sm">⚠️</div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-4 rounded-2xl border border-slate-800/80 text-center">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Value</span>
-                  <p className="text-xl font-black text-emerald-450 mt-1.5">₹2,45,680</p>
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between col-span-1">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Stock Value</span>
+                    <p className="text-lg font-black text-slate-855 mt-1.5">₹2,45,680</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">Current stock value</p>
+                  </div>
+                  <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 text-base shadow-sm">🗄️</div>
+                </div>
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Issued Today</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">8</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">Total items issued</p>
+                  </div>
+                  <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-base shadow-sm">📄</div>
+                </div>
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Received Today</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">10</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">Total items received</p>
+                  </div>
+                  <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center text-blue-650 text-base shadow-sm">🚚</div>
                 </div>
               </div>
 
               {/* Filters */}
-              <div className="flex flex-wrap items-center justify-between gap-4 bg-[#1E293B]/60 p-4 rounded-2xl border border-slate-800/80">
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-3xl border border-slate-150 shadow-sm">
                 <div className="flex flex-wrap items-center gap-3.5 flex-1">
-                  <input 
-                    type="text" 
-                    placeholder="Search items by name, SKU..."
-                    className="rounded-xl bg-slate-900 border border-slate-800 text-white placeholder-slate-550 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-xs min-w-[240px]"
-                  />
-                  <select className="rounded-xl bg-slate-900 border border-slate-800 text-white py-2 px-4 text-xs cursor-pointer">
+                  <div className="relative min-w-[240px]">
+                    <input 
+                      type="text" 
+                      placeholder="Search items by name, SKU..."
+                      className="w-full rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder-slate-400 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+                  </div>
+                  
+                  <select className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold cursor-pointer">
                     <option>All Categories</option>
+                    <option>Cleaning</option>
+                    <option>Accessories</option>
+                    <option>Polish</option>
+                    <option>Chemicals</option>
+                    <option>Uniform</option>
+                  </select>
+
+                  <select className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold cursor-pointer">
+                    <option>All Status</option>
+                    <option>In Stock</option>
+                    <option>Low Stock</option>
+                    <option>Out of Stock</option>
+                  </select>
+
+                  <select className="rounded-xl bg-slate-50 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold cursor-pointer">
+                    <option>All Locations</option>
+                    <option>Main Store</option>
+                    <option>Branch Store</option>
                   </select>
                 </div>
-                <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700/60 rounded-xl text-xs text-slate-350">
-                  Export 📤
-                </button>
+                <div className="flex gap-3">
+                  <button className="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                    ⚙️ Filters
+                  </button>
+                  <button className="px-4 py-2.5 bg-white hover:bg-slate-50 text-blue-600 border border-blue-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                    📤 Export
+                  </button>
+                </div>
               </div>
 
-              {/* List grid */}
-              <div className="space-y-4">
-                {[
-                  { id: 'ITM-001', name: 'Car Shampoo', desc: 'Premium car shampoo', stock: 120, unit: 'Litre', status: 'In Stock' },
-                  { id: 'ITM-002', name: 'Cloth', desc: 'Microfiber cloth', stock: 85, unit: 'Pcs', status: 'In Stock' },
-                  { id: 'ITM-003', name: 'Wax', desc: 'Car polish wax', stock: 40, unit: 'Pcs', status: 'In Stock' },
-                ].map((item) => (
-                  <div 
-                    key={item.id}
-                    onClick={() => setSelectedItemId(item.id)}
-                    className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80 hover:border-blue-600/30 hover:bg-[#1E293B]/90 transition-all grid grid-cols-1 md:grid-cols-5 gap-5 items-center cursor-pointer"
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-white">{item.name}</p>
-                      <p className="text-[10px] text-slate-550 mt-0.5">{item.desc}</p>
+              {/* Table List */}
+              <div className="bg-white rounded-3xl border border-slate-150 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                        <th className="py-4.5 px-6">Item</th>
+                        <th className="py-4.5 px-4">SKU</th>
+                        <th className="py-4.5 px-4">Category</th>
+                        <th className="py-4.5 px-4 text-center">Current Stock</th>
+                        <th className="py-4.5 px-4">Unit</th>
+                        <th className="py-4.5 px-4 text-center">Min. Stock</th>
+                        <th className="py-4.5 px-4">Status</th>
+                        <th className="py-4.5 px-4 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
+                      {[
+                        { id: 'ITM-001', name: 'Shampoo', desc: 'Car Shampoo', cat: 'Cleaning', badge: 'bg-blue-50 text-blue-600', stock: 120, unit: 'Litre', min: 20, status: 'In Stock', img: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=60&w=120' },
+                        { id: 'ITM-002', name: 'Cloth', desc: 'Microfiber Cloth', cat: 'Accessories', badge: 'bg-purple-50 text-purple-600', stock: 85, unit: 'Pcs', min: 15, status: 'In Stock', img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=60&w=120' },
+                        { id: 'ITM-003', name: 'Wax', desc: 'Car Polish Wax', cat: 'Polish', badge: 'bg-amber-50 text-amber-600', stock: 40, unit: 'Pcs', min: 10, status: 'In Stock', img: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&q=60&w=120' },
+                        { id: 'ITM-004', name: 'Foam', desc: 'Active Foam', cat: 'Chemicals', badge: 'bg-blue-50 text-blue-600', stock: 65, unit: 'Litre', min: 15, status: 'In Stock', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=60&w=120' },
+                        { id: 'ITM-005', name: 'Steam Chemicals', desc: 'Steam Wash Chemical', cat: 'Chemicals', badge: 'bg-blue-50 text-blue-600', stock: 30, unit: 'Litre', min: 10, status: 'Low Stock', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=60&w=120' },
+                        { id: 'ITM-006', name: 'Uniform', desc: 'Staff Uniform', cat: 'Uniform', badge: 'bg-emerald-50 text-emerald-600', stock: 25, unit: 'Set', min: 10, status: 'Low Stock', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=60&w=120' }
+                      ].map((item, idx) => (
+                        <tr 
+                          key={idx} 
+                          onClick={() => setSelectedItemId(item.id)}
+                          className="hover:bg-slate-50/50 transition-colors cursor-pointer"
+                        >
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl overflow-hidden border border-slate-100 bg-slate-50 shadow-sm flex items-center justify-center">
+                                <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                              </div>
+                              <div>
+                                <span className="font-bold text-slate-800 block">{item.name}</span>
+                                <span className="text-[10px] text-slate-400 font-semibold">{item.desc}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4 font-bold text-slate-500">{item.id}</td>
+                          <td className="py-4 px-4">
+                            <span className={`px-2.5 py-0.5 rounded-md text-[9px] font-black uppercase ${item.badge}`}>
+                              {item.cat}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 text-center font-black text-slate-800">{item.stock}</td>
+                          <td className="py-4 px-4 font-semibold text-slate-550">{item.unit}</td>
+                          <td className="py-4 px-4 text-center font-bold text-slate-600">{item.min}</td>
+                          <td className="py-4 px-4">
+                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
+                              item.status === 'In Stock' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                            }`}>
+                              {item.status}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-center gap-1.5">
+                              <button className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg text-[9px] font-black transition-all cursor-pointer shadow-sm">
+                                📝 Issue
+                              </button>
+                              <button className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-[9px] font-black transition-all cursor-pointer shadow-sm">
+                                📥 Receive
+                              </button>
+                              <button className="px-2.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-lg text-[9px] font-black transition-all cursor-pointer shadow-sm">
+                                🔄 Transfer
+                              </button>
+                              <button className="p-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-400 rounded-lg shadow-sm">
+                                ⋮
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-t border-slate-100 text-xs font-semibold text-slate-500 bg-slate-50/30">
+                  <span>Showing 1 to 6 of 52 items</span>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5">
+                      <span>Items per page:</span>
+                      <select className="border border-slate-200 rounded px-1.5 py-0.5 font-bold cursor-pointer bg-white text-slate-800 text-[11px]">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                      </select>
                     </div>
-                    <div>
-                      <p className="text-xs text-slate-400">SKU: {item.id}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-white font-bold">{item.stock} {item.unit}</p>
-                    </div>
-                    <div>
-                      <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-450 rounded-full text-[9px] font-bold uppercase">{item.status}</span>
-                    </div>
-                    <div className="text-right flex gap-2 justify-end">
-                      <button className="px-3 py-1.5 bg-slate-850 hover:bg-slate-800 text-white rounded-lg text-[10px] font-bold">Issue</button>
-                      <button className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px] font-bold">Receive</button>
+                    <div className="flex items-center gap-1">
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">‹</button>
+                      <button className="px-3 py-1.5 bg-blue-600 text-white rounded-lg transition-all cursor-pointer">1</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">2</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">3</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">4</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">5</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">›</button>
                     </div>
                   </div>
-                ))}
+                </div>
+              </div>
+
+              {/* Status Guide Footer */}
+              <div className="flex flex-wrap justify-between items-center gap-4 p-4 rounded-3xl border border-slate-150 bg-white shadow-sm text-xs font-semibold text-slate-500">
+                <div className="flex items-center gap-4">
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Status Guide:</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>In Stock</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>Low Stock</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>Out of Stock</span>
+                </div>
+                <div className="text-blue-600 flex items-center gap-1.5">
+                  ℹ️ Keep your inventory updated to avoid service delays and maintain quality.
+                </div>
               </div>
             </div>
           )}

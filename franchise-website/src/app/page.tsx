@@ -6205,75 +6205,307 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "offers" && !viewCouponManagement && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Header */}
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Offers Dashboard</h2>
-                  <p className="text-xs text-slate-400 mt-1">Create, manage and track all offers and promotions.</p>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Offers & Promotions</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Offers Dashboard</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Offers Dashboard</h2>
+                  <p className="text-xs text-slate-555 mt-1">Create, manage and track all offers and promotions.</p>
                 </div>
                 <div className="flex gap-3">
                   <button 
                     onClick={() => setViewCouponManagement(true)}
-                    className="px-4 py-2.5 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
                   >
-                    Coupon Management 🎫
+                    🎫 Coupon Management
                   </button>
-                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-555 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
-                    + Create Offer
+                  <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    ➕ Create Offer
                   </button>
                 </div>
               </div>
 
               {/* Stats overview row */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Offers</span>
-                  <p className="text-2xl font-black text-white mt-1">32</p>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Offers</span>
+                    <p className="text-2xl font-black text-slate-800 mt-1">32</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +14.3% vs last month</p>
+                  </div>
+                  <div className="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-xl shadow-sm">
+                    🏷️
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Active Offers</span>
-                  <p className="text-2xl font-black text-emerald-450 mt-1">18</p>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Offers</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">18</p>
+                    <p className="text-[9px] text-emerald-600 font-bold mt-1">56.3% of total</p>
+                  </div>
+                  <div className="w-11 h-11 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-xl shadow-sm">
+                    🎁
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Scheduled Offers</span>
-                  <p className="text-2xl font-black text-blue-450 mt-1">7</p>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Scheduled Offers</span>
+                    <p className="text-2xl font-black text-slate-855 mt-1">7</p>
+                    <p className="text-[9px] text-amber-500 font-bold mt-1">21.9% of total</p>
+                  </div>
+                  <div className="w-11 h-11 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-xl shadow-sm">
+                    ⌛
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Expired Offers</span>
+                    <p className="text-2xl font-black text-slate-855 mt-1">7</p>
+                    <p className="text-[9px] text-rose-500 font-bold mt-1">21.9% of total</p>
+                  </div>
+                  <div className="w-11 h-11 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 text-xl shadow-sm">
+                    ✕
+                  </div>
                 </div>
               </div>
 
-              {/* Table details list */}
-              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
-                      <th className="pb-3">Offer Name</th>
-                      <th className="pb-3">Offer Type</th>
-                      <th className="pb-3">Discount</th>
-                      <th className="pb-3">Target</th>
-                      <th className="pb-3">Validity</th>
-                      <th className="pb-3">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-850">
-                    {[
-                      { name: 'Summer Special Flat 100', type: 'Flat Discount', disc: '₹100', target: 'All Services', val: '20 May 2025 - 31 May 2025', status: 'Active' },
-                      { name: 'Weekend 20% OFF', type: 'Percentage Discount', disc: '20%', target: 'Exterior Wash', val: '23 May 2025 - 25 May 2025', status: 'Active' },
-                    ].map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
-                        <td className="py-4 font-bold text-white">{item.name}</td>
-                        <td className="py-4 text-blue-450 font-bold">{item.type}</td>
-                        <td className="py-4 text-emerald-455 font-bold">{item.disc}</td>
-                        <td className="py-4 text-slate-400">{item.target}</td>
-                        <td className="py-4 text-slate-400">{item.val}</td>
-                        <td className="py-4">
-                          <span className={`text-[10px] font-bold uppercase ${
-                            item.status === 'Active' ? 'text-emerald-400' : 'text-rose-500'
-                          }`}>{item.status}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {/* Offer Types Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-40">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-lg shadow-sm">
+                      🎟️
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-slate-850">Flat Discount</h4>
+                      <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Give a fixed amount discount on services.</p>
+                    </div>
+                  </div>
+                  <button className="w-full py-2 bg-white border border-blue-200 hover:bg-blue-50 text-blue-650 rounded-xl text-[10px] font-bold transition-all shadow-sm">
+                    Create Flat Discount
+                  </button>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-40">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-650 text-lg shadow-sm">
+                      %
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-slate-855">Percentage Discount</h4>
+                      <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Give percentage based discount on services.</p>
+                    </div>
+                  </div>
+                  <button className="w-full py-2 bg-white border border-emerald-200 hover:bg-emerald-50 text-emerald-655 rounded-xl text-[10px] font-bold transition-all shadow-sm">
+                    Create Percentage Discount
+                  </button>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-40">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-650 text-lg shadow-sm">
+                      🎫
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-slate-850">Coupon</h4>
+                      <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Create coupon codes for customers.</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setViewCouponManagement(true)}
+                    className="w-full py-2 bg-white border border-purple-200 hover:bg-purple-50 text-purple-650 rounded-xl text-[10px] font-bold transition-all shadow-sm"
+                  >
+                    Create Coupon
+                  </button>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-40">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-650 text-lg shadow-sm">
+                      💥
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-slate-850">Festival Offer</h4>
+                      <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Special offers for festivals and special occasions.</p>
+                    </div>
+                  </div>
+                  <button className="w-full py-2 bg-white border border-amber-200 hover:bg-amber-50 text-amber-600 rounded-xl text-[10px] font-bold transition-all shadow-sm">
+                    Create Festival Offer
+                  </button>
+                </div>
+              </div>
+
+              {/* Middle Grid (Recent Offers & Offers Status Overview) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Recent Offers Card */}
+                <div className="lg:col-span-8 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                      <h3 className="text-sm font-black text-slate-850">Recent Offers</h3>
+                      <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">View All Offers</button>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-100 text-slate-400 font-black uppercase text-[8px] tracking-wider">
+                            <th className="pb-2.5 px-3">Offer Name</th>
+                            <th className="pb-2.5 px-3">Offer Type</th>
+                            <th className="pb-2.5 px-3">Discount</th>
+                            <th className="pb-2.5 px-3">Target</th>
+                            <th className="pb-2.5 px-3">Validity Period</th>
+                            <th className="pb-2.5 px-3 text-center">Status</th>
+                            <th className="pb-2.5 px-3">Created On</th>
+                            <th className="pb-2.5 px-3 text-center">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50 text-slate-700">
+                          {[
+                            { name: 'Summer Special Flat 100', type: 'Flat Discount', typeBadge: 'bg-blue-50 text-blue-650', amt: '₹100', target: 'All Services', val: '20 May 2025 - 31 May 2025', status: 'Active', badge: 'bg-emerald-50 text-emerald-600', created: '20 May 2025' },
+                            { name: 'Weekend 20% OFF', type: 'Percentage Discount', typeBadge: 'bg-emerald-50 text-emerald-650', amt: '20%', target: 'Exterior Wash', val: '23 May 2025 - 25 May 2025', status: 'Active', badge: 'bg-emerald-50 text-emerald-600', created: '23 May 2025' },
+                            { name: 'GOMOTOR50', type: 'Coupon', typeBadge: 'bg-purple-50 text-purple-650', amt: '₹50', target: 'Min. Order ₹300', val: '15 May 2025 - 15 Jun 2025', status: 'Active', badge: 'bg-emerald-50 text-emerald-600', created: '15 May 2025' },
+                            { name: 'Diwali Dhamaka', type: 'Festival Offer', typeBadge: 'bg-amber-50 text-amber-600', amt: '30%', target: 'All Services', val: '25 Oct 2025 - 05 Nov 2025', status: 'Scheduled', badge: 'bg-blue-50 text-blue-650', created: '24 May 2025' },
+                            { name: 'Flat 150 OFF', type: 'Flat Discount', typeBadge: 'bg-blue-50 text-blue-655', amt: '₹150', target: 'Interior Cleaning', val: '10 May 2025 - 20 May 2025', status: 'Expired', badge: 'bg-rose-50 text-rose-600', created: '10 May 2025' },
+                            { name: 'Monsoon 25% OFF', type: 'Percentage Discount', typeBadge: 'bg-emerald-50 text-emerald-650', amt: '25%', target: 'Steam Wash', val: '01 Jun 2025 - 30 Jun 2025', status: 'Scheduled', badge: 'bg-blue-50 text-blue-650', created: '25 May 2025' },
+                            { name: 'NEWUSER100', type: 'Coupon', typeBadge: 'bg-purple-50 text-purple-650', amt: '₹100', target: 'Min. Order ₹500', val: '01 May 2025 - 31 May 2025', status: 'Expired', badge: 'bg-rose-50 text-rose-600', created: '01 May 2025' }
+                          ].map((row, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="py-3 px-3 font-bold text-slate-800 flex items-center gap-1.5">
+                                <span>🏷️</span> {row.name}
+                              </td>
+                              <td className="py-3 px-3">
+                                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${row.typeBadge}`}>{row.type}</span>
+                              </td>
+                              <td className="py-3 px-3 font-black text-slate-800">{row.amt}</td>
+                              <td className="py-3 px-3 font-bold text-slate-500">{row.target}</td>
+                              <td className="py-3 px-3 font-semibold text-slate-500">{row.val}</td>
+                              <td className="py-3 px-3 text-center">
+                                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${row.badge}`}>{row.status}</span>
+                              </td>
+                              <td className="py-3 px-3 font-semibold text-slate-500">{row.created}</td>
+                              <td className="py-3 px-3 text-center">
+                                <div className="flex items-center justify-center gap-1">
+                                  <button className="p-1 hover:bg-slate-100 rounded text-slate-500">👁️</button>
+                                  <button className="p-1 hover:bg-slate-100 rounded text-slate-500">✏️</button>
+                                  <button className="p-1 hover:bg-slate-100 rounded text-slate-400">⋮</button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="flex justify-between items-center pt-3 border-t border-slate-100 text-[10px] text-slate-400 font-semibold mt-2">
+                      <span>Showing 1 to 7 of 32 offers</span>
+                      <div className="flex items-center gap-1">
+                        <select className="border border-slate-200 rounded px-1 py-0.5 font-bold cursor-pointer bg-white text-slate-800 text-[10px] mr-2">
+                          <option>10 per page</option>
+                        </select>
+                        <button className="px-2.5 py-1 bg-white border border-slate-200 rounded hover:bg-slate-55 transition-all cursor-pointer">‹</button>
+                        <button className="px-2.5 py-1 bg-blue-600 text-white rounded transition-all cursor-pointer">1</button>
+                        <button className="px-2.5 py-1 bg-white border border-slate-200 rounded hover:bg-slate-55 transition-all cursor-pointer">2</button>
+                        <button className="px-2.5 py-1 bg-white border border-slate-200 rounded hover:bg-slate-55 transition-all cursor-pointer">3</button>
+                        <button className="px-2.5 py-1 bg-white border border-slate-200 rounded hover:bg-slate-55 transition-all cursor-pointer">4</button>
+                        <button className="px-2.5 py-1 bg-white border border-slate-200 rounded hover:bg-slate-55 transition-all cursor-pointer">›</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Panels Column (Status Overview & Top Performing) */}
+                <div className="lg:col-span-4 space-y-6">
+                  {/* Offers Status Overview Donut */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-64">
+                    <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100">Offers Status Overview</h3>
+                    <div className="flex items-center justify-between py-2">
+                      <div className="relative w-28 h-28 flex items-center justify-center">
+                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          {/* Active (56.3%) - Green */}
+                          <circle cx="18" cy="18" r="15.915" fill="none" stroke="#22C55E" strokeWidth="4" strokeDasharray="56.3 43.7" strokeDashoffset="0" />
+                          {/* Scheduled (21.9%) - Blue */}
+                          <circle cx="18" cy="18" r="15.915" fill="none" stroke="#3B82F6" strokeWidth="4" strokeDasharray="21.9 78.1" strokeDashoffset="-56.3" />
+                          {/* Expired (21.9%) - Red */}
+                          <circle cx="18" cy="18" r="15.915" fill="none" stroke="#EF4444" strokeWidth="4" strokeDasharray="21.9 78.1" strokeDashoffset="-78.2" />
+                        </svg>
+                        <div className="absolute text-center">
+                          <p className="text-lg font-black text-slate-800">32</p>
+                          <p className="text-[6.5px] text-slate-400 uppercase font-black tracking-wider">Total Offers</p>
+                        </div>
+                      </div>
+
+                      {/* Donut Legend */}
+                      <div className="space-y-2 text-[9px] text-slate-505 font-bold pr-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                          <span>Active: 18 (56.3%)</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                          <span>Scheduled: 7 (21.9%)</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                          <span>Expired: 7 (21.9%)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Top Performing Offers */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
+                        <h3 className="text-sm font-black text-slate-850">Top Performing Offers</h3>
+                        <button className="text-[10px] text-blue-600 hover:text-blue-500 font-bold border border-blue-200 px-2 py-0.5 rounded-lg shadow-sm">View Report</button>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-[10px]">
+                          <thead>
+                            <tr className="border-b border-slate-100 text-slate-400 font-black uppercase text-[8px] tracking-wider">
+                              <th className="pb-2">Offer Name</th>
+                              <th className="pb-2 text-center">Redemptions</th>
+                              <th className="pb-2">Revenue</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-50 text-slate-700">
+                            {[
+                              { name: 'Weekend 20% OFF', count: 245, rev: '₹1,24,560' },
+                              { name: 'GOMOTOR50', count: 198, rev: '₹98,750' },
+                              { name: 'Summer Special Flat 100', count: 156, rev: '₹78,300' },
+                              { name: 'Diwali Dhamaka', count: 132, rev: '₹65,450' },
+                              { name: 'NEWUSER100', count: 98, rev: '₹48,620' }
+                            ].map((topRow, idx) => (
+                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                                <td className="py-2.5 font-bold text-slate-800 flex items-center gap-1">
+                                  <span>%</span> {topRow.name}
+                                </td>
+                                <td className="py-2.5 text-center font-bold text-slate-600">{topRow.count}</td>
+                                <td className="py-2.5 font-black text-slate-800">{topRow.rev}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Guide Footer */}
+              <div className="flex flex-wrap justify-between items-center gap-4 p-4 rounded-3xl border border-slate-150 bg-white shadow-sm text-xs font-semibold text-slate-505">
+                <div className="text-blue-600 flex items-center gap-1.5">
+                  ℹ️ Create smart offers and boost your bookings. Track performance and maximize your revenue.
+                </div>
               </div>
             </div>
           )}

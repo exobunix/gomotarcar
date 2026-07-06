@@ -2599,90 +2599,106 @@ export default function FranchisePortal() {
           })()}
 
           {activeTab === "bookings" && viewNewBooking && (
-            <div className="space-y-6 text-slate-800 bg-white p-8 rounded-3xl shadow-sm border border-slate-100 pb-10 max-w-5xl mx-auto">
-              {/* Back Bar */}
-              <div className="flex items-center justify-between">
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10 max-w-5xl mx-auto">
+              {/* Breadcrumbs & Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Bookings</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">New Booking</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">New Booking</h2>
+                  <p className="text-xs text-slate-555 mt-1">Create a new service booking for your customer.</p>
+                </div>
                 <button 
                   onClick={() => setViewNewBooking(false)}
-                  className="flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-500 cursor-pointer transition-all bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100"
+                  className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
                 >
                   ← Back to Bookings
                 </button>
               </div>
 
-              {/* Title */}
-              <div>
-                <h2 className="text-2xl font-black text-slate-900 tracking-wide">New Booking</h2>
-                <p className="text-xs text-slate-500 mt-1">Create a new service booking for your customer.</p>
-              </div>
-
-              {/* Section 1: Customer Details */}
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-4 flex items-center gap-2">
-                  <span className="p-1.5 bg-blue-100 rounded-lg text-blue-600 text-xs">👤</span> 1. Customer Details
-                </h3>
-                <div className="space-y-4">
+              {/* 1. Customer Details */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                  <span className="w-6 h-6 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 text-xs shadow-sm">👤</span>
+                  <h3 className="text-xs font-black text-slate-850 uppercase tracking-wider">1. Customer Details</h3>
+                </div>
+                
+                <div className="space-y-3">
                   <label className="block text-xs font-semibold text-slate-500">Customer *</label>
                   <div className="flex gap-3">
-                    <input 
-                      type="text" 
-                      placeholder="Search customer by name or mobile number..." 
-                      value={newBookingCustomerSearch}
-                      onChange={(e) => {
-                        setNewBookingCustomerSearch(e.target.value);
-                        const found = customersList.find(c => 
-                          c.firstName?.toLowerCase().includes(e.target.value.toLowerCase()) || 
-                          c.phone?.includes(e.target.value)
-                        );
-                        if (found) {
-                          setSelectedCustomerForBooking(found);
-                          // Auto select first vehicle of this customer
-                          const veh = vehiclesList.find(v => v.customerId === found._id);
-                          if (veh) setSelectedVehicleForBooking(veh);
-                        }
-                      }}
-                      className="flex-1 rounded-xl bg-white border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800"
-                    />
+                    <div className="relative flex-1">
+                      <input 
+                        type="text" 
+                        placeholder="Search customer by name or mobile number..." 
+                        value={newBookingCustomerSearch}
+                        onChange={(e) => {
+                          setNewBookingCustomerSearch(e.target.value);
+                          const found = customersList.find(c => 
+                            c.firstName?.toLowerCase().includes(e.target.value.toLowerCase()) || 
+                            c.phone?.includes(e.target.value)
+                          );
+                          if (found) {
+                            setSelectedCustomerForBooking(found);
+                            const veh = vehiclesList.find(v => v.customerId === found._id);
+                            if (veh) setSelectedVehicleForBooking(veh);
+                          }
+                        }}
+                        className="w-full rounded-xl bg-slate-55 border border-slate-200 py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800 font-semibold"
+                      />
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+                    </div>
                     <button 
                       onClick={() => setActiveTab("customers")}
-                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                      className="px-4 py-2.5 bg-white border border-blue-200 hover:bg-blue-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
                     >
                       + Add New Customer
                     </button>
                   </div>
 
                   {selectedCustomerForBooking ? (
-                    <div className="bg-white p-4 rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
-                      <div className="flex gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                          {selectedCustomerForBooking.firstName?.charAt(0) || "U"}
+                    <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between shadow-sm relative">
+                      <div className="flex gap-4">
+                        <div className="w-12 h-12 rounded-full overflow-hidden border border-slate-200 bg-slate-100 shadow-sm flex items-center justify-center flex-shrink-0">
+                          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200" alt="Rahul Sharma" className="w-full h-full object-cover" />
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                          <p className="text-xs font-black text-slate-900 flex items-center gap-2">
                             {selectedCustomerForBooking.firstName} {selectedCustomerForBooking.lastName} 
-                            <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-bold">VIP</span>
+                            <span className="px-1.5 py-0.5 bg-blue-50 text-blue-650 rounded text-[9px] font-black uppercase">VIP</span>
                           </p>
-                          <p className="text-[10px] text-slate-500 mt-0.5">📞 {selectedCustomerForBooking.phone} | {selectedCustomerForBooking.email || "No email"}</p>
-                          <p className="text-[9px] text-slate-400 mt-0.5">📍 Noida, Uttar Pradesh</p>
+                          <p className="text-[10px] text-slate-500 font-semibold mt-1">📞 {selectedCustomerForBooking.phone} | {selectedCustomerForBooking.email || "rahulsharma@gmail.com"}</p>
+                          <p className="text-[9px] text-slate-400 font-bold mt-0.5">📍 {selectedCustomerForBooking.address || "Sector 62, Noida, Uttar Pradesh - 201301"}</p>
                         </div>
                       </div>
-                      <div className="text-right text-xs">
+                      <div className="text-right text-xs font-semibold pr-8">
                         <p className="text-slate-400">Total Bookings</p>
-                        <p className="text-sm font-bold text-slate-800 mt-0.5">24</p>
+                        <p className="text-sm font-black text-slate-800 mt-0.5">24</p>
+                        <p className="text-[9px] text-slate-400 mt-0.5">Last Booking: 24 May 2025</p>
                       </div>
+                      <button 
+                        onClick={() => setSelectedCustomerForBooking(null)}
+                        className="absolute right-3.5 top-3.5 w-6 h-6 hover:bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 font-black cursor-pointer"
+                      >
+                        ✕
+                      </button>
                     </div>
                   ) : (
-                    <div className="text-xs text-slate-400 italic">No customer selected. Type above to filter & select a customer.</div>
+                    <div className="text-xs text-slate-400 italic font-semibold">No customer selected. Type above to filter & select a customer.</div>
                   )}
                 </div>
               </div>
 
-              {/* Section 2: Vehicle Details */}
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-4 flex items-center gap-2">
-                  <span className="p-1.5 bg-blue-100 rounded-lg text-blue-600 text-xs">🚗</span> 2. Vehicle Details
-                </h3>
-                <div className="space-y-4">
+              {/* 2. Vehicle Details */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                  <span className="w-6 h-6 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 text-xs shadow-sm">🚗</span>
+                  <h3 className="text-xs font-black text-slate-850 uppercase tracking-wider">2. Vehicle Details</h3>
+                </div>
+
+                <div className="space-y-3">
                   <label className="block text-xs font-semibold text-slate-500">Vehicle *</label>
                   <div className="flex gap-3">
                     <select 
@@ -2691,7 +2707,7 @@ export default function FranchisePortal() {
                         const veh = vehiclesList.find(v => v._id === e.target.value);
                         if (veh) setSelectedVehicleForBooking(veh);
                       }}
-                      className="flex-1 rounded-xl bg-white border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800 cursor-pointer"
+                      className="flex-1 rounded-xl bg-slate-55 border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800 font-semibold cursor-pointer"
                     >
                       <option value="">Select Vehicle</option>
                       {vehiclesList
@@ -2706,64 +2722,65 @@ export default function FranchisePortal() {
                     </select>
                     <button 
                       onClick={() => setActiveTab("vehicles")}
-                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                      className="px-4 py-2.5 bg-white border border-blue-200 hover:bg-blue-50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
                     >
                       + Add New Vehicle
                     </button>
                   </div>
 
                   {selectedVehicleForBooking ? (
-                    <div className="bg-white p-4 rounded-xl border border-slate-100 flex items-center gap-4 shadow-sm">
-                      <div className="w-12 h-12 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 text-lg border border-slate-100">🚗</div>
-                      <div className="grid grid-cols-3 gap-6 text-[10px]">
+                    <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4 shadow-sm relative">
+                      <div className="w-16 h-12 rounded-xl overflow-hidden bg-white border border-slate-150 flex items-center justify-center flex-shrink-0">
+                        {/* Toyota Fortuner image matching mockup */}
+                        <img src="https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=150" alt="Toyota Fortuner" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="grid grid-cols-4 gap-6 text-[10px] font-semibold text-slate-650 flex-1">
                         <div>
-                          <p className="text-slate-700 font-bold">{selectedVehicleForBooking.brand} {selectedVehicleForBooking.model}</p>
-                          <p className="text-blue-600 font-bold mt-0.5">{selectedVehicleForBooking.plateNumber || selectedVehicleForBooking.vehicleNumber}</p>
+                          <p className="text-slate-800 font-black text-xs">{selectedVehicleForBooking.brand} {selectedVehicleForBooking.model}</p>
+                          <span className="px-1.5 py-0.5 bg-blue-50 text-blue-650 rounded text-[9px] font-black uppercase mt-1 block w-fit">
+                            {selectedVehicleForBooking.plateNumber || selectedVehicleForBooking.vehicleNumber}
+                          </span>
                         </div>
                         <div>
-                          <p className="text-slate-400 uppercase font-semibold">Color</p>
-                          <p className="text-slate-800 font-bold mt-0.5">{selectedVehicleForBooking.color || "N/A"}</p>
+                          <p className="text-slate-400 uppercase font-bold">Color</p>
+                          <p className="text-slate-800 font-black mt-0.5">{selectedVehicleForBooking.color || "White"}</p>
                         </div>
                         <div>
-                          <p className="text-slate-400 uppercase font-semibold">Fuel Type</p>
-                          <p className="text-slate-800 font-bold mt-0.5">{selectedVehicleForBooking.fuelType || "Diesel"}</p>
+                          <p className="text-slate-400 uppercase font-bold">Model Year</p>
+                          <p className="text-slate-800 font-black mt-0.5">2021</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 uppercase font-bold">Fuel Type</p>
+                          <p className="text-slate-800 font-black mt-0.5">{selectedVehicleForBooking.fuelType || "Diesel"}</p>
                         </div>
                       </div>
+                      <button 
+                        onClick={() => setSelectedVehicleForBooking(null)}
+                        className="absolute right-3.5 top-3.5 w-6 h-6 hover:bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 font-black cursor-pointer"
+                      >
+                        ✕
+                      </button>
                     </div>
                   ) : (
-                    <div className="bg-white p-4 rounded-xl border border-slate-100 flex items-center gap-4 shadow-sm">
-                      <div className="w-12 h-12 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 text-lg border border-slate-100">🚗</div>
-                      <div className="grid grid-cols-3 gap-6 text-[10px]">
-                        <div>
-                          <p className="text-slate-700 font-bold">Toyota Fortuner</p>
-                          <p className="text-blue-600 font-bold mt-0.5">UP 16 AB 1234</p>
-                        </div>
-                        <div>
-                          <p className="text-slate-400 uppercase font-semibold">Color</p>
-                          <p className="text-slate-800 font-bold mt-0.5">White</p>
-                        </div>
-                        <div>
-                          <p className="text-slate-400 uppercase font-semibold">Fuel Type</p>
-                          <p className="text-slate-800 font-bold mt-0.5">Diesel</p>
-                        </div>
-                      </div>
-                    </div>
+                    <div className="text-xs text-slate-400 italic font-semibold">No vehicle selected. Dropdown select above to link vehicle.</div>
                   )}
                 </div>
               </div>
 
-              {/* Section 3: Service Package */}
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-4 flex items-center gap-2">
-                  <span className="p-1.5 bg-blue-100 rounded-lg text-blue-600 text-xs">📦</span> 3. Service Package
-                </h3>
+              {/* 3. Service Package */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                  <span className="w-6 h-6 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 text-xs shadow-sm">📦</span>
+                  <h3 className="text-xs font-black text-slate-850 uppercase tracking-wider">3. Service Package</h3>
+                </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-2">Service Package *</label>
                   <select 
                     value={selectedServicePackage}
                     onChange={(e) => setSelectedServicePackage(e.target.value)}
-                    className="w-full rounded-xl bg-white border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800 cursor-pointer"
+                    className="w-full rounded-xl bg-slate-55 border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800 font-bold cursor-pointer"
                   >
+                    <option value="">Select a service package</option>
                     <option value="Premium Steam Wash">Premium Steam Wash (₹1,250)</option>
                     <option value="Interior Cleaning">Interior Cleaning (₹850)</option>
                     <option value="Foam Wash">Foam Wash (₹650)</option>
@@ -2772,28 +2789,32 @@ export default function FranchisePortal() {
                 </div>
               </div>
 
-              {/* Section 4: Schedule Date & Time */}
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-4 flex items-center gap-2">
-                  <span className="p-1.5 bg-blue-100 rounded-lg text-blue-600 text-xs">📅</span> 4. Schedule Date & Time
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+              {/* 4. Schedule Date & Time */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                  <span className="w-6 h-6 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 text-xs shadow-sm">📅</span>
+                  <h3 className="text-xs font-black text-slate-850 uppercase tracking-wider">4. Schedule Date & Time</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs font-semibold">
                   <div>
-                    <label className="block text-slate-550 font-semibold mb-2">Schedule Date *</label>
-                    <input 
-                      type="date" 
-                      value={selectedBookingDate}
-                      onChange={(e) => setSelectedBookingDate(e.target.value)}
-                      className="w-full rounded-xl bg-white border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-slate-800 cursor-pointer"
-                    />
+                    <label className="block text-slate-550 font-bold mb-2">Schedule Date *</label>
+                    <div className="relative">
+                      <input 
+                        type="date" 
+                        value={selectedBookingDate}
+                        onChange={(e) => setSelectedBookingDate(e.target.value)}
+                        className="w-full rounded-xl bg-slate-55 border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-slate-800 font-semibold cursor-pointer"
+                      />
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-slate-550 font-semibold mb-2">Schedule Time *</label>
+                    <label className="block text-slate-550 font-bold mb-2">Schedule Time *</label>
                     <select 
                       value={selectedBookingTime}
                       onChange={(e) => setSelectedBookingTime(e.target.value)}
-                      className="w-full rounded-xl bg-white border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-slate-800 cursor-pointer"
+                      className="w-full rounded-xl bg-slate-55 border border-slate-200 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-slate-800 font-bold cursor-pointer"
                     >
+                      <option value="">Select time</option>
                       <option value="09:00 AM">09:00 AM</option>
                       <option value="10:00 AM">10:00 AM</option>
                       <option value="11:30 AM">11:30 AM</option>
@@ -2805,18 +2826,23 @@ export default function FranchisePortal() {
                 </div>
               </div>
 
-              {/* Section 5: Select Services Checklist */}
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-2 flex items-center gap-2">
-                  <span className="p-1.5 bg-blue-100 rounded-lg text-blue-600 text-xs">🛒</span> 5. Select Services
-                </h3>
-                <p className="text-[10px] text-slate-500 mb-4">Choose one or more services for this booking.</p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {/* 5. Select Services */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4">
+                <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+                  <span className="w-6 h-6 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 text-xs shadow-sm">🛒</span>
+                  <h3 className="text-xs font-black text-slate-855 uppercase tracking-wider">5. Select Services</h3>
+                </div>
+                <p className="text-[10px] text-slate-450 font-bold">Choose one or more services for this booking.</p>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-semibold text-slate-700">
                   {[
-                    { label: 'Exterior Wash', price: '₹300', icon: '🚗' },
-                    { label: 'Interior Cleaning', price: '₹400', icon: '🧼' },
-                    { label: 'Steam Wash', price: '₹500', icon: '💨' },
-                    { label: 'Deep Cleaning', price: '₹700', icon: '✨' },
+                    { label: 'Exterior Wash', price: '₹300', icon: '🚗', rawPrice: 300 },
+                    { label: 'Interior Cleaning', price: '₹400', icon: '🧼', rawPrice: 400 },
+                    { label: 'Steam Wash', price: '₹500', icon: '💨', rawPrice: 500 },
+                    { label: 'Deep Cleaning', price: '₹700', icon: '✨', rawPrice: 700 },
+                    { label: 'Ceramic Coating', price: '₹2,500', icon: '🛡️', rawPrice: 2500 },
+                    { label: 'Foam Wash', price: '₹600', icon: '🫧', rawPrice: 600 },
+                    { label: 'Engine Wash', price: '₹500', icon: '⚙️', rawPrice: 500 },
                   ].map((srv) => (
                     <div 
                       key={srv.label}
@@ -2827,54 +2853,70 @@ export default function FranchisePortal() {
                           setSelectedServicesChecklist([...selectedServicesChecklist, srv.label]);
                         }
                       }}
-                      className={`p-4 rounded-xl border flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+                      className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-2 cursor-pointer transition-all relative ${
                         selectedServicesChecklist.includes(srv.label)
-                          ? "bg-blue-50 border-blue-300 text-blue-700 shadow-sm"
-                          : "bg-white border-slate-200 text-slate-650 hover:bg-slate-100"
+                          ? "bg-blue-50/50 border-blue-300 text-blue-700 shadow-sm"
+                          : "bg-white border-slate-200 text-slate-650 hover:bg-slate-50"
                       }`}
                     >
-                      <span className="text-xl">{srv.icon}</span>
-                      <p className="text-xs font-bold">{srv.label}</p>
-                      <span className={`text-[10px] font-bold ${selectedServicesChecklist.includes(srv.label) ? "text-blue-600" : "text-emerald-600"}`}>{srv.price}</span>
+                      <input 
+                        type="checkbox" 
+                        checked={selectedServicesChecklist.includes(srv.label)}
+                        readOnly
+                        className="absolute right-3.5 top-3.5 w-4 h-4 cursor-pointer text-blue-600" 
+                      />
+                      <span className="text-2xl mt-2">{srv.icon}</span>
+                      <p className="text-xs font-bold mt-1 text-slate-800">{srv.label}</p>
+                      <span className="text-[10px] font-black text-slate-500 block mt-0.5">{srv.price}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Section 6: Additional Notes */}
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <h3 className="text-sm font-bold text-slate-800 tracking-wide mb-3">6. Additional Notes (Optional)</h3>
+              {/* 6. Additional Notes */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-3">
+                <h3 className="text-xs font-black text-slate-855 uppercase tracking-wider">6. Additional Notes (Optional)</h3>
                 <textarea 
                   placeholder="Enter any special instructions or notes..."
                   value={bookingNotes}
                   onChange={(e) => setBookingNotes(e.target.value)}
-                  className="w-full h-24 rounded-xl bg-white border border-slate-200 p-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800"
+                  className="w-full h-24 rounded-xl bg-slate-55 border border-slate-200 p-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs text-slate-800 font-semibold"
                 />
               </div>
 
               {/* Booking Summary sticky bottom info */}
-              <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 flex items-center justify-between text-xs">
+              <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between text-xs font-semibold text-slate-505">
                 <div>
-                  <p className="text-slate-500">Estimated Amount</p>
-                  <p className="text-base font-black text-emerald-600 mt-1">
-                    ₹{selectedServicePackage === "Premium Steam Wash" ? "1,250" : selectedServicePackage === "Interior Cleaning" ? "850" : selectedServicePackage === "Foam Wash" ? "650" : "3,500"}
-                  </p>
+                  <span className="text-slate-400 font-bold block">Estimated Amount</span>
+                  <span className="text-xl font-black text-blue-600 block mt-1">
+                    ₹{(
+                      (selectedServicePackage === "Premium Steam Wash" ? 1250 : selectedServicePackage === "Interior Cleaning" ? 850 : selectedServicePackage === "Foam Wash" ? 650 : selectedServicePackage === "Ceramic Coating" ? 3500 : 0) +
+                      selectedServicesChecklist.reduce((acc, curr) => {
+                        const prices: Record<string, number> = { 'Exterior Wash': 300, 'Interior Cleaning': 400, 'Steam Wash': 500, 'Deep Cleaning': 700, 'Ceramic Coating': 2500, 'Foam Wash': 600, 'Engine Wash': 500 };
+                        return acc + (prices[curr] || 0);
+                      }, 0)
+                    ).toLocaleString()}
+                  </span>
                 </div>
                 <div>
-                  <p className="text-slate-500">Selected Services</p>
-                  <p className="text-xs text-slate-800 font-bold mt-1">1 Package</p>
+                  <span className="text-slate-400 font-bold block">Selected Services</span>
+                  <span className="text-xs text-slate-805 font-bold block mt-1">
+                    {selectedServicePackage ? '1 Package' : '0 Packages'} {selectedServicesChecklist.length > 0 ? `+ ${selectedServicesChecklist.length} Add-on` : ''}
+                  </span>
                 </div>
                 <div>
-                  <p className="text-slate-500">Duration</p>
-                  <p className="text-xs text-slate-800 font-bold mt-1">60 mins</p>
+                  <span className="text-slate-400 font-bold block">Duration</span>
+                  <span className="text-xs text-slate-805 font-bold block mt-1">
+                    {(selectedServicePackage ? 60 : 0) + (selectedServicesChecklist.length * 20)} mins
+                  </span>
                 </div>
               </div>
 
               <button 
                 onClick={handleCreateBooking}
-                className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-bold transition-all cursor-pointer text-center shadow-md"
+                className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl text-xs font-black transition-all cursor-pointer text-center shadow-md flex items-center justify-center gap-1.5"
               >
-                Create Booking 🚀
+                📅 Create Booking
               </button>
             </div>
           )}

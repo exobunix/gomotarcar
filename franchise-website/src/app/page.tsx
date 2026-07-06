@@ -4390,94 +4390,285 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "attendance" && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Title */}
-              <div>
-                <h2 className="text-xl font-bold text-white tracking-wide">Attendance Management</h2>
-                <p className="text-xs text-slate-400 mt-1">Mark and manage staff attendance with accuracy.</p>
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Staff Management</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Attendance Management</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Attendance Management</h2>
+                  <p className="text-xs text-slate-555 mt-1">Mark and manage staff attendance with accuracy.</p>
+                </div>
               </div>
 
               {/* Stats overview row */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Staff</span>
-                  <p className="text-3xl font-extrabold text-white mt-1.5">32</p>
-                </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Present Today</span>
-                  <p className="text-3xl font-extrabold text-emerald-455 mt-1.5">24</p>
-                </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Absent Today</span>
-                  <p className="text-3xl font-extrabold text-rose-500 mt-1.5">5</p>
-                </div>
-              </div>
-
-              {/* Mark Attendance section */}
-              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-4">
-                  <div className="p-4 bg-slate-900 border border-blue-500/35 rounded-xl flex items-center justify-between cursor-pointer">
-                    <span className="text-xs text-white font-bold">Manual Attendance</span>
-                    <input type="radio" checked className="cursor-pointer" />
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Staff</span>
+                    <p className="text-2xl font-black text-slate-800 mt-1">32</p>
+                    <p className="text-[9px] text-slate-400 font-bold mt-1">All Registered Staff</p>
                   </div>
-                  <div className="p-4 bg-slate-900/60 border border-slate-850 rounded-xl flex items-center justify-between cursor-pointer">
-                    <span className="text-xs text-slate-400">Selfie Attendance</span>
-                    <input type="radio" className="cursor-pointer" />
+                  <div className="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-xl shadow-sm">
+                    👥
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center justify-center text-center gap-2 border-l border-r border-slate-850 px-6">
-                  <div className="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xl">AV</div>
-                  <p className="text-xs font-bold text-white mt-2">Attendance Marked</p>
-                  <p className="text-[10px] text-slate-500">26 May 2025, 09:15 AM</p>
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Present Today</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">24</p>
+                    <p className="text-[9px] text-emerald-600 font-bold mt-1">75.00% of total</p>
+                  </div>
+                  <div className="w-11 h-11 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-650 text-xl shadow-sm">
+                    ✓
+                  </div>
                 </div>
 
-                <div className="text-xs text-slate-400 space-y-3 pl-4">
-                  <h4 className="font-bold text-white">Today's Attendance Summary</h4>
-                  <div className="flex justify-between">
-                    <span>Check In Time</span>
-                    <span className="text-white font-semibold">09:15 AM</span>
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Absent Today</span>
+                    <p className="text-2xl font-black text-slate-855 mt-1">5</p>
+                    <p className="text-[9px] text-rose-500 font-bold mt-1">15.63% of total</p>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Location</span>
-                    <span className="text-white font-semibold">Sector 62, Noida</span>
+                  <div className="w-11 h-11 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-600 text-xl shadow-sm">
+                    ❌
                   </div>
-                  <div className="flex justify-between">
-                    <span>Status</span>
-                    <span className="text-emerald-450 font-bold">Present</span>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">On Leave</span>
+                    <p className="text-2xl font-black text-slate-855 mt-1">3</p>
+                    <p className="text-[9px] text-amber-500 font-bold mt-1">9.38% of total</p>
+                  </div>
+                  <div className="w-11 h-11 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-xl shadow-sm">
+                    📅
                   </div>
                 </div>
               </div>
 
-              {/* Table details list */}
-              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
-                      <th className="pb-3">Staff Member</th>
-                      <th className="pb-3">Department</th>
-                      <th className="pb-3">Role</th>
-                      <th className="pb-3">Check In</th>
-                      <th className="pb-3">Check Out</th>
-                      <th className="pb-3">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-850">
-                    {[
-                      { name: 'Amit Verma', dep: 'Operations', role: 'Supervisor', checkin: '09:15 AM', checkout: '06:05 PM', status: 'Present' },
-                      { name: 'Rahul Sharma', dep: 'Cleaning', role: 'Technician', checkin: '08:58 AM', checkout: '05:42 PM', status: 'Present' },
-                    ].map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
-                        <td className="py-4 font-bold text-white">{item.name}</td>
-                        <td className="py-4 text-slate-400">{item.dep}</td>
-                        <td className="py-4 text-slate-400">{item.role}</td>
-                        <td className="py-4 text-emerald-450 font-semibold">{item.checkin}</td>
-                        <td className="py-4 text-slate-400">{item.checkout}</td>
-                        <td className="py-4 text-emerald-400 font-bold">{item.status}</td>
+              {/* Mark Attendance card panel */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                  <h3 className="text-sm font-black text-slate-850">Mark Attendance</h3>
+                  <button className="px-3.5 py-2 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-[10px] font-black transition-all flex items-center gap-1">
+                    🔄 Refresh
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 text-xs font-semibold text-slate-700">
+                  {/* Left option switches */}
+                  <div className="md:col-span-4 space-y-3.5">
+                    <div className="p-4 bg-blue-50/50 border border-blue-200 rounded-2xl flex items-center justify-between cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">👆</span>
+                        <div>
+                          <span className="font-bold text-blue-800 block leading-tight">Manual Attendance</span>
+                          <span className="text-[8.5px] text-blue-500 font-bold block mt-0.5">Mark attendance manually</span>
+                        </div>
+                      </div>
+                      <input type="radio" defaultChecked className="text-blue-600 w-4 h-4 cursor-pointer" />
+                    </div>
+
+                    <div className="p-4 bg-slate-50/50 border border-slate-100 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-slate-100/30 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">📷</span>
+                        <div>
+                          <span className="font-bold text-slate-800 block leading-tight">Selfie Attendance</span>
+                          <span className="text-[8.5px] text-slate-400 font-bold block mt-0.5">Mark attendance with selfie</span>
+                        </div>
+                      </div>
+                      <input type="radio" className="text-slate-400 w-4 h-4 cursor-pointer" />
+                    </div>
+
+                    <div className="p-4 bg-slate-50/50 border border-slate-100 rounded-2xl flex items-center justify-between cursor-pointer hover:bg-slate-100/30 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">📍</span>
+                        <div>
+                          <span className="font-bold text-slate-800 block leading-tight">Geo Attendance</span>
+                          <span className="text-[8.5px] text-slate-400 font-bold block mt-0.5">Mark attendance with location</span>
+                        </div>
+                      </div>
+                      <input type="radio" className="text-slate-400 w-4 h-4 cursor-pointer" />
+                    </div>
+                  </div>
+
+                  {/* Middle portrait indicator */}
+                  <div className="md:col-span-4 flex flex-col items-center justify-center text-center gap-3 border-l border-r border-slate-100 px-6 py-2">
+                    <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-emerald-500/35 bg-slate-50 shadow-sm flex items-center justify-center">
+                      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" alt="avatar" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-emerald-600 font-black text-xs flex items-center gap-1.5 justify-center">✓ Attendance Marked</p>
+                      <p className="text-[10px] text-slate-800 font-bold">26 May 2025, 09:15 AM</p>
+                      <p className="text-[8.5px] text-slate-400 font-bold">Location: Sector 62, Noida</p>
+                    </div>
+                  </div>
+
+                  {/* Right summary table */}
+                  <div className="md:col-span-4 space-y-3 pl-4 pt-1">
+                    <h4 className="text-xs font-black text-slate-800 pb-1.5 border-b border-slate-50">Today's Attendance Summary</h4>
+                    
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-slate-400">Check In Time</span>
+                      <span className="text-emerald-650 font-bold">09:15 AM</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-slate-400">Check Out Time</span>
+                      <span className="text-slate-700 font-bold">--</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-slate-400">Total Working Hours</span>
+                      <span className="text-slate-700 font-bold">--</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-slate-400">Location</span>
+                      <span className="text-slate-750 font-bold">Sector 62, Noida</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-slate-400">Device</span>
+                      <span className="text-slate-750 font-bold">Mobile App (Android)</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-slate-400">Status</span>
+                      <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-50 text-emerald-650">Present</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters bar */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-3xl border border-slate-150 shadow-sm">
+                <div className="flex flex-wrap items-center gap-3.5 flex-1">
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📅</span>
+                    <select className="pl-8 pr-4 py-2 bg-slate-55 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-550/20 cursor-pointer">
+                      <option>26 May 2025</option>
+                    </select>
+                  </div>
+
+                  <select className="rounded-xl bg-slate-55 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold cursor-pointer">
+                    <option>All Departments</option>
+                  </select>
+
+                  <select className="rounded-xl bg-slate-55 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold cursor-pointer">
+                    <option>All Roles</option>
+                  </select>
+
+                  <select className="rounded-xl bg-slate-55 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold cursor-pointer">
+                    <option>All Status</option>
+                  </select>
+                </div>
+                <div className="flex gap-3">
+                  <button className="px-4 py-2.5 bg-slate-55 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                    ⚙️ Filters
+                  </button>
+                  <button className="px-4 py-2.5 bg-white hover:bg-slate-50 text-blue-600 border border-blue-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                    📥 Download
+                  </button>
+                </div>
+              </div>
+
+              {/* Attendance Table list */}
+              <div className="bg-white rounded-3xl border border-slate-150 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                        <th className="py-4.5 px-6">Staff Member</th>
+                        <th className="py-4.5 px-4">Department</th>
+                        <th className="py-4.5 px-4">Role</th>
+                        <th className="py-4.5 px-4">Check In</th>
+                        <th className="py-4.5 px-4">Check Out</th>
+                        <th className="py-4.5 px-4">Working Hours</th>
+                        <th className="py-4.5 px-4">Location</th>
+                        <th className="py-4.5 px-4 text-center">Status</th>
+                        <th className="py-4.5 px-4 text-center">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
+                      {[
+                        { id: 'STF001', name: 'Amit Verma', dep: 'Operations', role: 'Supervisor', checkin: '09:15 AM', checkinDate: '26 May 2025', checkout: '06:05 PM', checkoutDate: '26 May 2025', hours: '8h 50m', loc: 'Sector 62, Noida', status: 'Present', badge: 'bg-emerald-50 text-emerald-650', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' },
+                        { id: 'STF002', name: 'Rahul Sharma', dep: 'Cleaning', role: 'Technician', checkin: '08:58 AM', checkinDate: '26 May 2025', checkout: '05:42 PM', checkoutDate: '26 May 2025', hours: '8h 44m', loc: 'Sector 63, Noida', status: 'Present', badge: 'bg-emerald-50 text-emerald-650', avatar: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?auto=format&fit=crop&q=80&w=60' },
+                        { id: 'STF003', name: 'Vikram Singh', dep: 'Cleaning', role: 'Cleaner', checkin: '--', checkinDate: '', checkout: '--', checkoutDate: '', hours: '--', loc: '--', status: 'Absent', badge: 'bg-rose-50 text-rose-600', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60' },
+                        { id: 'STF004', name: 'Sandeep Yadav', dep: 'Detailing', role: 'Detailer', checkin: '09:05 AM', checkinDate: '26 May 2025', checkout: '06:02 PM', checkoutDate: '26 May 2025', hours: '8h 57m', loc: 'Sector 61, Noida', status: 'Present', badge: 'bg-emerald-50 text-emerald-650', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=60' },
+                        { id: 'STF005', name: 'Mohit Kumar', dep: 'Mechanical', role: 'Technician', checkin: '09:20 AM', checkinDate: '26 May 2025', checkout: '--', checkoutDate: '', hours: '--', loc: 'Sector 62, Noida', status: 'On Leave', badge: 'bg-amber-50 text-amber-600', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=60' }
+                      ].map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-100 bg-slate-55 shadow-sm flex items-center justify-center flex-shrink-0">
+                                <img src={item.avatar} alt={item.name} className="w-full h-full object-cover" />
+                              </div>
+                              <div>
+                                <span className="font-bold text-slate-800 block leading-tight">{item.name}</span>
+                                <span className="text-[9px] text-slate-400 font-semibold">{item.id}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4 font-semibold text-slate-500">{item.dep}</td>
+                          <td className="py-4 px-4 font-semibold text-slate-500">{item.role}</td>
+                          <td className="py-4 px-4">
+                            {item.checkin !== '--' ? (
+                              <div className="space-y-0.5">
+                                <span className="text-emerald-600 font-bold block">🟢 {item.checkin}</span>
+                                <span className="text-[8.5px] text-slate-400 font-bold">{item.checkinDate}</span>
+                              </div>
+                            ) : (
+                              <span className="text-slate-400">--</span>
+                            )}
+                          </td>
+                          <td className="py-4 px-4">
+                            {item.checkout !== '--' ? (
+                              <div className="space-y-0.5">
+                                <span className="text-emerald-600 font-bold block">🟢 {item.checkout}</span>
+                                <span className="text-[8.5px] text-slate-400 font-bold">{item.checkoutDate}</span>
+                              </div>
+                            ) : (
+                              <span className="text-slate-400">--</span>
+                            )}
+                          </td>
+                          <td className="py-4 px-4 font-semibold text-slate-500">{item.hours}</td>
+                          <td className="py-4 px-4">
+                            {item.loc !== '--' ? (
+                              <span className="text-slate-700 font-semibold">📍 {item.loc}</span>
+                            ) : (
+                              <span className="text-slate-400">--</span>
+                            )}
+                          </td>
+                          <td className="py-4 px-4 text-center">
+                            <span className={`px-2.5 py-0.5 rounded text-[8px] font-black uppercase ${item.badge}`}>{item.status}</span>
+                          </td>
+                          <td className="py-4 px-4 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">👁️</button>
+                              <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">📷</button>
+                              <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">✏️</button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-t border-slate-100 text-xs font-semibold text-slate-550 bg-slate-50/30">
+                  <span>Showing 1 to 5 of 32 staff members</span>
+                  <div className="flex items-center gap-1.5">
+                    <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">‹</button>
+                    <button className="px-3 py-1.5 bg-blue-600 text-white rounded-lg cursor-pointer">1</button>
+                    <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">2</button>
+                    <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">3</button>
+                    <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">4</button>
+                    <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">5</button>
+                    <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">›</button>
+                  </div>
+                </div>
               </div>
             </div>
           )}

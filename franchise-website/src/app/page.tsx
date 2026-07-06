@@ -7199,6 +7199,329 @@ export default function FranchisePortal() {
             </div>
           )}
 
+          {activeTab === "reports" && (
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
+              <div className="flex flex-wrap justify-between items-end gap-4">
+                <div>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Reports</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Reports Dashboard</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Reports Dashboard</h2>
+                  <p className="text-xs text-slate-555 mt-1">View and analyze your business performance with detailed reports.</p>
+                </div>
+                
+                {/* Export Report Buttons */}
+                <div className="space-y-1">
+                  <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block text-right mb-1">Export Report</span>
+                  <div className="flex gap-2">
+                    <button className="px-3.5 py-2 bg-white border border-rose-250 hover:bg-rose-50/50 text-rose-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                      📄 PDF
+                    </button>
+                    <button className="px-3.5 py-2 bg-white border border-emerald-250 hover:bg-emerald-50/50 text-emerald-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                      📊 Excel
+                    </button>
+                    <button className="px-3.5 py-2 bg-white border border-blue-250 hover:bg-blue-50/50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                      📁 CSV
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Revenue Report</span>
+                    <p className="text-[17px] font-black text-slate-805 mt-1">₹24,58,320</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ 18.7% vs last month</p>
+                  </div>
+                  <div className="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-650 text-lg shadow-sm">
+                    ₹
+                  </div>
+                </div>
+
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Booking Report</span>
+                    <p className="text-xl font-black text-slate-850 mt-1">1,248</p>
+                    <p className="text-[9px] text-emerald-600 font-bold mt-1">↑ 12.4% vs last month</p>
+                  </div>
+                  <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-lg shadow-sm">
+                    📅
+                  </div>
+                </div>
+
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Customer Report</span>
+                    <p className="text-xl font-black text-slate-855 mt-1">982</p>
+                    <p className="text-[9px] text-emerald-600 font-bold mt-1">↑ 10.6% vs last month</p>
+                  </div>
+                  <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-lg shadow-sm">
+                    👥
+                  </div>
+                </div>
+
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Staff Report</span>
+                    <p className="text-xl font-black text-slate-855 mt-1">56</p>
+                    <p className="text-[9px] text-emerald-600 font-bold mt-1">↑ 5.3% vs last month</p>
+                  </div>
+                  <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-650 text-lg shadow-sm">
+                    👤
+                  </div>
+                </div>
+
+                <div className="bg-white p-4.5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Inventory Report</span>
+                    <p className="text-xl font-black text-slate-855 mt-1">1,256</p>
+                    <p className="text-[9px] text-rose-500 font-bold mt-1">↓ 4.8% vs last month</p>
+                  </div>
+                  <div className="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-650 text-lg shadow-sm">
+                    📦
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters row */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-3xl border border-slate-150 shadow-sm">
+                <div className="flex flex-wrap items-center gap-3.5 flex-1">
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📅</span>
+                    <select className="pl-8 pr-4 py-2 bg-slate-55 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer">
+                      <option>01 May 2025 - 31 May 2025</option>
+                    </select>
+                  </div>
+
+                  <select className="rounded-xl bg-slate-55 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold cursor-pointer">
+                    <option>All Branches</option>
+                  </select>
+
+                  <select className="rounded-xl bg-slate-55 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold cursor-pointer">
+                    <option>All Services</option>
+                  </select>
+                </div>
+                <button className="px-4 py-2.5 bg-slate-55 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                  ⚙️ Filters
+                </button>
+              </div>
+
+              {/* Middle Charts Grid (Line chart, Bar chart, Donut chart) */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Revenue Overview Line Chart */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[340px]">
+                  <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                    <div>
+                      <h3 className="text-sm font-black text-slate-855">Revenue Overview (Line Chart)</h3>
+                    </div>
+                    <select className="text-[10px] text-slate-400 bg-slate-55 border border-slate-200 px-2 py-0.5 rounded-xl font-bold cursor-pointer">
+                      <option>Daily</option>
+                    </select>
+                  </div>
+
+                  <div className="relative h-44 w-full flex items-end">
+                    <svg className="w-full h-full text-purple-500" viewBox="0 0 100 50" preserveAspectRatio="none" fill="none">
+                      <path d="M5 38 L 20 34 L 35 29 L 50 32 L 65 26 L 80 22 L 95 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <path d="M5 38 L 20 34 L 35 29 L 50 32 L 65 26 L 80 22 L 95 16 L 95 50 L 5 50 Z" fill="url(#rev-overview-gradient)" opacity="0.05" />
+                      <defs>
+                        <linearGradient id="rev-overview-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor="rgb(168, 85, 247)" />
+                          <stop offset="100%" stopColor="rgba(168, 85, 247, 0)" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+
+                    <div className="absolute inset-0 flex flex-col justify-between text-[7px] text-slate-400 font-bold items-start py-2">
+                      <span>50K</span>
+                      <span>40K</span>
+                      <span>30K</span>
+                      <span>20K</span>
+                      <span>10K</span>
+                      <span>0</span>
+                    </div>
+
+                    <div className="absolute bottom-0 inset-x-0 flex justify-between text-[7px] text-slate-400 font-bold px-3 pt-1">
+                      <span>01 May</span>
+                      <span>06 May</span>
+                      <span>11 May</span>
+                      <span>16 May</span>
+                      <span>21 May</span>
+                      <span>26 May</span>
+                      <span>31 May</span>
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs font-black text-slate-800">
+                    Total Revenue: <span className="text-purple-600">₹24,58,320</span>
+                  </div>
+                </div>
+
+                {/* Bookings Overview Bar Chart */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[340px]">
+                  <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                    <div>
+                      <h3 className="text-sm font-black text-slate-855">Bookings Overview (Bar Chart)</h3>
+                    </div>
+                    <select className="text-[10px] text-slate-400 bg-slate-55 border border-slate-200 px-2 py-0.5 rounded-xl font-bold cursor-pointer">
+                      <option>Weekly</option>
+                    </select>
+                  </div>
+
+                  <div className="relative h-44 w-full flex items-end justify-between px-2 pt-4">
+                    {[
+                      { date: '01 May', val: 180, label: '180' },
+                      { date: '06 May', val: 210, label: '210' },
+                      { date: '11 May', val: 260, label: '260' },
+                      { date: '16 May', val: 240, label: '240' },
+                      { date: '21 May', val: 310, label: '310' },
+                      { date: '26 May', val: 370, label: '370' },
+                      { date: '31 May', val: 430, label: '430' }
+                    ].map((bar, idx) => (
+                      <div key={idx} className="flex flex-col items-center flex-1 gap-1">
+                        <span className="text-[7px] text-slate-405 font-bold">{bar.label}</span>
+                        <div className="w-4 bg-slate-100 rounded-t h-28 overflow-hidden relative flex items-end">
+                          <div className="bg-blue-600 w-full rounded-t transition-all" style={{ height: `${(bar.val / 500) * 100}%` }}></div>
+                        </div>
+                        <span className="text-[7px] text-slate-400 font-bold mt-1">{bar.date}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs font-black text-slate-800">
+                    Total Bookings: <span className="text-blue-650">1,248</span>
+                  </div>
+                </div>
+
+                {/* Customer Distribution Donut Chart */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[340px]">
+                  <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                    <div>
+                      <h3 className="text-sm font-black text-slate-855">Customer Distribution</h3>
+                    </div>
+                    <select className="text-[10px] text-slate-400 bg-slate-55 border border-slate-200 px-2 py-0.5 rounded-xl font-bold cursor-pointer">
+                      <option>This Month</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center justify-between py-1">
+                    <div className="relative w-28 h-28 flex items-center justify-center">
+                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                        {/* New Customers (40%) - Purple */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#A855F7" strokeWidth="4.5" strokeDasharray="40 60" strokeDashoffset="0" />
+                        {/* Returning Customers (35%) - Blue */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#3B82F6" strokeWidth="4.5" strokeDasharray="35 65" strokeDashoffset="-40" />
+                        {/* Inactive Customers (15%) - Orange */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#F97316" strokeWidth="4.5" strokeDasharray="15 85" strokeDashoffset="-75" />
+                        {/* Lost Customers (10%) - Red */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#EF4444" strokeWidth="4.5" strokeDasharray="10 90" strokeDashoffset="-90" />
+                      </svg>
+                      <div className="absolute text-center">
+                        <p className="text-sm font-black text-slate-800">982</p>
+                        <p className="text-[6.5px] text-slate-400 uppercase font-black tracking-wider">Total</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 text-[8px] text-slate-505 font-bold pr-2">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>New</span>
+                        <span>40% (393)</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Returning</span>
+                        <span>35% (344)</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>Inactive</span>
+                        <span>15% (147)</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Lost</span>
+                        <span>10% (98)</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100 text-xs font-black text-slate-800">
+                    Total Customers: <span className="text-purple-600">982</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Reports List Table */}
+              <div className="bg-white rounded-3xl border border-slate-150 shadow-sm overflow-hidden">
+                <div className="p-5 border-b border-slate-100">
+                  <h3 className="text-sm font-black text-slate-900 tracking-wide">Reports List</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                        <th className="py-4.5 px-6">Report Name</th>
+                        <th className="py-4.5 px-4">Description</th>
+                        <th className="py-4.5 px-4">Generated On</th>
+                        <th className="py-4.5 px-4">Period</th>
+                        <th className="py-4.5 px-4">Format</th>
+                        <th className="py-4.5 px-4 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
+                      {[
+                        { name: 'Revenue Report', desc: 'Detailed revenue and earnings report', gen: '31 May 2025, 10:30 AM', pd: '01 May 2025 - 31 May 2025' },
+                        { name: 'Booking Report', desc: 'Booking summary and trends', gen: '31 May 2025, 10:28 AM', pd: '01 May 2025 - 31 May 2025' },
+                        { name: 'Customer Report', desc: 'Customer growth and activity report', gen: '31 May 2025, 10:25 AM', pd: '01 May 2025 - 31 May 2025' },
+                        { name: 'Staff Report', desc: 'Staff performance and attendance report', gen: '31 May 2025, 10:22 AM', pd: '01 May 2025 - 31 May 2025' },
+                        { name: 'Inventory Report', desc: 'Inventory status and usage report', gen: '31 May 2025, 10:20 AM', pd: '01 May 2025 - 31 May 2025' }
+                      ].map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-4 px-6 font-bold text-slate-800 flex items-center gap-2">
+                            <span>📊</span> {item.name}
+                          </td>
+                          <td className="py-4 px-4 font-semibold text-slate-500">{item.desc}</td>
+                          <td className="py-4 px-4 font-semibold text-slate-500">{item.gen}</td>
+                          <td className="py-4 px-4 font-semibold text-slate-500">{item.pd}</td>
+                          <td className="py-4 px-4">
+                            <div className="flex gap-1.5">
+                              <button className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded text-[9px] font-black transition-all">PDF</button>
+                              <button className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded text-[9px] font-black transition-all">Excel</button>
+                              <button className="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[9px] font-black transition-all">CSV</button>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4 text-center">
+                            <button className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[9px] font-black transition-all cursor-pointer shadow-sm flex items-center gap-1 mx-auto">
+                              👁️ View
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-t border-slate-100 text-xs font-semibold text-slate-505 bg-slate-50/30">
+                  <span>Showing 1 to 5 of 5 reports</span>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5">
+                      <span>Items per page:</span>
+                      <select className="border border-slate-200 rounded px-1.5 py-0.5 font-bold cursor-pointer bg-white text-slate-800 text-[11px]">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">‹</button>
+                      <button className="px-3 py-1.5 bg-blue-600 text-white rounded-lg transition-all cursor-pointer">1</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">›</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === "business_profile" && (
             <div className="space-y-6 text-slate-100 pb-10">
               {/* Header */}

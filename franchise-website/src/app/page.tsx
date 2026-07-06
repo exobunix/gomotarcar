@@ -6924,83 +6924,275 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "complaints" && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Header */}
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Complaint Dashboard</h2>
-                  <p className="text-xs text-slate-400 mt-1">Track and manage all complaints raised by customers.</p>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Complaint Management</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Complaint Dashboard</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Complaint Dashboard</h2>
+                  <p className="text-xs text-slate-555 mt-1">Track and manage all complaints raised by customers.</p>
                 </div>
-                <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold cursor-pointer">
-                  + Raise New Complaint
+                <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                  ➕ Raise New Complaint
                 </button>
               </div>
 
               {/* Stats overview row */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Complaints</span>
-                  <p className="text-2xl font-black text-white mt-1">325</p>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Complaints</span>
+                    <p className="text-2xl font-black text-slate-800 mt-1">325</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +15.6% vs last month</p>
+                  </div>
+                  <div className="w-11 h-11 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-650 text-xl shadow-sm">
+                    📋
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Open Complaints</span>
-                  <p className="text-2xl font-black text-rose-500 mt-1">86</p>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Open Complaints</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">86</p>
+                    <p className="text-[9px] text-amber-500 font-bold mt-1">26.5% of total</p>
+                  </div>
+                  <div className="w-11 h-11 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-xl shadow-sm">
+                    ⌛
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Pending Complaints</span>
-                  <p className="text-2xl font-black text-amber-500 mt-1">112</p>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Pending Complaints</span>
+                    <p className="text-2xl font-black text-slate-855 mt-1">112</p>
+                    <p className="text-[9px] text-amber-500 font-bold mt-1">34.5% of total</p>
+                  </div>
+                  <div className="w-11 h-11 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-600 text-xl shadow-sm">
+                    ⌛
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Closed Complaints</span>
+                    <p className="text-2xl font-black text-slate-855 mt-1">127</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">39.0% of total</p>
+                  </div>
+                  <div className="w-11 h-11 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-650 text-xl shadow-sm">
+                    ✓
+                  </div>
                 </div>
               </div>
 
-              {/* Table details list */}
-              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
-                      <th className="pb-3">Complaint ID</th>
-                      <th className="pb-3">Customer</th>
-                      <th className="pb-3">Category</th>
-                      <th className="pb-3">Subject</th>
-                      <th className="pb-3">Status</th>
-                      <th className="pb-3">Priority</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-850">
-                    {[
-                      { id: 'CMP-2025-0526-001', cust: 'Rahul Sharma', cat: 'Customer', sub: 'Poor service experience', status: 'Open', priority: 'High' },
-                      { id: 'CMP-2025-0526-002', cust: 'Priya Verma', cat: 'Payment', sub: 'Payment not refunded', status: 'Pending', priority: 'Medium' },
-                    ].map((item, idx) => (
-                      <tr key={idx} className="hover:bg-slate-900/20 transition-all">
-                        <td className="py-4 font-bold text-blue-500">{item.id}</td>
-                        <td className="py-4 font-bold text-white">{item.cust}</td>
-                        <td className="py-4 text-blue-450 font-bold">{item.cat}</td>
-                        <td className="py-4 text-slate-400">{item.sub}</td>
-                        <td className="py-4">
-                          <span className={`text-[10px] font-bold uppercase ${
-                            item.status === 'Open' ? 'text-rose-500' : 'text-amber-400'
-                          }`}>{item.status}</span>
-                        </td>
-                        <td className="py-4">
-                          <span className={`text-[10px] font-bold uppercase ${
-                            item.priority === 'High' ? 'text-red-500' : 'text-yellow-500'
-                          }`}>{item.priority}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Support Tickets Section */}
-              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                <h3 className="text-sm font-bold text-white tracking-wide">My Support Tickets</h3>
-                <div className="space-y-3 mt-4">
-                  <div className="p-3 bg-slate-900/40 rounded-xl border border-slate-850">
-                    <div className="flex justify-between">
-                      <span className="font-bold text-white">#TKT-2025-0578</span>
-                      <span className="text-rose-500 font-bold uppercase text-[9px]">Open</span>
+              {/* Middle Grid (Complaint Categories & Complaints by Status) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Complaint Categories Card */}
+                <div className="lg:col-span-8 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100 mb-4">Complaint Categories</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="p-4 bg-purple-50/50 rounded-2xl border border-purple-100 text-center space-y-1">
+                      <span className="text-xl">👥</span>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase">Customer</p>
+                      <p className="text-xl font-black text-slate-800">148</p>
+                      <p className="text-[9px] text-purple-600 font-bold">45.5%</p>
                     </div>
-                    <p className="text-[10px] text-slate-550 mt-0.5">Payment not refunded</p>
+
+                    <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100 text-center space-y-1">
+                      <span className="text-xl">💳</span>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase">Payment</p>
+                      <p className="text-xl font-black text-slate-800">72</p>
+                      <p className="text-[9px] text-blue-600 font-bold">22.2%</p>
+                    </div>
+
+                    <div className="p-4 bg-amber-50/50 rounded-2xl border border-amber-100 text-center space-y-1">
+                      <span className="text-xl">📦</span>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase">Inventory</p>
+                      <p className="text-xl font-black text-slate-800">56</p>
+                      <p className="text-[9px] text-amber-600 font-bold">17.2%</p>
+                    </div>
+
+                    <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100 text-center space-y-1">
+                      <span className="text-xl">⚙️</span>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase">Technical</p>
+                      <p className="text-xl font-black text-slate-800">49</p>
+                      <p className="text-[9px] text-emerald-600 font-bold">15.1%</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Complaints by Status Donut */}
+                <div className="lg:col-span-4 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100">Complaints by Status</h3>
+                  <div className="flex items-center justify-between py-2">
+                    <div className="relative w-28 h-28 flex items-center justify-center">
+                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                        {/* Open (26.5%) - Orange/Yellow */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#EAB308" strokeWidth="4" strokeDasharray="26.5 73.5" strokeDashoffset="0" />
+                        {/* Pending (34.5%) - Orange */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#F97316" strokeWidth="4" strokeDasharray="34.5 65.5" strokeDashoffset="-26.5" />
+                        {/* Closed (39.0%) - Blue */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#3B82F6" strokeWidth="4" strokeDasharray="39.0 61.0" strokeDashoffset="-61.0" />
+                      </svg>
+                      <div className="absolute text-center">
+                        <p className="text-sm font-black text-slate-800">325</p>
+                        <p className="text-[6.5px] text-slate-400 uppercase font-black tracking-wider">Total</p>
+                      </div>
+                    </div>
+
+                    {/* Donut Legend */}
+                    <div className="space-y-2 text-[9px] text-slate-505 font-bold pr-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                        <span>Open: 86 (26.5%)</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                        <span>Pending: 112 (34.5%)</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <span>Closed: 127 (39.0%)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters bar */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-3xl border border-slate-150 shadow-sm">
+                <div className="flex flex-wrap items-center gap-3.5 flex-1">
+                  <div className="relative min-w-[280px]">
+                    <input 
+                      type="text" 
+                      placeholder="Search by Complaint ID, Customer or Subject..."
+                      className="w-full rounded-xl bg-slate-55 border border-slate-200 text-slate-800 placeholder-slate-400 py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">🔍</span>
+                  </div>
+
+                  <select className="rounded-xl bg-slate-55 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold cursor-pointer">
+                    <option>All Categories</option>
+                    <option>Customer</option>
+                    <option>Payment</option>
+                    <option>Inventory</option>
+                    <option>Technical</option>
+                  </select>
+
+                  <select className="rounded-xl bg-slate-55 border border-slate-200 text-slate-700 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/20 text-xs font-semibold cursor-pointer">
+                    <option>All Status</option>
+                    <option>Open</option>
+                    <option>Pending</option>
+                    <option>Closed</option>
+                  </select>
+
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📅</span>
+                    <select className="pl-8 pr-4 py-2 bg-slate-55 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-550/20 cursor-pointer">
+                      <option>01 May 2025 - 26 May 2025</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button className="px-4 py-2.5 bg-slate-55 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                    ⚙️ Filters
+                  </button>
+                  <button className="px-4 py-2.5 bg-white hover:bg-slate-50 text-blue-600 border border-blue-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                    📥 Export
+                  </button>
+                </div>
+              </div>
+
+              {/* Complaints Table list */}
+              <div className="bg-white rounded-3xl border border-slate-150 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                        <th className="py-4.5 px-6">Complaint ID</th>
+                        <th className="py-4.5 px-4">Customer</th>
+                        <th className="py-4.5 px-4">Category</th>
+                        <th className="py-4.5 px-4">Subject</th>
+                        <th className="py-4.5 px-4 text-center">Status</th>
+                        <th className="py-4.5 px-4 text-center">Priority</th>
+                        <th className="py-4.5 px-4">Date</th>
+                        <th className="py-4.5 px-4 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
+                      {[
+                        { id: 'CMP-2025-0526-001', cust: 'Rahul Sharma', phone: '+91 98765 43210', cat: 'Customer', catBadge: 'bg-purple-50 text-purple-650', sub: 'Poor service experience', status: 'Open', statusBadge: 'bg-yellow-50 text-yellow-600', priority: 'High', priorityBadge: 'bg-rose-50 text-rose-600', dt: '26 May 2025, 10:30 AM', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' },
+                        { id: 'CMP-2025-0526-002', cust: 'Priya Verma', phone: '+91 87654 32109', cat: 'Payment', catBadge: 'bg-blue-50 text-blue-650', sub: 'Payment not refunded', status: 'Pending', statusBadge: 'bg-orange-50 text-orange-600', priority: 'Medium', priorityBadge: 'bg-amber-50 text-amber-600', dt: '26 May 2025, 09:20 AM', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=60' },
+                        { id: 'CMP-2025-0525-018', cust: 'Amit Gupta', phone: '+91 76543 21098', cat: 'Inventory', catBadge: 'bg-amber-50 text-amber-600', sub: 'Item out of stock', status: 'Pending', statusBadge: 'bg-orange-50 text-orange-600', priority: 'Medium', priorityBadge: 'bg-amber-50 text-amber-600', dt: '25 May 2025, 08:45 PM', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60' },
+                        { id: 'CMP-2025-0525-017', cust: 'Neha Singh', phone: '+91 65432 10987', cat: 'Technical', catBadge: 'bg-emerald-50 text-emerald-650', sub: 'App not working', status: 'Open', statusBadge: 'bg-yellow-50 text-yellow-600', priority: 'High', priorityBadge: 'bg-rose-50 text-rose-600', dt: '25 May 2025, 07:30 PM', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=60' },
+                        { id: 'CMP-2025-0525-016', cust: 'Vikram Patel', phone: '+91 54321 09876', cat: 'Customer', catBadge: 'bg-purple-50 text-purple-650', sub: 'Staff behavior issue', status: 'Closed', statusBadge: 'bg-blue-50 text-blue-600', priority: 'Low', priorityBadge: 'bg-emerald-50 text-emerald-650', dt: '25 May 2025, 06:15 PM', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=60' },
+                        { id: 'CMP-2025-0525-015', cust: 'Karan Mehta', phone: '+91 43210 98765', cat: 'Payment', catBadge: 'bg-blue-50 text-blue-650', sub: 'Double payment deducted', status: 'Closed', statusBadge: 'bg-blue-50 text-blue-600', priority: 'Low', priorityBadge: 'bg-emerald-50 text-emerald-650', dt: '25 May 2025, 05:05 PM', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=60' },
+                        { id: 'CMP-2025-0525-014', cust: 'Sneha Reddy', phone: '+91 32109 87654', cat: 'Inventory', catBadge: 'bg-amber-50 text-amber-600', sub: 'Received wrong product', status: 'Pending', statusBadge: 'bg-orange-50 text-orange-600', priority: 'Medium', priorityBadge: 'bg-amber-50 text-amber-600', dt: '25 May 2025, 04:20 PM', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=60' },
+                        { id: 'CMP-2025-0525-013', cust: 'Manish Kumar', phone: '+91 21098 76543', cat: 'Technical', catBadge: 'bg-emerald-50 text-emerald-655', sub: 'Login issue in app', status: 'Closed', statusBadge: 'bg-blue-50 text-blue-600', priority: 'Low', priorityBadge: 'bg-emerald-50 text-emerald-655', dt: '25 May 2025, 03:40 PM', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' }
+                      ].map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-4 px-6 font-bold text-blue-600">{item.id}</td>
+                          <td className="py-4 px-4">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-100 bg-slate-50 shadow-sm flex items-center justify-center">
+                                <img src={item.avatar} alt={item.cust} className="w-full h-full object-cover" />
+                              </div>
+                              <div>
+                                <span className="font-bold text-slate-800 block leading-tight">{item.cust}</span>
+                                <span className="text-[9px] text-slate-400 font-semibold">{item.phone}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${item.catBadge}`}>{item.cat}</span>
+                          </td>
+                          <td className="py-4 px-4 font-bold text-slate-800">{item.sub}</td>
+                          <td className="py-4 px-4 text-center">
+                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${item.statusBadge}`}>{item.status}</span>
+                          </td>
+                          <td className="py-4 px-4 text-center">
+                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${item.priorityBadge}`}>{item.priority}</span>
+                          </td>
+                          <td className="py-4 px-4 font-semibold text-slate-500">{item.dt}</td>
+                          <td className="py-4 px-4 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">👁️</button>
+                              <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">✏️</button>
+                              <button className="p-1.5 hover:bg-slate-100 rounded text-slate-400">⋮</button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-t border-slate-100 text-xs font-semibold text-slate-505 bg-slate-50/30">
+                  <span>Showing 1 to 8 of 325 complaints</span>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5">
+                      <span>Items per page:</span>
+                      <select className="border border-slate-200 rounded px-1.5 py-0.5 font-bold cursor-pointer bg-white text-slate-800 text-[11px]">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">‹</button>
+                      <button className="px-3 py-1.5 bg-blue-600 text-white rounded-lg transition-all cursor-pointer">1</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">2</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">3</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">4</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">5</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">...</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">33</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">›</button>
+                    </div>
                   </div>
                 </div>
               </div>

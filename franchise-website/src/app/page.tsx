@@ -182,7 +182,7 @@ export default function FranchisePortal() {
     { id: 'STF005', name: 'Mohit Kumar', dep: 'Mechanical', role: 'Technician', checkin: '09:20 AM', checkinDate: '26 May 2025', checkout: '--', checkoutDate: '', hours: '--', location: 'Sector 62, Noida', status: 'On Leave', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150' }
   ]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [viewInventoryDashboard, setViewInventoryDashboard] = useState(false);
+  const [viewInventoryDashboard, setViewInventoryDashboard] = useState(true);
   const [viewCouponManagement, setViewCouponManagement] = useState(false);
   const [viewPricingManagement, setViewPricingManagement] = useState(false);
   const [viewNewBooking, setViewNewBooking] = useState(false);

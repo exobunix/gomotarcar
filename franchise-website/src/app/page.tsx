@@ -7592,6 +7592,203 @@ export default function FranchisePortal() {
             </div>
           )}
 
+          {activeTab === "notifications" && (
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Notifications</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Notifications Center</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Notifications Center</h2>
+                  <p className="text-xs text-slate-555 mt-1">Stay updated with all important alerts and updates.</p>
+                </div>
+                <button className="px-4 py-2.5 bg-white border border-blue-200 hover:bg-blue-50/50 text-blue-600 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                  ✓ Mark all as read
+                </button>
+              </div>
+
+              {/* Stats overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between cursor-pointer hover:border-slate-200 transition-colors">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Bookings</span>
+                      <span className="text-slate-400 text-xs">›</span>
+                    </div>
+                    <p className="text-2xl font-black text-slate-805 mt-1">28</p>
+                    <p className="text-[9px] text-slate-450 font-semibold mt-1">New booking and updates</p>
+                  </div>
+                  <div className="w-11 h-11 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-650 text-xl shadow-sm ml-3">
+                    📅
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between cursor-pointer hover:border-slate-200 transition-colors">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Payments</span>
+                      <span className="text-slate-400 text-xs">›</span>
+                    </div>
+                    <p className="text-2xl font-black text-slate-850 mt-1">16</p>
+                    <p className="text-[9px] text-slate-450 font-semibold mt-1">Payment received and alerts</p>
+                  </div>
+                  <div className="w-11 h-11 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-650 text-xl shadow-sm ml-3">
+                    💵
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between cursor-pointer hover:border-slate-200 transition-colors">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Promotions</span>
+                      <span className="text-slate-400 text-xs">›</span>
+                    </div>
+                    <p className="text-2xl font-black text-slate-855 mt-1">12</p>
+                    <p className="text-[9px] text-slate-455 font-semibold mt-1">Offers and promotional updates</p>
+                  </div>
+                  <div className="w-11 h-11 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-xl shadow-sm ml-3">
+                    📢
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between cursor-pointer hover:border-slate-200 transition-colors">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">System Alerts</span>
+                      <span className="text-slate-400 text-xs">›</span>
+                    </div>
+                    <p className="text-2xl font-black text-slate-855 mt-1">9</p>
+                    <p className="text-[9px] text-slate-455 font-semibold mt-1">System and security alerts</p>
+                  </div>
+                  <div className="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-xl shadow-sm ml-3">
+                    🔔
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabs Row */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-1">
+                <div className="flex gap-6 text-xs font-bold text-slate-400">
+                  <button className="text-blue-600 border-b-2 border-blue-600 pb-2 px-1">All (65)</button>
+                  <button className="hover:text-slate-600 pb-2 px-1">Unread (18)</button>
+                  <button className="hover:text-slate-600 pb-2 px-1">Important (7)</button>
+                </div>
+                <div className="flex gap-2">
+                  <button className="px-3.5 py-2 bg-slate-55 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                    ⚙️ Filter
+                  </button>
+                  <button className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-705 border border-slate-205 rounded-xl text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                    ⚙️ Settings
+                  </button>
+                </div>
+              </div>
+
+              {/* Notifications Table list */}
+              <div className="bg-white rounded-3xl border border-slate-150 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 bg-slate-50/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                        <th className="py-4.5 px-6">Notification</th>
+                        <th className="py-4.5 px-4">Category</th>
+                        <th className="py-4.5 px-4">Time</th>
+                        <th className="py-4.5 px-4">Priority</th>
+                        <th className="py-4.5 px-4 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
+                      {[
+                        { unread: true, title: 'New Booking Received', desc: 'A new booking #BK-7245 has been received for 26 May 2025 at 11:00 AM.', cat: 'Bookings', catBadge: 'bg-purple-50 text-purple-650', time: '10 mins ago', prio: 'Important', prioBadge: 'text-rose-600 bg-rose-50/50', icon: '📅', iconBg: 'bg-purple-50 text-purple-650' },
+                        { unread: true, title: 'Payment Received', desc: 'Payment of ₹2,450 for booking #BK-7240 has been received successfully.', cat: 'Payments', catBadge: 'bg-emerald-50 text-emerald-650', time: '25 mins ago', prio: 'Important', prioBadge: 'text-rose-600 bg-rose-50/50', icon: '💵', iconBg: 'bg-emerald-50 text-emerald-650' },
+                        { unread: false, title: 'Special Offer Live Now!', desc: 'Flat 20% OFF on Premium Wash services. Offer valid till 31 May 2025.', cat: 'Promotions', catBadge: 'bg-amber-50 text-amber-600', time: '1 hour ago', prio: 'Normal', prioBadge: 'text-slate-500 bg-slate-100', icon: '📢', iconBg: 'bg-amber-50 text-amber-600' },
+                        { unread: true, title: 'System Maintenance Scheduled', desc: 'System maintenance scheduled on 28 May 2025 from 02:00 AM to 04:00 AM.', cat: 'System Alerts', catBadge: 'bg-blue-50 text-blue-650', time: '2 hours ago', prio: 'Important', prioBadge: 'text-rose-600 bg-rose-50/50', icon: '🔔', iconBg: 'bg-blue-50 text-blue-600' },
+                        { unread: false, title: 'Booking Cancelled', desc: 'Booking #BK-7238 has been cancelled by the customer.', cat: 'Bookings', catBadge: 'bg-purple-50 text-purple-650', time: '3 hours ago', prio: 'Normal', prioBadge: 'text-slate-500 bg-slate-100', icon: '📅', iconBg: 'bg-purple-50 text-purple-650' },
+                        { unread: false, title: 'Refund Processed', desc: 'Refund of ₹1,250 for booking #BK-7232 has been processed.', cat: 'Payments', catBadge: 'bg-emerald-50 text-emerald-650', time: '4 hours ago', prio: 'Normal', prioBadge: 'text-slate-500 bg-slate-100', icon: '💵', iconBg: 'bg-emerald-50 text-emerald-650' },
+                        { unread: false, title: 'Weekend Mega Sale', desc: 'Get up to 30% OFF on all services this weekend. Don\'t miss out!', cat: 'Promotions', catBadge: 'bg-amber-50 text-amber-600', time: '1 day ago', prio: 'Normal', prioBadge: 'text-slate-500 bg-slate-100', icon: '📢', iconBg: 'bg-amber-50 text-amber-600' },
+                        { unread: false, title: 'Password Changed Successfully', desc: 'Your account password was changed successfully.', cat: 'System Alerts', catBadge: 'bg-blue-50 text-blue-650', time: '1 day ago', prio: 'Important', prioBadge: 'text-rose-600 bg-rose-50/50', icon: '🔔', iconBg: 'bg-blue-50 text-blue-600' }
+                      ].map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-4.5 px-6">
+                            <div className="flex items-start gap-3">
+                              {/* Unread Indicator */}
+                              <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-4 flex-shrink-0" style={{ opacity: item.unread ? 1 : 0 }}></div>
+                              
+                              {/* Icon */}
+                              <div className={`w-8 h-8 rounded-full ${item.iconBg} flex items-center justify-center font-bold text-xs shadow-sm flex-shrink-0`}>
+                                {item.icon}
+                              </div>
+                              
+                              <div>
+                                <span className="font-bold text-slate-800 block leading-tight">{item.title}</span>
+                                <span className="text-[10px] text-slate-450 font-semibold block mt-0.5">{item.desc}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4.5 px-4">
+                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${item.catBadge}`}>{item.cat}</span>
+                          </td>
+                          <td className="py-4.5 px-4 font-semibold text-slate-500 whitespace-nowrap">{item.time}</td>
+                          <td className="py-4.5 px-4">
+                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase inline-flex items-center gap-1 ${item.prioBadge}`}>
+                              <span>⏱️</span> {item.prio}
+                            </span>
+                          </td>
+                          <td className="py-4.5 px-4 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">👁️</button>
+                              <button className="p-1.5 hover:bg-slate-100 rounded text-slate-400">⋮</button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-t border-slate-100 text-xs font-semibold text-slate-505 bg-slate-50/30">
+                  <span>Showing 1 to 8 of 65 notifications</span>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5">
+                      <span>Items per page:</span>
+                      <select className="border border-slate-200 rounded px-1.5 py-0.5 font-bold cursor-pointer bg-white text-slate-800 text-[11px]">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all cursor-pointer">‹</button>
+                      <button className="px-3 py-1.5 bg-blue-600 text-white rounded-lg transition-all cursor-pointer">1</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">2</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">3</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">4</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">...</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">7</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-55 transition-all cursor-pointer">›</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Guide Banner */}
+              <div className="flex flex-wrap justify-between items-center gap-4 p-4 rounded-3xl border border-slate-150 bg-white shadow-sm text-xs font-semibold text-slate-505">
+                <div className="text-blue-600 flex items-center gap-1.5">
+                  ℹ️ Enable email or push notifications from Settings to never miss an important update.
+                </div>
+                <button 
+                  onClick={() => setActiveTab("settings")}
+                  className="px-4 py-2.5 bg-white hover:bg-slate-50 text-blue-650 border border-blue-200 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
+                >
+                  Go to Settings
+                </button>
+              </div>
+            </div>
+          )}
+
           {activeTab === "profile" && (
             <div className="space-y-6 text-slate-100 pb-10">
               <div>

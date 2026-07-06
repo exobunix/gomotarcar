@@ -169,6 +169,18 @@ export default function FranchisePortal() {
   ]);
 
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
+  const [attendanceSearch, setAttendanceSearch] = useState("");
+  const [attendanceDeptFilter, setAttendanceDeptFilter] = useState("all");
+  const [attendanceRoleFilter, setAttendanceRoleFilter] = useState("all");
+  const [attendanceStatusFilter, setAttendanceStatusFilter] = useState("all");
+  const [attendanceType, setAttendanceType] = useState("manual"); // manual, selfie, geo
+  const [attendanceRecords, setAttendanceRecords] = useState<any[]>([
+    { id: 'STF001', name: 'Amit Verma', dep: 'Operations', role: 'Supervisor', checkin: '09:15 AM', checkinDate: '26 May 2025', checkout: '06:05 PM', checkoutDate: '26 May 2025', hours: '8h 50m', location: 'Sector 62, Noida', status: 'Present', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150' },
+    { id: 'STF002', name: 'Rahul Sharma', dep: 'Cleaning', role: 'Technician', checkin: '08:58 AM', checkinDate: '26 May 2025', checkout: '05:42 PM', checkoutDate: '26 May 2025', hours: '8h 44m', location: 'Sector 63, Noida', status: 'Present', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150' },
+    { id: 'STF003', name: 'Vikram Singh', dep: 'Cleaning', role: 'Cleaner', checkin: '--', checkinDate: '', checkout: '--', checkoutDate: '', hours: '--', location: '--', status: 'Absent', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=150' },
+    { id: 'STF004', name: 'Sandeep Yadav', dep: 'Detailing', role: 'Detailer', checkin: '09:05 AM', checkinDate: '26 May 2025', checkout: '06:02 PM', checkoutDate: '26 May 2025', hours: '8h 57m', location: 'Sector 61, Noida', status: 'Present', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=150' },
+    { id: 'STF005', name: 'Mohit Kumar', dep: 'Mechanical', role: 'Technician', checkin: '09:20 AM', checkinDate: '26 May 2025', checkout: '--', checkoutDate: '', hours: '--', location: 'Sector 62, Noida', status: 'On Leave', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150' }
+  ]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [viewInventoryDashboard, setViewInventoryDashboard] = useState(false);
   const [viewCouponManagement, setViewCouponManagement] = useState(false);

@@ -1149,10 +1149,12 @@ export default function FranchisePortal() {
       {/* Sidebar */}
       <div className="hidden md:flex md:w-64 md:flex-col bg-slate-950 border-r border-slate-800">
         <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
-          <span className="text-3xl">🚗</span>
+          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center p-1 shadow-inner flex-shrink-0">
+            <img src="/logo.png" className="w-full h-full object-contain" alt="GoMotorCar Logo" />
+          </div>
           <div>
-            <h1 className="font-bold text-white tracking-wide">GoMotorCar</h1>
-            <p className="text-[10px] text-slate-400 uppercase tracking-widest">Franchise Partner</p>
+            <h1 className="font-extrabold text-white text-base tracking-wide leading-none">GoMotorCar</h1>
+            <p className="text-[9px] text-blue-500 font-black uppercase tracking-widest mt-1">Franchise Partner</p>
           </div>
         </div>
         <nav className="flex-1 space-y-1 px-4 py-6 overflow-y-auto">
@@ -1398,8 +1400,10 @@ export default function FranchisePortal() {
         {/* Header */}
         <header className={`${["bookings", "customers"].includes(activeTab) ? "bg-white border-b border-slate-200" : "bg-slate-950 border-b border-slate-800"} px-6 py-4 flex items-center justify-between`}>
           <div className="flex items-center gap-3 md:hidden">
-            <span className="text-2xl">🚗</span>
-            <h1 className={`font-bold ${["bookings", "customers"].includes(activeTab) ? "text-slate-800" : "text-white"} text-lg`}>GoMotorCar Franchise</h1>
+            <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-0.5 shadow-inner flex-shrink-0">
+              <img src="/logo.png" className="w-full h-full object-contain" alt="GoMotorCar Logo" />
+            </div>
+            <h1 className={`font-bold ${["bookings", "customers"].includes(activeTab) ? "text-slate-800" : "text-white"} text-md`}>GoMotorCar</h1>
           </div>
           <div className="hidden md:block">
             <h2 className={`text-xl font-bold ${["bookings", "customers"].includes(activeTab) ? "text-slate-800" : "text-white"}`}>

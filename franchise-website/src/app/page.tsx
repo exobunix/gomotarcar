@@ -6670,63 +6670,254 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "ratings" && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Header */}
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Ratings Dashboard</h2>
-                  <p className="text-xs text-slate-400 mt-1">Track your overall ratings, reviews and customer feedback.</p>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Ratings & Reviews</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Ratings Dashboard</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Ratings Dashboard</h2>
+                  <p className="text-xs text-slate-555 mt-1">Track your overall ratings, reviews and customer feedback.</p>
                 </div>
-                <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold cursor-pointer">
-                  Export Report 📤
+                <button className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                  📥 Export Report
                 </button>
               </div>
 
               {/* Stats overview row */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Average Rating</span>
-                  <p className="text-2xl font-black text-amber-500 mt-1">⭐ 4.6</p>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Average Rating</span>
+                    <div className="flex items-baseline gap-1 mt-1">
+                      <p className="text-2xl font-black text-slate-800">4.6</p>
+                      <span className="text-amber-500 text-xs">★★★★★</span>
+                    </div>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ 0.3 vs last month</p>
+                  </div>
+                  <div className="w-11 h-11 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 text-xl shadow-sm">
+                    ⭐
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Reviews</span>
-                  <p className="text-2xl font-black text-white mt-1">1,248</p>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Reviews</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">1,248</p>
+                    <p className="text-[9px] text-emerald-600 font-bold mt-1">↑ 18.7% vs last month</p>
+                  </div>
+                  <div className="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-xl shadow-sm">
+                    💬
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Review Trend</span>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <p className="text-2xl font-black text-slate-855">↑ 22.4%</p>
+                      <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-50 text-emerald-650">Positive</span>
+                    </div>
+                    <p className="text-[9px] text-slate-400 font-bold mt-1">vs last month</p>
+                  </div>
+                  <div className="w-11 h-11 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-650 text-xl shadow-sm">
+                    📈
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Customers Reviewed</span>
+                    <p className="text-2xl font-black text-slate-855 mt-1">982</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ 16.2% vs last month</p>
+                  </div>
+                  <div className="w-11 h-11 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-xl shadow-sm">
+                    👥
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Reviews Feed list */}
-                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Customer Reviews Feed</h3>
-                  <div className="space-y-4">
-                    {[
-                      { name: 'Rahul Sharma', rating: '5.0', date: '26 May 2025', comment: 'Excellent service! My car was cleaned perfectly.' },
-                      { name: 'Priya Verma', rating: '4.5', date: '25 May 2025', comment: 'Good service and friendly staff. Will definitely come again.' },
-                    ].map((st, idx) => (
-                      <div key={idx} className="p-3.5 bg-slate-900/40 rounded-xl border border-slate-850/60 text-xs">
-                        <div className="flex justify-between items-center">
-                          <p className="font-bold text-white">{st.name}</p>
-                          <span className="text-amber-500 font-bold">⭐ {st.rating}</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-1">{st.date}</p>
-                        <p className="text-slate-400 mt-2">{st.comment}</p>
+              {/* Middle Grid (Trend & Breakdown Left, Reviews Feed Right) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left Analytics Column */}
+                <div className="lg:col-span-5 space-y-6">
+                  {/* Review Trend Line Chart */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-72">
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                      <div>
+                        <h3 className="text-sm font-black text-slate-855">Review Trend</h3>
+                        <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Average rating over time</p>
                       </div>
-                    ))}
+                      <select className="text-[10px] text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-xl font-bold cursor-pointer">
+                        <option>Last 6 Months</option>
+                      </select>
+                    </div>
+
+                    <div className="relative h-44 w-full flex items-end">
+                      <svg className="w-full h-full text-purple-500" viewBox="0 0 100 50" preserveAspectRatio="none" fill="none">
+                        <path d="M5 38 L 20 34 L 35 30 L 50 26 L 65 22 L 95 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                        <path d="M5 38 L 20 34 L 35 30 L 50 26 L 65 22 L 95 18 L 95 50 L 5 50 Z" fill="url(#trend-gradient)" opacity="0.05" />
+                        <defs>
+                          <linearGradient id="trend-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="rgb(168, 85, 247)" />
+                            <stop offset="100%" stopColor="rgba(168, 85, 247, 0)" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+
+                      {/* Chart values */}
+                      <div className="absolute inset-0 flex flex-col justify-between text-[7px] text-slate-400 font-bold items-start py-2">
+                        <span>5.0</span>
+                        <span>4.0</span>
+                        <span>3.0</span>
+                        <span>2.0</span>
+                        <span>1.0</span>
+                        <span>0</span>
+                      </div>
+
+                      <div className="absolute bottom-0 inset-x-0 flex justify-between text-[7px] text-slate-400 font-bold px-3 pt-1">
+                        <span>Dec 2024</span>
+                        <span>Jan 2025</span>
+                        <span>Feb 2025</span>
+                        <span>Mar 2025</span>
+                        <span>Apr 2025</span>
+                        <span>May 2025</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Ratings Breakdown & Top Review Categories Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {/* Ratings Breakdown Donut Chart */}
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[280px]">
+                      <h4 className="text-xs font-black text-slate-850 pb-2 border-b border-slate-100">Ratings Breakdown</h4>
+                      <div className="flex flex-col items-center py-2">
+                        <div className="relative w-20 h-20 flex items-center justify-center">
+                          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <circle cx="18" cy="18" r="15.915" fill="none" stroke="#22C55E" strokeWidth="4" strokeDasharray="59.5 40.5" strokeDashoffset="0" />
+                            <circle cx="18" cy="18" r="15.915" fill="none" stroke="#3B82F6" strokeWidth="4" strokeDasharray="25.0 75.0" strokeDashoffset="-59.5" />
+                            <circle cx="18" cy="18" r="15.915" fill="none" stroke="#EAB308" strokeWidth="4" strokeDasharray="10.3 89.7" strokeDashoffset="-84.5" />
+                            <circle cx="18" cy="18" r="15.915" fill="none" stroke="#F97316" strokeWidth="4" strokeDasharray="3.0 97.0" strokeDashoffset="-94.8" />
+                            <circle cx="18" cy="18" r="15.915" fill="none" stroke="#EF4444" strokeWidth="4" strokeDasharray="2.2 97.8" strokeDashoffset="-97.8" />
+                          </svg>
+                          <div className="absolute text-center">
+                            <p className="text-xs font-black text-slate-800">1,248</p>
+                            <p className="text-[5px] text-slate-400 uppercase font-black tracking-wider">Reviews</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 text-[8px] text-slate-505 font-bold pt-2 border-t border-slate-50">
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>5 Star</span>
+                          <span className="text-slate-800">742 (59.5%)</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>4 Star</span>
+                          <span className="text-slate-800">312 (25.0%)</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>3 Star</span>
+                          <span className="text-slate-800">128 (10.3%)</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>2 Star</span>
+                          <span className="text-slate-800">38 (3.0%)</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>1 Star</span>
+                          <span className="text-slate-800">28 (2.2%)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Top Review Categories list */}
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[280px]">
+                      <h4 className="text-xs font-black text-slate-850 pb-2 border-b border-slate-100">Top Review Categories</h4>
+                      <div className="space-y-3.5 text-[9px] text-slate-600 font-bold pt-1">
+                        {[
+                          { name: 'Exterior Wash', count: '482', pct: '38.6%' },
+                          { name: 'Interior Cleaning', count: '312', pct: '25.0%' },
+                          { name: 'Steam Wash', count: '238', pct: '19.3%' },
+                          { name: 'Full Detailing', count: '146', pct: '11.7%' },
+                          { name: 'Express Service', count: '70', pct: '5.6%' }
+                        ].map((catRow, idx) => (
+                          <div key={idx} className="flex justify-between items-center">
+                            <span className="text-slate-800">{catRow.name}</span>
+                            <span className="text-slate-400 font-semibold">{catRow.count} ({catRow.pct})</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-slate-400 space-y-4">
-                  <h3 className="text-sm font-bold text-white tracking-wide">Ratings Breakdown</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>5 Star</span>
-                      <span className="text-white font-bold">742 (59.5%)</span>
+                {/* Customer Reviews Feed Card */}
+                <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                      <h3 className="text-sm font-black text-slate-850">Customer Reviews Feed</h3>
+                      <div className="flex gap-2">
+                        <select className="text-[10px] text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-xl font-bold cursor-pointer">
+                          <option>All Ratings</option>
+                        </select>
+                        <select className="text-[10px] text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-xl font-bold cursor-pointer">
+                          <option>Latest First</option>
+                        </select>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span>4 Star</span>
-                      <span className="text-white font-bold">312 (25.0%)</span>
+
+                    <div className="space-y-4">
+                      {[
+                        { name: 'Rahul Sharma', star: '★★★★★', starCount: '5.0', badge: 'bg-emerald-50 text-emerald-600', date: '26 May 2025', comment: 'Excellent service! My car was cleaned perfectly. Staff was professional and on time.', tags: ['Exterior Wash', 'Express Service'], avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' },
+                        { name: 'Priya Verma', star: '★★★★½', starCount: '4.5', badge: 'bg-emerald-50 text-emerald-600', date: '25 May 2025', comment: 'Good service and friendly staff. Will definitely come again.', tags: ['Interior Cleaning', 'Premium Package'], avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=60' },
+                        { name: 'Amit Gupta', star: '★★★★★', starCount: '5.0', badge: 'bg-emerald-50 text-emerald-600', date: '24 May 2025', comment: 'Very satisfied with the steam wash. My car looks brand new!', tags: ['Steam Wash'], avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60' },
+                        { name: 'Neha Singh', star: '★★★★☆', starCount: '4.0', badge: 'bg-amber-50 text-amber-600', date: '23 May 2025', comment: 'Good service but a little delay in pickup.', tags: ['Exterior Wash'], avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=60' },
+                        { name: 'Vikram Patel', star: '★★★☆☆', starCount: '3.0', badge: 'bg-amber-50 text-amber-600', date: '22 May 2025', comment: 'Service was average. Could be better.', tags: ['Full Detailing'], avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=60' }
+                      ].map((item, idx) => (
+                        <div key={idx} className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 flex gap-3 text-xs">
+                          <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-100 bg-slate-50 shadow-sm flex items-center justify-center flex-shrink-0">
+                            <img src={item.avatar} alt={item.name} className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <span className="font-bold text-slate-800 block leading-tight">{item.name}</span>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="text-amber-500 text-[10px]">{item.star}</span>
+                                  <span className="text-[9px] text-slate-405 font-bold">{item.date}</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span className={`px-2 py-0.5 rounded text-[8px] font-black ${item.badge}`}>{item.starCount}</span>
+                                <button className="p-1 hover:bg-slate-100 rounded text-slate-400">⋮</button>
+                              </div>
+                            </div>
+                            <p className="text-slate-650 leading-relaxed font-semibold mt-1">{item.comment}</p>
+                            <div className="flex flex-wrap gap-1.5 pt-1.5">
+                              {item.tags.map((tg, tgIdx) => (
+                                <span key={tgIdx} className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md text-[8px] font-black uppercase">{tg}</span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
+
+                  <button className="text-xs text-blue-600 hover:text-blue-500 font-black text-center mt-4 pt-3 border-t border-slate-100">
+                    View All Reviews →
+                  </button>
+                </div>
+              </div>
+
+              {/* Status Guide Footer */}
+              <div className="flex flex-wrap justify-between items-center gap-4 p-4 rounded-3xl border border-slate-150 bg-white shadow-sm text-xs font-semibold text-slate-505">
+                <div className="text-blue-600 flex items-center gap-1.5">
+                  ℹ️ Keep up the good work! 🎉 Your ratings are higher than 82% of similar businesses.
                 </div>
               </div>
             </div>

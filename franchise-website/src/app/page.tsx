@@ -5444,77 +5444,296 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "wallet" && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Header */}
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Wallet Balance</h2>
-                  <p className="text-xs text-slate-400 mt-1">Manage your wallet balance, withdraw funds and track settlements.</p>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Payment & Earnings</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Wallet</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Wallet</h2>
+                  <p className="text-xs text-slate-550 mt-1">Manage your wallet balance, withdraw funds and track settlements.</p>
                 </div>
                 <div className="flex gap-3">
-                  <button className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700/60 rounded-xl text-xs font-bold transition-all cursor-pointer">
-                    Wallet Settings
+                  <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    <span>➕</span> Withdraw
                   </button>
-                  <button className="px-4 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold transition-all cursor-pointer">
-                    + Withdraw
+                  <button className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    <span>⚙️</span> Wallet Settings
                   </button>
                 </div>
               </div>
 
               {/* Stats overview row */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Current Balance</span>
-                  <p className="text-2xl font-black text-white mt-1">₹1,24,560.00</p>
-                  <p className="text-[9px] text-emerald-450 mt-1">↑ 12.6% vs last month</p>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Current Balance</span>
+                    <p className="text-2xl font-black text-slate-805 mt-1">₹1,24,560.00</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +12.6% vs last month</p>
+                  </div>
+                  <div className="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-xl shadow-sm">
+                    💳
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Earnings</span>
-                  <p className="text-2xl font-black text-white mt-1">₹7,45,230.00</p>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Earnings (This Month)</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">₹7,45,230.00</p>
+                    <button className="text-[9px] text-blue-600 font-bold mt-2 block hover:text-blue-500">View Earnings Dashboard →</button>
+                  </div>
+                  <div className="w-11 h-11 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-xl shadow-sm">
+                    📈
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Total Withdrawn</span>
-                  <p className="text-2xl font-black text-white mt-1">₹5,80,670.00</p>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Withdrawn (This Month)</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1">₹5,80,670.00</p>
+                    <button className="text-[9px] text-blue-600 font-bold mt-2 block hover:text-blue-500">View Withdraw History →</button>
+                  </div>
+                  <div className="w-11 h-11 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-650 text-xl shadow-sm">
+                    💵
+                  </div>
                 </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Pending Settlement</span>
-                  <p className="text-2xl font-black text-amber-500 mt-1">₹75,430.00</p>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Pending Settlement</span>
+                    <p className="text-2xl font-black text-slate-855 mt-1">₹75,430.00</p>
+                    <p className="text-[9px] text-slate-455 mt-2 font-semibold">Will be settled on 30 May 2025</p>
+                  </div>
+                  <div className="w-11 h-11 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-xl shadow-sm">
+                    ⌛
+                  </div>
                 </div>
               </div>
 
-              {/* Split Settlement History Layout */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Settlement History</h3>
-                  <div className="space-y-4">
-                    {[
-                      { id: 'SET-2025-0526-001', date: '26 May 2025', amt: '₹85,430.00', status: 'Pending' },
-                      { id: 'SET-2025-0519-002', date: '19 May 2025', amt: '₹92,650.00', status: 'Completed' },
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex justify-between items-center p-3 bg-slate-900/40 rounded-xl border border-slate-850/60 text-xs">
-                        <div>
-                          <p className="font-bold text-white">{item.id}</p>
-                          <p className="text-[10px] text-slate-500 mt-0.5">Date: {item.date}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-black text-white">{item.amt}</p>
-                          <span className={`text-[9px] font-bold uppercase ${item.status === 'Completed' ? 'text-emerald-455' : 'text-amber-500'}`}>{item.status}</span>
-                        </div>
+              {/* Middle Grid (Revenue Analytics & Settlement History) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Revenue Analytics Chart Card */}
+                <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                      <div>
+                        <h3 className="text-sm font-black text-slate-850">Revenue Analytics</h3>
+                        <p className="text-[9px] text-slate-400 font-semibold mt-0.5">This Month vs Last Month</p>
                       </div>
-                    ))}
+                      <select className="text-[10px] text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-xl font-bold cursor-pointer">
+                        <option>This Month</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-[9px] font-bold text-slate-505 mb-4">
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span>This Month (₹)</span>
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span>Last Month (₹)</span>
+                    </div>
+
+                    {/* Chart Graphic Visual */}
+                    <div className="relative h-48 w-full flex items-end">
+                      <svg className="w-full h-full text-blue-500" viewBox="0 0 100 50" preserveAspectRatio="none" fill="none">
+                        <path d="M5 28 L 20 22 L 35 20 L 50 16 L 65 10 L 95 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                      <svg className="absolute inset-0 w-full h-full text-emerald-500" viewBox="0 0 100 50" preserveAspectRatio="none" fill="none">
+                        <path d="M5 38 L 20 32 L 35 29 L 50 24 L 65 20 L 95 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+
+                      <div className="absolute inset-0 flex flex-col justify-between text-[7px] text-slate-400 font-bold items-start py-2">
+                        <span>1.2L</span>
+                        <span>1L</span>
+                        <span>80K</span>
+                        <span>60K</span>
+                        <span>40K</span>
+                        <span>20K</span>
+                        <span>0</span>
+                      </div>
+
+                      <div className="absolute bottom-0 inset-x-0 flex justify-between text-[7px] text-slate-400 font-bold px-3 pt-1">
+                        <span>01 May</span>
+                        <span>06 May</span>
+                        <span>11 May</span>
+                        <span>16 May</span>
+                        <span>21 May</span>
+                        <span>26 May</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom metrics row */}
+                  <div className="grid grid-cols-4 gap-4 pt-5 mt-4 border-t border-slate-100 text-center">
+                    <div>
+                      <p className="text-[8px] text-slate-400 font-bold uppercase">Total Revenue</p>
+                      <p className="text-xs font-black text-slate-800 mt-1">₹7,45,230</p>
+                      <span className="text-[8px] text-emerald-600 font-bold">↑ 22.3%</span>
+                    </div>
+                    <div>
+                      <p className="text-[8px] text-slate-400 font-bold uppercase">Service Commission</p>
+                      <p className="text-xs font-black text-slate-800 mt-1">₹1,12,780</p>
+                      <span className="text-[8px] text-emerald-600 font-bold">↑ 18.7%</span>
+                    </div>
+                    <div>
+                      <p className="text-[8px] text-slate-400 font-bold uppercase">Other Income</p>
+                      <p className="text-xs font-black text-slate-800 mt-1">₹28,450</p>
+                      <span className="text-[8px] text-emerald-600 font-bold">↑ 12.1%</span>
+                    </div>
+                    <div>
+                      <p className="text-[8px] text-slate-400 font-bold uppercase">Net Earnings</p>
+                      <p className="text-xs font-black text-emerald-600 mt-1">₹6,03,000</p>
+                      <span className="text-[8px] text-emerald-600 font-bold">↑ 20.5%</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-slate-400 space-y-4">
-                  <h3 className="text-sm font-bold text-white tracking-wide">Wallet Summary</h3>
-                  <div className="flex justify-between">
-                    <span>Current Balance</span>
-                    <span className="text-white font-bold">₹1,24,560.00</span>
+                {/* Settlement History Card */}
+                <div className="lg:col-span-5 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                      <h3 className="text-sm font-black text-slate-850">Settlement History</h3>
+                      <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">View All</button>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-[10px]">
+                        <thead>
+                          <tr className="border-b border-slate-100 text-slate-400 font-black uppercase text-[8px] tracking-wider">
+                            <th className="pb-2.5">Settlement ID</th>
+                            <th className="pb-2.5">Date</th>
+                            <th className="pb-2.5">Amount</th>
+                            <th className="pb-2.5">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50 text-slate-700">
+                          {[
+                            { id: 'SET-2025-0526-001', dt: '26 May 2025', amt: '₹85,430.00', status: 'Pending', badge: 'bg-amber-50 text-amber-600' },
+                            { id: 'SET-2025-0519-002', dt: '19 May 2025', amt: '₹92,650.00', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
+                            { id: 'SET-2025-0512-003', dt: '12 May 2025', amt: '₹1,05,230.00', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
+                            { id: 'SET-2025-0505-004', dt: '05 May 2025', amt: '₹1,12,430.00', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
+                            { id: 'SET-2025-0428-005', dt: '28 Apr 2025', amt: '₹95,670.00', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
+                            { id: 'SET-2025-0421-006', dt: '21 Apr 2025', amt: '₹98,320.00', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
+                            { id: 'SET-2025-0414-007', dt: '14 Apr 2025', amt: '₹1,00,540.00', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' }
+                          ].map((setRow, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="py-2.5 font-bold text-slate-800">{setRow.id}</td>
+                              <td className="py-2.5 font-semibold text-slate-500">{setRow.dt}</td>
+                              <td className="py-2.5 font-black text-slate-800">{setRow.amt}</td>
+                              <td className="py-2.5">
+                                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${setRow.badge}`}>{setRow.status}</span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Withdraw Limit</span>
-                    <span className="text-white font-bold">₹1,24,560.00</span>
+
+                  {/* Settlement footer */}
+                  <div className="flex justify-between items-center pt-3 border-t border-slate-100 text-[10px] text-slate-400 font-semibold mt-2">
+                    <span>Showing 1 to 7 of 15 settlements</span>
+                    <div className="flex items-center gap-1">
+                      <button className="px-2 py-1 bg-white border border-slate-200 rounded hover:bg-slate-50 transition-all cursor-pointer">‹</button>
+                      <button className="px-2 py-1 bg-blue-600 text-white rounded transition-all cursor-pointer">1</button>
+                      <button className="px-2 py-1 bg-white border border-slate-200 rounded hover:bg-slate-50 transition-all cursor-pointer">2</button>
+                      <button className="px-2 py-1 bg-white border border-slate-200 rounded hover:bg-slate-50 transition-all cursor-pointer">3</button>
+                      <button className="px-2 py-1 bg-white border border-slate-200 rounded hover:bg-slate-50 transition-all cursor-pointer">›</button>
+                    </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Bottom Grid (Recent Transactions & Wallet Summary) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Recent Transactions Panel */}
+                <div className="lg:col-span-8 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                      <h3 className="text-sm font-black text-slate-850">Recent Transactions</h3>
+                      <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">View All</button>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-100 text-slate-400 font-black uppercase text-[9px] tracking-wider">
+                            <th className="pb-2.5 px-3">Date & Time</th>
+                            <th className="pb-2.5 px-3">Type</th>
+                            <th className="pb-2.5 px-3">Description</th>
+                            <th className="pb-2.5 px-3">Amount</th>
+                            <th className="pb-2.5 px-3">Balance</th>
+                            <th className="pb-2.5 px-3 text-center">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50 text-slate-700">
+                          {[
+                            { dt: '26 May 2025, 10:35 AM', type: 'Earning', desc: 'Booking #BK-2025-1867', typeColor: 'text-emerald-600 bg-emerald-50', amt: '+ ₹1,250.00', bal: '₹1,24,560.00', status: 'Success', badge: 'bg-emerald-50 text-emerald-600' },
+                            { dt: '26 May 2025, 09:20 AM', type: 'Earning', desc: 'Booking #BK-2025-1866', typeColor: 'text-emerald-600 bg-emerald-50', amt: '+ ₹890.00', bal: '₹1,23,310.00', status: 'Success', badge: 'bg-emerald-50 text-emerald-600' },
+                            { dt: '25 May 2025, 11:15 PM', type: 'Withdrawal', desc: 'To Bank A/c ****5678', typeColor: 'text-rose-600 bg-rose-50', amt: '- ₹20,000.00', bal: '₹1,22,420.00', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
+                            { dt: '25 May 2025, 06:45 PM', type: 'Earning', desc: 'Booking #BK-2025-1855', typeColor: 'text-emerald-600 bg-emerald-50', amt: '+ ₹1,540.00', bal: '₹1,42,420.00', status: 'Success', badge: 'bg-emerald-50 text-emerald-600' },
+                            { dt: '25 May 2025, 02:30 PM', type: 'Earning', desc: 'Booking #BK-2025-1864', typeColor: 'text-emerald-600 bg-emerald-50', amt: '+ ₹1,120.00', bal: '₹1,40,880.00', status: 'Success', badge: 'bg-emerald-50 text-emerald-600' }
+                          ].map((txRow, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="py-2.5 px-3 font-semibold text-slate-500">{txRow.dt}</td>
+                              <td className="py-2.5 px-3">
+                                <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${txRow.typeColor}`}>{txRow.type}</span>
+                              </td>
+                              <td className="py-2.5 px-3 font-bold text-slate-800">{txRow.desc}</td>
+                              <td className="py-2.5 px-3 font-black text-slate-800">{txRow.amt}</td>
+                              <td className="py-2.5 px-3 font-bold text-slate-650">{txRow.bal}</td>
+                              <td className="py-2.5 px-3 text-center">
+                                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${txRow.badge}`}>{txRow.status}</span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Wallet Summary Card */}
+                <div className="lg:col-span-4 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm text-xs text-slate-505 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 tracking-wide mb-4 pb-2 border-b border-slate-100">Wallet Summary</h3>
+                    <div className="space-y-3.5">
+                      <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                        <span>Current Balance</span>
+                        <span className="text-slate-850 font-black">₹1,24,560.00</span>
+                      </div>
+                      <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                        <span>Withdrawable Amount</span>
+                        <span className="text-slate-850 font-black">₹1,24,560.00</span>
+                      </div>
+                      <div className="flex justify-between border-b border-slate-50 pb-1.5">
+                        <span>Minimum Withdrawal Limit</span>
+                        <span className="text-slate-850 font-bold">₹500.00</span>
+                      </div>
+                      <div className="flex justify-between items-start border-b border-slate-50 pb-1.5">
+                        <div>
+                          <span>Preferred Bank Account</span>
+                          <span className="text-slate-800 font-bold block mt-1">**** **** **** 5678</span>
+                          <span className="text-slate-400 font-semibold block mt-0.5 text-[10px]">HDFC Bank - Roy Motors</span>
+                        </div>
+                        <button className="text-[10px] text-blue-600 hover:text-blue-500 font-bold mt-1.5">Change</button>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span>Last Withdrawal</span>
+                          <span className="text-slate-800 font-bold block mt-1">25 May 2025</span>
+                        </div>
+                        <button className="text-[10px] text-blue-600 hover:text-blue-500 font-bold mt-1">View History</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Banner Footer */}
+              <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-3xl border border-slate-150 bg-white shadow-sm text-xs font-semibold text-slate-505">
+                <div className="text-blue-600 flex items-center gap-1.5">
+                  ℹ️ Withdrawals are processed within 24-48 hours on business days.
                 </div>
               </div>
             </div>

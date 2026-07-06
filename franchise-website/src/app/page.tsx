@@ -5118,64 +5118,327 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "earnings" && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Header */}
-              <div className="flex justify-between items-center">
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
+              <div className="flex flex-wrap justify-between items-center gap-4">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Earnings Dashboard</h2>
-                  <p className="text-xs text-slate-400 mt-1">Overview of your earnings and business performance.</p>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Payment & Earnings</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Earnings Dashboard</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Earnings Dashboard</h2>
+                  <p className="text-xs text-slate-550 mt-1">Overview of your earnings and business performance.</p>
                 </div>
-                <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold cursor-pointer">
-                  Download Report 📥
-                </button>
-              </div>
-
-              {/* Stats overview row */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Today's Earnings</span>
-                  <p className="text-2xl font-black text-white mt-1">₹24,560</p>
-                  <p className="text-[9px] text-emerald-450 mt-1">↑ 12.5% vs yesterday</p>
-                </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Weekly Earnings</span>
-                  <p className="text-2xl font-black text-white mt-1">₹1,72,450</p>
-                  <p className="text-[9px] text-emerald-450 mt-1">↑ 18.7% vs last week</p>
-                </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Monthly Earnings</span>
-                  <p className="text-2xl font-black text-white mt-1">₹7,45,230</p>
-                  <p className="text-[9px] text-emerald-450 mt-1">↑ 22.3% vs last month</p>
-                </div>
-                <div className="bg-[#1E293B]/70 p-5 rounded-2xl border border-slate-800/80">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold">Net Profit</span>
-                  <p className="text-2xl font-black text-emerald-400 mt-1">₹4,28,310</p>
-                  <p className="text-[9px] text-emerald-450 mt-1">↑ 19.4% vs last month</p>
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📅</span>
+                    <select className="pl-8 pr-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-sm">
+                      <option>20 May 2025 - 26 May 2025</option>
+                    </select>
+                  </div>
+                  <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    <span>⚙️</span> Filter
+                  </button>
                 </div>
               </div>
 
-              {/* Earnings Split Layout */}
+              {/* Stats overview row with sparklines */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Today's Earnings</span>
+                    <p className="text-2xl font-black text-slate-800 mt-1.5">₹24,560</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +12.5% vs yesterday</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg className="w-16 h-8 text-blue-500" viewBox="0 0 50 20" fill="none">
+                      <path d="M0 15 Q 10 5, 20 12 T 40 8 T 50 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center text-blue-650 text-base shadow-sm">💰</div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Weekly Earnings</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">₹1,72,450</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +18.7% vs last week</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg className="w-16 h-8 text-emerald-500" viewBox="0 0 50 20" fill="none">
+                      <path d="M0 18 Q 12 12, 24 16 T 36 10 T 50 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-650 text-base shadow-sm">📅</div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Monthly Earnings</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">₹7,45,230</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +22.3% vs last month</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg className="w-16 h-8 text-purple-500" viewBox="0 0 50 20" fill="none">
+                      <path d="M0 16 Q 10 10, 20 14 T 35 6 T 50 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 text-base shadow-sm">🗓️</div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Net Profit</span>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">₹4,28,310</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +19.4% vs last month</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg className="w-16 h-8 text-amber-500" viewBox="0 0 50 20" fill="none">
+                      <path d="M0 17 Q 15 15, 25 10 T 38 6 T 50 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-base shadow-sm">💰</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Middle Grid (Earnings Overview Chart & Earnings by Service Category Donut) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Earnings Overview Double Line Chart Card */}
+                <div className="lg:col-span-8 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-sm font-black text-slate-850">Earnings Overview</h3>
+                      <div className="flex items-center gap-3 text-[10px] font-bold text-slate-500">
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span>Earnings (₹)</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span>Net Profit (₹)</span>
+                      </div>
+                    </div>
+                    <select className="text-[10px] text-slate-400 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-xl font-bold cursor-pointer">
+                      <option>This Week</option>
+                    </select>
+                  </div>
+                  
+                  {/* Visual Chart Graphic */}
+                  <div className="relative h-56 w-full flex items-end">
+                    {/* Double lines sparkline */}
+                    <svg className="w-full h-full text-blue-500" viewBox="0 0 100 50" preserveAspectRatio="none" fill="none">
+                      {/* Blue Line (Earnings) */}
+                      <path d="M5 28 L 20 22 L 35 26 L 50 18 L 65 24 L 80 15 L 95 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <path d="M5 28 L 20 22 L 35 26 L 50 18 L 65 24 L 80 15 L 95 24 L 95 50 L 5 50 Z" fill="url(#earnings-gradient)" opacity="0.05" />
+                    </svg>
+                    <svg className="absolute inset-0 w-full h-full text-emerald-500" viewBox="0 0 100 50" preserveAspectRatio="none" fill="none">
+                      {/* Green Line (Net Profit) */}
+                      <path d="M5 38 L 20 34 L 35 36 L 50 32 L 65 35 L 80 29 L 95 38" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      <path d="M5 38 L 20 34 L 35 36 L 50 32 L 65 35 L 80 29 L 95 38 L 95 50 L 5 50 Z" fill="url(#profit-gradient)" opacity="0.05" />
+                      <defs>
+                        <linearGradient id="earnings-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor="rgb(59, 130, 246)" />
+                          <stop offset="100%" stopColor="rgba(59, 130, 246, 0)" />
+                        </linearGradient>
+                        <linearGradient id="profit-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor="rgb(34, 197, 94)" />
+                          <stop offset="100%" stopColor="rgba(34, 197, 94, 0)" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+
+                    {/* Chart Values Label */}
+                    <div className="absolute inset-0 flex flex-col justify-between text-[7px] text-slate-400 font-bold items-start py-2">
+                      <span>50K</span>
+                      <span>40K</span>
+                      <span>30K</span>
+                      <span>20K</span>
+                      <span>10K</span>
+                      <span>0</span>
+                    </div>
+
+                    <div className="absolute bottom-0 inset-x-0 flex justify-between text-[7px] text-slate-400 font-bold px-3 pt-1">
+                      <span>20 May</span>
+                      <span>21 May</span>
+                      <span>22 May</span>
+                      <span>23 May</span>
+                      <span>24 May</span>
+                      <span>25 May</span>
+                      <span>26 May</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Earnings by Service Category Donut Chart Card */}
+                <div className="lg:col-span-4 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                    <h3 className="text-sm font-black text-slate-850">Earnings by Service Category</h3>
+                    <select className="text-[10px] text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-xl font-bold cursor-pointer">
+                      <option>This Month</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col items-center py-2">
+                    {/* Donut Chart Visual */}
+                    <div className="relative w-36 h-36 flex items-center justify-center">
+                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                        {/* Exterior Wash (32.9%) - Blue */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#3B82F6" strokeWidth="3.5" strokeDasharray="32.9 67.1" strokeDashoffset="0" />
+                        {/* Interior Cleaning (22.2%) - Green */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#22C55E" strokeWidth="3.5" strokeDasharray="22.2 77.8" strokeDashoffset="-32.9" />
+                        {/* Detailing (16.2%) - Purple */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#A855F7" strokeWidth="3.5" strokeDasharray="16.2 83.8" strokeDashoffset="-55.1" />
+                        {/* Steam Wash (11.5%) - Yellow */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#EAB308" strokeWidth="3.5" strokeDasharray="11.5 88.5" strokeDashoffset="-71.3" />
+                        {/* Ceramic Coating (8.7%) - Teal */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#06B6D4" strokeWidth="3.5" strokeDasharray="8.7 91.3" strokeDashoffset="-82.8" />
+                        {/* Others (8.3%) - Grey */}
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#94A3B8" strokeWidth="3.5" strokeDasharray="8.3 91.7" strokeDashoffset="-91.5" />
+                      </svg>
+                      <div className="absolute text-center">
+                        <p className="text-sm font-black text-slate-800">₹7,45,230</p>
+                        <p className="text-[7px] text-slate-400 uppercase font-black tracking-wider">Total Earnings</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Donut Legend */}
+                  <div className="space-y-1.5 text-[9px] text-slate-505 font-bold mt-2 pt-2 border-t border-slate-50">
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span>Exterior Wash</span>
+                      <span className="text-slate-800">₹2,45,670 (32.9%)</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span>Interior Cleaning</span>
+                      <span className="text-slate-800">₹1,65,430 (22.2%)</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500"></span>Detailing</span>
+                      <span className="text-slate-800">₹1,20,980 (16.2%)</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-500"></span>Steam Wash</span>
+                      <span className="text-slate-800">₹85,640 (11.5%)</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-cyan-500"></span>Ceramic Coating</span>
+                      <span className="text-slate-800">₹85,210 (8.7%)</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-slate-400"></span>Others</span>
+                      <span className="text-slate-800">₹62,300 (8.3%)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Grid (Earnings Trend, Top Earning Services & Summary) */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Earnings Overview</h3>
-                  <div className="h-48 bg-slate-900/40 rounded-xl border border-slate-850 flex items-center justify-center text-slate-500 text-xs">
-                    Earnings Analytics Chart Area
+                {/* Earnings Trend Card */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                    <h3 className="text-sm font-black text-slate-850">Earnings Trend (This Month)</h3>
+                    <select className="text-[10px] text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-xl font-bold cursor-pointer">
+                      <option>This Month</option>
+                    </select>
+                  </div>
+                  {/* Vertical bar chart graphic */}
+                  <div className="relative h-44 w-full flex items-end justify-between px-2 pt-4">
+                    {[
+                      { week: 'Week 1', val: 121450, max: 200000, label: '₹1.21L' },
+                      { week: 'Week 2', val: 158230, max: 200000, label: '₹1.58L' },
+                      { week: 'Week 3', val: 172890, max: 200000, label: '₹1.72L' },
+                      { week: 'Week 4', val: 165430, max: 200000, label: '₹1.65L' },
+                      { week: 'Week 5', val: 27230, max: 200000, label: '₹27K' }
+                    ].map((bar, barIdx) => (
+                      <div key={barIdx} className="flex flex-col items-center flex-1 gap-1">
+                        <span className="text-[7px] text-slate-400 font-bold">{bar.label}</span>
+                        <div className="w-5 bg-slate-100 rounded-t-lg h-28 overflow-hidden relative flex items-end">
+                          <div className="bg-blue-600 w-full rounded-t-lg transition-all" style={{ height: `${(bar.val / bar.max) * 100}%` }}></div>
+                        </div>
+                        <span className="text-[8px] text-slate-400 font-bold mt-1 whitespace-nowrap">{bar.week}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80">
-                  <h3 className="text-sm font-bold text-white tracking-wide mb-4">Earnings by Service Category</h3>
-                  <div className="space-y-3 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Exterior Wash</span>
-                      <span className="text-white font-bold">₹2,45,670 (32.9%)</span>
+                {/* Top Earning Services Card */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
+                      <h3 className="text-sm font-black text-slate-855">Top Earning Services</h3>
+                      <select className="text-[10px] text-slate-400 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-xl font-bold cursor-pointer">
+                        <option>This Month</option>
+                      </select>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Interior Cleaning</span>
-                      <span className="text-white font-bold">₹1,65,430 (22.2%)</span>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-100 text-slate-400 font-black uppercase text-[8px] tracking-wider">
+                            <th className="pb-2.5">Service</th>
+                            <th className="pb-2.5 text-center">Bookings</th>
+                            <th className="pb-2.5">Earnings (₹)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50 text-slate-700">
+                          {[
+                            { name: 'Exterior Wash', bookings: 356, val: '₹2,45,670', percent: 85, color: 'bg-blue-600' },
+                            { name: 'Interior Cleaning', bookings: 298, val: '₹1,65,430', percent: 65, color: 'bg-emerald-500' },
+                            { name: 'Detailing', bookings: 187, val: '₹1,20,980', percent: 45, color: 'bg-purple-500' },
+                            { name: 'Steam Wash', bookings: 132, val: '₹85,640', percent: 30, color: 'bg-yellow-500' },
+                            { name: 'Ceramic Coating', bookings: 96, val: '₹65,210', percent: 20, color: 'bg-cyan-500' }
+                          ].map((svc, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="py-2 flex flex-col">
+                                <span className="font-bold text-slate-800 leading-tight">{svc.name}</span>
+                                <div className="w-16 bg-slate-100 rounded-full h-1 mt-1 overflow-hidden">
+                                  <div className={`${svc.color} h-1 rounded-full`} style={{ width: `${svc.percent}%` }}></div>
+                                </div>
+                              </td>
+                              <td className="py-2 text-center font-bold text-slate-650">{svc.bookings}</td>
+                              <td className="py-2 font-black text-slate-700">{svc.val}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
+
+                {/* Summary Card */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm text-xs text-slate-500 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 tracking-wide mb-4 pb-2 border-b border-slate-100">Summary</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center border-b border-slate-50 pb-1.5">
+                        <span className="flex items-center gap-1.5"><span>📋</span> Total Bookings</span>
+                        <span className="text-slate-850 font-black">1,145</span>
+                      </div>
+                      <div className="flex justify-between items-center border-b border-slate-50 pb-1.5">
+                        <span className="flex items-center gap-1.5"><span>📈</span> Total Revenue</span>
+                        <span className="text-slate-855 font-black">₹7,45,230</span>
+                      </div>
+                      <div className="flex justify-between items-center border-b border-slate-50 pb-1.5">
+                        <span className="flex items-center gap-1.5"><span>📉</span> Total Expenses</span>
+                        <span className="text-slate-855 font-black">₹3,16,920</span>
+                      </div>
+                      <div className="flex justify-between items-center border-b border-slate-50 pb-1.5">
+                        <span className="flex items-center gap-1.5"><span>🏦</span> Net Profit</span>
+                        <span className="text-emerald-600 font-black">₹4,28,310</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="flex items-center gap-1.5"><span>%</span> Profit Margin</span>
+                        <span className="text-blue-650 font-black">57.44%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Guide Footer */}
+              <div className="flex flex-wrap justify-between items-center gap-4 p-4 rounded-3xl border border-slate-150 bg-white shadow-sm text-xs font-semibold text-slate-505">
+                <div className="text-blue-600 flex items-center gap-1.5">
+                  ℹ️ Earnings and profit data is calculated after deducting commission, taxes and other charges.
+                </div>
+                <button className="px-4 py-2.5 bg-white hover:bg-slate-50 text-blue-600 border border-blue-200 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                  📥 Download Report
+                </button>
               </div>
             </div>
           )}

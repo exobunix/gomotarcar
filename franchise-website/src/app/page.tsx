@@ -29,7 +29,9 @@ export default function FranchisePortal() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "customers" | "vehicles" | "services" | "staff" | "attendance" | "inventory" | "earnings" | "wallet" | "transactions" | "invoices" | "offers" | "ratings" | "complaints" | "reports" | "notifications" | "support" | "business_profile" | "profile" | "settings">("dashboard");
-
+  const [profileSubTab, setProfileSubTab] = useState<"dashboard" | "details" | "working_hours" | "gallery">("dashboard");
+  const [settingsSubTab, setSettingsSubTab] = useState<"general" | "security" | "notifications" | "language" | "theme" | "payment" | "printer">("general");
+  const [profileSection, setProfileSection] = useState<"personal" | "bank" | "documents">("personal");
   // Auth/Register Toggle
   const [isRegisterMode, setIsRegisterMode] = useState(false);
 
@@ -7524,341 +7526,852 @@ export default function FranchisePortal() {
 
           {activeTab === "business_profile" && (
             <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
-              {/* Breadcrumbs & Header */}
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                    <span>Business Profile</span>
-                    <span className="text-slate-300">/</span>
-                    <span className="text-slate-600">Franchise Profile</span>
-                  </div>
-                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Franchise Profile Dashboard</h2>
-                  <p className="text-xs text-slate-555 mt-1">Overview of your franchise business information and status.</p>
-                </div>
-                <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
-                  ✏️ Edit Profile
-                </button>
-              </div>
-
-              {/* 4 Vertical Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {/* Franchise Info Card */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">Franchise Information</span>
-                    <span className="text-slate-400">ℹ️</span>
-                  </div>
-                  
-                  <div className="flex flex-col items-center gap-3 my-2 text-center">
-                    <div className="w-16 h-16 rounded-full overflow-hidden border border-slate-100 bg-slate-50 shadow-sm flex-shrink-0">
-                      <img src="https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=200" alt="Roy Motors workshop" className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-black text-slate-800">Roy Motors</h4>
-                      <p className="text-[9px] text-blue-600 font-bold uppercase">GMF12345</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 text-[9.5px] text-slate-505 font-semibold">
-                    <div className="flex items-start gap-1.5">
-                      <span>📍</span>
-                      <span>123, Green Park Avenue, Sector 45, Noida, UP - 201301</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span>📞</span>
-                      <span>+91 98765 43210</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span>✉️</span>
-                      <span>roymotors@gmail.com</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span>📅</span>
-                      <span>Joined on: 15 Feb 2024</span>
-                    </div>
-                  </div>
-
-                  <button className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50">
-                    View Full Details →
+              
+              {/* Business Profile Sub-Navigation Tab Row */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-3 mb-2">
+                <div className="flex gap-6 text-xs font-bold text-slate-400">
+                  <button 
+                    onClick={() => setProfileSubTab("dashboard")} 
+                    className={`pb-2 px-1 transition-all ${profileSubTab === "dashboard" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                  >
+                    👤 Profile Dashboard
                   </button>
-                </div>
-
-                {/* Membership Status Card */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">Membership Status</span>
-                    <span className="text-slate-400">👑</span>
-                  </div>
-
-                  <div className="flex flex-col items-center gap-2 my-2 text-center">
-                    <div className="w-11 h-11 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 text-lg shadow-sm">
-                      🛡️
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-black text-slate-800">Premium Member</h4>
-                      <p className="text-[8.5px] text-emerald-600 font-bold">Valid Till: 15 Feb 2026</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3.5 text-[9.5px] text-slate-505 font-semibold">
-                    <div className="flex justify-between items-center">
-                      <span>Plan Name</span>
-                      <span className="text-slate-800 font-bold">Premium Annual</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Member Since</span>
-                      <span className="text-slate-800 font-bold">15 Feb 2024</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Auto Renewal</span>
-                      <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-50 text-emerald-650">Enabled</span>
-                    </div>
-                  </div>
-
-                  <button className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50">
-                    Manage Subscription ⚙️
+                  <button 
+                    onClick={() => setProfileSubTab("details")} 
+                    className={`pb-2 px-1 transition-all ${profileSubTab === "details" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                  >
+                    🏢 Business Details
                   </button>
-                </div>
-
-                {/* Franchise Rating Card */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">Franchise Rating</span>
-                    <span className="text-slate-400">⭐</span>
-                  </div>
-
-                  <div className="flex items-center gap-4 my-1 justify-center">
-                    <p className="text-2xl font-black text-slate-800">4.6</p>
-                    <div>
-                      <span className="text-amber-500 text-xs">★★★★★</span>
-                      <p className="text-[8px] text-slate-400 font-bold">(128 Reviews)</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5 text-[8.5px] text-slate-505 font-bold">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-9">5 Stars</span>
-                      <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
-                        <div className="bg-amber-500 h-full w-[70%]"></div>
-                      </div>
-                      <span className="w-6 text-right">70%</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-9">4 Stars</span>
-                      <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
-                        <div className="bg-amber-500 h-full w-[20%]"></div>
-                      </div>
-                      <span className="w-6 text-right">20%</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-9">3 Stars</span>
-                      <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
-                        <div className="bg-amber-500 h-full w-[7%]"></div>
-                      </div>
-                      <span className="w-6 text-right">7%</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-9">2 Stars</span>
-                      <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
-                        <div className="bg-amber-500 h-full w-[2%]"></div>
-                      </div>
-                      <span className="w-6 text-right">2%</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-9">1 Star</span>
-                      <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
-                        <div className="bg-amber-500 h-full w-[1%]"></div>
-                      </div>
-                      <span className="w-6 text-right">1%</span>
-                    </div>
-                  </div>
-
-                  <button className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50">
-                    View All Reviews →
+                  <button 
+                    onClick={() => setProfileSubTab("working_hours")} 
+                    className={`pb-2 px-1 transition-all ${profileSubTab === "working_hours" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                  >
+                    ⏱️ Working Hours
                   </button>
-                </div>
-
-                {/* KYC Status Card */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">KYC Status</span>
-                    <span className="text-slate-400">🛡️</span>
-                  </div>
-
-                  <div className="flex flex-col items-center gap-2 my-2 text-center">
-                    <div className="w-11 h-11 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-lg shadow-sm">
-                      ✓
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-black text-slate-800">Verified</h4>
-                      <p className="text-[8.5px] text-slate-400 font-bold">All documents verified</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 text-[9.5px] text-slate-505 font-semibold">
-                    <div className="flex justify-between items-center">
-                      <span>PAN Card</span>
-                      <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>GST Certificate</span>
-                      <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Address Proof</span>
-                      <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Bank Details</span>
-                      <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
-                    </div>
-                  </div>
-
-                  <button className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50">
-                    View KYC Details →
+                  <button 
+                    onClick={() => setProfileSubTab("gallery")} 
+                    className={`pb-2 px-1 transition-all ${profileSubTab === "gallery" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                  >
+                    🖼️ Gallery Management
                   </button>
                 </div>
               </div>
 
-              {/* Middle Section (Franchise Overview & Recent Activity) */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Franchise Overview Card */}
-                <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100 mb-4">Franchise Overview</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-6">
-                      <div className="sm:col-span-7 space-y-3.5 text-xs text-slate-505 font-semibold">
-                        <div className="flex justify-between">
-                          <span>Franchise Name</span>
-                          <span className="text-slate-800 font-bold">Roy Motors</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Franchise ID</span>
-                          <span className="text-slate-800 font-bold">GMF12345</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Business Type</span>
-                          <span className="text-slate-800 font-bold">Car Washing & Detailing</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Established On</span>
-                          <span className="text-slate-800 font-bold">10 Jan 2024</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Number of Staff</span>
-                          <span className="text-slate-800 font-bold">18</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Service Locations</span>
-                          <span className="text-slate-800 font-bold">1</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Total Bookings</span>
-                          <span className="text-slate-800 font-bold">1,248</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Total Revenue</span>
-                          <span className="text-slate-800 font-bold">₹24,58,320</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Preferred Payment Mode</span>
-                          <span className="text-slate-800 font-bold">Online</span>
-                        </div>
+              {/* ========================================================================= */}
+              {/* VIEW 1: PROFILE DASHBOARD */}
+              {/* ========================================================================= */}
+              {profileSubTab === "dashboard" && (
+                <div className="space-y-6">
+                  {/* Breadcrumbs & Header */}
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <span>Business Profile</span>
+                        <span className="text-slate-300">/</span>
+                        <span className="text-slate-600">Franchise Profile</span>
+                      </div>
+                      <h2 className="text-2xl font-black text-slate-900 tracking-wide">Franchise Profile Dashboard</h2>
+                      <p className="text-xs text-slate-555 mt-1">Overview of your franchise business information and status.</p>
+                    </div>
+                    <button 
+                      onClick={() => setProfileSubTab("details")} 
+                      className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                    >
+                      ✏️ Edit Profile
+                    </button>
+                  </div>
+
+                  {/* 4 Vertical Cards Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    {/* Franchise Info Card */}
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">Franchise Information</span>
+                        <span className="text-slate-400">ℹ️</span>
                       </div>
                       
-                      <div className="sm:col-span-5 flex flex-col justify-between items-center gap-3">
-                        <div className="w-full h-40 rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
-                          <img src="https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=300" alt="workshop front" className="w-full h-full object-cover" />
+                      <div className="flex flex-col items-center gap-3 my-2 text-center">
+                        <div className="w-16 h-16 rounded-full overflow-hidden border border-slate-100 bg-slate-50 shadow-sm flex-shrink-0">
+                          <img src="https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=200" alt="Roy Motors workshop" className="w-full h-full object-cover" />
                         </div>
-                        <button className="w-full py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black text-blue-600 hover:bg-slate-100 flex items-center justify-center gap-1">
-                          ✏️ Update Information
-                        </button>
+                        <div>
+                          <h4 className="text-sm font-black text-slate-800">Roy Motors</h4>
+                          <p className="text-[9px] text-blue-600 font-bold uppercase">GMF12345</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 text-[9.5px] text-slate-505 font-semibold">
+                        <div className="flex items-start gap-1.5">
+                          <span>📍</span>
+                          <span>123, Green Park Avenue, Sector 45, Noida, UP - 201301</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span>📞</span>
+                          <span>+91 98765 43210</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span>✉️</span>
+                          <span>roymotors@gmail.com</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span>📅</span>
+                          <span>Joined on: 15 Feb 2024</span>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => setProfileSubTab("details")} 
+                        className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50"
+                      >
+                        View Full Details →
+                      </button>
+                    </div>
+
+                    {/* Membership Status Card */}
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">Membership Status</span>
+                        <span className="text-slate-400">👑</span>
+                      </div>
+
+                      <div className="flex flex-col items-center gap-2 my-2 text-center">
+                        <div className="w-11 h-11 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 text-lg shadow-sm">
+                          🛡️
+                    </div>
+                        <div>
+                          <h4 className="text-sm font-black text-slate-800">Premium Member</h4>
+                          <p className="text-[8.5px] text-emerald-600 font-bold">Valid Till: 15 Feb 2026</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3.5 text-[9.5px] text-slate-505 font-semibold">
+                        <div className="flex justify-between items-center">
+                          <span>Plan Name</span>
+                          <span className="text-slate-800 font-bold">Premium Annual</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Member Since</span>
+                          <span className="text-slate-800 font-bold">15 Feb 2024</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Auto Renewal</span>
+                          <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-50 text-emerald-650">Enabled</span>
+                        </div>
+                      </div>
+
+                      <button className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50">
+                        Manage Subscription ⚙️
+                      </button>
+                    </div>
+
+                    {/* Franchise Rating Card */}
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">Franchise Rating</span>
+                        <span className="text-slate-400">⭐</span>
+                      </div>
+
+                      <div className="flex items-center gap-4 my-1 justify-center">
+                        <p className="text-2xl font-black text-slate-800">4.6</p>
+                        <div>
+                          <span className="text-amber-500 text-xs">★★★★★</span>
+                          <p className="text-[8px] text-slate-400 font-bold">(128 Reviews)</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 text-[8.5px] text-slate-505 font-bold">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-9">5 Stars</span>
+                          <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
+                            <div className="bg-amber-500 h-full w-[70%]"></div>
+                          </div>
+                          <span className="w-6 text-right">70%</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-9">4 Stars</span>
+                          <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
+                            <div className="bg-amber-500 h-full w-[20%]"></div>
+                          </div>
+                          <span className="w-6 text-right">20%</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-9">3 Stars</span>
+                          <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
+                            <div className="bg-amber-500 h-full w-[7%]"></div>
+                          </div>
+                          <span className="w-6 text-right">7%</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-9">2 Stars</span>
+                          <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
+                            <div className="bg-amber-500 h-full w-[2%]"></div>
+                          </div>
+                          <span className="w-6 text-right">2%</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-9">1 Star</span>
+                          <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
+                            <div className="bg-amber-500 h-full w-[1%]"></div>
+                          </div>
+                          <span className="w-6 text-right">1%</span>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => setActiveTab("ratings")}
+                        className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50"
+                      >
+                        View All Reviews →
+                      </button>
+                    </div>
+
+                    {/* KYC Status Card */}
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">KYC Status</span>
+                        <span className="text-slate-400">🛡️</span>
+                      </div>
+
+                      <div className="flex flex-col items-center gap-2 my-2 text-center">
+                        <div className="w-11 h-11 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-lg shadow-sm">
+                          ✓
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-black text-slate-800">Verified</h4>
+                          <p className="text-[8.5px] text-slate-400 font-bold">All documents verified</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 text-[9.5px] text-slate-505 font-semibold">
+                        <div className="flex justify-between items-center">
+                          <span>PAN Card</span>
+                          <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>GST Certificate</span>
+                          <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Address Proof</span>
+                          <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Bank Details</span>
+                          <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
+                        </div>
+                      </div>
+
+                      <button className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50">
+                        View KYC Details →
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Middle Section (Franchise Overview & Recent Activity) */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    {/* Franchise Overview Card */}
+                    <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100 mb-4">Franchise Overview</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-12 gap-6">
+                          <div className="sm:col-span-7 space-y-3.5 text-xs text-slate-505 font-semibold">
+                            <div className="flex justify-between">
+                              <span>Franchise Name</span>
+                              <span className="text-slate-800 font-bold">Roy Motors</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Franchise ID</span>
+                              <span className="text-slate-800 font-bold">GMF12345</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Business Type</span>
+                              <span className="text-slate-800 font-bold">Car Washing & Detailing</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Established On</span>
+                              <span className="text-slate-800 font-bold">10 Jan 2024</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Number of Staff</span>
+                              <span className="text-slate-800 font-bold">18</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Service Locations</span>
+                              <span className="text-slate-800 font-bold">1</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Total Bookings</span>
+                              <span className="text-slate-800 font-bold">1,248</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Total Revenue</span>
+                              <span className="text-slate-800 font-bold">₹24,58,320</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Preferred Payment Mode</span>
+                              <span className="text-slate-800 font-bold">Online</span>
+                            </div>
+                          </div>
+                          
+                          <div className="sm:col-span-5 flex flex-col justify-between items-center gap-3">
+                            <div className="w-full h-40 rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                              <img src="https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=300" alt="workshop front" className="w-full h-full object-cover" />
+                            </div>
+                            <button 
+                              onClick={() => setProfileSubTab("details")}
+                              className="w-full py-2 bg-slate-55 border border-slate-200 rounded-xl text-[10px] font-black text-blue-600 hover:bg-slate-100 flex items-center justify-center gap-1"
+                            >
+                              ✏️ Update Information
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recent Activity Card */}
+                    <div className="lg:col-span-5 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                          <h3 className="text-sm font-black text-slate-855">Recent Activity</h3>
+                          <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">View All Activity</button>
+                        </div>
+
+                        <div className="space-y-4">
+                          {[
+                            { title: 'New booking received', desc: 'Booking ID #BK-7256 for 26 May 2025', time: '10:30 AM', icon: '📅', iconBg: 'bg-blue-50 text-blue-600' },
+                            { title: 'Payment received', desc: 'Payment of ₹2,450 received for booking #BK-7240', time: '09:45 AM', icon: '💵', iconBg: 'bg-emerald-50 text-emerald-600' },
+                            { title: 'New review received', desc: 'You received a 5 star review from Rahul Sharma', time: 'Yesterday', icon: '⭐', iconBg: 'bg-amber-50 text-amber-600' },
+                            { title: 'KYC documents verified', desc: 'Your KYC documents have been verified successfully', time: '24 May 2025', icon: '🛡️', iconBg: 'bg-purple-50 text-purple-650' },
+                            { title: 'New offer activated', desc: 'Flat 20% OFF on Premium Wash services', time: '23 May 2025', icon: '📢', iconBg: 'bg-orange-50 text-orange-600' }
+                          ].map((act, idx) => (
+                            <div key={idx} className="flex items-start gap-3.5 text-xs">
+                              <div className={`w-8 h-8 rounded-full ${act.iconBg} flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm`}>
+                                {act.icon}
+                              </div>
+                              <div className="flex-1">
+                                <span className="font-bold text-slate-855 block leading-tight">{act.title}</span>
+                                <span className="text-[10px] text-slate-450 font-semibold block mt-0.5">{act.desc}</span>
+                              </div>
+                              <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">{act.time}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Metrics overview row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Bookings</span>
+                        <p className="text-xl font-black text-slate-805 mt-1">1,248</p>
+                        <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
+                      </div>
+                      <div className="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-650 text-base shadow-sm">
+                        📅
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Revenue</span>
+                        <p className="text-xl font-black text-slate-850 mt-1">₹24,58,320</p>
+                        <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
+                      </div>
+                      <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-base shadow-sm">
+                        ₹
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Customers</span>
+                        <p className="text-xl font-black text-slate-855 mt-1">982</p>
+                        <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
+                      </div>
+                      <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-650 text-base shadow-sm">
+                        👥
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Repeat Customers</span>
+                        <p className="text-xl font-black text-slate-855 mt-1">65%</p>
+                        <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
+                      </div>
+                      <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-base shadow-sm">
+                        🔄
                       </div>
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Recent Activity Card */}
-                <div className="lg:col-span-5 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
-                      <h3 className="text-sm font-black text-slate-855">Recent Activity</h3>
-                      <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">View All Activity</button>
+              {/* ========================================================================= */}
+              {/* VIEW 2: BUSINESS DETAILS */}
+              {/* ========================================================================= */}
+              {profileSubTab === "details" && (
+                <div className="space-y-6">
+                  {/* Breadcrumbs & Header */}
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <span>Business Profile</span>
+                        <span className="text-slate-300">/</span>
+                        <span className="text-slate-600">Business Details</span>
+                      </div>
+                      <h2 className="text-2xl font-black text-slate-900 tracking-wide">Business Details</h2>
+                      <p className="text-xs text-slate-555 mt-1">Update your business information. Keep your details up to date.</p>
+                    </div>
+                    <button 
+                      onClick={() => setProfileSubTab("dashboard")} 
+                      className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                    >
+                      💾 Save Changes
+                    </button>
+                  </div>
+
+                  {/* Profile Completion Header Card */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between gap-6">
+                    <div className="flex-1 space-y-2">
+                      <div className="flex justify-between text-xs font-black text-slate-800">
+                        <span>Profile Completion</span>
+                        <span className="text-blue-600">72% Completed</span>
+                      </div>
+                      <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                        <div className="bg-blue-600 h-full w-[72%] rounded-full"></div>
+                      </div>
+                      <p className="text-[10px] text-slate-450 font-bold">4 of 6 sections completed</p>
+                    </div>
+                    
+                    <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 text-2xl shadow-sm">
+                      📋
+                    </div>
+                  </div>
+
+                  {/* Main Business Details Form */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-5 text-xs font-semibold text-slate-700">
+                    <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                      <span className="text-blue-650 text-base">🏢</span>
+                      <h3 className="text-sm font-black text-slate-855">Business Information</h3>
                     </div>
 
-                    <div className="space-y-4">
-                      {[
-                        { title: 'New booking received', desc: 'Booking ID #BK-7256 for 26 May 2025', time: '10:30 AM', icon: '📅', iconBg: 'bg-blue-50 text-blue-600' },
-                        { title: 'Payment received', desc: 'Payment of ₹2,450 received for booking #BK-7240', time: '09:45 AM', icon: '💵', iconBg: 'bg-emerald-50 text-emerald-600' },
-                        { title: 'New review received', desc: 'You received a 5 star review from Rahul Sharma', time: 'Yesterday', icon: '⭐', iconBg: 'bg-amber-50 text-amber-600' },
-                        { title: 'KYC documents verified', desc: 'Your KYC documents have been verified successfully', time: '24 May 2025', icon: '🛡️', iconBg: 'bg-purple-50 text-purple-650' },
-                        { title: 'New offer activated', desc: 'Flat 20% OFF on Premium Wash services', time: '23 May 2025', icon: '📢', iconBg: 'bg-orange-50 text-orange-600' }
-                      ].map((act, idx) => (
-                        <div key={idx} className="flex items-start gap-3.5 text-xs">
-                          <div className={`w-8 h-8 rounded-full ${act.iconBg} flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm`}>
-                            {act.icon}
-                          </div>
-                          <div className="flex-1">
-                            <span className="font-bold text-slate-805 block leading-tight">{act.title}</span>
-                            <span className="text-[10px] text-slate-450 font-semibold block mt-0.5">{act.desc}</span>
-                          </div>
-                          <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">{act.time}</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div>
+                        <label className="block text-slate-450 font-bold mb-1.5">Business Name *</label>
+                        <input type="text" defaultValue="Roy Motors" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/20" />
+                        <span className="text-[9px] text-slate-400 block mt-1">Enter your registered business name.</span>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-450 font-bold mb-1.5">Business Type</label>
+                        <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/20 cursor-pointer">
+                          <option>Car Washing & Detailing</option>
+                          <option>Full Detailing & PPF</option>
+                          <option>Mechanical Repairs</option>
+                        </select>
+                        <span className="text-[9px] text-slate-400 block mt-1">Select your business type.</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+                      <div className="md:col-span-6">
+                        <label className="block text-slate-450 font-bold mb-1.5">Address *</label>
+                        <textarea defaultValue="123, Green Park Avenue, Sector 45, Noida, Uttar Pradesh - 201301" rows={3} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/20" />
+                        <span className="text-[9px] text-slate-400 block mt-1">Enter your complete business address.</span>
+                      </div>
+
+                      <div className="md:col-span-3">
+                        <label className="block text-slate-450 font-bold mb-1.5">City *</label>
+                        <input type="text" defaultValue="Noida" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/20" />
+                      </div>
+
+                      <div className="md:col-span-3">
+                        <label className="block text-slate-450 font-bold mb-1.5">Pincode *</label>
+                        <input type="text" defaultValue="201301" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/20" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div>
+                        <label className="block text-slate-450 font-bold mb-1.5">State *</label>
+                        <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/20 cursor-pointer">
+                          <option>Uttar Pradesh</option>
+                          <option>Delhi</option>
+                          <option>Haryana</option>
+                          <option>Karnataka</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-450 font-bold mb-1.5">Country *</label>
+                        <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-600/20 cursor-pointer">
+                          <option>India</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* GST, Working Hours Shortcuts, Contact Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* GST Details */}
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-80 text-xs font-semibold text-slate-700">
+                      <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <span className="text-purple-600 text-base">📄</span>
+                        <h4 className="font-black text-slate-850">GST Details</h4>
+                      </div>
+
+                      <div className="space-y-4 my-2">
+                        <div>
+                          <label className="block text-slate-450 font-bold mb-1">GST Number</label>
+                          <input type="text" defaultValue="09ABCDE1234F1Z5" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2 text-slate-850 font-bold focus:outline-none" />
+                          <span className="text-[8.5px] text-slate-400 block mt-1">Enter your GST number.</span>
                         </div>
-                      ))}
+
+                        <div>
+                          <label className="block text-slate-450 font-bold mb-1">GST Certificate</label>
+                          <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-red-500">📄</span>
+                              <div>
+                                <span className="font-bold text-slate-800 block text-[9.5px]">GST_Certificate.pdf</span>
+                                <span className="text-[8px] text-slate-400 font-bold">245 KB</span>
+                              </div>
+                            </div>
+                            <button className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded text-[9.5px] font-black transition-all">Upload New</button>
+                          </div>
+                          <span className="text-[8.5px] text-slate-400 block mt-1">Upload GST certificate (PDF, JPG, PNG)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Working Hours Shortcut */}
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-80 text-xs font-semibold text-slate-700">
+                      <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <span className="text-emerald-650 text-base">⏱️</span>
+                        <h4 className="font-black text-slate-855">Working Hours</h4>
+                      </div>
+
+                      <div className="space-y-3.5 my-2">
+                        <div>
+                          <label className="block text-slate-450 font-bold mb-1">Opening Time</label>
+                          <input type="text" defaultValue="09:00 AM" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2 text-slate-850 font-bold focus:outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-slate-450 font-bold mb-1">Closing Time</label>
+                          <input type="text" defaultValue="08:00 PM" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2 text-slate-855 font-bold focus:outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-slate-450 font-bold mb-1">Working Days</label>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                              <span key={day} className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[8px] font-black">{day}</span>
+                            ))}
+                            <span className="px-2 py-0.5 bg-slate-100 text-slate-400 rounded text-[8px] font-black">Sun</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Contact Information */}
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-80 text-xs font-semibold text-slate-700">
+                      <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <span className="text-amber-600 text-base">📞</span>
+                        <h4 className="font-black text-slate-850">Contact Information</h4>
+                      </div>
+
+                      <div className="space-y-3.5 my-2">
+                        <div>
+                          <label className="block text-slate-455 font-bold mb-1">Mobile Number *</label>
+                          <input type="text" defaultValue="+91 98765 43210" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2 text-slate-850 font-bold focus:outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-slate-455 font-bold mb-1">Email Address *</label>
+                          <input type="text" defaultValue="roymotors@gmail.com" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2 text-slate-855 font-bold focus:outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-slate-455 font-bold mb-1">Alternate Number</label>
+                          <input type="text" defaultValue="+91 98765 43211 (Optional)" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2 text-slate-855 font-bold focus:outline-none" />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* Bottom Metrics overview row */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
-                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Bookings</span>
-                    <p className="text-xl font-black text-slate-805 mt-1">1,248</p>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
+              {/* ========================================================================= */}
+              {/* VIEW 3: WORKING HOURS */}
+              {/* ========================================================================= */}
+              {profileSubTab === "working_hours" && (
+                <div className="space-y-6">
+                  {/* Breadcrumbs & Header */}
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <span>Business Profile</span>
+                        <span className="text-slate-300">/</span>
+                        <span className="text-slate-600">Working Hours</span>
+                      </div>
+                      <h2 className="text-2xl font-black text-slate-900 tracking-wide">Working Hours</h2>
+                      <p className="text-xs text-slate-555 mt-1">Set your business working hours and manage holidays.</p>
+                    </div>
+                    <button 
+                      onClick={() => setProfileSubTab("dashboard")} 
+                      className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                    >
+                      💾 Save Changes
+                    </button>
                   </div>
-                  <div className="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-650 text-base shadow-sm">
-                    📅
+
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    {/* Weekly Schedule (Left Column) */}
+                    <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700">
+                      <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <span className="text-blue-650 text-base">📅</span>
+                        <h3 className="text-sm font-black text-slate-850">Weekly Schedule</h3>
+                      </div>
+                      
+                      <div className="space-y-3.5">
+                        {[
+                          { day: 'Monday', active: true, open: '09:00 AM', close: '08:00 PM', desc: '24 Hrs Open', descColor: 'text-emerald-600' },
+                          { day: 'Tuesday', active: true, open: '09:00 AM', close: '08:00 PM', desc: '24 Hrs Open', descColor: 'text-emerald-600' },
+                          { day: 'Wednesday', active: true, open: '09:00 AM', close: '08:00 PM', desc: '24 Hrs Open', descColor: 'text-emerald-600' },
+                          { day: 'Thursday', active: true, open: '09:00 AM', close: '08:00 PM', desc: '24 Hrs Open', descColor: 'text-emerald-600' },
+                          { day: 'Friday', active: true, open: '09:00 AM', close: '08:30 PM', desc: '23.5 Hrs Open', descColor: 'text-emerald-600' },
+                          { day: 'Saturday', active: true, open: '09:00 AM', close: '09:00 PM', desc: '24 Hrs Open', descColor: 'text-emerald-600' },
+                          { day: 'Sunday', active: false, open: '--:--', close: '--:--', desc: 'Closed', descColor: 'text-rose-500' }
+                        ].map((sched, idx) => (
+                          <div key={idx} className="flex flex-wrap items-center justify-between gap-4 p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
+                            <span className="w-20 font-bold text-slate-800">{sched.day}</span>
+                            <div className="flex items-center gap-1.5">
+                              <input type="checkbox" defaultChecked={sched.active} className="w-4 h-4 text-blue-600 border-slate-300 rounded cursor-pointer" />
+                              <span className="text-[10px] text-slate-500 font-bold">{sched.active ? 'Open' : 'Closed'}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <input type="text" defaultValue={sched.open} className="w-16 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-center text-[10px]" disabled={!sched.active} />
+                              <span>to</span>
+                              <input type="text" defaultValue={sched.close} className="w-16 bg-white border border-slate-200 rounded px-1.5 py-0.5 text-center text-[10px]" disabled={!sched.active} />
+                            </div>
+                            <span className={`text-[10px] font-black ${sched.descColor}`}>{sched.desc}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="p-3.5 bg-blue-50/30 rounded-2xl border border-blue-100 text-blue-650 text-[10.5px] font-bold">
+                        ℹ️ Closing time will be considered as the last booking time for the day.
+                      </div>
+                    </div>
+
+                    {/* Right Column (Holidays & Summary) */}
+                    <div className="lg:col-span-5 space-y-6">
+                      {/* Holiday Management Card */}
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700">
+                        <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                          <h3 className="text-sm font-black text-slate-855">Holiday Management</h3>
+                          <button className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-650 rounded-xl text-[10px] font-black transition-all">+ Add Holiday</button>
+                        </div>
+
+                        <div className="space-y-3">
+                          {[
+                            { name: 'Independence Day', dt: '15 Aug 2025 (Friday)', badge: 'Upcoming' },
+                            { name: 'Gandhi Jayanti', dt: '02 Oct 2025 (Thursday)', badge: 'Upcoming' },
+                            { name: 'Diwali', dt: '12 Nov 2025 (Wednesday)', badge: 'Upcoming' },
+                            { name: 'Christmas Day', dt: '25 Dec 2025 (Thursday)', badge: 'Upcoming' },
+                            { name: 'New Year\'s Day', dt: '01 Jan 2026 (Thursday)', badge: 'Upcoming' }
+                          ].map((hol, idx) => (
+                            <div key={idx} className="p-3 bg-slate-50/50 hover:bg-slate-100/50 rounded-2xl border border-slate-100 flex justify-between items-center transition-colors">
+                              <div>
+                                <p className="font-bold text-slate-805">{hol.name}</p>
+                                <p className="text-[9px] text-slate-400 font-bold mt-0.5">{hol.dt}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[8px] font-black uppercase">{hol.badge}</span>
+                                <button className="p-1 hover:bg-slate-100 rounded text-slate-400">✏️</button>
+                                <button className="p-1 hover:bg-slate-100 rounded text-red-500">🗑️</button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <button className="w-full text-center text-blue-650 hover:text-blue-500 font-bold text-[10px] pt-1">
+                          View All Holidays →
+                        </button>
+                      </div>
+
+                      {/* Working Hours Summary Card */}
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700">
+                        <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                          <span className="text-emerald-650 text-base">⏱️</span>
+                          <h4 className="font-black text-slate-850">Working Hours Summary</h4>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3 text-center">
+                          <div className="p-3.5 bg-emerald-50/30 rounded-2xl border border-emerald-100 space-y-1">
+                            <span className="text-lg">📅</span>
+                            <p className="text-[10px] text-slate-400 font-bold">Total Working Days</p>
+                            <p className="text-sm font-black text-slate-800">6 Days</p>
+                            <p className="text-[7.5px] text-slate-400">Per Week</p>
+                          </div>
+                          
+                          <div className="p-3.5 bg-blue-50/30 rounded-2xl border border-blue-100 space-y-1">
+                            <span className="text-lg">⏱️</span>
+                            <p className="text-[10px] text-slate-400 font-bold">Average Daily Hours</p>
+                            <p className="text-sm font-black text-slate-800">11.5 Hrs</p>
+                            <p className="text-[7.5px] text-slate-400">Per Day</p>
+                          </div>
+
+                          <div className="p-3.5 bg-purple-50/30 rounded-2xl border border-purple-100 space-y-1">
+                            <span className="text-lg">🔄</span>
+                            <p className="text-[10px] text-slate-400 font-bold">Weekly Hours</p>
+                            <p className="text-sm font-black text-slate-800">69 Hrs</p>
+                            <p className="text-[7.5px] text-slate-400">Per Week</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* bottom banner tip */}
+                  <div className="p-4 bg-amber-50/30 rounded-3xl border border-amber-150 text-amber-800 text-[11px] font-bold flex items-center gap-2 shadow-sm">
+                    <span>💡</span> Keep your working hours updated to avoid booking conflicts and improve customer experience.
                   </div>
                 </div>
+              )}
 
-                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Revenue</span>
-                    <p className="text-xl font-black text-slate-850 mt-1">₹24,58,320</p>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
+              {/* ========================================================================= */}
+              {/* VIEW 4: GALLERY MANAGEMENT */}
+              {/* ========================================================================= */}
+              {profileSubTab === "gallery" && (
+                <div className="space-y-6">
+                  {/* Breadcrumbs & Header */}
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                        <span>Business Profile</span>
+                        <span className="text-slate-300">/</span>
+                        <span className="text-slate-600">Gallery Management</span>
+                      </div>
+                      <h2 className="text-2xl font-black text-slate-900 tracking-wide">Gallery Management</h2>
+                      <p className="text-xs text-slate-555 mt-1">Manage and showcase your business visuals.</p>
+                    </div>
+                    <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                      ➕ Add New Images
+                    </button>
                   </div>
-                  <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-base shadow-sm">
-                    ₹
+
+                  {/* 3 Upload Options Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between items-center text-center h-44">
+                      <div className="w-11 h-11 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-650 text-lg shadow-sm">
+                        🖼️
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-slate-850">Shop Images</h4>
+                        <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Upload images of your shop, interior, and exterior.</p>
+                      </div>
+                      <button className="px-5 py-1.5 bg-white border border-emerald-250 hover:bg-emerald-50 text-emerald-650 rounded-xl text-[10px] font-bold transition-all shadow-sm">
+                        Upload Shop Images
+                      </button>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between items-center text-center h-44">
+                      <div className="w-11 h-11 bg-purple-50 rounded-full flex items-center justify-center text-purple-650 text-lg shadow-sm">
+                        👥
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-slate-855">Team Images</h4>
+                        <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Upload images of your team and staff.</p>
+                      </div>
+                      <button className="px-5 py-1.5 bg-white border border-purple-255 hover:bg-purple-50 text-purple-650 rounded-xl text-[10px] font-bold transition-all shadow-sm">
+                        Upload Team Images
+                      </button>
+                    </div>
+
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between items-center text-center h-44">
+                      <div className="w-11 h-11 bg-amber-50 rounded-full flex items-center justify-center text-amber-600 text-lg shadow-sm">
+                        🚗
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-slate-850">Work Photos</h4>
+                        <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Upload images of your work and services.</p>
+                      </div>
+                      <button className="px-5 py-1.5 bg-white border border-amber-255 hover:bg-amber-50 text-amber-655 rounded-xl text-[10px] font-bold transition-all shadow-sm">
+                        Upload Work Photos
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Filter tab row */}
+                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-1">
+                    <div className="flex gap-6 text-xs font-bold text-slate-400">
+                      <button className="text-blue-600 border-b-2 border-blue-600 pb-2 px-1">All Images (42)</button>
+                      <button className="hover:text-slate-600 pb-2 px-1">Shop Images (18)</button>
+                      <button className="hover:text-slate-600 pb-2 px-1">Team Images (12)</button>
+                      <button className="hover:text-slate-600 pb-2 px-1">Work Photos (12)</button>
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="px-3.5 py-2 bg-slate-55 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-[10px] font-bold cursor-pointer shadow-sm">⚙️ Filter</button>
+                      <select className="px-3.5 py-2 bg-white text-slate-700 border border-slate-200 rounded-xl text-[10px] font-bold cursor-pointer shadow-sm focus:outline-none">
+                        <option>Sort By: Newest</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Gallery Grid (12 Items) */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-xs">
+                    {[
+                      { title: 'Exterior View', tag: 'Shop', tagBadge: 'bg-emerald-50 text-emerald-600', dt: '26 May 2025', img: 'https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=200' },
+                      { title: 'Workshop Area', tag: 'Shop', tagBadge: 'bg-emerald-50 text-emerald-600', dt: '25 May 2025', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=80&w=200' },
+                      { title: 'Customer Lounge', tag: 'Shop', tagBadge: 'bg-emerald-50 text-emerald-600', dt: '24 May 2025', img: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&q=80&w=200' },
+                      { title: 'Service Bay', tag: 'Shop', tagBadge: 'bg-emerald-50 text-emerald-600', dt: '24 May 2025', img: 'https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?auto=format&fit=crop&q=80&w=200' },
+                      
+                      { title: 'Our Team', tag: 'Team', tagBadge: 'bg-purple-50 text-purple-650', dt: '26 May 2025', img: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=200' },
+                      { title: 'Technician Team', tag: 'Team', tagBadge: 'bg-purple-50 text-purple-650', dt: '23 May 2025', img: 'https://images.unsplash.com/photo-1578844251758-2f71da64c96f?auto=format&fit=crop&q=80&w=200' },
+                      { title: 'Front Desk Team', tag: 'Team', tagBadge: 'bg-purple-50 text-purple-650', dt: '21 May 2025', img: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=200' },
+                      { title: 'Team Meeting', tag: 'Team', tagBadge: 'bg-purple-50 text-purple-650', dt: '21 May 2025', img: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=200' },
+
+                      { title: 'Car Wash', tag: 'Work', tagBadge: 'bg-amber-50 text-amber-600', dt: '20 May 2025', img: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=80&w=200' },
+                      { title: 'Polishing Work', tag: 'Work', tagBadge: 'bg-amber-50 text-amber-600', dt: '19 May 2025', img: 'https://images.unsplash.com/photo-1507136566006-cfc505b114fc?auto=format&fit=crop&q=80&w=200' },
+                      { title: 'Engine Check', tag: 'Work', tagBadge: 'bg-amber-50 text-amber-600', dt: '19 May 2025', img: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=80&w=200' },
+                      { title: 'Interior Cleaning', tag: 'Work', tagBadge: 'bg-amber-50 text-amber-600', dt: '18 May 2025', img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=200' }
+                    ].map((photo, idx) => (
+                      <div key={idx} className="bg-white p-3.5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[230px]">
+                        <div className="w-full h-32 rounded-2xl overflow-hidden border border-slate-100 shadow-sm relative">
+                          <img src={photo.img} alt={photo.title} className="w-full h-full object-cover" />
+                          <span className={`absolute left-2.5 top-2.5 px-2 py-0.5 rounded text-[8px] font-black uppercase ${photo.tagBadge}`}>{photo.tag}</span>
+                        </div>
+                        <div className="mt-2 space-y-1">
+                          <span className="font-bold text-slate-800 block text-[10.5px] truncate leading-tight">{photo.title}</span>
+                          <span className="text-[8.5px] text-slate-400 font-bold block">{photo.dt}</span>
+                        </div>
+                        <div className="flex justify-end gap-1.5 mt-2.5 pt-2 border-t border-slate-50">
+                          <button className="p-1 hover:bg-slate-50 rounded text-slate-450">👁️</button>
+                          <button className="p-1 hover:bg-slate-50 rounded text-slate-455">✏️</button>
+                          <button className="p-1 hover:bg-slate-50 rounded text-red-500">🗑️</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Pagination */}
+                  <div className="flex flex-wrap items-center justify-between gap-4 p-5 border-t border-slate-100 text-xs font-semibold text-slate-505 bg-white rounded-3xl shadow-sm">
+                    <span>Showing 1 to 12 of 42 images</span>
+                    <div className="flex items-center gap-1.5">
+                      <button className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 cursor-pointer">‹</button>
+                      <button className="px-3 py-1.5 bg-blue-600 text-white rounded-lg cursor-pointer">1</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">2</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">3</button>
+                      <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">4</button>
+                      <button className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 cursor-pointer">›</button>
+                    </div>
                   </div>
                 </div>
+              )}
 
-                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Customers</span>
-                    <p className="text-xl font-black text-slate-855 mt-1">982</p>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
-                  </div>
-                  <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-650 text-base shadow-sm">
-                    👥
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Repeat Customers</span>
-                    <p className="text-xl font-black text-slate-855 mt-1">65%</p>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
-                  </div>
-                  <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-base shadow-sm">
-                    🔄
-                  </div>
-                </div>
-              </div>
             </div>
           )}
-
           {activeTab === "notifications" && (
             <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
               {/* Breadcrumbs & Header */}
@@ -8238,178 +8751,569 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "profile" && (
-            <div className="space-y-6 text-slate-100 pb-10">
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Header */}
               <div>
-                <h2 className="text-xl font-bold text-white tracking-wide">Profile & Account</h2>
-                <p className="text-xs text-slate-400 mt-1">Manage your personal information, documents and account settings.</p>
+                <h2 className="text-2xl font-black text-slate-900 tracking-wide">Profile & Account</h2>
+                <p className="text-xs text-slate-555 mt-1">Manage your personal information, documents and account settings.</p>
               </div>
 
               {/* Sub tabs list row */}
-              <div className="flex gap-4 border-b border-slate-800 pb-3 text-xs font-bold text-slate-450">
-                <span className="text-blue-500 border-b-2 border-blue-500 pb-3.5 cursor-pointer">👤 Personal Details</span>
-                <span className="cursor-pointer hover:text-slate-200">🏦 Bank Details</span>
-                <span className="cursor-pointer hover:text-slate-200">📁 Documents</span>
+              <div className="flex gap-6 border-b border-slate-100 pb-1 text-xs font-bold text-slate-400">
+                <button 
+                  onClick={() => setProfileSection("personal")}
+                  className={`pb-2 px-1 transition-all ${profileSection === "personal" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                >
+                  👤 Personal Details
+                </button>
+                <button 
+                  onClick={() => setProfileSection("bank")}
+                  className={`pb-2 px-1 transition-all ${profileSection === "bank" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                >
+                  🏦 Bank Details
+                </button>
+                <button 
+                  onClick={() => setProfileSection("documents")}
+                  className={`pb-2 px-1 transition-all ${profileSection === "documents" ? "text-blue-650 border-b-2 border-blue-655" : "hover:text-slate-600"}`}
+                >
+                  📁 Documents
+                </button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Personal Information form fields */}
-                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 space-y-4 text-xs">
-                  <div className="flex items-center gap-4 pb-4 border-b border-slate-800">
-                    <div className="w-14 h-14 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center text-blue-400 font-bold text-base">RM</div>
+              {/* Personal Details Panel */}
+              {profileSection === "personal" && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs font-semibold text-slate-700">
+                  <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-5">
+                    <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
+                      <div className="w-14 h-14 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-lg">RM</div>
+                      <div>
+                        <p className="font-bold text-slate-800 text-sm">Profile Picture</p>
+                        <p className="text-[10px] text-slate-400 font-bold mt-0.5">JPG, PNG or WEBP. Max size of 2MB.</p>
+                      </div>
+                      <button className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-[10px] font-black shadow-sm ml-auto">Upload Photo</button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-slate-455 font-bold mb-1.5">Full Name *</label>
+                        <input type="text" defaultValue="Roy Motors" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-slate-455 font-bold mb-1.5">Email Address *</label>
+                        <input type="email" defaultValue="roymotors@gmail.com" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-slate-455 font-bold mb-1.5">Mobile Number *</label>
+                        <input type="text" defaultValue="+91 98765 43210" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-slate-455 font-bold mb-1.5">Nationality</label>
+                        <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none cursor-pointer">
+                          <option>Indian</option>
+                        </select>
+                      </div>
+                    </div>
+
                     <div>
-                      <p className="font-bold text-white">Profile Picture</p>
-                      <p className="text-[10px] text-slate-500 mt-0.5">JPG, PNG or WEBP. Max size of 2MB.</p>
+                      <label className="block text-slate-455 font-bold mb-1.5">Address *</label>
+                      <textarea defaultValue="123, Green Park Avenue, Sector 45, Noida, Uttar Pradesh - 201301" rows={3} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                    </div>
+
+                    <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Save Changes</button>
+                  </div>
+
+                  <div className="space-y-6">
+                    {/* Account Overview */}
+                    <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700">
+                      <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100">Account Overview</h3>
+                      <div className="space-y-3 pt-1">
+                        <div className="flex justify-between">
+                          <span>Account Type</span>
+                          <span className="text-slate-800 font-bold">Franchise</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Franchise ID</span>
+                          <span className="text-slate-800 font-bold">GMF12345</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Account Status</span>
+                          <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-50 text-emerald-650">Active</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Bank Details Panel */}
+              {profileSection === "bank" && (
+                <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-5 text-xs font-semibold text-slate-700 max-w-3xl">
+                  <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100">Bank Details</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-slate-455 font-bold mb-1.5">Bank Name</label>
+                      <input type="text" defaultValue="HDFC Bank" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-455 font-bold mb-1.5">Account Holder Name</label>
+                      <input type="text" defaultValue="Roy Motors Private Limited" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-slate-400 font-semibold mb-1">Full Name *</label>
-                      <input type="text" defaultValue="Roy Motors" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+                      <label className="block text-slate-455 font-bold mb-1.5">Account Number</label>
+                      <input type="text" defaultValue="50200012345678" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                     </div>
                     <div>
-                      <label className="block text-slate-400 font-semibold mb-1">Email Address *</label>
-                      <input type="email" defaultValue="roymotors@gmail.com" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+                      <label className="block text-slate-455 font-bold mb-1.5">IFSC Code</label>
+                      <input type="text" defaultValue="HDFC0000123" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-slate-400 font-semibold mb-1">Mobile Number *</label>
-                      <input type="text" defaultValue="+91 98765 43210" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
-                    </div>
-                    <div>
-                      <label className="block text-slate-400 font-semibold mb-1">Nationality</label>
-                      <select className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-                        <option>Indian</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-400 font-semibold mb-1">Address *</label>
-                    <textarea defaultValue="123, Green Park Avenue, Sector 45, Noida, Uttar Pradesh - 201301" rows={3} className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
-                  </div>
-
-                  <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-550 text-white rounded-xl font-bold cursor-pointer transition-all">Save Changes</button>
+                  <button className="px-5 py-2.5 bg-blue-655 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Save Bank Details</button>
                 </div>
+              )}
 
-                <div className="space-y-6">
-                  {/* Account overview values list */}
-                  <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-slate-400 space-y-4">
-                    <h3 className="text-sm font-bold text-white tracking-wide">Account Overview</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Account Type</span>
-                        <span className="text-white font-semibold">Franchise</span>
+              {/* Documents Panel */}
+              {profileSection === "documents" && (
+                <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700 max-w-3xl">
+                  <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100">Uploaded Documents</h3>
+                  
+                  <div className="space-y-3.5">
+                    {[
+                      { name: 'PAN Card', file: 'PAN_RoyMotors.pdf', size: '142 KB' },
+                      { name: 'GST Certificate', file: 'GST_Certificate.pdf', size: '245 KB' },
+                      { name: 'Address Proof (Electricity Bill)', file: 'Electricity_Bill.pdf', size: '320 KB' },
+                      { name: 'Bank Details (Cancelled Cheque)', file: 'Cancelled_Cheque.pdf', size: '180 KB' }
+                    ].map((doc, idx) => (
+                      <div key={idx} className="p-3 bg-slate-50/50 hover:bg-slate-100/30 rounded-2xl border border-slate-100 flex items-center justify-between transition-colors">
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-red-500 text-lg">📄</span>
+                          <div>
+                            <span className="font-bold text-slate-800 block text-[11px]">{doc.name}</span>
+                            <span className="text-[9px] text-slate-400 font-bold block mt-0.5">{doc.file} ({doc.size})</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded text-[10px] font-black shadow-sm">View</button>
+                          <button className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded text-[10px] font-black shadow-sm">Re-upload</button>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Franchise ID</span>
-                        <span className="text-white font-semibold">GMF12345</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Account Status</span>
-                        <span className="text-emerald-450 font-bold uppercase text-[10px]">Active</span>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
           {activeTab === "settings" && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Title Header */}
-              <div>
-                <h2 className="text-xl font-bold text-white tracking-wide">Security Settings</h2>
-                <p className="text-xs text-slate-400 mt-1">Manage your account security and keep your data safe.</p>
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Settings</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Settings Center</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Settings</h2>
+                  <p className="text-xs text-slate-555 mt-1">Manage your system preferences and configurations.</p>
+                </div>
               </div>
 
-              {/* Password Change forms & input sections */}
-              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs space-y-4">
-                <h3 className="text-sm font-bold text-white tracking-wide">Change Password</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Split layout: Left sidebar for Settings Sub-Tabs, Right content */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs">
+                {/* Left settings navigation */}
+                <div className="lg:col-span-3 bg-white p-4 rounded-3xl border border-slate-150 shadow-sm space-y-1 h-fit">
+                  {[
+                    { key: 'general', name: 'General Settings', desc: 'Basic system and business settings', icon: '⚙️' },
+                    { key: 'notifications', name: 'Notification Settings', desc: 'Manage notification preferences', icon: '🔔' },
+                    { key: 'language', name: 'Language', desc: 'Select your preferred language', icon: '🌐' },
+                    { key: 'security', name: 'Security', desc: 'Manage security and access', icon: '🛡️' },
+                    { key: 'theme', name: 'Theme', desc: 'Customize system appearance', icon: '🎨' },
+                    { key: 'payment', name: 'Payment Settings', desc: 'Configure payment preferences', icon: '💳' },
+                    { key: 'printer', name: 'Printer Settings', desc: 'Configure printer and receipt settings', icon: '🖨️' }
+                  ].map((sub) => (
+                    <button
+                      key={sub.key}
+                      onClick={() => setSettingsSubTab(sub.key as any)}
+                      className={`w-full flex items-center justify-between p-3.5 rounded-2xl text-left transition-all ${
+                        settingsSubTab === sub.key 
+                          ? 'bg-blue-50/50 border border-blue-100 text-blue-650' 
+                          : 'hover:bg-slate-50 border border-transparent text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-base">{sub.icon}</span>
+                        <div>
+                          <span className="font-bold block leading-tight">{sub.name}</span>
+                          <span className="text-[8.5px] text-slate-400 font-semibold block mt-0.5">{sub.desc}</span>
+                        </div>
+                      </div>
+                      <span className="text-slate-400">›</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Right content view area */}
+                <div className="lg:col-span-9 space-y-6">
+                  {/* ========================================================== */}
+                  {/* VIEW 1: GENERAL SETTINGS */}
+                  {/* ========================================================== */}
+                  {settingsSubTab === "general" && (
+                    <div className="space-y-6">
+                      <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-5 text-xs font-semibold text-slate-700">
+                        <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                          <span className="text-blue-650 text-base">⚙️</span>
+                          <div>
+                            <h3 className="text-sm font-black text-slate-850">General Settings</h3>
+                            <p className="text-[9.5px] text-slate-400 font-semibold mt-0.5">Update your business and system general settings.</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div>
+                            <label className="block text-slate-455 font-bold mb-1.5">Business Name</label>
+                            <input type="text" defaultValue="Roy Motors" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                          </div>
+                          <div>
+                            <label className="block text-slate-455 font-bold mb-1.5">Business Currency</label>
+                            <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none cursor-pointer">
+                              <option>INR - Indian Rupee (₹)</option>
+                              <option>USD - US Dollar ($)</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div>
+                            <label className="block text-slate-455 font-bold mb-1.5">Business Email</label>
+                            <input type="text" defaultValue="roymotors@gmail.com" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                          </div>
+                          <div>
+                            <label className="block text-slate-455 font-bold mb-1.5">System Time</label>
+                            <div className="relative">
+                              <input type="text" defaultValue="10:30 AM" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">⏱️</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div>
+                            <label className="block text-slate-455 font-bold mb-1.5">Business Phone</label>
+                            <input type="text" defaultValue="+91 98765 43210" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                          </div>
+                          <div>
+                            <label className="block text-slate-455 font-bold mb-1.5">System Date</label>
+                            <div className="relative">
+                              <input type="text" defaultValue="26 May 2025" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">📅</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div>
+                            <label className="block text-slate-455 font-bold mb-1.5">Business Address</label>
+                            <textarea defaultValue="123, Green Park Avenue, Sector 45, Noida, Uttar Pradesh - 201301" rows={3} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                          </div>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-slate-455 font-bold mb-1.5">Week Start Day</label>
+                              <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none cursor-pointer">
+                                <option>Monday</option>
+                                <option>Sunday</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-slate-455 font-bold mb-1.5">Items Per Page</label>
+                              <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none cursor-pointer">
+                                <option>10</option>
+                                <option>20</option>
+                                <option>50</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div>
+                            <label className="block text-slate-455 font-bold mb-1.5">Time Zone</label>
+                            <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none cursor-pointer">
+                              <option>(GMT+05:30) Asia/Kolkata</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-3 border-t border-slate-100">
+                          <div>
+                            <label className="block text-slate-455 font-bold mb-2">Date Format</label>
+                            <div className="flex gap-4">
+                              <label className="flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" name="dtFormat" defaultChecked className="text-blue-650" />
+                                <span>DD MMM YYYY</span>
+                              </label>
+                              <label className="flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" name="dtFormat" className="text-blue-650" />
+                                <span>MMM DD YYYY</span>
+                              </label>
+                              <label className="flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" name="dtFormat" className="text-blue-650" />
+                                <span>YYYY-MM-DD</span>
+                              </label>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-slate-455 font-bold mb-2">Number Format</label>
+                            <div className="flex gap-4">
+                              <label className="flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" name="numFormat" defaultChecked className="text-blue-650" />
+                                <span>1,234.56</span>
+                              </label>
+                              <label className="flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" name="numFormat" className="text-blue-650" />
+                                <span>1.234,56</span>
+                              </label>
+                              <label className="flex items-center gap-1.5 cursor-pointer">
+                                <input type="radio" name="numFormat" className="text-blue-650" />
+                                <span>1 234,56</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end pt-3">
+                          <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm flex items-center gap-1.5">
+                            💾 Save Changes
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ========================================================== */}
+                  {/* VIEW 2: SECURITY SETTINGS */}
+                  {/* ========================================================== */}
+                  {settingsSubTab === "security" && (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                      {/* Left forms */}
+                      <div className="lg:col-span-8 space-y-6">
+                        {/* Change Password Card */}
+                        <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700">
+                          <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                            <div className="flex items-center gap-2">
+                              <span className="text-blue-655 text-base">🔑</span>
+                              <h3 className="text-sm font-black text-slate-850">Change Password</h3>
+                            </div>
+                            <button className="text-blue-600 hover:text-blue-500 font-bold text-[10px]">⚙️ Change Password</button>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                              <label className="block text-slate-455 font-bold mb-1">Current Password</label>
+                              <input type="password" placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
+                            </div>
+                            <div>
+                              <label className="block text-slate-455 font-bold mb-1">New Password</label>
+                              <input type="password" placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
+                            </div>
+                            <div>
+                              <label className="block text-slate-455 font-bold mb-1">Confirm New Password</label>
+                              <input type="password" placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-[8.5px] text-slate-400 font-bold pt-1.5">
+                            <span className="text-emerald-600">✓ Use at least 8 characters</span>
+                            <span className="text-emerald-600">✓ Include uppercase & lowercase letters</span>
+                            <span className="text-emerald-600">✓ Include number & special character</span>
+                          </div>
+                        </div>
+
+                        {/* Biometric Login */}
+                        <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700">
+                          <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <span className="text-blue-655 text-base">🖐️</span>
+                            <h3 className="text-sm font-black text-slate-850">Biometric Login</h3>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="p-3.5 bg-slate-50/50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                              <div>
+                                <p className="font-bold text-slate-800">Fingerprint Login</p>
+                                <p className="text-[8.5px] text-slate-400 mt-0.5">Login quickly using fingerprint sensor.</p>
+                              </div>
+                              <input type="checkbox" defaultChecked className="w-8 h-4 bg-blue-600 rounded-full cursor-pointer" />
+                            </div>
+
+                            <div className="p-3.5 bg-slate-50/50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                              <div>
+                                <p className="font-bold text-slate-800">Face ID Login</p>
+                                <p className="text-[8.5px] text-slate-400 mt-0.5">Login using face recognition.</p>
+                              </div>
+                              <input type="checkbox" defaultChecked className="w-8 h-4 bg-blue-600 rounded-full cursor-pointer" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 2FA Authentication */}
+                        <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700">
+                          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                            <div className="flex items-center gap-2">
+                              <span className="text-blue-655 text-base">🛡️</span>
+                              <h3 className="text-sm font-black text-slate-850">2FA Authentication</h3>
+                            </div>
+                            <input type="checkbox" defaultChecked className="w-8 h-4 bg-blue-600 rounded-full cursor-pointer" />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-1">
+                            <div className="p-3.5 bg-slate-50/30 rounded-2xl border border-slate-100 flex items-center justify-between">
+                              <div>
+                                <span className="text-[8.5px] text-slate-400 font-bold block">Authentication Method</span>
+                                <span className="font-bold text-slate-850 text-xs block mt-1">Authenticator App (TOTP)</span>
+                              </div>
+                            </div>
+                            <div className="p-3.5 bg-slate-50/30 rounded-2xl border border-slate-100 flex items-center justify-between">
+                              <div>
+                                <span className="text-[8.5px] text-slate-400 font-bold block">Backup Codes</span>
+                                <span className="font-bold text-slate-850 text-xs block mt-1">10 backup codes available</span>
+                              </div>
+                              <button className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-[10px] font-black shadow-sm">View Codes</button>
+                            </div>
+                          </div>
+                          
+                          <button className="text-[9.5px] text-blue-600 hover:text-blue-500 font-bold">Learn more about 2FA →</button>
+                        </div>
+
+                        {/* Session Management Table */}
+                        <div className="bg-white rounded-3xl border border-slate-150 shadow-sm overflow-hidden text-slate-700">
+                          <div className="p-5 border-b border-slate-100 flex justify-between items-center">
+                            <h3 className="text-sm font-black text-slate-900 tracking-wide">Session Management</h3>
+                            <button className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-[10px] font-black transition-all">Log Out All Other Sessions</button>
+                          </div>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="border-b border-slate-100 bg-slate-50/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                                  <th className="py-4 px-6">Device</th>
+                                  <th className="py-4 px-4">Location</th>
+                                  <th className="py-4 px-4">IP Address</th>
+                                  <th className="py-4 px-4">Last Active</th>
+                                  <th className="py-4 px-4">Status</th>
+                                  <th className="py-4 px-4 text-center">Action</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-650">
+                                <tr className="hover:bg-slate-50/50 transition-colors">
+                                  <td className="py-3.5 px-6 font-bold text-slate-800 flex items-center gap-2">
+                                    💻 Windows • Chrome <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-blue-50 text-blue-650">Current Device</span>
+                                  </td>
+                                  <td className="py-3.5 px-4 text-slate-500">Noida, India</td>
+                                  <td className="py-3.5 px-4 text-slate-500">103.21.45.78</td>
+                                  <td className="py-3.5 px-4 text-slate-500">Just now</td>
+                                  <td className="py-3.5 px-4">
+                                    <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-50 text-emerald-650">Active</span>
+                                  </td>
+                                  <td className="py-3.5 px-4 text-center">—</td>
+                                </tr>
+                                <tr className="hover:bg-slate-50/50 transition-colors">
+                                  <td className="py-3.5 px-6 font-bold text-slate-800">
+                                    📱 Android • Mobile App
+                                  </td>
+                                  <td className="py-3.5 px-4 text-slate-500">Ghaziabad, India</td>
+                                  <td className="py-3.5 px-4 text-slate-500">103.21.45.91</td>
+                                  <td className="py-3.5 px-4 text-slate-500">2 hours ago</td>
+                                  <td className="py-3.5 px-4">
+                                    <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-50 text-emerald-650">Active</span>
+                                  </td>
+                                  <td className="py-3.5 px-4 text-center">
+                                    <button className="px-2.5 py-1 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded text-[9.5px] font-black transition-all">Log Out</button>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                          
+                          <button className="w-full text-center text-blue-650 hover:text-blue-500 font-bold text-[10px] py-3.5 border-t border-slate-100">
+                            View All Sessions (3) ∨
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Right Overview panel */}
+                      <div className="lg:col-span-4 space-y-6">
+                        {/* Security Overview Card */}
+                        <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between items-center text-center h-[280px]">
+                          <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-3xl shadow-sm">
+                            🛡️
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-black text-slate-800">Your account is secure</h4>
+                            <p className="text-[10px] text-slate-400 font-bold mt-1">All security features are active.</p>
+                          </div>
+                          
+                          <div className="w-full space-y-2 text-[9.5px] text-slate-505 font-bold text-left pt-2 border-t border-slate-50">
+                            <div className="flex justify-between">
+                              <span>Password</span>
+                              <span className="text-emerald-600">Strong</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Biometric Login</span>
+                              <span className="text-emerald-600">Enabled</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>2FA Authentication</span>
+                              <span className="text-emerald-600">Enabled</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Active Sessions</span>
+                              <span className="text-slate-700">2 Active</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Security Tip Box */}
+                        <div className="bg-blue-50/50 p-5 rounded-3xl border border-blue-150 shadow-sm flex items-start gap-3 text-xs font-semibold text-slate-700 h-[160px]">
+                          <span className="text-xl">🔒</span>
+                          <div className="space-y-1">
+                            <h4 className="font-black text-blue-900 text-xs">Security Tip</h4>
+                            <p className="text-[9.5px] text-blue-800/80 leading-relaxed font-bold">Enable all security features to keep your account protected from unauthorized access.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ========================================================== */}
+                  {/* OTHER MOCK SETTINGS SUB-TABS */}
+                  {/* ========================================================== */}
+                  {['notifications', 'language', 'theme', 'payment', 'printer'].includes(settingsSubTab) && (
+                    <div className="bg-white p-8 rounded-3xl border border-slate-150 shadow-sm text-center py-20 text-slate-400 font-bold space-y-2">
+                      <span className="text-3xl block">⚙️</span>
+                      <p>Settings tab {settingsSubTab} panel configuration matches theme systems.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Bottom Support Banner */}
+              <div className="flex flex-wrap justify-between items-center gap-4 p-4 rounded-3xl border border-slate-150 bg-white shadow-sm text-xs font-semibold text-slate-505">
+                <div className="flex items-center gap-3">
+                  <span className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center text-blue-650 text-base shadow-sm">ℹ️</span>
                   <div>
-                    <label className="block text-slate-400 font-semibold mb-1">Current Password</label>
-                    <input type="password" placeholder="••••••••" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
-                  </div>
-                  <div>
-                    <label className="block text-slate-400 font-semibold mb-1">New Password</label>
-                    <input type="password" placeholder="••••••••" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
-                  </div>
-                  <div>
-                    <label className="block text-slate-400 font-semibold mb-1">Confirm New Password</label>
-                    <input type="password" placeholder="••••••••" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+                    <span className="font-bold text-slate-800 block leading-tight">Need Help?</span>
+                    <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Contact our support team for any assistance with settings.</span>
                   </div>
                 </div>
-                <button className="px-4 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl font-bold transition-all cursor-pointer">
-                  Change Password
+                <button className="px-5 py-2.5 bg-white hover:bg-slate-50 text-blue-650 border border-blue-200 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                  Contact Support →
                 </button>
-              </div>
-
-              {/* Toggles settings options layout */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 space-y-4">
-                  <h3 className="text-sm font-bold text-white tracking-wide">Biometric Login</h3>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-bold text-white">Fingerprint Login</p>
-                      <p className="text-[10px] text-slate-500 mt-0.5">Login quickly using fingerprint sensor.</p>
-                    </div>
-                    <span className="text-blue-550 font-bold uppercase text-[10px]">Enabled</span>
-                  </div>
-                  <div className="flex justify-between items-center border-t border-slate-850 pt-3">
-                    <div>
-                      <p className="font-bold text-white">Face ID Login</p>
-                      <p className="text-[10px] text-slate-500 mt-0.5">Login using face recognition.</p>
-                    </div>
-                    <span className="text-blue-550 font-bold uppercase text-[10px]">Enabled</span>
-                  </div>
-                </div>
-
-                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 space-y-4">
-                  <h3 className="text-sm font-bold text-white tracking-wide">Two-Factor Authentication (2FA)</h3>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-bold text-white">2FA Authentication</p>
-                      <p className="text-[10px] text-slate-500 mt-0.5">Add an extra layer of security to your account.</p>
-                    </div>
-                    <span className="text-emerald-450 font-bold uppercase text-[10px]">Enabled</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sessions Management devices table */}
-              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 overflow-x-auto text-xs">
-                <h3 className="text-sm font-bold text-white tracking-wide mb-4">Session Management</h3>
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase">
-                      <th className="pb-3">Device</th>
-                      <th className="pb-3">Location</th>
-                      <th className="pb-3">IP Address</th>
-                      <th className="pb-3">Last Active</th>
-                      <th className="pb-3">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-850">
-                    <tr className="hover:bg-slate-900/20 transition-all">
-                      <td className="py-4 font-bold text-white">Windows • Chrome</td>
-                      <td className="py-4 text-slate-400">Noida, India</td>
-                      <td className="py-4 text-slate-400">103.21.45.78</td>
-                      <td className="py-4 text-slate-450">Just now</td>
-                      <td className="py-4 text-emerald-450 font-bold">Active</td>
-                    </tr>
-                    <tr className="hover:bg-slate-900/20 transition-all">
-                      <td className="py-4 font-bold text-white">Android • Mobile App</td>
-                      <td className="py-4 text-slate-400">Ghaziabad, India</td>
-                      <td className="py-4 text-slate-400">103.21.45.91</td>
-                      <td className="py-4 text-slate-450">2 hours ago</td>
-                      <td className="py-4 text-emerald-450 font-bold">Active</td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
             </div>
           )}

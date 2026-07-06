@@ -7523,69 +7523,336 @@ export default function FranchisePortal() {
           )}
 
           {activeTab === "business_profile" && (
-            <div className="space-y-6 text-slate-100 pb-10">
-              {/* Header */}
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">Franchise Profile Dashboard</h2>
-                  <p className="text-xs text-slate-450 mt-1">Overview of your franchise business information and status.</p>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Business Profile</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Franchise Profile</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Franchise Profile Dashboard</h2>
+                  <p className="text-xs text-slate-555 mt-1">Overview of your franchise business information and status.</p>
                 </div>
-                <button className="px-4 py-2 bg-blue-600 hover:bg-blue-550 text-white rounded-xl text-xs font-bold cursor-pointer">
-                  Edit Profile
+                <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                  ✏️ Edit Profile
                 </button>
               </div>
 
-              {/* Profile split summary layout */}
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-2 bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 flex gap-4 items-center">
-                  <div className="w-16 h-16 bg-blue-600/10 border border-blue-500/25 rounded-2xl flex items-center justify-center text-blue-400 text-xl font-bold">RM</div>
-                  <div>
-                    <h3 className="text-base font-black text-white">Roy Motors</h3>
-                    <p className="text-[10px] text-blue-450 font-bold">GMF12345</p>
-                    <p className="text-[10px] text-slate-500 mt-1">📍 Sector 45, Noida, Uttar Pradesh</p>
+              {/* 4 Vertical Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* Franchise Info Card */}
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">Franchise Information</span>
+                    <span className="text-slate-400">ℹ️</span>
                   </div>
+                  
+                  <div className="flex flex-col items-center gap-3 my-2 text-center">
+                    <div className="w-16 h-16 rounded-full overflow-hidden border border-slate-100 bg-slate-50 shadow-sm flex-shrink-0">
+                      <img src="https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=200" alt="Roy Motors workshop" className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-slate-800">Roy Motors</h4>
+                      <p className="text-[9px] text-blue-600 font-bold uppercase">GMF12345</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-[9.5px] text-slate-505 font-semibold">
+                    <div className="flex items-start gap-1.5">
+                      <span>📍</span>
+                      <span>123, Green Park Avenue, Sector 45, Noida, UP - 201301</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span>📞</span>
+                      <span>+91 98765 43210</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span>✉️</span>
+                      <span>roymotors@gmail.com</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span>📅</span>
+                      <span>Joined on: 15 Feb 2024</span>
+                    </div>
+                  </div>
+
+                  <button className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50">
+                    View Full Details →
+                  </button>
                 </div>
 
-                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs">
-                  <span className="text-[10px] text-slate-550 uppercase">Membership Status</span>
-                  <p className="text-sm font-bold text-white mt-1.5">Premium Member</p>
-                  <p className="text-[9px] text-emerald-455 mt-0.5">Valid till: 15 Feb 2026</p>
+                {/* Membership Status Card */}
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">Membership Status</span>
+                    <span className="text-slate-400">👑</span>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-2 my-2 text-center">
+                    <div className="w-11 h-11 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 text-lg shadow-sm">
+                      🛡️
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-slate-800">Premium Member</h4>
+                      <p className="text-[8.5px] text-emerald-600 font-bold">Valid Till: 15 Feb 2026</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3.5 text-[9.5px] text-slate-505 font-semibold">
+                    <div className="flex justify-between items-center">
+                      <span>Plan Name</span>
+                      <span className="text-slate-800 font-bold">Premium Annual</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Member Since</span>
+                      <span className="text-slate-800 font-bold">15 Feb 2024</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Auto Renewal</span>
+                      <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-50 text-emerald-650">Enabled</span>
+                    </div>
+                  </div>
+
+                  <button className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50">
+                    Manage Subscription ⚙️
+                  </button>
                 </div>
 
-                <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 text-xs text-center">
-                  <span className="text-[10px] text-slate-550 uppercase">Franchise Rating</span>
-                  <p className="text-xl font-black text-amber-500 mt-1.5">⭐ 4.6</p>
-                  <p className="text-[9px] text-slate-550 mt-0.5">128 Reviews</p>
+                {/* Franchise Rating Card */}
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">Franchise Rating</span>
+                    <span className="text-slate-400">⭐</span>
+                  </div>
+
+                  <div className="flex items-center gap-4 my-1 justify-center">
+                    <p className="text-2xl font-black text-slate-800">4.6</p>
+                    <div>
+                      <span className="text-amber-500 text-xs">★★★★★</span>
+                      <p className="text-[8px] text-slate-400 font-bold">(128 Reviews)</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 text-[8.5px] text-slate-505 font-bold">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-9">5 Stars</span>
+                      <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
+                        <div className="bg-amber-500 h-full w-[70%]"></div>
+                      </div>
+                      <span className="w-6 text-right">70%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-9">4 Stars</span>
+                      <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
+                        <div className="bg-amber-500 h-full w-[20%]"></div>
+                      </div>
+                      <span className="w-6 text-right">20%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-9">3 Stars</span>
+                      <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
+                        <div className="bg-amber-500 h-full w-[7%]"></div>
+                      </div>
+                      <span className="w-6 text-right">7%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-9">2 Stars</span>
+                      <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
+                        <div className="bg-amber-500 h-full w-[2%]"></div>
+                      </div>
+                      <span className="w-6 text-right">2%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-9">1 Star</span>
+                      <div className="flex-1 bg-slate-100 h-1.5 rounded overflow-hidden">
+                        <div className="bg-amber-500 h-full w-[1%]"></div>
+                      </div>
+                      <span className="w-6 text-right">1%</span>
+                    </div>
+                  </div>
+
+                  <button className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50">
+                    View All Reviews →
+                  </button>
+                </div>
+
+                {/* KYC Status Card */}
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between h-[360px]">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <span className="text-[10px] text-slate-405 font-bold uppercase tracking-wider">KYC Status</span>
+                    <span className="text-slate-400">🛡️</span>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-2 my-2 text-center">
+                    <div className="w-11 h-11 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-lg shadow-sm">
+                      ✓
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-slate-800">Verified</h4>
+                      <p className="text-[8.5px] text-slate-400 font-bold">All documents verified</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-[9.5px] text-slate-505 font-semibold">
+                    <div className="flex justify-between items-center">
+                      <span>PAN Card</span>
+                      <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>GST Certificate</span>
+                      <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Address Proof</span>
+                      <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Bank Details</span>
+                      <span className="text-emerald-600 font-bold flex items-center gap-1">✓ Verified</span>
+                    </div>
+                  </div>
+
+                  <button className="w-full text-center text-blue-600 hover:text-blue-500 font-bold text-[10px] pt-2 border-t border-slate-50">
+                    View KYC Details →
+                  </button>
                 </div>
               </div>
 
-              {/* Franchise Details Table lists */}
-              <div className="bg-[#1E293B]/70 p-6 rounded-2xl border border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-                <div className="space-y-3">
-                  <h4 className="font-bold text-white">Franchise Overview</h4>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Franchise Name</span>
-                    <span className="text-white font-semibold">Roy Motors</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Established On</span>
-                    <span className="text-white font-semibold">10 Jan 2024</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Number of Staff</span>
-                    <span className="text-white font-semibold">18</span>
+              {/* Middle Section (Franchise Overview & Recent Activity) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Franchise Overview Card */}
+                <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100 mb-4">Franchise Overview</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-6">
+                      <div className="sm:col-span-7 space-y-3.5 text-xs text-slate-505 font-semibold">
+                        <div className="flex justify-between">
+                          <span>Franchise Name</span>
+                          <span className="text-slate-800 font-bold">Roy Motors</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Franchise ID</span>
+                          <span className="text-slate-800 font-bold">GMF12345</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Business Type</span>
+                          <span className="text-slate-800 font-bold">Car Washing & Detailing</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Established On</span>
+                          <span className="text-slate-800 font-bold">10 Jan 2024</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Number of Staff</span>
+                          <span className="text-slate-800 font-bold">18</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Service Locations</span>
+                          <span className="text-slate-800 font-bold">1</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Total Bookings</span>
+                          <span className="text-slate-800 font-bold">1,248</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Total Revenue</span>
+                          <span className="text-slate-800 font-bold">₹24,58,320</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Preferred Payment Mode</span>
+                          <span className="text-slate-800 font-bold">Online</span>
+                        </div>
+                      </div>
+                      
+                      <div className="sm:col-span-5 flex flex-col justify-between items-center gap-3">
+                        <div className="w-full h-40 rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                          <img src="https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=300" alt="workshop front" className="w-full h-full object-cover" />
+                        </div>
+                        <button className="w-full py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black text-blue-600 hover:bg-slate-100 flex items-center justify-center gap-1">
+                          ✏️ Update Information
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <h4 className="font-bold text-white">Documents KYC Status</h4>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400">GST Certificate</span>
-                    <span className="text-emerald-455 font-bold uppercase text-[9px]">Verified</span>
+                {/* Recent Activity Card */}
+                <div className="lg:col-span-5 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                      <h3 className="text-sm font-black text-slate-855">Recent Activity</h3>
+                      <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">View All Activity</button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {[
+                        { title: 'New booking received', desc: 'Booking ID #BK-7256 for 26 May 2025', time: '10:30 AM', icon: '📅', iconBg: 'bg-blue-50 text-blue-600' },
+                        { title: 'Payment received', desc: 'Payment of ₹2,450 received for booking #BK-7240', time: '09:45 AM', icon: '💵', iconBg: 'bg-emerald-50 text-emerald-600' },
+                        { title: 'New review received', desc: 'You received a 5 star review from Rahul Sharma', time: 'Yesterday', icon: '⭐', iconBg: 'bg-amber-50 text-amber-600' },
+                        { title: 'KYC documents verified', desc: 'Your KYC documents have been verified successfully', time: '24 May 2025', icon: '🛡️', iconBg: 'bg-purple-50 text-purple-650' },
+                        { title: 'New offer activated', desc: 'Flat 20% OFF on Premium Wash services', time: '23 May 2025', icon: '📢', iconBg: 'bg-orange-50 text-orange-600' }
+                      ].map((act, idx) => (
+                        <div key={idx} className="flex items-start gap-3.5 text-xs">
+                          <div className={`w-8 h-8 rounded-full ${act.iconBg} flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm`}>
+                            {act.icon}
+                          </div>
+                          <div className="flex-1">
+                            <span className="font-bold text-slate-805 block leading-tight">{act.title}</span>
+                            <span className="text-[10px] text-slate-450 font-semibold block mt-0.5">{act.desc}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">{act.time}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Bank Details</span>
-                    <span className="text-emerald-455 font-bold uppercase text-[9px]">Verified</span>
+                </div>
+              </div>
+
+              {/* Bottom Metrics overview row */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Bookings</span>
+                    <p className="text-xl font-black text-slate-805 mt-1">1,248</p>
+                    <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
+                  </div>
+                  <div className="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-650 text-base shadow-sm">
+                    📅
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Revenue</span>
+                    <p className="text-xl font-black text-slate-850 mt-1">₹24,58,320</p>
+                    <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
+                  </div>
+                  <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-base shadow-sm">
+                    ₹
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Customers</span>
+                    <p className="text-xl font-black text-slate-855 mt-1">982</p>
+                    <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
+                  </div>
+                  <div className="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-650 text-base shadow-sm">
+                    👥
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Repeat Customers</span>
+                    <p className="text-xl font-black text-slate-855 mt-1">65%</p>
+                    <p className="text-[9px] text-slate-400 font-bold mt-1">This Month</p>
+                  </div>
+                  <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-base shadow-sm">
+                    🔄
                   </div>
                 </div>
               </div>

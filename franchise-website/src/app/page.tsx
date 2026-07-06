@@ -3122,7 +3122,7 @@ export default function FranchisePortal() {
                               <button
                                 onClick={() => handleUpdateBookingStatus(b._id, 'in_progress')}
                                 disabled={actionLoading === b._id}
-                                className="flex-1 md:flex-none px-3 py-1.5 bg-blue-650 hover:bg-blue-600 text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 transition-all shadow-sm"
+                                className="flex-1 md:flex-none px-3 py-1.5 bg-blue-600 hover:bg-blue-600 text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 transition-all shadow-sm"
                               >
                                 Start Ongoing
                               </button>
@@ -4215,7 +4215,7 @@ export default function FranchisePortal() {
                 </div>
                 <button 
                   onClick={() => setShowAddStaffModal(true)}
-                  className="px-4 py-2.5 bg-blue-655 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
                 >
                   <span>➕</span> Add New Staff
                 </button>
@@ -4674,7 +4674,7 @@ export default function FranchisePortal() {
               <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
                 <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
                   <h3 className="text-sm font-black text-slate-850">Mark Attendance</h3>
-                  <button className="px-3.5 py-2 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-[10px] font-black transition-all flex items-center gap-1">
+                  <button className="px-3.5 py-2 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-[10px] font-black transition-all flex items-center gap-1">
                     🔄 Refresh
                   </button>
                 </div>
@@ -5869,7 +5869,7 @@ export default function FranchisePortal() {
                   <p className="text-xs text-slate-550 mt-1">Manage your wallet balance, withdraw funds and track settlements.</p>
                 </div>
                 <div className="flex gap-3">
-                  <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
                     <span>➕</span> Withdraw
                   </button>
                   <button className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
@@ -6350,7 +6350,7 @@ export default function FranchisePortal() {
                   <p className="text-xs text-slate-555 mt-1">Manage and track all your invoices in one place.</p>
                 </div>
                 <div className="flex gap-3">
-                  <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
                     <span>➕</span> Create Invoice
                   </button>
                   <button className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-55 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
@@ -6568,7 +6568,7 @@ export default function FranchisePortal() {
                   <h2 className="text-2xl font-black text-slate-900 tracking-wide">Coupon Management</h2>
                   <p className="text-xs text-slate-555 mt-1">Create, manage and track all your coupons.</p>
                 </div>
-                <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
                   ➕ Create Coupon
                 </button>
               </div>
@@ -6795,7 +6795,7 @@ export default function FranchisePortal() {
                   >
                     🎫 Coupon Management
                   </button>
-                  <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                  <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
                     ➕ Create Offer
                   </button>
                 </div>
@@ -7348,7 +7348,7 @@ export default function FranchisePortal() {
                   <h2 className="text-2xl font-black text-slate-900 tracking-wide">Complaint Dashboard</h2>
                   <p className="text-xs text-slate-555 mt-1">Track and manage all complaints raised by customers.</p>
                 </div>
-                <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
                   ➕ Raise New Complaint
                 </button>
               </div>
@@ -7985,7 +7985,7 @@ export default function FranchisePortal() {
                     </div>
                     <button 
                       onClick={() => setProfileSubTab("details")} 
-                      className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
                     >
                       ✏️ Edit Profile
                     </button>
@@ -8337,7 +8337,7 @@ export default function FranchisePortal() {
                     </div>
                     <button 
                       onClick={() => setProfileSubTab("dashboard")} 
-                      className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
                     >
                       💾 Save Changes
                     </button>
@@ -8529,7 +8529,7 @@ export default function FranchisePortal() {
                     </div>
                     <button 
                       onClick={() => setProfileSubTab("dashboard")} 
-                      className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
                     >
                       💾 Save Changes
                     </button>
@@ -8666,7 +8666,7 @@ export default function FranchisePortal() {
                       <h2 className="text-2xl font-black text-slate-900 tracking-wide">Gallery Management</h2>
                       <p className="text-xs text-slate-555 mt-1">Manage and showcase your business visuals.</p>
                     </div>
-                    <button className="px-4 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
+                    <button className="px-4 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1.5">
                       ➕ Add New Images
                     </button>
                   </div>
@@ -9153,7 +9153,7 @@ export default function FranchisePortal() {
                     <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Our support team is available to assist you with any queries.</span>
                   </div>
                 </div>
-                <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1">
                   Contact Support Team →
                 </button>
               </div>
@@ -9318,7 +9318,7 @@ export default function FranchisePortal() {
                       <button className="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-bold shadow-sm transition-all cursor-pointer">
                         Cancel
                       </button>
-                      <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all cursor-pointer">
+                      <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all cursor-pointer">
                         💾 Save Changes
                       </button>
                     </div>
@@ -9449,7 +9449,7 @@ export default function FranchisePortal() {
                     </div>
                   </div>
 
-                  <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Save Bank Details</button>
+                  <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Save Bank Details</button>
                 </div>
               )}
 
@@ -9505,7 +9505,7 @@ export default function FranchisePortal() {
                       <input type="password" placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
                     </div>
                   </div>
-                  <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Change Password</button>
+                  <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Change Password</button>
                 </div>
               )}
 
@@ -9695,7 +9695,7 @@ export default function FranchisePortal() {
                         </div>
 
                         <div className="flex justify-end pt-3">
-                          <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm flex items-center gap-1.5">
+                          <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm flex items-center gap-1.5">
                             💾 Save Changes
                           </button>
                         </div>
@@ -9983,7 +9983,7 @@ export default function FranchisePortal() {
                   setSelectedVehicleDetails(null);
                   setEditingVehicle(selectedVehicleDetails);
                 }}
-                className="flex-1 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
+                className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
               >
                 ✏️ Edit Vehicle
               </button>
@@ -10043,7 +10043,7 @@ export default function FranchisePortal() {
                   setSelectedServiceDetails(null);
                   setEditingService(selectedServiceDetails);
                 }}
-                className="flex-1 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
+                className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
               >
                 ✏️ Edit Service
               </button>
@@ -10139,7 +10139,7 @@ export default function FranchisePortal() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
+                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
                 >
                   Save Changes
                 </button>
@@ -10219,7 +10219,7 @@ export default function FranchisePortal() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
+                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
                 >
                   Save Changes
                 </button>
@@ -10284,7 +10284,7 @@ export default function FranchisePortal() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
+                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center shadow-sm"
                 >
                   Save Changes
                 </button>

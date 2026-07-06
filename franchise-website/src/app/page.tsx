@@ -7789,6 +7789,187 @@ export default function FranchisePortal() {
             </div>
           )}
 
+          {activeTab === "support" && (
+            <div className="space-y-6 text-slate-800 bg-[#F8FAFC] p-8 rounded-3xl shadow-sm border border-slate-100 pb-10">
+              {/* Breadcrumbs & Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                    <span>Support</span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-600">Support Center</span>
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-wide">Support Center</h2>
+                  <p className="text-xs text-slate-555 mt-1">We're here to help! Choose a support option or find answers to your questions.</p>
+                </div>
+              </div>
+
+              {/* 4 contact options cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between items-center text-center h-48">
+                  <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center text-purple-650 text-xl shadow-sm">
+                    ❓
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-slate-850">FAQ</h4>
+                    <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Find answers to common questions and issues.</p>
+                  </div>
+                  <button className="px-5 py-1.5 bg-white border border-purple-200 hover:bg-purple-50 text-purple-650 rounded-xl text-[10px] font-bold transition-all shadow-sm">
+                    View FAQs →
+                  </button>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between items-center text-center h-48">
+                  <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-650 text-xl shadow-sm">
+                    🎫
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-slate-855">Raise Ticket</h4>
+                    <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Facing an issue? Raise a ticket and our team will assist you.</p>
+                  </div>
+                  <button className="px-5 py-1.5 bg-white border border-emerald-200 hover:bg-emerald-50 text-emerald-655 rounded-xl text-[10px] font-bold transition-all shadow-sm">
+                    Raise Ticket →
+                  </button>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between items-center text-center h-48">
+                  <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-650 text-xl shadow-sm">
+                    💬
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-slate-850">Live Chat</h4>
+                    <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Chat live with our support team for immediate help.</p>
+                  </div>
+                  <div className="space-y-1">
+                    <button className="px-5 py-1.5 bg-white border border-blue-200 hover:bg-blue-50 text-blue-655 rounded-xl text-[10px] font-bold transition-all shadow-sm">
+                      Start Live Chat →
+                    </button>
+                    <p className="text-[8px] text-emerald-600 font-bold flex items-center justify-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Online</p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between items-center text-center h-48">
+                  <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-600 text-xl shadow-sm">
+                    📞
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-slate-850">Call Support</h4>
+                    <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Speak with our support executives over the phone.</p>
+                  </div>
+                  <div className="space-y-1 w-full">
+                    <button className="w-full py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[10px] font-black transition-all shadow-sm flex items-center justify-center gap-1">
+                      📞 Call Now
+                    </button>
+                    <p className="text-[9px] text-slate-800 font-bold mt-1">+91 98765 43210</p>
+                    <p className="text-[7.5px] text-slate-400 font-bold">Mon - Sat | 9:00 AM - 7:00 PM</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Middle Section (Frequently Asked Questions Left, My Support Tickets & Support Hours Right) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* FAQs Card */}
+                <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                      <h3 className="text-sm font-black text-slate-850">Frequently Asked Questions</h3>
+                      <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">View All FAQs →</button>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {[
+                        'How can I book a service?',
+                        'How do I make a payment?',
+                        'Can I reschedule or cancel a booking?',
+                        'How do I track my service status?',
+                        'How do I apply a coupon or offer?',
+                        'What payment methods are accepted?',
+                        'How can I update my profile or password?'
+                      ].map((faq, idx) => (
+                        <div key={idx} className="p-3 bg-slate-50/50 rounded-2xl border border-slate-100 flex justify-between items-center cursor-pointer hover:bg-slate-100/50 transition-colors">
+                          <span className="font-bold text-slate-800 text-[11px]">{faq}</span>
+                          <span className="text-slate-400 text-xs">∨</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column Cards */}
+                <div className="lg:col-span-5 space-y-6">
+                  {/* My Support Tickets Card */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100">
+                        <h3 className="text-sm font-black text-slate-855">My Support Tickets</h3>
+                        <button className="text-xs text-blue-600 hover:text-blue-500 font-bold">View All →</button>
+                      </div>
+
+                      <div className="space-y-3">
+                        {[
+                          { id: '#TKT-2025-0578', title: 'Payment not refunded', date: 'Raised on: 25 May 2025, 10:30 AM', status: 'Open', statusBadge: 'bg-emerald-50 text-emerald-600' },
+                          { id: '#TKT-2025-0561', title: 'Unable to book a service', date: 'Raised on: 24 May 2025, 04:15 PM', status: 'In Progress', statusBadge: 'bg-orange-50 text-orange-600' },
+                          { id: '#TKT-2025-0542', title: 'App login issue', date: 'Raised on: 22 May 2025, 11:20 AM', status: 'Closed', statusBadge: 'bg-slate-100 text-slate-500' }
+                        ].map((tkt, idx) => (
+                          <div key={idx} className="p-3 bg-slate-50/30 hover:bg-slate-50 rounded-2xl border border-slate-100 flex justify-between items-center cursor-pointer transition-colors">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-slate-800 text-xs">{tkt.id}</span>
+                                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${tkt.statusBadge}`}>{tkt.status}</span>
+                              </div>
+                              <p className="text-[10px] text-slate-800 font-bold mt-1">{tkt.title}</p>
+                              <p className="text-[9px] text-slate-400 font-bold mt-0.5">{tkt.date}</p>
+                            </div>
+                            <span className="text-slate-400 text-xs">›</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Support Hours Card */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
+                    <div className="space-y-3 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-slate-500">⏱️</span>
+                        <h4 className="text-xs font-black text-slate-850">Support Hours</h4>
+                      </div>
+                      <div className="space-y-2 text-[9px] text-slate-500 font-bold">
+                        <div>
+                          <p className="text-slate-800">Monday - Saturday</p>
+                          <p className="text-slate-400 mt-0.5">9:00 AM - 7:00 PM</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-800">Sunday</p>
+                          <p className="text-slate-400 mt-0.5">10:00 AM - 5:00 PM</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Headphones Illustration Icon */}
+                    <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-4xl shadow-sm">
+                      🎧
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Support Footer Banner */}
+              <div className="flex flex-wrap justify-between items-center gap-4 p-4 rounded-3xl border border-slate-150 bg-white shadow-sm text-xs font-semibold text-slate-505">
+                <div className="flex items-center gap-3">
+                  <span className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center text-purple-650 text-base shadow-sm">🛡️</span>
+                  <div>
+                    <span className="font-bold text-slate-800 block leading-tight">Still need help?</span>
+                    <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">Our support team is available to assist you with any queries.</span>
+                  </div>
+                </div>
+                <button className="px-5 py-2.5 bg-blue-650 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                  Contact Support Team →
+                </button>
+              </div>
+            </div>
+          )}
+
           {activeTab === "profile" && (
             <div className="space-y-6 text-slate-100 pb-10">
               <div>

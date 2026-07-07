@@ -588,17 +588,15 @@ export default function FranchisePortal() {
 
   // Update URL query parameter when activeTab changes
   useEffect(() => {
-    if (isAuthenticated) {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("tab") !== activeTab) {
-        if (activeTab === "dashboard") {
-          window.history.pushState(null, "", window.location.pathname);
-        } else {
-          window.history.pushState(null, "", `?tab=${activeTab}`);
-        }
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("tab") !== activeTab) {
+      if (activeTab === "dashboard") {
+        window.history.pushState(null, "", window.location.pathname);
+      } else {
+        window.history.pushState(null, "", `?tab=${activeTab}`);
       }
     }
-  }, [activeTab, isAuthenticated]);
+  }, [activeTab]);
 
   // Fetch data when authenticated
   useEffect(() => {

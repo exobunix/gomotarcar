@@ -1672,7 +1672,7 @@ const fetchDashboardData = async () => {
                     <span className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center text-purple-650 text-base shadow-sm">📅</span>
                   </div>
                   <div className="mt-2">
-                    <p className="text-3xl font-black text-slate-800">{stats.todayBookings || 24}</p>
+                    <p className="text-3xl font-black text-slate-800">{stats.todayBookings}</p>
                     <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ 20% <span className="text-slate-400 font-semibold">vs yesterday</span></p>
                   </div>
                   <div className="w-full h-8 mt-2">
@@ -1706,7 +1706,7 @@ const fetchDashboardData = async () => {
                     <span className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-650 text-base shadow-sm">₹</span>
                   </div>
                   <div className="mt-2">
-                    <p className="text-2xl font-black text-slate-805">₹{(stats.monthlyRevenue || 245680).toLocaleString()}</p>
+                    <p className="text-2xl font-black text-slate-805">₹{stats.monthlyRevenue.toLocaleString()}</p>
                     <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ 18% <span className="text-slate-400 font-semibold">vs last month</span></p>
                   </div>
                   <div className="w-full h-8 mt-2">
@@ -1723,7 +1723,7 @@ const fetchDashboardData = async () => {
                     <span className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-base shadow-sm">💳</span>
                   </div>
                   <div className="mt-2">
-                    <p className="text-2xl font-black text-slate-855">₹{(stats.pendingPayments || 48320).toLocaleString()}</p>
+                    <p className="text-2xl font-black text-slate-855">₹{stats.pendingPayments.toLocaleString()}</p>
                     <p className="text-[9px] text-rose-500 font-bold mt-1">↓ 8% <span className="text-slate-400 font-semibold">vs last month</span></p>
                   </div>
                   <div className="w-full h-8 mt-2">
@@ -1756,11 +1756,11 @@ const fetchDashboardData = async () => {
                     <span className="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center text-blue-655 text-sm shadow-sm">👤</span>
                   </div>
                   <div>
-                    <p className="text-2xl font-black text-slate-850">36</p>
+                    <p className="text-2xl font-black text-slate-850">{stats.newCustomers}</p>
                     <p className="text-[9px] text-emerald-600 font-black mt-1">↑ 15% <span className="text-slate-400 font-semibold">vs last month</span></p>
                   </div>
                   <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-blue-600 h-full w-[65%] rounded-full"></div>
+                    <div className="bg-blue-600 h-full rounded-full" style={{ width: `${Math.min(100, (stats.newCustomers / 50) * 100)}%` }}></div>
                   </div>
                 </div>
 
@@ -1770,11 +1770,11 @@ const fetchDashboardData = async () => {
                     <span className="w-7 h-7 bg-amber-50 rounded-lg flex items-center justify-center text-amber-650 text-sm shadow-sm">⭐</span>
                   </div>
                   <div>
-                    <p className="text-2xl font-black text-slate-855">4.7 / 5</p>
+                    <p className="text-2xl font-black text-slate-855">{stats.rating} / 5</p>
                     <p className="text-[9px] text-emerald-600 font-black mt-1">↑ 0.3 <span className="text-slate-400 font-semibold">vs last month</span></p>
                   </div>
                   <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-amber-500 h-full w-[94%] rounded-full"></div>
+                    <div className="bg-amber-500 h-full rounded-full" style={{ width: `${(stats.rating / 5) * 100}%` }}></div>
                   </div>
                 </div>
 
@@ -1784,11 +1784,11 @@ const fetchDashboardData = async () => {
                     <span className="w-7 h-7 bg-rose-50 rounded-lg flex items-center justify-center text-rose-600 text-sm shadow-sm">⚠️</span>
                   </div>
                   <div>
-                    <p className="text-2xl font-black text-slate-855">5</p>
+                    <p className="text-2xl font-black text-slate-855">{stats.pendingComplaints}</p>
                     <p className="text-[9px] text-rose-600 font-black mt-1">↓ 10% <span className="text-slate-400 font-semibold">vs last month</span></p>
                   </div>
                   <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-rose-500 h-full w-[25%] rounded-full"></div>
+                    <div className="bg-rose-500 h-full rounded-full" style={{ width: `${Math.min(100, (stats.pendingComplaints / 10) * 100)}%` }}></div>
                   </div>
                 </div>
               </div>
@@ -1804,7 +1804,7 @@ const fetchDashboardData = async () => {
                     </select>
                   </div>
                   <div className="my-2">
-                    <p className="text-lg font-black text-slate-800">₹2,45,680</p>
+                    <p className="text-lg font-black text-slate-800">₹{stats.monthlyRevenue.toLocaleString()}</p>
                   </div>
                   <div className="relative h-32 w-full flex items-end">
                     <svg className="w-full h-full text-blue-600" viewBox="0 0 100 50" preserveAspectRatio="none" fill="none">
@@ -1843,32 +1843,49 @@ const fetchDashboardData = async () => {
 
                   <div className="flex flex-col items-center py-2">
                     <div className="relative w-20 h-20 flex items-center justify-center">
-                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#22C55E" strokeWidth="4.5" strokeDasharray="67 33" strokeDashoffset="0" />
-                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#3B82F6" strokeWidth="4.5" strokeDasharray="20 80" strokeDashoffset="-67" />
-                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#EF4444" strokeWidth="4.5" strokeDasharray="13 87" strokeDashoffset="-87" />
-                      </svg>
+{(() => {
+                        const total = stats.totalBookings || 1;
+                        const completedPercent = Math.round((stats.completedBookings / total) * 100);
+                        const activePercent = Math.round((stats.activeBookings / total) * 100);
+                        const cancelledPercent = Math.max(0, 100 - completedPercent - activePercent);
+                        return (
+                          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <circle cx="18" cy="18" r="15.915" fill="none" stroke="#22C55E" strokeWidth="4.5" strokeDasharray={`${completedPercent} ${100 - completedPercent}`} strokeDashoffset="0" />
+                            <circle cx="18" cy="18" r="15.915" fill="none" stroke="#3B82F6" strokeWidth="4.5" strokeDasharray={`${activePercent} ${100 - activePercent}`} strokeDashoffset={-completedPercent} />
+                            <circle cx="18" cy="18" r="15.915" fill="none" stroke="#EF4444" strokeWidth="4.5" strokeDasharray={`${cancelledPercent} ${100 - cancelledPercent}`} strokeDashoffset={-(completedPercent + activePercent)} />
+                          </svg>
+                        );
+                      })()}
                       <div className="absolute text-center">
-                        <p className="text-xs font-black text-slate-800">240</p>
+                        <p className="text-xs font-black text-slate-800">{stats.totalBookings}</p>
                         <p className="text-[5px] text-slate-400 uppercase font-black tracking-wider">Total</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-1 text-[8px] text-slate-505 font-bold">
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Completed</span>
-                      <span>160 (67%)</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Ongoing</span>
-                      <span>48 (20%)</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Cancelled</span>
-                      <span>32 (13%)</span>
-                    </div>
-                  </div>
+{(() => {
+                    const total = stats.totalBookings || 1;
+                    const completedPercent = Math.round((stats.completedBookings / total) * 100);
+                    const activePercent = Math.round((stats.activeBookings / total) * 100);
+                    const cancelledCount = Math.max(0, stats.totalBookings - stats.completedBookings - stats.activeBookings);
+                    const cancelledPercent = Math.max(0, 100 - completedPercent - activePercent);
+                    return (
+                      <div className="space-y-1 text-[8px] text-slate-500 font-bold">
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Completed</span>
+                          <span>{stats.completedBookings} ({completedPercent}%)</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Ongoing</span>
+                          <span>{stats.activeBookings} ({activePercent}%)</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Cancelled</span>
+                          <span>{cancelledCount} ({cancelledPercent}%)</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Customer Growth */}
@@ -1880,7 +1897,7 @@ const fetchDashboardData = async () => {
                     </select>
                   </div>
                   <div className="my-1">
-                    <p className="text-[11px] text-slate-500 font-bold"><span className="text-blue-650 text-sm font-black">+128</span> New Customers</p>
+                    <p className="text-[11px] text-slate-500 font-bold"><span className="text-blue-650 text-sm font-black">+{stats.newCustomers}</span> New Customers</p>
                   </div>
                   
                   <div className="relative h-28 w-full flex items-end justify-between px-1">

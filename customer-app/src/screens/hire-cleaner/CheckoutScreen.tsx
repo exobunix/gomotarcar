@@ -20,9 +20,9 @@ const timeSlots = [
 ];
 
 const serviceNames: Record<string, string> = {
-  basic: 'Basic Wash',
-  standard: 'Standard Wash',
-  premium: 'Premium Wash',
+  basic: 'Basic Plan',
+  premium: 'Premium Plan',
+  elite: 'Elite Plan',
 };
 
 const CheckoutScreen: React.FC<Props> = ({ navigation, route }) => {
@@ -95,26 +95,30 @@ const CheckoutScreen: React.FC<Props> = ({ navigation, route }) => {
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Card variant="elevated" padding={16} style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Booking Summary</Text>
+          <Text style={styles.summaryTitle}>Order Summary</Text>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Service</Text>
-            <Text style={styles.summaryValue}>{serviceNames[packageId]}</Text>
+            <Text style={styles.summaryLabel}>Plan Amount ({serviceNames[packageId]})</Text>
+            <Text style={styles.summaryValue}>₹{amount.toLocaleString('en-IN')}</Text>
           </View>
           {vehicle && (
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Vehicle</Text>
+              <Text style={styles.summaryLabel}>Vehicle Selected</Text>
               <Text style={styles.summaryValue}>{vehicle.vehicleNumber} ({vehicle.make})</Text>
             </View>
           )}
           {apartment && (
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Location</Text>
+              <Text style={styles.summaryLabel}>Service Location</Text>
               <Text style={styles.summaryValue}>{apartment.buildingName} - {apartment.unitNumber}</Text>
             </View>
           )}
-          <View style={[styles.summaryRow, styles.totalRow]}>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>GST (18%)</Text>
+            <Text style={styles.summaryValue}>₹{Math.round(amount * 0.18 * 100) / 100}</Text>
+          </View>
+          <View style={[styles.summaryRow, styles.totalRow, { borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingTop: 10, marginTop: 10 }]}>
             <Text style={styles.totalLabel}>Total Amount</Text>
-            <AmountDisplay amount={amount} size="lg" color={colors.primaryBlue} />
+            <Text style={{ fontSize: 18, fontWeight: '950', color: colors.primaryBlue }}>₹{(Math.round(amount * 1.18 * 100) / 100).toLocaleString('en-IN')}</Text>
           </View>
         </Card>
 
@@ -166,7 +170,7 @@ const CheckoutScreen: React.FC<Props> = ({ navigation, route }) => {
 
       <View style={styles.bottomBar}>
         <Button
-          title={`Pay ₹${amount} & Confirm`}
+          title={`Pay ₹${(Math.round(amount * 1.18 * 100) / 100).toLocaleString('en-IN')} & Confirm`}
           onPress={handleBook}
           size="lg"
           loading={loading}

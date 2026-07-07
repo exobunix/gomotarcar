@@ -15,9 +15,30 @@ interface Props {
 }
 
 const packages = [
-  { id: 'basic', name: 'Basic Wash', description: 'Exterior wash, windows, tyres', price: 149, icon: '🚿', type: 'basic' },
-  { id: 'standard', name: 'Standard Wash', description: 'Full exterior + interior vacuum', price: 299, icon: '🧹', type: 'standard' },
-  { id: 'premium', name: 'Premium Wash', description: 'Full exterior + interior + polish', price: 499, icon: '✨', type: 'premium' },
+  {
+    id: 'basic',
+    name: 'Basic Plan',
+    description: 'Exterior Cleaning • 4 Cleanings / Month',
+    features: ['Exterior Body Wash', 'Tyre & Rim Cleaning', 'Windows Cleaning'],
+    price: 599,
+    icon: '🚙',
+  },
+  {
+    id: 'premium',
+    name: 'Premium Plan',
+    description: 'Exterior + Interior • 4 Cleanings / Month',
+    features: ['Everything in Basic', 'Dashboard Cleaning', 'Vacuum Cleaning', 'Seat & Mat Cleaning'],
+    price: 1199,
+    icon: '🚘',
+  },
+  {
+    id: 'elite',
+    name: 'Elite Plan',
+    description: 'Complete Car Care • 4 Cleanings / Month',
+    features: ['Everything in Premium', 'Polish & Wax', 'Interior Deep Cleaning', 'Air Freshening'],
+    price: 1799,
+    icon: '✨',
+  },
 ];
 
 const PackageSelectionScreen: React.FC<Props> = ({ navigation, route }) => {

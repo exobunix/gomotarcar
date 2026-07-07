@@ -568,6 +568,30 @@ export default function FranchisePortal() {
     }
   };
 
+  // Synchronize activeTab state with URL hash routing
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "");
+      const validTabs = ["dashboard", "bookings", "customers", "vehicles", "services", "staff", "attendance", "inventory", "earnings", "wallet", "transactions", "invoices", "offers", "ratings", "complaints", "reports", "notifications", "support", "business_profile", "profile", "settings"];
+      if (validTabs.includes(hash)) {
+        setActiveTab(hash as any);
+      }
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    // Initialize tab from hash on load
+    handleHashChange();
+
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  // Update URL hash when activeTab changes
+  useEffect(() => {
+    if (activeTab && isAuthenticated) {
+      window.location.hash = activeTab;
+    }
+  }, [activeTab, isAuthenticated]);
+
   // Fetch data when authenticated
   useEffect(() => {
     if (isAuthenticated) {

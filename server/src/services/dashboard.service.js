@@ -651,7 +651,12 @@ class DashboardService {
     bookings.forEach(b => { bookingStats.total += b.count; if (b._id === 'completed') bookingStats.completed = b.count; else if (['booked', 'accepted', 'in_progress'].includes(b._id)) bookingStats.active += b.count; });
 
     return {
-      profile: franchise ? { name: franchise.franchiseName, owner: franchise.ownerName, type: franchise.type, verificationStatus: franchise.verificationStatus, commission: franchise.agreement?.commissionPercent || 0 } : null,
+      profile: franchise ? {
+        ...franchise.toObject(),
+        name: franchise.franchiseName,
+        owner: franchise.ownerName,
+        commission: franchise.agreement?.commissionPercent || 0
+      } : null,
       cleaners: { total: cleaners },
       bookings: bookingStats,
       revenue: { total: revenue[0]?.total || 0, count: revenue[0]?.count || 0, commission: franchise?.agreement?.commissionPercent ? Math.round((revenue[0]?.total || 0) * franchise.agreement.commissionPercent / 100) : 0 },

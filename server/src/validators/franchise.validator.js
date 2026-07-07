@@ -34,6 +34,7 @@ const createFranchiseSchema = Joi.object({
     endDate: Joi.date(),
   }).optional(),
   bankDetails: Joi.object({
+    bankName: Joi.string().allow('', null),
     accountHolder: Joi.string().allow('', null),
     accountNumber: Joi.string().allow('', null),
     ifscCode: Joi.string().allow('', null),
@@ -61,6 +62,7 @@ const updateFranchiseSchema = Joi.object({
   serviceZones: Joi.array().items(Joi.string().pattern(objectIdPattern)),
   isActive: Joi.boolean(),
   bankDetails: Joi.object({
+    bankName: Joi.string().allow('', null),
     accountHolder: Joi.string().allow('', null),
     accountNumber: Joi.string().allow('', null),
     ifscCode: Joi.string().allow('', null),
@@ -73,6 +75,14 @@ const updateFranchiseSchema = Joi.object({
     documentUrl: Joi.string().allow('', null),
   }).optional(),
   password: Joi.string().min(6).allow('', null),
+  logo: Joi.string().allow('', null),
+  documents: Joi.array().items(Joi.object({
+    _id: Joi.string().pattern(objectIdPattern).optional(),
+    type: Joi.string().required(),
+    fileUrl: Joi.string().required(),
+    status: Joi.string().valid('pending', 'verified', 'rejected').default('pending'),
+    verifiedAt: Joi.date().optional()
+  })).optional(),
 });
 
 const verifyFranchiseSchema = Joi.object({

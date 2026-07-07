@@ -80,10 +80,14 @@ const franchiseSchema = new mongoose.Schema({
     rating: { type: Number, default: 0 },
   },
   bankDetails: {
+    bankName: { type: String },
     accountHolder: { type: String },
     accountNumber: { type: String },
     ifscCode: { type: String },
     upiId: { type: String },
+  },
+  logo: {
+    type: String,
   },
 }, {
   timestamps: true,

@@ -275,7 +275,7 @@ class FranchiseService {
     const allowedFields = [
       'franchiseName', 'ownerName', 'phone', 'email',
       'address', 'type', 'servicesOffered', 'serviceZones',
-      'isActive', 'bankDetails',
+      'isActive', 'bankDetails', 'logo', 'documents',
     ];
     allowedFields.forEach((field) => {
       if (updates[field] !== undefined) {

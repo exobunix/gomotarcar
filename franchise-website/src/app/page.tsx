@@ -32,6 +32,34 @@ export default function FranchisePortal() {
   const [profileSubTab, setProfileSubTab] = useState<"dashboard" | "details" | "working_hours" | "gallery">("dashboard");
   const [settingsSubTab, setSettingsSubTab] = useState<"general" | "security" | "notifications" | "language" | "theme" | "payment" | "printer">("general");
   const [profileSection, setProfileSection] = useState<"personal" | "bank" | "documents" | "password">("personal");
+  // Profile Form States
+  const [personalName, setPersonalName] = useState("");
+  const [personalEmail, setPersonalEmail] = useState("");
+  const [personalPhone, setPersonalPhone] = useState("");
+  const [personalDob, setPersonalDob] = useState("15 Aug 1990");
+  const [personalGender, setPersonalGender] = useState("Male");
+  const [personalAddress, setPersonalAddress] = useState("");
+  const [personalCity, setPersonalCity] = useState("");
+  const [personalState, setPersonalState] = useState("");
+  const [personalPincode, setPersonalPincode] = useState("");
+  
+  const [bankName, setBankName] = useState("HDFC Bank");
+  const [bankAccountHolder, setBankAccountHolder] = useState("");
+  const [bankAccountNumber, setBankAccountNumber] = useState("");
+  const [bankIfscCode, setBankIfscCode] = useState("");
+  
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
+  const [documentsList, setDocumentsList] = useState<any[]>([
+    { type: 'PAN Card', file: 'PAN_RoyMotors.pdf', size: '142 KB', status: 'verified' },
+    { type: 'GST Certificate', file: 'GST_Certificate.pdf', size: '245 KB', status: 'verified' },
+    { type: 'Address Proof (Electricity Bill)', file: 'Electricity_Bill.pdf', size: '320 KB', status: 'verified' },
+    { type: 'Bank Details (Cancelled Cheque)', file: 'Cancelled_Cheque.pdf', size: '180 KB', status: 'verified' }
+  ]);
+
   // Auth/Register Toggle
   const [isRegisterMode, setIsRegisterMode] = useState(false);
 
@@ -553,7 +581,182 @@ export default function FranchisePortal() {
     }
   }, [isAuthenticated]);
 
-  const fetchDashboardData = async () => {
+  
+  // Synchronize input fields with fetched profile
+  useEffect(() => {
+    if (profile) {
+      setPersonalName(profile.franchiseName || "");
+      setPersonalEmail(profile.email || "");
+      setPersonalPhone(profile.phone || "");
+      setPersonalAddress(profile.address?.street || "");
+      setPersonalCity(profile.address?.city || "");
+      setPersonalState(profile.address?.state || "");
+      setPersonalPincode(profile.address?.pincode || "");
+      
+      setBankName(profile.bankDetails?.bankName || "HDFC Bank");
+      setBankAccountHolder(profile.bankDetails?.accountHolder || "");
+      setBankAccountNumber(profile.bankDetails?.accountNumber || "");
+      setBankIfscCode(profile.bankDetails?.ifscCode || "");
+      setUploadedLogo(profile.logo || null);
+
+      if (profile.documents && profile.documents.length > 0) {
+        setDocumentsList(profile.documents.map((d: any) => ({
+          _id: d._id,
+          type: d.type || "Document",
+          file: d.fileUrl || "file.pdf",
+          size: "250 KB",
+          status: d.status || "pending"
+        })));
+      }
+    }
+  }, [profile]);
+
+  const handleSavePersonalDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile?._id) return;
+    try {
+      const res = await api.put(`/franchise/${profile._id}`, {
+        franchiseName: personalName,
+        email: personalEmail,
+        phone: personalPhone.replace(/\s+/g, ''),
+        address: {
+          street: personalAddress,
+          city: personalCity,
+          state: personalState,
+          pincode: personalPincode
+        }
+      });
+      if (res.data?.success || res.data) {
+        alert("Personal details saved successfully!");
+        fetchDashboardData();
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Failed to save personal details: " + (err.response?.data?.error?.message || err.message));
+    }
+  };
+
+  const handleSaveBankDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile?._id) return;
+    try {
+      const res = await api.put(`/franchise/${profile._id}`, {
+        bankDetails: {
+          bankName: bankName,
+          accountHolder: bankAccountHolder,
+          accountNumber: bankAccountNumber,
+          ifscCode: bankIfscCode
+        }
+      });
+      if (res.data?.success || res.data) {
+        alert("Bank details saved successfully!");
+        fetchDashboardData();
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Failed to save bank details: " + (err.response?.data?.error?.message || err.message));
+    }
+  };
+
+  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      alert("New password and confirm password do not match!");
+      return;
+    }
+    try {
+      const res = await api.post("/auth/change-password", {
+        currentPassword,
+        newPassword
+      });
+      if (res.data?.success || res.data) {
+        alert("Password changed successfully!");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Failed to change password: " + (err.response?.data?.error?.message || err.message));
+    }
+  };
+
+  const handlePhotoUploadSubmit = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile?._id) return;
+    
+    // Convert to mock base64/URL or simple object URL
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Data = reader.result as string;
+      try {
+        const res = await api.put(`/franchise/${profile._id}`, {
+          logo: base64Data
+        });
+        if (res.data?.success || res.data) {
+          setUploadedLogo(base64Data);
+          alert("Profile picture uploaded successfully!");
+          fetchDashboardData();
+        }
+      } catch (err: any) {
+        console.error(err);
+        alert("Failed to upload photo.");
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handlePhotoRemoveSubmit = async () => {
+    if (!profile?._id) return;
+    try {
+      const res = await api.put(`/franchise/${profile._id}`, {
+        logo: ""
+      });
+      if (res.data?.success || res.data) {
+        setUploadedLogo(null);
+        alert("Profile picture removed successfully!");
+        fetchDashboardData();
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Failed to remove photo.");
+    }
+  };
+
+  const handleDocumentUploadSubmit = async (type: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile?._id) return;
+
+    try {
+      // Append document to franchise schema with status pending
+      const updatedDocs = [...(profile.documents || [])];
+      // Check if document of this type already exists, if so overwrite, else push
+      const idx = updatedDocs.findIndex((d: any) => d.type === type);
+      const newDoc = {
+        type,
+        fileUrl: file.name,
+        status: "pending"
+      };
+      if (idx >= 0) {
+        updatedDocs[idx] = newDoc;
+      } else {
+        updatedDocs.push(newDoc);
+      }
+
+      const res = await api.put(`/franchise/${profile._id}`, {
+        documents: updatedDocs
+      });
+      if (res.data?.success || res.data) {
+        alert(`${type} uploaded successfully! Set to pending verification by administrator.`);
+        fetchDashboardData();
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Failed to upload document.");
+    }
+  };
+
+const fetchDashboardData = async () => {
     try {
       const response = await api.get("/dashboard/franchise");
       if (response.data?.data) {
@@ -9083,25 +9286,27 @@ export default function FranchisePortal() {
               {profileSection === "personal" && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs font-semibold text-slate-700">
                   {/* Left Form Column */}
-                  <div className="lg:col-span-8 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-6">
+                  <form onSubmit={handleSavePersonalDetails} className="lg:col-span-8 bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-6">
                     {/* Profile Picture card */}
                     <div className="space-y-3.5">
                       <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Profile Picture</h3>
                       <div className="flex items-center gap-6">
                         <div className="relative w-20 h-20 rounded-full overflow-hidden border border-slate-200 bg-slate-900 shadow-sm flex items-center justify-center flex-shrink-0">
                           {/* Dark blue background avatar matching mockup */}
-                          <img src="https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=200" alt="Roy Motors" className="w-full h-full object-cover opacity-90" />
-                          <button className="absolute bottom-1 right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px] border border-white shadow-sm cursor-pointer">
+                          <img src={uploadedLogo || "https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=200"} alt="Roy Motors" className="w-full h-full object-cover opacity-90" />
+                          <label className="absolute bottom-1 right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px] border border-white shadow-sm cursor-pointer">
                             📷
-                          </button>
+                            <input type="file" onChange={handlePhotoUploadSubmit} className="hidden" accept="image/*" />
+                          </label>
                         </div>
                         <div className="space-y-2">
                           <p className="text-[10px] text-slate-400 font-bold">JPG, PNG or WEBP. Max size of 2MB.</p>
                           <div className="flex items-center gap-2">
-                            <button className="px-3.5 py-1.5 bg-white border border-blue-200 hover:bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black transition-all cursor-pointer shadow-sm">
+                            <label className="px-3.5 py-1.5 bg-white border border-blue-200 hover:bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black transition-all cursor-pointer shadow-sm text-center block">
                               Upload New Photo
-                            </button>
-                            <button className="px-3.5 py-1.5 bg-white border border-red-200 hover:bg-red-50 text-red-650 rounded-xl text-[10px] font-black transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                              <input type="file" onChange={handlePhotoUploadSubmit} className="hidden" accept="image/*" />
+                            </label>
+                            <button type="button" onClick={handlePhotoRemoveSubmit} className="px-3.5 py-1.5 bg-white border border-red-200 hover:bg-red-50 text-red-650 rounded-xl text-[10px] font-black transition-all cursor-pointer shadow-sm flex items-center gap-1">
                               🗑️ Remove Photo
                             </button>
                           </div>
@@ -9115,32 +9320,32 @@ export default function FranchisePortal() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-slate-455 font-bold mb-1.5">Full Name *</label>
-                          <input type="text" defaultValue="Roy Motors" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                          <input type="text" value={personalName} onChange={(e) => setPersonalName(e.target.value)} required className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                         </div>
                         <div>
                           <label className="block text-slate-455 font-bold mb-1.5">Email Address *</label>
-                          <input type="email" defaultValue="roymotors@gmail.com" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                          <input type="email" value={personalEmail} onChange={(e) => setPersonalEmail(e.target.value)} required className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="md:col-span-1">
                           <label className="block text-slate-455 font-bold mb-1.5">Mobile Number *</label>
-                          <input type="text" defaultValue="+91 98765 43210" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                          <input type="text" value={personalPhone} onChange={(e) => setPersonalPhone(e.target.value)} required className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                         </div>
                         <div className="md:col-span-1">
                           <label className="block text-slate-455 font-bold mb-1.5">Date of Birth</label>
                           <div className="relative">
-                            <input type="text" defaultValue="15 Aug 1990" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                            <input type="text" value={personalDob} onChange={(e) => setPersonalDob(e.target.value)} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                             <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">📅</span>
                           </div>
                         </div>
                         <div className="md:col-span-1">
                           <label className="block text-slate-455 font-bold mb-1.5">Gender</label>
-                          <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-805 font-bold focus:outline-none cursor-pointer">
-                            <option>Male</option>
-                            <option>Female</option>
-                            <option>Other</option>
+                          <select value={personalGender} onChange={(e) => setPersonalGender(e.target.value)} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-805 font-bold focus:outline-none cursor-pointer">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
                           </select>
                         </div>
                       </div>
@@ -9148,8 +9353,8 @@ export default function FranchisePortal() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-slate-455 font-bold mb-1.5">Nationality</label>
-                          <select className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none cursor-pointer">
-                            <option>Indian</option>
+                          <select value={personalGender} onChange={(e) => setPersonalGender(e.target.value)} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none cursor-pointer">
+                            <option value="Indian">Indian</option>
                           </select>
                         </div>
                       </div>
@@ -9157,38 +9362,38 @@ export default function FranchisePortal() {
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                         <div className="md:col-span-6">
                           <label className="block text-slate-455 font-bold mb-1.5">Address *</label>
-                          <textarea defaultValue="123, Green Park Avenue, Sector 45, Noida, Uttar Pradesh - 201301" rows={3} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                          <textarea value={personalAddress} onChange={(e) => setPersonalAddress(e.target.value)} required rows={3} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                         </div>
                         <div className="md:col-span-2">
                           <label className="block text-slate-455 font-bold mb-1.5">City</label>
-                          <input type="text" defaultValue="Noida" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                          <input type="text" value={personalCity} onChange={(e) => setPersonalCity(e.target.value)} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                         </div>
                         <div className="md:col-span-2">
                           <label className="block text-slate-455 font-bold mb-1.5">State</label>
-                          <input type="text" defaultValue="Uttar Pradesh" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                          <input type="text" value={personalState} onChange={(e) => setPersonalState(e.target.value)} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                         </div>
                         <div className="md:col-span-2">
                           <label className="block text-slate-455 font-bold mb-1.5">Pincode</label>
-                          <input type="text" defaultValue="201301" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                          <input type="text" value={personalPincode} onChange={(e) => setPersonalPincode(e.target.value)} className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                         </div>
                       </div>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">
-                      <button className="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-bold shadow-sm transition-all cursor-pointer">
+                      <button type="button" onClick={() => fetchDashboardData()} className="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-bold shadow-sm transition-all cursor-pointer">
                         Cancel
                       </button>
-                      <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all cursor-pointer">
+                      <button type="submit" className="px-5 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all cursor-pointer">
                         💾 Save Changes
                       </button>
                     </div>
-                  </div>
+                  </form>
 
                   {/* Right Column details */}
                   <div className="lg:col-span-4 space-y-6">
                     {/* Account Overview */}
                     <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700">
-                      <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100">Account Overview</h3>
+                      <h3 className="text-sm font-black text-slate-855 pb-2 border-b border-slate-100">Account Overview</h3>
                       <div className="space-y-3.5 pt-1">
                         <div className="flex justify-between items-center">
                           <span className="flex items-center gap-1.5 text-slate-400">🛡️ Account Type</span>
@@ -9196,11 +9401,11 @@ export default function FranchisePortal() {
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="flex items-center gap-1.5 text-slate-400">👤 Franchise Name</span>
-                          <span className="text-slate-800 font-bold">Roy Motors</span>
+                          <span className="text-slate-800 font-bold">{profile?.franchiseName || "Roy Motors"}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="flex items-center gap-1.5 text-slate-400">🆔 Franchise ID</span>
-                          <span className="text-blue-600 font-bold">GMF12345</span>
+                          <span className="text-blue-600 font-bold">{profile?.franchiseId || "GMF12345"}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="flex items-center gap-1.5 text-slate-400">⏱️ Member Since</span>
@@ -9208,14 +9413,16 @@ export default function FranchisePortal() {
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="flex items-center gap-1.5 text-slate-400">⚙️ Account Status</span>
-                          <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-50 text-emerald-650">Active</span>
+                          <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${profile?.isActive ? "bg-emerald-50 text-emerald-650" : "bg-rose-50 text-rose-650"}`}>
+                            {profile?.isActive ? "Active" : "Inactive"}
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     {/* Quick Actions */}
                     <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700">
-                      <h3 className="text-sm font-black text-slate-850 pb-2 border-b border-slate-100">Quick Actions</h3>
+                      <h3 className="text-sm font-black text-slate-855 pb-2 border-b border-slate-100">Quick Actions</h3>
                       <div className="space-y-2">
                         <button 
                           onClick={() => setProfileSection("bank")}
@@ -9285,32 +9492,32 @@ export default function FranchisePortal() {
               {/* SECTION 2: BANK DETAILS */}
               {/* ========================================================== */}
               {profileSection === "bank" && (
-                <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-5 text-xs font-semibold text-slate-700 max-w-3xl">
+                <form onSubmit={handleSaveBankDetails} className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-5 text-xs font-semibold text-slate-700 max-w-3xl">
                   <h3 className="text-sm font-black text-slate-855 pb-2 border-b border-slate-100">Bank Details</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-slate-455 font-bold mb-1.5">Bank Name</label>
-                      <input type="text" defaultValue="HDFC Bank" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                      <input type="text" value={bankName} onChange={(e) => setBankName(e.target.value)} required className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-slate-455 font-bold mb-1.5">Account Holder Name</label>
-                      <input type="text" defaultValue="Roy Motors Private Limited" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                      <input type="text" value={bankAccountHolder} onChange={(e) => setBankAccountHolder(e.target.value)} required className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-slate-455 font-bold mb-1.5">Account Number</label>
-                      <input type="text" defaultValue="50200012345678" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                      <input type="text" value={bankAccountNumber} onChange={(e) => setBankAccountNumber(e.target.value)} required className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-slate-455 font-bold mb-1.5">IFSC Code</label>
-                      <input type="text" defaultValue="HDFC0000123" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
+                      <input type="text" value={bankIfscCode} onChange={(e) => setBankIfscCode(e.target.value)} required className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold focus:outline-none" />
                     </div>
                   </div>
 
-                  <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Save Bank Details</button>
-                </div>
+                  <button type="submit" className="px-5 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all cursor-pointer">Save Bank Details</button>
+                </form>
               )}
 
               {/* ========================================================== */}
@@ -9322,25 +9529,35 @@ export default function FranchisePortal() {
                   
                   <div className="space-y-3.5">
                     {[
-                      { name: 'PAN Card', file: 'PAN_RoyMotors.pdf', size: '142 KB' },
-                      { name: 'GST Certificate', file: 'GST_Certificate.pdf', size: '245 KB' },
-                      { name: 'Address Proof (Electricity Bill)', file: 'Electricity_Bill.pdf', size: '320 KB' },
-                      { name: 'Bank Details (Cancelled Cheque)', file: 'Cancelled_Cheque.pdf', size: '180 KB' }
-                    ].map((doc, idx) => (
-                      <div key={idx} className="p-3 bg-slate-50/50 hover:bg-slate-100/30 rounded-2xl border border-slate-100 flex items-center justify-between transition-colors">
-                        <div className="flex items-center gap-2.5">
-                          <span className="text-red-500 text-lg">📄</span>
-                          <div>
-                            <span className="font-bold text-slate-800 block text-[11px]">{doc.name}</span>
-                            <span className="text-[9px] text-slate-400 font-bold block mt-0.5">{doc.file} ({doc.size})</span>
+                      { type: 'PAN Card', label: 'PAN Card' },
+                      { type: 'GST Certificate', label: 'GST Certificate' },
+                      { type: 'Address Proof', label: 'Address Proof (Electricity Bill)' },
+                      { type: 'Cancelled Cheque', label: 'Bank Details (Cancelled Cheque)' }
+                    ].map((docType, idx) => {
+                      const existingDoc = documentsList.find(d => d.type === docType.type);
+                      return (
+                        <div key={idx} className="p-3 bg-slate-50/50 hover:bg-slate-100/30 rounded-2xl border border-slate-100 flex items-center justify-between transition-colors">
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-red-500 text-lg">📄</span>
+                            <div>
+                              <span className="font-bold text-slate-800 block text-[11px]">{docType.label}</span>
+                              <span className="text-[9px] text-slate-400 font-bold block mt-0.5">
+                                {existingDoc ? `${existingDoc.file} (${existingDoc.status.toUpperCase()})` : "Not Uploaded"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            {existingDoc && (
+                              <button type="button" onClick={() => alert("Viewing " + existingDoc.file)} className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded text-[10px] font-black shadow-sm transition-all cursor-pointer">View</button>
+                            )}
+                            <label className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded text-[10px] font-black shadow-sm cursor-pointer text-center block transition-all">
+                              {existingDoc ? "Re-upload" : "Upload"}
+                              <input type="file" onChange={(e) => handleDocumentUploadSubmit(docType.type, e)} className="hidden" accept=".pdf,.png,.jpg,.jpeg" />
+                            </label>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <button className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-55 text-slate-700 rounded text-[10px] font-black shadow-sm">View</button>
-                          <button className="px-2.5 py-1 bg-white border border-slate-200 hover:bg-slate-55 text-slate-700 rounded text-[10px] font-black shadow-sm">Re-upload</button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -9349,27 +9566,25 @@ export default function FranchisePortal() {
               {/* SECTION 4: PASSWORD */}
               {/* ========================================================== */}
               {profileSection === ("password" as any) && (
-                <div className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700 max-w-3xl">
+                <form onSubmit={handleChangePasswordSubmit} className="bg-white p-6 rounded-3xl border border-slate-150 shadow-sm space-y-4 text-xs font-semibold text-slate-700 max-w-3xl">
                   <h3 className="text-sm font-black text-slate-855 pb-2 border-b border-slate-100">Change Password</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-slate-455 font-bold mb-1.5">Current Password</label>
-                      <input type="password" placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
+                      <input type="password" required value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-slate-455 font-bold mb-1.5">New Password</label>
-                      <input type="password" placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
+                      <input type="password" required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-slate-455 font-bold mb-1.5">Confirm New Password</label>
-                      <input type="password" placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
+                      <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full bg-slate-55 border border-slate-200 rounded-xl p-2.5 focus:outline-none" />
                     </div>
                   </div>
-                  <button className="px-5 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all">Change Password</button>
-                </div>
-              )}
-
-              {/* bottom secure banner */}
+                  <button type="submit" className="px-5 py-2.5 bg-blue-600 hover:bg-blue-600 text-white rounded-xl font-black shadow-sm transition-all cursor-pointer">Change Password</button>
+                </form>
+              )}\n              {/* bottom secure banner */}
               <div className="p-4 bg-blue-50/20 rounded-3xl border border-blue-150 text-blue-700 text-xs font-semibold flex items-center gap-3 shadow-sm">
                 <span className="text-lg">🛡️</span>
                 <span>Your account information is secure and encrypted. We never share your personal information with anyone.</span>

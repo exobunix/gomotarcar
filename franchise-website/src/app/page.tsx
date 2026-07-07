@@ -568,27 +568,35 @@ export default function FranchisePortal() {
     }
   };
 
-  // Synchronize activeTab state with URL hash routing
+  // Synchronize activeTab state with URL query parameters
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace("#", "");
+    const handleUrlChange = () => {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
       const validTabs = ["dashboard", "bookings", "customers", "vehicles", "services", "staff", "attendance", "inventory", "earnings", "wallet", "transactions", "invoices", "offers", "ratings", "complaints", "reports", "notifications", "support", "business_profile", "profile", "settings"];
-      if (validTabs.includes(hash)) {
-        setActiveTab(hash as any);
+      if (tab && validTabs.includes(tab)) {
+        setActiveTab(tab as any);
       }
     };
 
-    window.addEventListener("hashchange", handleHashChange);
-    // Initialize tab from hash on load
-    handleHashChange();
+    window.addEventListener("popstate", handleUrlChange);
+    // Initialize tab from URL query parameter on load
+    handleUrlChange();
 
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("popstate", handleUrlChange);
   }, []);
 
-  // Update URL hash when activeTab changes
+  // Update URL query parameter when activeTab changes
   useEffect(() => {
-    if (activeTab && isAuthenticated) {
-      window.location.hash = activeTab;
+    if (isAuthenticated) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("tab") !== activeTab) {
+        if (activeTab === "dashboard") {
+          window.history.pushState(null, "", window.location.pathname);
+        } else {
+          window.history.pushState(null, "", `?tab=${activeTab}`);
+        }
+      }
     }
   }, [activeTab, isAuthenticated]);
 

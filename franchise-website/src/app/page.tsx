@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 // ----------------------------------------------------
@@ -53,6 +53,7 @@ export default function FranchisePortal() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [uploadedLogo, setUploadedLogo] = useState<string | null>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   const [documentsList, setDocumentsList] = useState<any[]>([
     { type: 'PAN Card', file: 'PAN_RoyMotors.pdf', size: '142 KB', status: 'verified' },
     { type: 'GST Certificate', file: 'GST_Certificate.pdf', size: '245 KB', status: 'verified' },
@@ -9294,18 +9295,17 @@ const fetchDashboardData = async () => {
                         <div className="relative w-20 h-20 rounded-full overflow-hidden border border-slate-200 bg-slate-900 shadow-sm flex items-center justify-center flex-shrink-0">
                           {/* Dark blue background avatar matching mockup */}
                           <img src={uploadedLogo || "https://images.unsplash.com/photo-1617886903355-9354be5f65c2?auto=format&fit=crop&q=80&w=200"} alt="Roy Motors" className="w-full h-full object-cover opacity-90" />
-                          <label className="absolute bottom-1 right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px] border border-white shadow-sm cursor-pointer">
+                          <button type="button" onClick={() => logoInputRef.current?.click()} className="absolute bottom-1 right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px] border border-white shadow-sm cursor-pointer">
                             📷
-                            <input type="file" onChange={handlePhotoUploadSubmit} className="hidden" accept="image/*" />
-                          </label>
+                          </button>
                         </div>
                         <div className="space-y-2">
                           <p className="text-[10px] text-slate-400 font-bold">JPG, PNG or WEBP. Max size of 2MB.</p>
                           <div className="flex items-center gap-2">
-                            <label className="px-3.5 py-1.5 bg-white border border-blue-200 hover:bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black transition-all cursor-pointer shadow-sm text-center block">
+                            <button type="button" onClick={() => logoInputRef.current?.click()} className="px-3.5 py-1.5 bg-white border border-blue-200 hover:bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black transition-all cursor-pointer shadow-sm text-center block">
                               Upload New Photo
-                              <input type="file" onChange={handlePhotoUploadSubmit} className="hidden" accept="image/*" />
-                            </label>
+                            </button>
+                            <input type="file" ref={logoInputRef} onChange={handlePhotoUploadSubmit} className="hidden" accept="image/*" />
                             <button type="button" onClick={handlePhotoRemoveSubmit} className="px-3.5 py-1.5 bg-white border border-red-200 hover:bg-red-50 text-red-650 rounded-xl text-[10px] font-black transition-all cursor-pointer shadow-sm flex items-center gap-1">
                               🗑️ Remove Photo
                             </button>

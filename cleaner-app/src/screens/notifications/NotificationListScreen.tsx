@@ -20,9 +20,14 @@ const typeConfig: Record<string, { icon: string, color: string, bg: string }> = 
 
 const NotificationListScreen: React.FC<Props> = ({ navigation }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const { cleaner } = useSelector((s: RootState) => s.auth);
   const { notifications, unreadCount, loading } = useSelector((s: RootState) => s.notifications);
 
-  const load = useCallback(() => { dispatch(fetchNotifications({ limit: 50 })); }, [dispatch]);
+  const load = useCallback(() => {
+    if (cleaner?._id) {
+      dispatch(fetchNotifications({ userId: cleaner._id, limit: 50 }));
+    }
+  }, [dispatch, cleaner?._id]);
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { const unsub = navigation.addListener('focus', load); return unsub; }, [navigation, load]);

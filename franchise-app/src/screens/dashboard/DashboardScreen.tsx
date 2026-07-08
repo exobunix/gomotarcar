@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, Dimensions, TouchableOpacity } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Dimensions, TouchableOpacity, Image } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -58,26 +57,29 @@ const DashboardScreen = () => {
     <ScrollView 
       style={styles.container} 
       contentContainerStyle={styles.scrollContent}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3B82F6" />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0D5BD7" />}
     >
-      {/* Premium Header */}
-      <LinearGradient colors={['#090D1A', '#02040A']} style={styles.header}>
+      {/* Header */}
+      <View style={styles.header}>
         <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.greetingSub}>Good Morning, 👋</Text>
-            <Text style={styles.greeting}>Welcome back, Partner</Text>
+          <View style={styles.logoRow}>
+            <Image source={{ uri: 'https://franchise-website-lovat.vercel.app/logo.png' }} style={styles.logoImg} resizeMode="contain" />
+            <View>
+              <Text style={styles.greetingSub}>Good Morning, 👋</Text>
+              <Text style={styles.greeting}>Welcome back, Roy Motors</Text>
+            </View>
           </View>
           <View style={styles.profileBadge}>
-            <Text style={styles.profileText}>PM</Text>
+            <Text style={styles.profileText}>RM</Text>
           </View>
         </View>
-      </LinearGradient>
+      </View>
 
       {/* Stats Grid */}
       <View style={styles.statsGrid}>
-        <StatCard title="Today's Bookings" value={String(stats.todayBookings)} subtitle="↑ 20% vs yesterday" icon="📅" colors={['#3B82F6', '#10B981']} />
-        <StatCard title="Active Services" value={String(stats.activeBookings)} subtitle="↑ 12% vs yesterday" icon="⚡" colors={['#6366F1', '#10B981']} />
-        <StatCard title="Monthly Revenue" value={`₹${stats.monthlyRevenue.toLocaleString()}`} subtitle="↑ 18% vs last month" icon="₹" colors={['#10B981', '#10B981']} />
+        <StatCard title="Today's Bookings" value={String(stats.todayBookings)} subtitle="↑ 20% vs yesterday" icon="📅" colors={['#8B5CF6', '#16A34A']} />
+        <StatCard title="Active Services" value={String(stats.activeBookings)} subtitle="↑ 12% vs yesterday" icon="🚗" colors={['#3B82F6', '#16A34A']} />
+        <StatCard title="Monthly Revenue" value={`₹${stats.monthlyRevenue.toLocaleString()}`} subtitle="↑ 18% vs last month" icon="₹" colors={['#10B981', '#16A34A']} />
         <StatCard title="Pending Payments" value={`₹${stats.pendingPayments.toLocaleString()}`} subtitle="↓ 8% vs last month" icon="💳" colors={['#F59E0B', '#EF4444']} />
       </View>
 
@@ -91,12 +93,12 @@ const DashboardScreen = () => {
         <View style={styles.secondaryCard}>
           <Text style={styles.secondaryTitle}>Ratings</Text>
           <Text style={styles.secondaryVal}>4.7 / 5</Text>
-          <Text style={styles.secondarySub}>↑ 0.3 increase</Text>
+          <Text style={styles.secondarySub}>↑ 0.3 vs last month</Text>
         </View>
         <View style={styles.secondaryCard}>
           <Text style={styles.secondaryTitle}>Complaints</Text>
           <Text style={styles.secondaryVal}>5</Text>
-          <Text style={[styles.secondarySub, { color: '#EF4444' }]}>↓ 10% decrease</Text>
+          <Text style={[styles.secondarySub, { color: '#EF4444' }]}>↓ 10% vs last month</Text>
         </View>
       </View>
 
@@ -152,17 +154,17 @@ const DashboardScreen = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#3B82F610', borderColor: '#3B82F630' }]}>
+          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#E0F2FE', borderColor: '#BAE6FD' }]}>
             <Text style={styles.actionIcon}>📅</Text>
-            <Text style={[styles.actionText, { color: '#3B82F6' }]}>New Booking</Text>
+            <Text style={[styles.actionText, { color: '#0D5BD7' }]}>New Booking</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#10B98110', borderColor: '#10B98130' }]}>
+          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#DCFCE7', borderColor: '#BBF7D0' }]}>
             <Text style={styles.actionIcon}>👤</Text>
-            <Text style={[styles.actionText, { color: '#10B981' }]}>Add Customer</Text>
+            <Text style={[styles.actionText, { color: '#16A34A' }]}>Add Customer</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#8B5CF610', borderColor: '#8B5CF630' }]}>
+          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#F3E8FF', borderColor: '#E9D5FF' }]}>
             <Text style={styles.actionIcon}>👥</Text>
-            <Text style={[styles.actionText, { color: '#8B5CF6' }]}>Add Staff</Text>
+            <Text style={[styles.actionText, { color: '#7C3AED' }]}>Add Staff</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -171,49 +173,51 @@ const DashboardScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#090D1A' },
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
   scrollContent: { paddingBottom: 40 },
-  header: { paddingHorizontal: 20, paddingTop: 50, paddingBottom: 24, borderBottomWidth: 1, borderBottomColor: '#1E293B' },
+  header: { paddingHorizontal: 20, paddingTop: 50, paddingBottom: 20, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  greetingSub: { fontSize: 13, color: '#64748B', fontWeight: '500' },
-  greeting: { fontSize: 20, fontWeight: '800', color: '#fff', marginTop: 2 },
-  profileBadge: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(59, 130, 246, 0.15)', borderWidth: 1, borderColor: '#3B82F650', alignItems: 'center', justifyContent: 'center' },
-  profileText: { fontSize: 12, fontWeight: '750', color: '#3B82F6' },
+  logoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  logoImg: { width: 32, height: 32 },
+  greetingSub: { fontSize: 12, color: '#64748B', fontWeight: '600' },
+  greeting: { fontSize: 16, fontWeight: '800', color: '#0F172A', marginTop: 1 },
+  profileBadge: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#E0F2FE', borderWidth: 1, borderColor: '#BAE6FD', alignItems: 'center', justifyContent: 'center' },
+  profileText: { fontSize: 12, fontWeight: '900', color: '#0D5BD7' },
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 14, paddingTop: 16, justifyContent: 'space-between' },
-  statCard: { width: '47.5%', backgroundColor: '#0F172A', borderRadius: 20, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: '#1E293B' },
+  statCard: { width: '47.5%', backgroundColor: '#fff', borderRadius: 24, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: '#E2E8F0', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.02, shadowRadius: 6 },
   statHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  statTitle: { fontSize: 10, fontWeight: '700', color: '#94A3B8', uppercase: true },
+  statTitle: { fontSize: 10, fontWeight: '700', color: '#64748B', textTransform: 'uppercase' },
   iconBox: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   iconText: { fontSize: 14, fontWeight: 'bold' },
-  statValue: { fontSize: 20, fontWeight: '850', color: '#fff', marginTop: 10 },
-  statSub: { fontSize: 9, fontWeight: '600', marginTop: 4 },
+  statValue: { fontSize: 20, fontWeight: '900', color: '#0F172A', marginTop: 10 },
+  statSub: { fontSize: 9, fontWeight: '700', marginTop: 4 },
   secondaryStats: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, marginBottom: 16 },
-  secondaryCard: { flex: 1, backgroundColor: '#0F172A', borderRadius: 16, padding: 12, marginHorizontal: 4, borderWidth: 1, borderColor: '#1E293B' },
-  secondaryTitle: { fontSize: 8.5, fontWeight: '750', color: '#64748B', textTransform: 'uppercase' },
-  secondaryVal: { fontSize: 14, fontWeight: '800', color: '#fff', marginTop: 6 },
-  secondarySub: { fontSize: 8.5, color: '#10B981', fontWeight: '600', marginTop: 2 },
+  secondaryCard: { flex: 1, backgroundColor: '#fff', borderRadius: 20, padding: 12, marginHorizontal: 4, borderWidth: 1, borderColor: '#E2E8F0' },
+  secondaryTitle: { fontSize: 8.5, fontWeight: '800', color: '#64748B', textTransform: 'uppercase' },
+  secondaryVal: { fontSize: 14, fontWeight: '900', color: '#0F172A', marginTop: 6 },
+  secondarySub: { fontSize: 8.5, color: '#16A34A', fontWeight: '700', marginTop: 2 },
   section: { paddingHorizontal: 20, marginTop: 18 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  sectionTitle: { fontSize: 14, fontWeight: '800', color: '#fff' },
-  seeAll: { fontSize: 11, color: '#3B82F6', fontWeight: '700' },
+  sectionTitle: { fontSize: 14, fontWeight: '800', color: '#0F172A' },
+  seeAll: { fontSize: 11, color: '#0D5BD7', fontWeight: '700' },
   appointmentList: { gap: 10 },
-  appCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0F172A', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#1E293B' },
-  appTime: { fontSize: 10, fontWeight: '850', color: '#3B82F6' },
-  appName: { fontSize: 12, fontWeight: '750', color: '#fff', marginTop: 2 },
+  appCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', borderRadius: 20, padding: 14, borderWidth: 1, borderColor: '#E2E8F0' },
+  appTime: { fontSize: 10, fontWeight: '900', color: '#0D5BD7' },
+  appName: { fontSize: 12, fontWeight: '800', color: '#0F172A', marginTop: 2 },
   appDetails: { fontSize: 9.5, color: '#64748B', marginTop: 1 },
-  badge: { paddingHorizontal: 8, paddingVertical: 3, backgroundColor: '#3B82F615', borderRadius: 6, borderWidth: 0.5, borderColor: '#3B82F635' },
-  badgeText: { fontSize: 8.5, color: '#3B82F6', fontWeight: '800', textTransform: 'uppercase' },
-  activityList: { backgroundColor: '#0F172A', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#1E293B', gap: 12 },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, backgroundColor: '#E0F2FE', borderRadius: 6, borderWidth: 0.5, borderColor: '#BAE6FD' },
+  badgeText: { fontSize: 8.5, color: '#0D5BD7', fontWeight: '800', textTransform: 'uppercase' },
+  activityList: { backgroundColor: '#fff', borderRadius: 20, padding: 14, borderWidth: 1, borderColor: '#E2E8F0', gap: 12 },
   actCard: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  actDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#3B82F6' },
+  actDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#0D5BD7' },
   actInfo: { flex: 1 },
-  actTitle: { fontSize: 11.5, fontWeight: '750', color: '#fff' },
+  actTitle: { fontSize: 11.5, fontWeight: '800', color: '#0F172A' },
   actDesc: { fontSize: 9.5, color: '#64748B', marginTop: 1 },
-  actTime: { fontSize: 9.5, color: '#475569', fontWeight: '600' },
+  actTime: { fontSize: 9.5, color: '#94A3B8', fontWeight: '600' },
   actionsRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
-  actionBtn: { flex: 1, borderRadius: 16, paddingVertical: 14, alignItems: 'center', borderWidth: 1 },
+  actionBtn: { flex: 1, borderRadius: 20, paddingVertical: 14, alignItems: 'center', borderWidth: 1 },
   actionIcon: { fontSize: 18 },
-  actionText: { fontSize: 10, fontWeight: '750', marginTop: 5 },
+  actionText: { fontSize: 10, fontWeight: '800', marginTop: 5 },
 });
 
 export default DashboardScreen;

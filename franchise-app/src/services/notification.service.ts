@@ -1,7 +1,10 @@
 import { api } from './api';
 
 export const notificationService = {
-  getNotifications: async (params?: any) => {
+  getNotifications: async (userId?: string, params?: any) => {
+    if (userId) {
+      return api.get(`/notifications/user/${userId}`, { params });
+    }
     return api.get('/notifications', { params });
   },
   markAsRead: async (id: string) => {

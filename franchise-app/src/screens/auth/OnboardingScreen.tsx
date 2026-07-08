@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -8,7 +7,7 @@ const slides = [
   {
     title: 'Manage Your\nFranchise\nEfficiently',
     desc: 'Handle your operations, staff, services and customers all in one place.',
-    image: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&w=800&q=80', // Replace with dynamic mock assets as needed
+    image: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&w=800&q=80',
   },
   {
     title: 'Track Bookings\n& Revenue',
@@ -40,7 +39,7 @@ const OnboardingScreen = ({ navigation }: any) => {
   const current = slides[activeIndex];
 
   return (
-    <LinearGradient colors={['#050A1E', '#090D1A', '#02040A']} style={styles.container}>
+    <View style={styles.container}>
       {/* Header Skip button */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleSkip}>
@@ -54,17 +53,17 @@ const OnboardingScreen = ({ navigation }: any) => {
         {activeIndex === 0 && (
           <View style={styles.logoContainer}>
             <View style={styles.logoBox}>
-              <Text style={styles.logoText}>G</Text>
+              <Image source={{ uri: 'https://franchise-website-lovat.vercel.app/logo.png' }} style={styles.logoImg} resizeMode="contain" />
             </View>
             <View style={styles.logoInfo}>
-              <Text style={styles.brandTitle}>Go<Text style={styles.blueText}>Motar</Text>Car</Text>
+              <Text style={styles.brandTitle}>Go<Text style={styles.blueText}>Motor</Text>Car</Text>
               <Text style={styles.brandSub}>FRANCHISE</Text>
             </View>
           </View>
         )}
 
-        <h1 style={styles.title}>{current.title}</h1>
-        <p style={styles.desc}>{current.desc}</p>
+        <Text style={styles.title}>{current.title.replace('\n', '\n')}</Text>
+        <Text style={styles.desc}>{current.desc}</Text>
 
         <View style={styles.imageContainer}>
           <Image source={{ uri: current.image }} style={styles.image} resizeMode="cover" />
@@ -92,34 +91,34 @@ const OnboardingScreen = ({ navigation }: any) => {
           <Text style={styles.nextArrow}>→</Text>
         </TouchableOpacity>
       </View>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'space-between', paddingVertical: 20 },
+  container: { flex: 1, backgroundColor: '#F8FAFC', justifyContent: 'space-between', paddingVertical: 20 },
   header: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, alignItems: 'center', marginTop: 10 },
-  skipText: { fontSize: 13, color: '#94A3B8', fontWeight: '600' },
+  skipText: { fontSize: 13, color: '#64748B', fontWeight: '600' },
   stepIndicator: { fontSize: 13, color: '#64748B', fontWeight: '600' },
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, gap: 15 },
   logoContainer: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
-  logoBox: { width: 36, height: 36, backgroundColor: 'rgba(59, 130, 246, 0.15)', borderWidth: 1, borderColor: 'rgba(59, 130, 246, 0.3)', borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  logoText: { fontSize: 20, fontWeight: '900', color: '#3B82F6' },
+  logoBox: { width: 36, height: 36, backgroundColor: '#E0F2FE', borderRadius: 10, alignItems: 'center', justifyContent: 'center', padding: 3 },
+  logoImg: { width: '100%', height: '100%' },
   logoInfo: { justifyContent: 'center' },
-  brandTitle: { fontSize: 16, fontWeight: '950', color: '#fff', letterSpacing: -0.5 },
-  blueText: { color: '#3B82F6' },
-  brandSub: { fontSize: 6.5, fontWeight: '800', color: '#64748B', letterSpacing: 1 },
-  title: { fontSize: 28, fontWeight: '800', color: '#fff', textAlign: 'center', lineHeight: 36 },
-  desc: { fontSize: 13, color: '#94A3B8', textAlign: 'center', paddingHorizontal: 12, lineHeight: 18 },
-  imageContainer: { width: width - 48, height: 260, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: '#1E293B', marginTop: 10 },
+  brandTitle: { fontSize: 18, fontWeight: '900', color: '#0F172A', letterSpacing: -0.5 },
+  blueText: { color: '#0D5BD7' },
+  brandSub: { fontSize: 7, fontWeight: '800', color: '#64748B', letterSpacing: 1 },
+  title: { fontSize: 26, fontWeight: '800', color: '#0F172A', textAlign: 'center', lineHeight: 32 },
+  desc: { fontSize: 13, color: '#64748B', textAlign: 'center', paddingHorizontal: 12, lineHeight: 18 },
+  imageContainer: { width: width - 48, height: 260, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: '#E2E8F0', marginTop: 10 },
   image: { width: '100%', height: '100%' },
   footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, marginBottom: 10 },
   dotRow: { flexDirection: 'row', gap: 6 },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#334155' },
-  activeDot: { backgroundColor: '#3B82F6', width: 14 },
-  nextButton: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(59, 130, 246, 0.1)', paddingVertical: 10, paddingHorizontal: 18, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(59, 130, 246, 0.25)' },
-  nextText: { color: '#3B82F6', fontSize: 13, fontWeight: '700' },
-  nextArrow: { color: '#3B82F6', fontSize: 14, fontWeight: '700' },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#CBD5E1' },
+  activeDot: { backgroundColor: '#0D5BD7', width: 14 },
+  nextButton: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#E0F2FE', paddingVertical: 10, paddingHorizontal: 18, borderRadius: 20, borderWidth: 1, borderColor: '#BAE6FD' },
+  nextText: { color: '#0D5BD7', fontSize: 13, fontWeight: '700' },
+  nextArrow: { color: '#0D5BD7', fontSize: 14, fontWeight: '700' },
 });
 
 export default OnboardingScreen;

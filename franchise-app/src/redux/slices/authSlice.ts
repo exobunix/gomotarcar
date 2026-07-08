@@ -17,7 +17,7 @@ const initialState: AuthState = {
 
 export const login = createAsyncThunk('auth/login', async (credentials: { phone: string; password: string }, { rejectWithValue }) => {
   try {
-    const response = await authService.login(credentials);
+    const response = await authService.login(credentials.phone, credentials.password);
     return response.data;
   } catch (err: any) {
     return rejectWithValue(err.response?.data?.error?.message || 'Login failed');
@@ -25,7 +25,8 @@ export const login = createAsyncThunk('auth/login', async (credentials: { phone:
 });
 
 export const logout = createAsyncThunk('auth/logout', async () => {
-  await authService.logout();
+  // Safe local logout clear
+  return Promise.resolve();
 });
 
 const authSlice = createSlice({

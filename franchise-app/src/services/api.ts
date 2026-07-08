@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { store } from '../redux/store';
 
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/v1';
+const API_BASE = 'https://api.gomotarcar.com/api/v1';
 
 export const api = axios.create({
   baseURL: API_BASE,

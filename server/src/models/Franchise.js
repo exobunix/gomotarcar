@@ -97,4 +97,19 @@ franchiseSchema.index({ userId: 1 });
 franchiseSchema.index({ verificationStatus: 1 });
 franchiseSchema.index({ 'address.coordinates': '2dsphere' });
 
+const encryption = require('../utils/encryption');
+
+franchiseSchema.pre('save', function (next) {
+  if (this.isModified('bankDetails.accountNumber') && this.bankDetails?.accountNumber) {
+    this.bankDetails.accountNumber = encryption.encryptToString(this.bankDetails.accountNumber);
+  }
+  next();
+});
+
+franchiseSchema.post('init', function (doc) {
+  if (doc.bankDetails?.accountNumber) {
+    doc.bankDetails.accountNumber = encryption.decrypt(doc.bankDetails.accountNumber);
+  }
+});
+
 module.exports = mongoose.model('Franchise', franchiseSchema);

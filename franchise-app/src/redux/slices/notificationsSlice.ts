@@ -2,9 +2,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { notificationService } from '../../services/notification.service';
 
-export const fetchNotifications = createAsyncThunk('notifications/fetchAll', async (_, { rejectWithValue }) => {
+export const fetchNotifications = createAsyncThunk('notifications/fetchAll', async (userId: string, { rejectWithValue }) => {
   try {
-    const response = await notificationService.getNotifications();
+    const response = await notificationService.getNotifications(userId);
     return response.data;
   } catch (err: any) {
     return rejectWithValue(err.message);

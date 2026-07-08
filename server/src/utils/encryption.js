@@ -43,8 +43,17 @@ class EncryptionService {
   }
 
   /**
+   * Encrypt plaintext data and return a single colon-separated string (iv:tag:encrypted)
+   */
+  encryptToString(plaintext) {
+    const res = this.encrypt(plaintext);
+    if (!res) return null;
+    return `${res.iv}:${res.tag}:${res.encrypted}`;
+  }
+
+  /**
    * Decrypt data
-   * @param {string|object} encryptedData - The hex string or { encrypted, iv, tag } object
+   * @param {string|object} encryptedData - The hex string, colon-separated string (iv:tag:encrypted), or { encrypted, iv, tag } object
    * @param {string} iv - IV hex string (if first param is string)
    * @param {string} tag - Auth tag hex string (if first param is string)
    */
@@ -57,6 +66,11 @@ class EncryptionService {
       enc = encryptedData.encrypted;
       ivHex = encryptedData.iv;
       authTag = encryptedData.tag;
+    } else if (typeof encryptedData === 'string' && !iv && !tag && encryptedData.includes(':')) {
+      const parts = encryptedData.split(':');
+      ivHex = parts[0];
+      authTag = parts[1];
+      enc = parts[2];
     } else {
       enc = encryptedData;
       ivHex = iv;

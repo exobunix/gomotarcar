@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, RefreshControl, Dimensions, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBookings } from '../../redux/slices/bookingsSlice';
-import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -15,12 +14,12 @@ const StatusTab = ({ label, count, active, onPress }: any) => (
   </TouchableOpacity>
 );
 
-const BookingCard = ({ item, onStart, onComplete }: any) => {
+const BookingCard = ({ item, onStart, onComplete, onPress }: any) => {
   const isPending = !['completed', 'cancelled', 'in_progress'].includes(item.status);
   const isOngoing = item.status === 'in_progress';
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress}>
       {/* Header ID & Status */}
       <View style={styles.cardHeader}>
         <View>
@@ -150,20 +149,20 @@ const BookingsScreen = () => {
     return (
       <View style={styles.container}>
         {/* Header */}
-        <LinearGradient colors={['#090D1A', '#02040A']} style={styles.header}>
+        <View style={styles.header}>
           <TouchableOpacity onPress={() => setSelectedBookingId(null)} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Back to Bookings</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Booking Details</Text>
           <Text style={styles.headerSub}>ID: {b.bookingId || `GMF-${String(b._id).slice(-5).toUpperCase()}`}</Text>
-        </LinearGradient>
+        </View>
 
         <ScrollView contentContainerStyle={styles.detailsScroll}>
           {/* Status info */}
           <View style={styles.detailsSection}>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Status</Text>
-              <Text style={[styles.detailVal, { color: '#3B82F6', fontWeight: '800' }]}>{(b.status || 'Upcoming').toUpperCase()}</Text>
+              <Text style={[styles.detailVal, { color: '#0D5BD7', fontWeight: '800' }]}>{(b.status || 'Upcoming').toUpperCase()}</Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Date & Time</Text>
@@ -178,96 +177,43 @@ const BookingsScreen = () => {
             <Text style={styles.infoSubText}>📞 +91 98765 43210</Text>
             <Text style={styles.infoSubText}>📍 Sector 62, Noida, UP - 201301</Text>
           </View>
-
-          {/* Vehicle Info */}
-          <View style={styles.card}>
-            <Text style={styles.cardSecTitle}>🚗 2. Vehicle Information</Text>
-            <Text style={styles.infoText}>{b.vehicleNumber || 'Toyota Fortuner'}</Text>
-            <Text style={styles.infoSubText}>UP 16 AB 1234 • White • Diesel</Text>
-          </View>
-
-          {/* Service Package */}
-          <View style={styles.card}>
-            <Text style={styles.cardSecTitle}>📦 3. Service Package</Text>
-            <Text style={styles.infoText}>{b.serviceName || 'Premium Steam Wash'}</Text>
-            <Text style={[styles.infoText, { color: '#10B981', marginTop: 4 }]}>Amount: ₹{b.totalAmount || '1,250'}</Text>
-          </View>
-
-          {/* Timeline details */}
-          <View style={styles.card}>
-            <Text style={styles.cardSecTitle}>⏱️ 4. Timeline</Text>
-            <View style={styles.timelineRow}>
-              <View style={styles.timelineDot} />
-              <View>
-                <Text style={styles.timelineTitle}>Booking Created</Text>
-                <Text style={styles.timelineSub}>24 May 2025, 09:15 AM</Text>
-              </View>
-            </View>
-            <View style={styles.timelineRow}>
-              <View style={styles.timelineDot} />
-              <View>
-                <Text style={styles.timelineTitle}>Booking Confirmed</Text>
-                <Text style={styles.timelineSub}>24 May 2025, 09:16 AM</Text>
-              </View>
-            </View>
-          </View>
         </ScrollView>
-
-        {/* Footer stick actions */}
-        {b.status !== 'completed' && b.status !== 'cancelled' && (
-          <View style={styles.stickyFooter}>
-            {b.status !== 'in_progress' ? (
-              <TouchableOpacity style={styles.footerStartBtn}>
-                <Text style={styles.btnText}>Start Service</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity style={styles.footerCompleteBtn}>
-                <Text style={styles.btnText}>Complete Service</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <LinearGradient colors={['#090D1A', '#02040A']} style={styles.header}>
-        <Text style={styles.headerTitle}>Booking Dashboard</Text>
-        <Text style={styles.headerSub}>Manage and track all your bookings in one place.</Text>
-      </LinearGradient>
-
-      {/* Status tabs */}
-      <View style={styles.tabsContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
-          <StatusTab label="Upcoming" count={items?.filter((b: any) => !['completed', 'cancelled', 'in_progress'].includes(b.status)).length || 0} active={activeTab === 'upcoming'} onPress={() => setActiveTab('upcoming')} />
-          <StatusTab label="Ongoing" count={items?.filter((b: any) => b.status === 'in_progress').length || 0} active={activeTab === 'ongoing'} onPress={() => setActiveTab('ongoing')} />
-          <StatusTab label="Completed" count={items?.filter((b: any) => b.status === 'completed').length || 0} active={activeTab === 'completed'} onPress={() => setActiveTab('completed')} />
-          <StatusTab label="Cancelled" count={items?.filter((b: any) => b.status === 'cancelled').length || 0} active={activeTab === 'cancelled'} onPress={() => setActiveTab('cancelled')} />
-        </ScrollView>
+      {/* Title block */}
+      <View style={styles.titleHeader}>
+        <Text style={styles.mainTitle}>Bookings</Text>
+        <Text style={styles.mainSub}>Manage and track franchise jobs</Text>
       </View>
 
-      {/* Filters bar */}
-      <View style={styles.searchBar}>
-        <TextInput 
-          placeholder="Search Booking ID, Customer or Mobile..." 
-          placeholderTextColor="#475569" 
-          style={styles.input} 
-        />
+      {/* Tabs */}
+      <View style={styles.tabRow}>
+        <StatusTab label="Upcoming" count={String((items || []).filter((b: any) => !['completed', 'cancelled', 'in_progress'].includes(b.status)).length)} active={activeTab === 'upcoming'} onPress={() => setActiveTab('upcoming')} />
+        <StatusTab label="Ongoing" count={String((items || []).filter((b: any) => b.status === 'in_progress').length)} active={activeTab === 'ongoing'} onPress={() => setActiveTab('ongoing')} />
+        <StatusTab label="Completed" count={String((items || []).filter((b: any) => b.status === 'completed').length)} active={activeTab === 'completed'} onPress={() => setActiveTab('completed')} />
       </View>
 
-      {/* List content */}
+      {/* List */}
       <FlatList
         data={filteredData}
-        keyExtractor={(item: any) => item._id}
-        renderItem={({ item }: any) => <BookingCard item={item} onPress={() => setSelectedBookingId(item._id)} onStart={() => {}} onComplete={() => {}} />}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3B82F6" />}
-        contentContainerStyle={styles.list}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <BookingCard 
+            item={item} 
+            onPress={() => setSelectedBookingId(item._id)}
+            onStart={() => {}} 
+            onComplete={() => {}} 
+          />
+        )}
+        contentContainerStyle={styles.listContainer}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0D5BD7" />}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.empty}>No bookings found matching selected category.</Text>
+          <View style={styles.emptyView}>
+            <Text style={styles.emptyText}>No bookings found in this category.</Text>
           </View>
         }
       />
@@ -276,73 +222,66 @@ const BookingsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#090D1A' },
-  header: { paddingHorizontal: 20, paddingTop: 50, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: '#1E293B' },
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#fff' },
-  headerSub: { fontSize: 12, color: '#64748B', marginTop: 4 },
-  backBtn: { marginBottom: 8 },
-  backBtnText: { color: '#3B82F6', fontSize: 12, fontWeight: '700' },
-  tabsContainer: { backgroundColor: '#0F172A', borderBottomWidth: 1, borderBottomColor: '#1E293B', paddingVertical: 10 },
-  tabsScroll: { paddingHorizontal: 16, gap: 8 },
-  tabBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 12, backgroundColor: '#1E293B/30', borderHorizontal: 1, borderColor: '#1E293B' },
-  tabBtnActive: { backgroundColor: '#3B82F6' },
-  tabLabel: { fontSize: 11, fontWeight: '600', color: '#94A3B8' },
-  tabLabelActive: { color: '#fff' },
-  tabBadge: { paddingHorizontal: 6, paddingVertical: 1.5, backgroundColor: '#334155', borderRadius: 6 },
-  tabBadgeActive: { backgroundColor: '#ffffff25' },
-  tabBadgeText: { fontSize: 9, fontWeight: '800', color: '#94A3B8' },
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  titleHeader: { paddingHorizontal: 20, paddingTop: 50, paddingBottom: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
+  mainTitle: { fontSize: 24, fontWeight: '900', color: '#0F172A' },
+  mainSub: { fontSize: 12, color: '#64748B', fontWeight: '600', marginTop: 2 },
+  tabRow: { flexDirection: 'row', paddingHorizontal: 16, paddingTop: 12, gap: 8 },
+  tabBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0' },
+  tabBtnActive: { backgroundColor: '#E0F2FE', borderColor: '#BAE6FD' },
+  tabLabel: { fontSize: 11, color: '#64748B', fontWeight: '700' },
+  tabLabelActive: { color: '#0D5BD7' },
+  tabBadge: { paddingHorizontal: 6, paddingVertical: 2, backgroundColor: '#F1F5F9', borderRadius: 6 },
+  tabBadgeActive: { backgroundColor: '#0D5BD7' },
+  tabBadgeText: { fontSize: 8.5, color: '#64748B', fontWeight: '800' },
   tabBadgeActiveText: { color: '#fff' },
-  searchBar: { paddingHorizontal: 16, paddingTop: 14 },
-  input: { backgroundColor: '#0F172A', borderRadius: 12, borderWidth: 1, borderColor: '#1E293B', paddingHorizontal: 16, paddingVertical: 10, fontSize: 12, color: '#fff' },
-  list: { padding: 16, paddingBottom: 30 },
-  card: { backgroundColor: '#0F172A', borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#1E293B' },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottomWidth: 1, borderBottomColor: '#1E293B', paddingBottom: 12, marginBottom: 12 },
-  cardIdLabel: { fontSize: 8, fontWeight: '750', color: '#64748B' },
-  cardId: { fontSize: 13, fontWeight: '900', color: '#3B82F6', marginTop: 2 },
+  listContainer: { padding: 16, paddingBottom: 40 },
+  card: { backgroundColor: '#fff', borderRadius: 24, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#E2E8F0' },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#F1F5F9', paddingBottom: 10, marginBottom: 12 },
+  cardIdLabel: { fontSize: 8.5, fontWeight: '700', color: '#94A3B8' },
+  cardId: { fontSize: 13, fontWeight: '900', color: '#0F172A' },
   badgeRow: { flexDirection: 'row', gap: 6 },
-  statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
-  statusUpcoming: { backgroundColor: '#3B82F615' },
-  statusOngoing: { backgroundColor: '#6366F115' },
-  statusCompleted: { backgroundColor: '#10B98115' },
-  statusCancelled: { backgroundColor: '#EF444415' },
-  statusText: { fontSize: 8, fontWeight: '800' },
+  statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  statusUpcoming: { backgroundColor: '#EFF6FF' },
+  statusOngoing: { backgroundColor: '#EEF2F6' },
+  statusCompleted: { backgroundColor: '#ECFDF5' },
+  statusCancelled: { backgroundColor: '#FEF2F2' },
+  statusText: { fontSize: 8.5, fontWeight: '800' },
   textUpcoming: { color: '#3B82F6' },
-  textOngoing: { color: '#6366F1' },
+  textOngoing: { color: '#475569' },
   textCompleted: { color: '#10B981' },
   textCancelled: { color: '#EF4444' },
-  payBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
-  payPaid: { backgroundColor: '#10B98110' },
-  payPending: { backgroundColor: '#F59E0B10' },
-  payText: { fontSize: 8, fontWeight: '800' },
-  textPending: { color: '#F59E0B' },
-  infoRow: { flexDirection: 'row', gap: 10, alignItems: 'center', marginBottom: 10 },
-  icon: { fontSize: 14 },
-  infoText: { fontSize: 11, fontWeight: '750', color: '#fff' },
-  infoSubText: { fontSize: 9.5, color: '#64748B', marginTop: 1 },
-  serviceBox: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#090D1A', borderRadius: 12, padding: 12, marginTop: 4, borderWidth: 0.5, borderColor: '#1E293B' },
-  serviceLabel: { fontSize: 7.5, fontWeight: '750', color: '#64748B', textTransform: 'uppercase' },
-  serviceName: { fontSize: 11, fontWeight: '750', color: '#fff', marginTop: 2 },
+  payBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  payPaid: { backgroundColor: '#ECFDF5' },
+  payPending: { backgroundColor: '#FEF3C7' },
+  payText: { fontSize: 8.5, fontWeight: '800' },
+  textPending: { color: '#D97706' },
+  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
+  icon: { fontSize: 16 },
+  infoText: { fontSize: 12, fontWeight: '800', color: '#0F172A' },
+  infoSubText: { fontSize: 10, color: '#64748B', fontWeight: '600' },
+  serviceBox: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#F8FAFC', borderRadius: 16, padding: 12, marginTop: 6, borderWidth: 1, borderColor: '#F1F5F9' },
+  serviceLabel: { fontSize: 8.5, fontWeight: '700', color: '#94A3B8' },
+  serviceName: { fontSize: 11.5, fontWeight: '800', color: '#0F172A', marginTop: 2 },
   priceBox: { alignItems: 'flex-end' },
-  price: { fontSize: 12, fontWeight: '900', color: '#10B981', marginTop: 2 },
-  actions: { marginTop: 14, borderTopWidth: 1, borderTopColor: '#1E293B', paddingTop: 12 },
-  startBtn: { backgroundColor: '#3B82F6', borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
+  price: { fontSize: 11.5, fontWeight: '900', color: '#0D5BD7', marginTop: 2 },
+  actions: { borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: 12, marginTop: 12 },
+  startBtn: { backgroundColor: '#0D5BD7', borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
   completeBtn: { backgroundColor: '#10B981', borderRadius: 12, paddingVertical: 10, alignItems: 'center' },
-  btnText: { fontSize: 11, fontWeight: '750', color: '#fff' },
-  emptyContainer: { paddingVertical: 40, alignItems: 'center' },
-  empty: { fontSize: 11, color: '#475569', textAlign: 'center' },
-  detailsScroll: { padding: 16, paddingBottom: 100 },
-  detailsSection: { backgroundColor: '#0F172A', borderRadius: 20, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#1E293B', gap: 12 },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  detailLabel: { fontSize: 11, color: '#64748B', fontWeight: '600' },
-  detailVal: { fontSize: 11, color: '#fff', fontWeight: '700' },
-  cardSecTitle: { fontSize: 12, fontWeight: '800', color: '#fff', borderBottomWidth: 1, borderBottomColor: '#1E293B', paddingBottom: 8, marginBottom: 10 },
-  timelineRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', marginBottom: 12 },
-  timelineDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#3B82F6', marginTop: 4 },
-  timelineTitle: { fontSize: 11, fontWeight: '750', color: '#fff' },
-  timelineSub: { fontSize: 9, color: '#64748B', marginTop: 1 },
-  stickyFooter: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#0F172A', borderTopWidth: 1, borderTopColor: '#1E293B', padding: 16 },
-  footerStartBtn: { backgroundColor: '#3B82F6', borderRadius: 16, paddingVertical: 14, alignItems: 'center' },
-  footerCompleteBtn: { backgroundColor: '#10B981', borderRadius: 16, paddingVertical: 14, alignItems: 'center' }
+  btnText: { color: '#fff', fontSize: 11.5, fontWeight: '800' },
+  emptyView: { paddingVertical: 40, alignItems: 'center' },
+  emptyText: { fontSize: 12, color: '#94A3B8', fontWeight: '600' },
+  header: { paddingHorizontal: 20, paddingTop: 50, paddingBottom: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
+  backBtn: { marginBottom: 10 },
+  backBtnText: { fontSize: 12, color: '#0D5BD7', fontWeight: '800' },
+  headerTitle: { fontSize: 20, fontWeight: '900', color: '#0F172A' },
+  headerSub: { fontSize: 11, color: '#64748B', fontWeight: '600', marginTop: 2 },
+  detailsScroll: { padding: 16, paddingBottom: 40 },
+  detailsSection: { backgroundColor: '#fff', borderRadius: 20, padding: 16, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 16 },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+  detailLabel: { fontSize: 12, color: '#64748B', fontWeight: '600' },
+  detailVal: { fontSize: 12, color: '#0F172A', fontWeight: '800' },
+  cardSecTitle: { fontSize: 11, fontWeight: '800', color: '#94A3B8', textTransform: 'uppercase', marginBottom: 10 },
 });
 
 export default BookingsScreen;

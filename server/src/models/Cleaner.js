@@ -79,4 +79,19 @@ cleanerSchema.index({ assignedZone: 1 });
 cleanerSchema.index({ 'address.coordinates': '2dsphere' });
 cleanerSchema.index({ verificationStatus: 1 });
 
+const encryption = require('../utils/encryption');
+
+cleanerSchema.pre('save', function (next) {
+  if (this.isModified('bankDetails.accountNumber') && this.bankDetails?.accountNumber) {
+    this.bankDetails.accountNumber = encryption.encryptToString(this.bankDetails.accountNumber);
+  }
+  next();
+});
+
+cleanerSchema.post('init', function (doc) {
+  if (doc.bankDetails?.accountNumber) {
+    doc.bankDetails.accountNumber = encryption.decrypt(doc.bankDetails.accountNumber);
+  }
+});
+
 module.exports = mongoose.model('Cleaner', cleanerSchema);

@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Platform, Dimensions, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Platform, Dimensions, StatusBar, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { colors } from '../../theme/colors';
 import Card from '../../components/common/Card';
@@ -10,6 +10,7 @@ import { fetchUnreadCount } from '../../redux/slices/notificationSlice';
 import { toggleDrawer } from '../../redux/slices/uiSlice';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { supervisorService } from '../../services/supervisor.service';
 
 const { width } = Dimensions.get('window');
 
@@ -23,6 +24,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
   const { stats: cleanerStats } = useSelector((s: RootState) => s.cleaners);
   const { unreadCount } = useSelector((s: RootState) => s.notifications);
   const [refreshing, setRefreshing] = useState(false);
+  const [dashboardStats, setDashboardStats] = useState<any>(null);
 
   // Filters State
   const [weeklyTrendFilter, setWeeklyTrendFilter] = useState<'This Week' | 'This Month'>('This Week');
@@ -43,6 +45,14 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
     dispatch(fetchCleanerStats());
     dispatch(fetchUnreadCount());
     dispatch(fetchTasks({ limit: 5 }));
+
+    supervisorService.getDashboardStats()
+      .then(res => {
+        if (res.data && res.data.success) {
+          setDashboardStats(res.data.data);
+        }
+      })
+      .catch(err => console.log('Error fetching dashboard stats:', err));
   }, [dispatch]);
 
   useEffect(() => { load(); }, [load]);
@@ -110,6 +120,12 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
     );
   };
 
+  const getFormattedDate = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const now = new Date();
+    return `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -153,13 +169,13 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
       >
         {/* Welcome Section */}
         <View style={styles.welcomeRow}>
-          <View>
+          <View style={styles.welcomeTextContainer}>
             <Text style={styles.welcomeTitle}>Good Morning, {supervisor?.firstName || 'Supervisor'} 👋</Text>
-            <Text style={styles.welcomeSub}>Here's what's happening with your operations today.</Text>
+            <Text style={styles.welcomeSub}>Here's what's happening today.</Text>
           </View>
           <TouchableOpacity style={styles.datePickerBtn}>
             <Icon name="calendar-month-outline" size={16} color="#2563EB" />
-            <Text style={styles.datePickerTxt}>May 25, 2025</Text>
+            <Text style={styles.datePickerTxt}>{getFormattedDate()}</Text>
             <Icon name="chevron-down" size={14} color="#64748B" />
           </TouchableOpacity>
         </View>
@@ -176,9 +192,9 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
               <View style={[styles.cardIconBg, { backgroundColor: '#EFF6FF' }]}>
                 <Icon name="office-building" size={20} color="#2563EB" />
               </View>
-              <Text style={styles.cardValue}>125</Text>
+              <Text style={styles.cardValue}>{dashboardStats?.totalApartments ?? 125}</Text>
               <Text style={styles.cardLabel}>Total Apartments</Text>
-              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 8 <Text style={styles.trendLabel}>from yesterday</Text></Text>
+              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>Live <Text style={styles.trendLabel}>from system</Text></Text>
             </Card>
           </TouchableOpacity>
 
@@ -192,9 +208,9 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
               <View style={[styles.cardIconBg, { backgroundColor: '#ECFDF5' }]}>
                 <Icon name="account-multiple" size={20} color="#10B981" />
               </View>
-              <Text style={styles.cardValue}>{cleanerStats?.totalCleaners?.value ?? cleanerStats?.totalCleaners ?? 320}</Text>
+              <Text style={styles.cardValue}>{dashboardStats?.assignedCleaners ?? 320}</Text>
               <Text style={styles.cardLabel}>Assigned Cleaners</Text>
-              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 12 <Text style={styles.trendLabel}>from yesterday</Text></Text>
+              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>Live <Text style={styles.trendLabel}>from system</Text></Text>
             </Card>
           </TouchableOpacity>
 
@@ -208,9 +224,9 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
               <View style={[styles.cardIconBg, { backgroundColor: '#FAF5FF' }]}>
                 <Icon name="calendar-check" size={20} color="#8B5CF6" />
               </View>
-              <Text style={styles.cardValue}>298</Text>
+              <Text style={styles.cardValue}>{dashboardStats?.todayAttendance ?? 298}</Text>
               <Text style={styles.cardLabel}>Today's Attendance</Text>
-              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>93% <Text style={styles.trendLabel}>Present</Text></Text>
+              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>Live <Text style={styles.trendLabel}>from system</Text></Text>
             </Card>
           </TouchableOpacity>
 
@@ -224,9 +240,9 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
               <View style={[styles.cardIconBg, { backgroundColor: '#FFF7ED' }]}>
                 <Icon name="car" size={20} color="#F97316" />
               </View>
-              <Text style={styles.cardValue}>540</Text>
+              <Text style={styles.cardValue}>{dashboardStats?.carsAssigned ?? 540}</Text>
               <Text style={styles.cardLabel}>Cars Assigned</Text>
-              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 15 <Text style={styles.trendLabel}>from yesterday</Text></Text>
+              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>Live <Text style={styles.trendLabel}>from system</Text></Text>
             </Card>
           </TouchableOpacity>
 
@@ -240,7 +256,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
               <View style={[styles.cardIconBg, { backgroundColor: '#FFFBEB' }]}>
                 <Icon name="clipboard-check-outline" size={20} color="#D97706" />
               </View>
-              <Text style={styles.cardValue}>{taskStats?.pendingApproval || 18}</Text>
+              <Text style={styles.cardValue}>{dashboardStats?.pendingApprovals ?? 18}</Text>
               <Text style={styles.cardLabel}>Pending Approvals</Text>
               <Text style={[styles.cardActionLabel, { color: '#EA580C' }]}>Needs your action</Text>
             </Card>
@@ -256,9 +272,9 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
               <View style={[styles.cardIconBg, { backgroundColor: '#F0FDF4' }]}>
                 <Icon name="check-decagram" size={20} color="#16A34A" />
               </View>
-              <Text style={styles.cardValue}>186</Text>
+              <Text style={styles.cardValue}>{dashboardStats?.todayCompleted ?? 186}</Text>
               <Text style={styles.cardLabel}>Today's Completed</Text>
-              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>↑ 20 <Text style={styles.trendLabel}>from yesterday</Text></Text>
+              <Text style={[styles.cardTrend, { color: '#16A34A' }]}>Live <Text style={styles.trendLabel}>from system</Text></Text>
             </Card>
           </TouchableOpacity>
 
@@ -272,7 +288,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
               <View style={[styles.cardIconBg, { backgroundColor: '#FEF2F2' }]}>
                 <Icon name="message-alert-outline" size={20} color="#EF4444" />
               </View>
-              <Text style={styles.cardValue}>{taskStats?.openComplaints || 7}</Text>
+              <Text style={styles.cardValue}>{dashboardStats?.openComplaints ?? 7}</Text>
               <Text style={styles.cardLabel}>Open Complaints</Text>
               <Text style={[styles.cardActionLabel, { color: '#DC2626' }]}>Needs attention</Text>
             </Card>
@@ -288,9 +304,9 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
               <View style={[styles.cardIconBg, { backgroundColor: '#EFF6FF' }]}>
                 <Icon name="package-variant-closed" size={20} color="#2563EB" />
               </View>
-              <Text style={styles.cardValue}>₹48,650</Text>
+              <Text style={styles.cardValue}>₹{(dashboardStats?.inventoryBalance ?? 48650).toLocaleString('en-IN')}</Text>
               <Text style={styles.cardLabel}>Inventory Balance</Text>
-              <Text style={[styles.cardTrend, { color: '#64748B' }]}>Updated just now</Text>
+              <Text style={[styles.cardTrend, { color: '#64748B' }]}>Live from system</Text>
             </Card>
           </TouchableOpacity>
         </View>
@@ -907,6 +923,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
+  welcomeTextContainer: {
+    flex: 1,
+    marginRight: 8,
+  },
   welcomeTitle: {
     fontSize: 18,
     fontWeight: '800',
@@ -1437,16 +1457,17 @@ const styles = StyleSheet.create({
   quickActionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-between',
   },
   qaGridItem: {
-    width: (width - 44 - 12) / 2,
+    width: '48%',
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
     borderColor: '#F1F5F9',
     borderRadius: 10,
     padding: 14,
     alignItems: 'center',
+    marginBottom: 12,
   },
   qaGridIconWrapper: {
     width: 44,

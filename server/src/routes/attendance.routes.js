@@ -18,10 +18,11 @@ router.use(authenticate);
 router.get('/cleaner/:cleanerId/today', validate(cleanerIdParamSchema, 'params'), attendanceController.getToday);
 router.get('/cleaner/:cleanerId/monthly/:month/:year', attendanceController.getMonthlySummary);
 
-// Admin-only routes
+// Admin & Supervisor routes
 router.use(authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.SUPERVISOR, roles.OPERATIONS));
 
-// Stats
+// Stats & Summary
+router.get('/summary', attendanceController.getSummary);
 router.get('/stats', attendanceController.getStats);
 
 // CRUD

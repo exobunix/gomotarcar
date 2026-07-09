@@ -107,7 +107,7 @@ class LeaveService {
   /**
    * List leaves
    */
-  async list({ page = 1, limit = 20, cleanerId, status, leaveType, fromDate, toDate } = {}) {
+  async list({ page = 1, limit = 20, cleanerId, status, leaveType, fromDate, toDate, supervisorId } = {}) {
     const query = {};
     if (cleanerId) query.cleanerId = cleanerId;
     if (status) query.status = status;
@@ -116,6 +116,12 @@ class LeaveService {
       query.fromDate = {};
       if (fromDate) query.fromDate.$gte = new Date(fromDate);
       if (toDate) query.toDate = { $lte: new Date(toDate) };
+    }
+
+    if (supervisorId) {
+      const cleaners = await Cleaner.find({ supervisorId }, '_id').lean();
+      const cleanerIds = cleaners.map(c => c._id);
+      query.cleanerId = { $in: cleanerIds };
     }
 
     const skip = (page - 1) * limit;
@@ -154,12 +160,19 @@ class LeaveService {
   /**
    * Get stats
    */
-  async getStats() {
+  async getStats({ supervisorId } = {}) {
+    const query = {};
+    if (supervisorId) {
+      const cleaners = await Cleaner.find({ supervisorId }, '_id').lean();
+      const cleanerIds = cleaners.map(c => c._id);
+      query.cleanerId = { $in: cleanerIds };
+    }
+
     const [total, pending, approved, rejected] = await Promise.all([
-      Leave.countDocuments(),
-      Leave.countDocuments({ status: 'pending' }),
-      Leave.countDocuments({ status: 'approved' }),
-      Leave.countDocuments({ status: 'rejected' }),
+      Leave.countDocuments(query),
+      Leave.countDocuments({ ...query, status: 'pending' }),
+      Leave.countDocuments({ ...query, status: 'approved' }),
+      Leave.countDocuments({ ...query, status: 'rejected' }),
     ]);
     return { totalLeaves: total, pending, approved, rejected };
   }

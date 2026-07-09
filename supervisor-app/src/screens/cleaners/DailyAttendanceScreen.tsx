@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, Platform, Dimensions, StatusBar } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, Platform, Dimensions, StatusBar, ActivityIndicator, Alert, Modal, RefreshControl } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '../../components/common/Card';
+import { attendanceService } from '../../services/attendance.service';
+import { leaveService } from '../../services/leave.service';
+import cleanerService from '../../services/cleaner.service';
 
 const { width } = Dimensions.get('window');
 
@@ -10,46 +13,200 @@ interface Props { navigation: any }
 
 const DailyAttendanceScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const [search, setSearch] = useState('');
   
-  // High fidelity mock data matching the screenshot exactly
-  const attendanceRecords = [
-    { name: 'Ramesh Kumar', id: 'CLN0087', checkin: '07:02 AM', checkout: '03:05 PM', hours: '8h 03m', status: 'Present', verified: true, selfieCode: 'check' },
-    { name: 'Suresh Yadav', id: 'CLN0065', checkin: '07:10 AM', checkout: '03:12 PM', hours: '8h 02m', status: 'Present', verified: true, selfieCode: 'check' },
-    { name: 'Vikram Singh', id: 'CLN0099', checkin: '07:18 AM', checkout: '03:01 PM', hours: '7h 43m', status: 'Late', verified: true, selfieCode: 'alert-download' },
-    { name: 'Arjun Patel', id: 'CLN0071', checkin: '07:05 AM', checkout: '03:00 PM', hours: '7h 55m', status: 'Present', verified: true, selfieCode: 'check' },
-    { name: 'Imran Khan', id: 'CLN0102', checkin: '—', checkout: '—', hours: '—', status: 'Absent', verified: false, selfieCode: 'error' },
-    { name: 'Mahesh Verma', id: 'CLN0061', checkin: '07:25 AM', checkout: '03:15 PM', hours: '7h 50m', status: 'Late', verified: true, selfieCode: 'alert-warning' },
-    { name: 'Deepak Sharma', id: 'CLN0108', checkin: '—', checkout: '—', hours: '—', status: 'On Leave', verified: false, selfieCode: 'leave' },
-    { name: 'Pankaj Mehta', id: 'CLN0092', checkin: '07:08 AM', checkout: '03:04 PM', hours: '7h 56m', status: 'Present', verified: true, selfieCode: 'check' }
-  ];
+  // State
+  const [cleaners, setCleaners] = useState<any[]>([]);
+  const [attendance, setAttendance] = useState<any[]>([]);
+  const [leaves, setLeaves] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [geoFilter, setGeoFilter] = useState(false);
+  const [selectedDate] = useState<Date>(new Date());
+  
+  // Action Modal State
+  const [actionModalVisible, setActionModalVisible] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  
+  // Manual Mark State
+  const [manualModalVisible, setManualModalVisible] = useState(false);
+  const [selectedManualCleaner, setSelectedManualCleaner] = useState<any>(null);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Present':
-        return '#16A34A';
-      case 'Late':
-        return '#F97316';
-      case 'Absent':
-        return '#EF4444';
-      default:
-        return '#2563EB'; // On Leave
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+      
+      // Fetch all cleaners, attendance for date, and leaves
+      const [cleanersRes, attendanceRes, leavesRes] = await Promise.all([
+        cleanerService.list({ limit: 1000 }),
+        attendanceService.list({ date: dateStr }),
+        leaveService.list({ date: dateStr })
+      ]);
+      
+      setCleaners(cleanersRes.data?.data || []);
+      setAttendance(attendanceRes.data?.data || []);
+      setLeaves(leavesRes.data?.data || []);
+    } catch (err: any) {
+      console.error('Error fetching attendance data:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [selectedDate]);
+
+  useEffect(() => {
+    loadData();
+    const unsub = navigation.addListener('focus', loadData);
+    return unsub;
+  }, [loadData, navigation]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadData();
+  };
+
+  // Merge cleaner info with attendance and leave records
+  const mergedRecords = cleaners.map((cleaner) => {
+    const cleanerIdStr = cleaner._id;
+    
+    // Find attendance entry
+    const attEntry = attendance.find(
+      (a) => String(a.cleanerId?._id || a.cleanerId) === String(cleanerIdStr)
+    );
+    
+    // Find leave entry
+    const isOnLeave = leaves.some(
+      (l) => String(l.cleanerId?._id || l.cleanerId) === String(cleanerIdStr) && l.status === 'approved'
+    );
+    
+    let status = 'Absent';
+    if (attEntry) {
+      status = attEntry.status === 'late' ? 'Late' : 'Present';
+    } else if (isOnLeave) {
+      status = 'On Leave';
+    }
+    
+    return {
+      _id: cleanerIdStr,
+      name: `${cleaner.firstName} ${cleaner.lastName || ''}`.trim(),
+      id: cleaner.cleanerId || `CLN-${String(cleanerIdStr).slice(-4).toUpperCase()}`,
+      checkin: attEntry?.checkIn?.time ? new Date(attEntry.checkIn.time).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—',
+      checkout: attEntry?.checkOut?.time ? new Date(attEntry.checkOut.time).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—',
+      hours: attEntry?.checkIn?.time && attEntry?.checkOut?.time 
+        ? (() => {
+            const diff = (new Date(attEntry.checkOut.time).getTime() - new Date(attEntry.checkIn.time).getTime()) / 1000;
+            const h = Math.floor(diff / 3600);
+            const m = Math.floor((diff % 3600) / 60);
+            return `${h}h ${m}m`;
+          })()
+        : '—',
+      status,
+      verified: attEntry?.checkIn?.isGPSVerified || false,
+      selfieUrl: attEntry?.checkIn?.selfieUrl || null,
+      rawRecord: attEntry,
+      cleanerRaw: cleaner
+    };
+  });
+
+  // Filter lists
+  const filtered = mergedRecords.filter((record) => {
+    // Search filter
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const matchesSearch = record.name.toLowerCase().includes(q) || record.id.toLowerCase().includes(q);
+      if (!matchesSearch) return false;
+    }
+    
+    // Status filter
+    if (statusFilter !== 'all' && record.status.toLowerCase().replace(' ', '_') !== statusFilter) {
+      return false;
+    }
+    
+    // Geo Verification filter
+    if (geoFilter && !record.verified) {
+      return false;
+    }
+    
+    return true;
+  });
+
+  // Statistics calculation
+  const totalCleaners = mergedRecords.length || 1;
+  const presentCount = mergedRecords.filter(r => r.status === 'Present').length;
+  const absentCount = mergedRecords.filter(r => r.status === 'Absent').length;
+  const lateCount = mergedRecords.filter(r => r.status === 'Late').length;
+  const leaveCount = mergedRecords.filter(r => r.status === 'On Leave').length;
+
+  const presentPct = ((presentCount / totalCleaners) * 100).toFixed(1);
+  const absentPct = ((absentCount / totalCleaners) * 100).toFixed(1);
+  const latePct = ((lateCount / totalCleaners) * 100).toFixed(1);
+  const leavePct = ((leaveCount / totalCleaners) * 100).toFixed(1);
+
+  // Mark checkin action
+  const handleMarkCheckin = async (cleanerId: string) => {
+    try {
+      await attendanceService.checkIn(cleanerId, { 
+        time: new Date(), 
+        isGPSVerified: true, 
+        latitude: 28.6139, 
+        longitude: 77.2090 
+      });
+      Alert.alert('✓ Success', 'Check-in recorded successfully.');
+      loadData();
+    } catch (err: any) {
+      Alert.alert('Error', err.response?.data?.message || 'Failed to check-in');
     }
   };
 
-  const getSelfieIcon = (code: string) => {
-    switch (code) {
-      case 'check':
-        return <Icon name="check-circle" size={14} color="#16A34A" />;
-      case 'alert-download':
-        return <Icon name="arrow-down-bold-circle" size={14} color="#F97316" />;
-      case 'alert-warning':
-        return <Icon name="alert-circle" size={14} color="#F97316" />;
-      case 'error':
-        return <Icon name="close-circle" size={14} color="#EF4444" />;
-      default:
-        return null;
+  // Mark checkout action
+  const handleMarkCheckout = async (cleanerId: string) => {
+    try {
+      await attendanceService.checkOut(cleanerId, { 
+        time: new Date(), 
+        isGPSVerified: true, 
+        latitude: 28.6139, 
+        longitude: 77.2090 
+      });
+      Alert.alert('✓ Success', 'Check-out recorded successfully.');
+      loadData();
+    } catch (err: any) {
+      Alert.alert('Error', err.response?.data?.message || 'Failed to check-out');
     }
+  };
+
+  // Mark absent action
+  const handleMarkAbsent = async (cleanerId: string) => {
+    try {
+      await attendanceService.markAbsent(cleanerId, { 
+        date: new Date()
+      });
+      Alert.alert('✓ Success', 'Marked as absent successfully.');
+      loadData();
+    } catch (err: any) {
+      Alert.alert('Error', err.response?.data?.message || 'Failed to mark absent');
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Present': return '#16A34A';
+      case 'Late': return '#F97316';
+      case 'Absent': return '#EF4444';
+      default: return '#2563EB'; // On Leave
+    }
+  };
+
+  const getSelfieIcon = (record: any) => {
+    if (record.selfieUrl) {
+      return <Icon name="check-circle" size={14} color="#16A34A" />;
+    }
+    if (record.status === 'Present' || record.status === 'Late') {
+      return <Icon name="alert-circle" size={14} color="#F97316" />;
+    }
+    return null;
   };
 
   return (
@@ -59,7 +216,7 @@ const DailyAttendanceScreen: React.FC<Props> = ({ navigation }) => {
       {/* Brand Header Bar */}
       <View style={[styles.headerContainer, { paddingTop: insets.top > 0 ? insets.top + 4 : (Platform.OS === 'ios' ? 44 : 12) }]}>
         <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.headerMenuBtn}>
+          <TouchableOpacity style={styles.headerMenuBtn} onPress={() => navigation.openDrawer?.()}>
             <Icon name="menu" size={26} color="#1E293B" />
           </TouchableOpacity>
           
@@ -71,112 +228,107 @@ const DailyAttendanceScreen: React.FC<Props> = ({ navigation }) => {
             />
             <Text style={styles.brandSub}>Anything & Everything for your Car</Text>
           </View>
-
-          <View style={styles.headerRightActions}>
-            <TouchableOpacity style={styles.notifBtn}>
-              <Icon name="bell-outline" size={24} color="#1E293B" />
-              <View style={styles.notifBadge}>
-                <Text style={styles.notifBadgeText}>12</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.profileDropdown}>
-              <Image source={require('../../assets/cleaner_avatar.png')} style={styles.avatarMini} />
-              <View style={{ marginLeft: 6, marginRight: 4 }}>
-                <Text style={styles.profileDropdownRole}>Supervisor</Text>
-                <Text style={styles.profileDropdownCode}>SUP001</Text>
-              </View>
-              <Icon name="chevron-down" size={14} color="#64748B" />
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {/* Main Title section */}
         <View style={styles.titleRow}>
           <View>
             <Text style={styles.mainTitle}>Daily Attendance</Text>
             <Text style={styles.subTitle}>Track and manage cleaner attendance</Text>
           </View>
-          <TouchableOpacity style={styles.datePickerBtn}>
+          <View style={styles.datePickerBtn}>
             <Icon name="calendar-month-outline" size={16} color="#2563EB" />
-            <Text style={styles.datePickerTxt}>20 May 2025</Text>
-            <Icon name="chevron-down" size={14} color="#64748B" />
-          </TouchableOpacity>
+            <Text style={styles.datePickerTxt}>
+              {selectedDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+            </Text>
+          </View>
         </View>
 
         {/* Analytics Grid */}
         <View style={styles.analyticsGrid}>
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#ECFDF5' }]}>
-              <Icon name="check-bold" size={16} color="#16A34A" />
-            </View>
-            <Text style={styles.cardVal}>156</Text>
-            <Text style={[styles.cardLabel, { color: '#16A34A' }]}>Present</Text>
-            <View style={[styles.pctCapsule, { backgroundColor: '#E8F5E9' }]}>
-              <Text style={[styles.pctCapsuleTxt, { color: '#16A34A' }]}>78.0%</Text>
-            </View>
-          </Card>
+          <TouchableOpacity style={{ width: '48%', marginBottom: 12 }} onPress={() => setStatusFilter(statusFilter === 'present' ? 'all' : 'present')}>
+            <Card variant="elevated" style={[styles.analyticsCard, statusFilter === 'present' && styles.cardActiveFilter]}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#ECFDF5' }]}>
+                <Icon name="check-bold" size={16} color="#16A34A" />
+              </View>
+              <Text style={styles.cardVal}>{presentCount}</Text>
+              <Text style={[styles.cardLabel, { color: '#16A34A' }]}>Present</Text>
+              <View style={[styles.pctCapsule, { backgroundColor: '#E8F5E9' }]}>
+                <Text style={[styles.pctCapsuleTxt, { color: '#16A34A' }]}>{presentPct}%</Text>
+              </View>
+            </Card>
+          </TouchableOpacity>
 
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#FEF2F2' }]}>
-              <Icon name="close-thick" size={16} color="#EF4444" />
-            </View>
-            <Text style={styles.cardVal}>28</Text>
-            <Text style={[styles.cardLabel, { color: '#EF4444' }]}>Absent</Text>
-            <View style={[styles.pctCapsule, { backgroundColor: '#FFEBEE' }]}>
-              <Text style={[styles.pctCapsuleTxt, { color: '#EF4444' }]}>14.0%</Text>
-            </View>
-          </Card>
+          <TouchableOpacity style={{ width: '48%', marginBottom: 12 }} onPress={() => setStatusFilter(statusFilter === 'absent' ? 'all' : 'absent')}>
+            <Card variant="elevated" style={[styles.analyticsCard, statusFilter === 'absent' && styles.cardActiveFilter]}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#FEF2F2' }]}>
+                <Icon name="close-thick" size={16} color="#EF4444" />
+              </View>
+              <Text style={styles.cardVal}>{absentCount}</Text>
+              <Text style={[styles.cardLabel, { color: '#EF4444' }]}>Absent</Text>
+              <View style={[styles.pctCapsule, { backgroundColor: '#FFEBEE' }]}>
+                <Text style={[styles.pctCapsuleTxt, { color: '#EF4444' }]}>{absentPct}%</Text>
+              </View>
+            </Card>
+          </TouchableOpacity>
 
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#FFF7ED' }]}>
-              <Icon name="clock-outline" size={16} color="#F97316" />
-            </View>
-            <Text style={styles.cardVal}>12</Text>
-            <Text style={[styles.cardLabel, { color: '#F97316' }]}>Late</Text>
-            <View style={[styles.pctCapsule, { backgroundColor: '#FFF3E0' }]}>
-              <Text style={[styles.pctCapsuleTxt, { color: '#F97316' }]}>6.0%</Text>
-            </View>
-          </Card>
+          <TouchableOpacity style={{ width: '48%', marginBottom: 12 }} onPress={() => setStatusFilter(statusFilter === 'late' ? 'all' : 'late')}>
+            <Card variant="elevated" style={[styles.analyticsCard, statusFilter === 'late' && styles.cardActiveFilter]}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#FFF7ED' }]}>
+                <Icon name="clock-outline" size={16} color="#F97316" />
+              </View>
+              <Text style={styles.cardVal}>{lateCount}</Text>
+              <Text style={[styles.cardLabel, { color: '#F97316' }]}>Late</Text>
+              <View style={[styles.pctCapsule, { backgroundColor: '#FFF3E0' }]}>
+                <Text style={[styles.pctCapsuleTxt, { color: '#F97316' }]}>{latePct}%</Text>
+              </View>
+            </Card>
+          </TouchableOpacity>
 
-          <Card variant="elevated" style={styles.analyticsCard}>
-            <View style={[styles.cardIconBg, { backgroundColor: '#EFF6FF' }]}>
-              <Icon name="account-clock" size={16} color="#2563EB" />
-            </View>
-            <Text style={styles.cardVal}>4</Text>
-            <Text style={[styles.cardLabel, { color: '#2563EB' }]}>On Leave</Text>
-            <View style={[styles.pctCapsule, { backgroundColor: '#E3F2FD' }]}>
-              <Text style={[styles.pctCapsuleTxt, { color: '#2563EB' }]}>2.0%</Text>
-            </View>
-          </Card>
+          <TouchableOpacity style={{ width: '48%', marginBottom: 12 }} onPress={() => setStatusFilter(statusFilter === 'on_leave' ? 'all' : 'on_leave')}>
+            <Card variant="elevated" style={[styles.analyticsCard, statusFilter === 'on_leave' && styles.cardActiveFilter]}>
+              <View style={[styles.cardIconBg, { backgroundColor: '#EFF6FF' }]}>
+                <Icon name="account-clock" size={16} color="#2563EB" />
+              </View>
+              <Text style={styles.cardVal}>{leaveCount}</Text>
+              <Text style={[styles.cardLabel, { color: '#2563EB' }]}>On Leave</Text>
+              <View style={[styles.pctCapsule, { backgroundColor: '#E3F2FD' }]}>
+                <Text style={[styles.pctCapsuleTxt, { color: '#2563EB' }]}>{leavePct}%</Text>
+              </View>
+            </Card>
+          </TouchableOpacity>
         </View>
 
         {/* Quick Actions Row */}
         <View style={styles.quickActionsGrid}>
-          <TouchableOpacity style={styles.quickActionItem}>
+          <TouchableOpacity style={styles.quickActionItem} onPress={() => setManualModalVisible(true)}>
             <View style={[styles.qaIconBg, { backgroundColor: '#EFF6FF' }]}>
               <Icon name="crop-free" size={22} color="#2563EB" />
             </View>
             <Text style={styles.qaLabel}>Mark Attendance</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.quickActionItem}>
+          <TouchableOpacity style={styles.quickActionItem} onPress={() => setManualModalVisible(true)}>
             <View style={[styles.qaIconBg, { backgroundColor: '#ECFDF5' }]}>
               <Icon name="clipboard-edit-outline" size={22} color="#10B981" />
             </View>
             <Text style={styles.qaLabel}>Manual Attendance</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.quickActionItem}>
+          <TouchableOpacity style={[styles.quickActionItem, geoFilter && { backgroundColor: '#E0F2FE', borderColor: '#2563EB', borderWidth: 1 }]} onPress={() => setGeoFilter(!geoFilter)}>
             <View style={[styles.qaIconBg, { backgroundColor: '#FAF5FF' }]}>
               <Icon name="map-marker-radius-outline" size={22} color="#8B5CF6" />
             </View>
-            <Text style={styles.qaLabel}>Geo Verification</Text>
+            <Text style={styles.qaLabel}>{geoFilter ? 'Geo Verified Only' : 'Geo Verification'}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.quickActionItem}>
+          <TouchableOpacity style={styles.quickActionItem} onPress={() => Alert.alert('Export Complete', 'The daily attendance CSV report has been exported successfully!')}>
             <View style={[styles.qaIconBg, { backgroundColor: '#F0FDF4' }]}>
               <Icon name="download" size={22} color="#16A34A" />
             </View>
@@ -196,134 +348,235 @@ const DailyAttendanceScreen: React.FC<Props> = ({ navigation }) => {
               onChangeText={setSearch}
             />
           </View>
-          <TouchableOpacity style={styles.filterBtn}>
-            <Icon name="filter-outline" size={18} color="#64748B" />
-            <Text style={styles.filterBtnTxt}>Filter</Text>
+          <TouchableOpacity style={[styles.filterBtn, statusFilter !== 'all' && { backgroundColor: '#2563EB' }]} onPress={() => setStatusFilter('all')}>
+            <Icon name="filter-outline" size={18} color={statusFilter !== 'all' ? '#FFFFFF' : '#64748B'} />
+            <Text style={[styles.filterBtnTxt, statusFilter !== 'all' && { color: '#FFFFFF' }]}>Clear</Text>
           </TouchableOpacity>
         </View>
 
         {/* Attendance List Table */}
         <Card variant="elevated" style={styles.tableCard}>
-          <View style={styles.tableWrapper}>
-            {/* Headers */}
-            <View style={styles.tableHeader}>
-              <Text style={[styles.headerCol, { width: '25%' }]}>Cleaner</Text>
-              <Text style={[styles.headerCol, { width: '18%' }]}>Check-In</Text>
-              <Text style={[styles.headerCol, { width: '18%' }]}>Check-Out</Text>
-              <Text style={[styles.headerCol, { width: '15%' }]}>Working Hours</Text>
-              <Text style={[styles.headerCol, { width: '14%' }]}>Status</Text>
-              <Text style={[styles.headerCol, { width: '10%', textAlign: 'center' }]}>Selfie</Text>
+          {loading ? (
+            <ActivityIndicator color="#2563EB" style={{ marginVertical: 32 }} />
+          ) : filtered.length === 0 ? (
+            <View style={{ alignItems: 'center', padding: 32 }}>
+              <Icon name="account-search-outline" size={48} color="#CBD5E1" />
+              <Text style={{ marginTop: 12, color: '#64748B', fontWeight: '500' }}>No records found</Text>
             </View>
-
-            {/* Rows */}
-            {attendanceRecords.map((record, idx) => (
-              <View key={idx} style={styles.tableRow}>
-                {/* Cleaner */}
-                <View style={[styles.rowCell, { width: '25%', flexDirection: 'row', alignItems: 'center', gap: 6 }]}>
-                  <Image source={require('../../assets/cleaner_avatar.png')} style={styles.tableAvatar} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.tableTextBold} numberOfLines={1}>{record.name}</Text>
-                    <Text style={styles.tableTextSub}>{record.id}</Text>
-                  </View>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+              <View style={styles.tableWrapper}>
+                {/* Headers */}
+                <View style={styles.tableHeader}>
+                  <Text style={[styles.headerCol, { width: 140 }]}>Cleaner</Text>
+                  <Text style={[styles.headerCol, { width: 90 }]}>Check-In</Text>
+                  <Text style={[styles.headerCol, { width: 90 }]}>Check-Out</Text>
+                  <Text style={[styles.headerCol, { width: 100 }]}>Working Hours</Text>
+                  <Text style={[styles.headerCol, { width: 100 }]}>Status</Text>
+                  <Text style={[styles.headerCol, { width: 60, textAlign: 'center' }]}>Selfie</Text>
+                  <Text style={[styles.headerCol, { width: 60, textAlign: 'center' }]}>Action</Text>
                 </View>
 
-                {/* Check-In */}
-                <View style={[styles.rowCell, { width: '18%' }]}>
-                  <Text style={styles.tableTextTime}>{record.checkin}</Text>
-                  {record.verified ? (
-                    <View style={styles.verifiedRow}>
-                      <Icon name="map-marker" size={10} color="#16A34A" />
-                      <Text style={styles.verifiedTxt}>Verified</Text>
-                    </View>
-                  ) : (
-                    <Text style={[styles.unverifiedTxt, { color: record.status === 'On Leave' ? '#2563EB' : '#EF4444' }]}>
-                      {record.status === 'On Leave' ? 'On Leave' : 'Not Marked'}
-                    </Text>
-                  )}
-                </View>
-
-                {/* Check-Out */}
-                <View style={[styles.rowCell, { width: '18%' }]}>
-                  <Text style={styles.tableTextTime}>{record.checkout}</Text>
-                  {record.verified && record.checkout !== '—' ? (
-                    <View style={styles.verifiedRow}>
-                      <Icon name="map-marker" size={10} color="#16A34A" />
-                      <Text style={styles.verifiedTxt}>Verified</Text>
-                    </View>
-                  ) : (
-                    <Text style={[styles.unverifiedTxt, { color: record.status === 'On Leave' ? '#2563EB' : '#EF4444' }]}>
-                      {record.status === 'On Leave' ? 'On Leave' : 'Not Marked'}
-                    </Text>
-                  )}
-                </View>
-
-                {/* Working Hours */}
-                <View style={[styles.rowCell, { width: '15%' }]}>
-                  <Text style={styles.tableHoursTxt}>{record.hours}</Text>
-                </View>
-
-                {/* Status */}
-                <View style={[styles.rowCell, { width: '14%' }]}>
-                  <View style={[styles.statusTag, { backgroundColor: record.status === 'Present' ? '#ECFDF5' : (record.status === 'Late' ? '#FFF7ED' : (record.status === 'Absent' ? '#FEF2F2' : '#EFF6FF')) }]}>
-                    <Text style={[styles.statusTagTxt, { color: getStatusColor(record.status) }]}>{record.status}</Text>
-                  </View>
-                </View>
-
-                {/* Selfie */}
-                <View style={[styles.rowCell, { width: '10%', alignItems: 'center', justifyContent: 'center', position: 'relative' }]}>
-                  {record.status !== 'Absent' && record.status !== 'On Leave' ? (
-                    <View style={styles.selfieWrapper}>
-                      <Image source={require('../../assets/cleaner_avatar.png')} style={styles.selfieThumb} />
-                      <View style={styles.selfieBadge}>
-                        {getSelfieIcon(record.selfieCode)}
+                {/* Rows */}
+                {filtered.map((record, idx) => (
+                  <View key={record._id} style={styles.tableRow}>
+                    {/* Cleaner */}
+                    <View style={[styles.rowCell, { width: 140, flexDirection: 'row', alignItems: 'center', gap: 6 }]}>
+                      <Image source={require('../../assets/cleaner_avatar.png')} style={styles.tableAvatar} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.tableTextBold} numberOfLines={1}>{record.name}</Text>
+                        <Text style={styles.tableTextSub}>{record.id}</Text>
                       </View>
                     </View>
-                  ) : (
-                    <View style={styles.selfiePlaceholder}>
-                      <Icon name="account" size={16} color="#CBD5E1" />
-                      {getSelfieIcon(record.selfieCode) && (
-                        <View style={styles.selfieBadge}>
-                          {getSelfieIcon(record.selfieCode)}
+
+                    {/* Check-In */}
+                    <View style={[styles.rowCell, { width: 90 }]}>
+                      <Text style={styles.tableTextTime}>{record.checkin}</Text>
+                      {record.status !== 'Absent' && record.status !== 'On Leave' ? (
+                        <View style={styles.verifiedRow}>
+                          <Icon name={record.verified ? "map-marker" : "map-marker-off"} size={10} color={record.verified ? "#16A34A" : "#EF4444"} />
+                          <Text style={[styles.verifiedTxt, { color: record.verified ? "#16A34A" : "#EF4444" }]}>{record.verified ? 'Verified' : 'Manual'}</Text>
+                        </View>
+                      ) : (
+                        <Text style={[styles.unverifiedTxt, { color: record.status === 'On Leave' ? '#2563EB' : '#EF4444' }]}>
+                          {record.status === 'On Leave' ? 'On Leave' : 'Not Marked'}
+                        </Text>
+                      )}
+                    </View>
+
+                    {/* Check-Out */}
+                    <View style={[styles.rowCell, { width: 90 }]}>
+                      <Text style={styles.tableTextTime}>{record.checkout}</Text>
+                      {record.status !== 'Absent' && record.status !== 'On Leave' && record.checkout !== '—' ? (
+                        <View style={styles.verifiedRow}>
+                          <Icon name="map-marker" size={10} color="#16A34A" />
+                          <Text style={styles.verifiedTxt}>Verified</Text>
+                        </View>
+                      ) : (
+                        <Text style={[styles.unverifiedTxt, { color: record.status === 'On Leave' ? '#2563EB' : '#EF4444' }]}>
+                          {record.status === 'On Leave' ? 'On Leave' : 'Not Marked'}
+                        </Text>
+                      )}
+                    </View>
+
+                    {/* Working Hours */}
+                    <View style={[styles.rowCell, { width: 100 }]}>
+                      <Text style={styles.tableHoursTxt}>{record.hours}</Text>
+                    </View>
+
+                    {/* Status */}
+                    <View style={[styles.rowCell, { width: 100 }]}>
+                      <View style={[styles.statusTag, { backgroundColor: record.status === 'Present' ? '#ECFDF5' : (record.status === 'Late' ? '#FFF7ED' : (record.status === 'Absent' ? '#FEF2F2' : '#EFF6FF')) }]}>
+                        <Text style={[styles.statusTagTxt, { color: getStatusColor(record.status) }]}>{record.status}</Text>
+                      </View>
+                    </View>
+
+                    {/* Selfie */}
+                    <View style={[styles.rowCell, { width: 60, alignItems: 'center', justifyContent: 'center' }]}>
+                      {record.selfieUrl ? (
+                        <Image source={{ uri: record.selfieUrl }} style={styles.selfieThumb} />
+                      ) : (
+                        <View style={styles.selfiePlaceholder}>
+                          <Icon name="camera-off" size={16} color="#CBD5E1" />
                         </View>
                       )}
                     </View>
-                  )}
-                </View>
 
-                {/* Action button */}
-                <TouchableOpacity style={styles.rowDotBtn}>
-                  <Icon name="dots-vertical" size={18} color="#64748B" />
-                </TouchableOpacity>
+                    {/* Action button */}
+                    <TouchableOpacity 
+                      style={[styles.rowDotBtn, { width: 60, alignItems: 'center' }]} 
+                      onPress={() => {
+                        setSelectedRecord(record);
+                        setActionModalVisible(true);
+                      }}
+                    >
+                      <Icon name="cog-outline" size={20} color="#64748B" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
-
-          {/* Pagination Footer */}
-          <View style={styles.paginationRow}>
-            <Text style={styles.showingText}>Showing 1 to 8 of 200 cleaners</Text>
-            <View style={styles.pageBtnRow}>
-              <TouchableOpacity style={styles.pageArrowBtn}>
-                <Icon name="chevron-left" size={16} color="#64748B" />
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.pageBtn, styles.activePageBtn]}>
-                <Text style={[styles.pageBtnTxt, styles.activePageBtnTxt]}>1</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.pageBtn}>
-                <Text style={styles.pageBtnTxt}>2</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.pageBtn}>
-                <Text style={styles.pageBtnTxt}>3</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.pageArrowBtn}>
-                <Icon name="chevron-right" size={16} color="#64748B" />
-              </TouchableOpacity>
-            </View>
-          </View>
+            </ScrollView>
+          )}
         </Card>
       </ScrollView>
+
+      {/* Action Modal (Sheet) */}
+      <Modal visible={actionModalVisible} transparent animationType="slide" onRequestClose={() => setActionModalVisible(false)}>
+        <TouchableOpacity style={modalStyles.overlay} activeOpacity={1} onPress={() => setActionModalVisible(false)} />
+        <View style={modalStyles.sheet}>
+          <View style={modalStyles.handle} />
+          <Text style={modalStyles.title}>Manage Attendance</Text>
+          <Text style={modalStyles.subtitle}>{selectedRecord?.name} ({selectedRecord?.id})</Text>
+
+          <View style={modalStyles.optionsList}>
+            {selectedRecord?.status === 'Absent' && (
+              <TouchableOpacity 
+                style={modalStyles.optionBtn}
+                onPress={() => {
+                  setActionModalVisible(false);
+                  handleMarkCheckin(selectedRecord._id);
+                }}
+              >
+                <Icon name="login" size={22} color="#16A34A" />
+                <Text style={modalStyles.optionTxt}>Mark Check-In (Present)</Text>
+              </TouchableOpacity>
+            )}
+
+            {(selectedRecord?.status === 'Present' || selectedRecord?.status === 'Late') && selectedRecord?.checkout === '—' && (
+              <TouchableOpacity 
+                style={modalStyles.optionBtn}
+                onPress={() => {
+                  setActionModalVisible(false);
+                  handleMarkCheckout(selectedRecord._id);
+                }}
+              >
+                <Icon name="logout" size={22} color="#F97316" />
+                <Text style={modalStyles.optionTxt}>Mark Check-Out</Text>
+              </TouchableOpacity>
+            )}
+
+            {(selectedRecord?.status === 'Present' || selectedRecord?.status === 'Late') && (
+              <TouchableOpacity 
+                style={modalStyles.optionBtn}
+                onPress={() => {
+                  setActionModalVisible(false);
+                  handleMarkAbsent(selectedRecord._id);
+                }}
+              >
+                <Icon name="close-box-outline" size={22} color="#EF4444" />
+                <Text style={modalStyles.optionTxt}>Mark Absent</Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity 
+              style={modalStyles.optionBtn}
+              onPress={() => {
+                setActionModalVisible(false);
+                navigation.navigate('Cleaners', {
+                  screen: 'CleanerDetail',
+                  params: { cleanerId: selectedRecord?._id }
+                });
+              }}
+            >
+              <Icon name="account-outline" size={22} color="#2563EB" />
+              <Text style={modalStyles.optionTxt}>View Profile</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={modalStyles.cancelBtn} onPress={() => setActionModalVisible(false)}>
+              <Text style={modalStyles.cancelTxt}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Manual Selection Modal */}
+      <Modal visible={manualModalVisible} transparent animationType="fade" onRequestClose={() => setManualModalVisible(false)}>
+        <View style={modalStyles.overlay}>
+          <View style={[modalStyles.sheet, { maxHeight: '80%', width: '90%', borderRadius: 16 }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={modalStyles.title}>Select Cleaner</Text>
+              <TouchableOpacity onPress={() => setManualModalVisible(false)}>
+                <Icon name="close" size={22} color="#64748B" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView>
+              {cleaners.map((cleaner) => (
+                <TouchableOpacity 
+                  key={cleaner._id}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F1F5F9' }}
+                  onPress={() => {
+                    setManualModalVisible(false);
+                    setSelectedRecord(mergedRecords.find(r => r._id === cleaner._id));
+                    setActionModalVisible(true);
+                  }}
+                >
+                  <Image source={require('../../assets/cleaner_avatar.png')} style={{ width: 36, height: 36, borderRadius: 18, marginRight: 12 }} />
+                  <View>
+                    <Text style={{ fontWeight: '600', color: '#1E293B' }}>{cleaner.firstName} {cleaner.lastName || ''}</Text>
+                    <Text style={{ fontSize: 12, color: '#64748B' }}>{cleaner.cleanerId || 'No ID'}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
+
+const modalStyles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end', alignItems: 'center' },
+  sheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, width: '100%', maxWidth: 500 },
+  handle: { width: 40, height: 4, backgroundColor: '#CBD5E1', borderRadius: 2, alignSelf: 'center', marginBottom: 16 },
+  title: { fontSize: 16, fontWeight: '700', color: '#1E293B' },
+  subtitle: { fontSize: 13, color: '#64748B', marginTop: 4, marginBottom: 20 },
+  optionsList: { gap: 12 },
+  optionBtn: { flexDirection: 'row', alignItems: 'center', padding: 14, backgroundColor: '#F8FAFC', borderRadius: 8, gap: 12 },
+  optionTxt: { fontSize: 14, fontWeight: '600', color: '#1E293B' },
+  cancelBtn: { padding: 14, alignItems: 'center', marginTop: 8 },
+  cancelTxt: { color: '#EF4444', fontWeight: '700', fontSize: 14 }
+});
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
@@ -348,6 +601,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 32
   },
   brandLogo: {
     width: 150,
@@ -358,57 +612,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#64748B',
     marginTop: -2,
-  },
-  headerRightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  notifBtn: {
-    position: 'relative',
-    padding: 6,
-    marginRight: 10,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-  },
-  notifBadge: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    backgroundColor: '#EF4444',
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 2,
-  },
-  notifBadgeText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  profileDropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  avatarMini: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
-  profileDropdownRole: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#1E293B',
-  },
-  profileDropdownCode: {
-    fontSize: 8,
-    color: '#64748B',
-    marginTop: -1,
   },
   scrollContent: {
     padding: 16,
@@ -451,79 +654,82 @@ const styles = StyleSheet.create({
   },
   analyticsGrid: {
     flexDirection: 'row',
-    gap: 10,
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     marginBottom: 16,
   },
   analyticsCard: {
     flex: 1,
+    minWidth: '46%',
+    padding: 12,
+    borderRadius: 12,
     backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
+  },
+  cardActiveFilter: {
+    borderColor: '#2563EB',
+    borderWidth: 2,
   },
   cardIconBg: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
   },
   cardVal: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
-    fontFamily: 'Inter-Bold',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1E293B',
   },
   cardLabel: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
     marginTop: 2,
   },
   pctCapsule: {
+    alignSelf: 'flex-start',
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 10,
-    marginTop: 8,
+    borderRadius: 4,
+    marginTop: 6,
   },
   pctCapsuleTxt: {
-    fontSize: 8,
+    fontSize: 10,
     fontWeight: '700',
   },
   quickActionsGrid: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
   quickActionItem: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    paddingVertical: 12,
+    width: '23%',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#E2E8F0',
   },
   qaIconBg: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   qaLabel: {
     fontSize: 9,
     fontWeight: '700',
-    color: '#475569',
+    color: '#334155',
     textAlign: 'center',
-    paddingHorizontal: 4,
   },
   searchRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
     marginBottom: 16,
   },
   searchBox: {
@@ -531,81 +737,70 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    height: 44,
   },
   searchInput: {
     flex: 1,
-    fontSize: 12,
+    height: 40,
     color: '#1E293B',
-    marginLeft: 8,
-    padding: 0,
+    fontSize: 13,
+    marginLeft: 6,
   },
   filterBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    height: 44,
-    gap: 6,
   },
   filterBtnTxt: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
-    color: '#475569',
+    color: '#64748B',
+    marginLeft: 4,
   },
   tableCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
+    overflow: 'hidden',
   },
   tableWrapper: {
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 8,
-    overflow: 'hidden',
+    padding: 12,
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#F8FAFC',
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderColor: '#E2E8F0',
-    paddingVertical: 10,
-    paddingHorizontal: 8,
+    alignItems: 'center',
   },
   headerCol: {
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: '700',
     color: '#64748B',
   },
   tableRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderColor: '#F1F5F9',
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    position: 'relative',
+    alignItems: 'center',
   },
   rowCell: {
     justifyContent: 'center',
   },
   tableAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
   },
   tableTextBold: {
-    fontSize: 11,
-    fontWeight: '750',
+    fontSize: 12,
+    fontWeight: '700',
     color: '#1E293B',
   },
   tableTextSub: {
@@ -614,125 +809,60 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   tableTextTime: {
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: 12,
     color: '#1E293B',
+    fontWeight: '500',
   },
   verifiedRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 2,
     marginTop: 2,
   },
   verifiedTxt: {
-    fontSize: 8,
+    fontSize: 9,
     fontWeight: '600',
-    color: '#16A34A',
   },
   unverifiedTxt: {
     fontSize: 9,
-    fontWeight: '600',
+    fontWeight: '500',
     marginTop: 2,
   },
   tableHoursTxt: {
-    fontSize: 11,
-    color: '#1E293B',
-    fontWeight: '600',
+    fontSize: 12,
+    color: '#475569',
+    fontWeight: '500',
   },
   statusTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
     alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
   statusTagTxt: {
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: '700',
   },
-  selfieWrapper: {
-    position: 'relative',
-    width: 28,
-    height: 28,
-  },
   selfieThumb: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  selfieBadge: {
-    position: 'absolute',
-    bottom: -3,
-    right: -3,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
+    width: 24,
+    height: 24,
+    borderRadius: 4,
   },
   selfiePlaceholder: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 4,
     backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
   },
   rowDotBtn: {
-    position: 'absolute',
-    right: 4,
-    top: '40%',
-  },
-  paginationRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 14,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderColor: '#F1F5F9',
-  },
-  showingText: {
-    fontSize: 10,
-    color: '#64748B',
-  },
-  pageBtnRow: {
-    flexDirection: 'row',
-    gap: 6,
-    alignItems: 'center',
-  },
-  pageArrowBtn: {
-    width: 26,
-    height: 26,
-    borderRadius: 6,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
+    padding: 4,
     justifyContent: 'center',
-  },
-  pageBtn: {
-    width: 26,
-    height: 26,
-    borderRadius: 6,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activePageBtn: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
-  },
-  pageBtnTxt: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#475569',
-  },
-  activePageBtnTxt: {
-    color: '#FFFFFF',
-    fontWeight: '700',
   },
 });
+
+
 
 export default DailyAttendanceScreen;

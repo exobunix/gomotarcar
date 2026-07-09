@@ -71,6 +71,13 @@ const cleanerSchema = new mongoose.Schema({
     currentRating: { type: Number, default: 0 },
     rank: { type: Number, default: 0 },
   },
+  inventory: [{
+    itemId: { type: String, required: true },
+    name: { type: String, required: true },
+    quantity: { type: Number, default: 0 },
+    unit: { type: String, default: 'pcs' },
+    allocatedAt: { type: Date, default: Date.now }
+  }],
 }, { timestamps: true });
 
 cleanerSchema.index({ cleanerId: 1 });

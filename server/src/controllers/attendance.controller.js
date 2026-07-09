@@ -81,6 +81,42 @@ const attendanceController = {
       res.status(200).json({ success: true, data: stats });
     } catch (error) { next(error); }
   },
+
+  getSummary: async (req, res, next) => {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      let cleanerQuery = {};
+      if (req.userRole === 'supervisor') {
+        cleanerQuery.supervisorId = req.userId;
+      }
+      const cleaners = await Cleaner.find(cleanerQuery, '_id').lean();
+      const cleanerIds = cleaners.map(c => c._id);
+
+      const total = cleanerIds.length;
+      if (total === 0) {
+        return res.status(200).json({
+          success: true,
+          data: { total: 0, present: 0, late: 0, absent: 0, onLeave: 0 }
+        });
+      }
+
+      const [present, late, absent, onLeave] = await Promise.all([
+        Attendance.countDocuments({ cleanerId: { $in: cleanerIds }, date: { $gte: today, $lt: tomorrow }, status: 'present' }),
+        Attendance.countDocuments({ cleanerId: { $in: cleanerIds }, date: { $gte: today, $lt: tomorrow }, status: 'late' }),
+        Attendance.countDocuments({ cleanerId: { $in: cleanerIds }, date: { $gte: today, $lt: tomorrow }, status: 'absent' }),
+        Attendance.countDocuments({ cleanerId: { $in: cleanerIds }, date: { $gte: today, $lt: tomorrow }, status: 'leave' }),
+      ]);
+
+      res.status(200).json({
+        success: true,
+        data: { total, present, late, absent, onLeave }
+      });
+    } catch (error) { next(error); }
+  },
 };
 
 module.exports = attendanceController;

@@ -3,7 +3,7 @@ import api from './api';
 export const supervisorService = {
   getProfile: () => api.get('/supervisor/profile'),
   updateProfile: (data: any) => api.put('/supervisor/profile', data),
-  getDashboardStats: () => api.get('/supervisor/stats'),
+  getDashboardStats: () => api.get('/supervisor/me/stats'),
   getCleaners: () => api.get('/supervisor/cleaners'),
 };
 

@@ -491,19 +491,21 @@ class TaskService {
   /**
    * Get approval-page stats: pendingApproval, approvedToday, rejectedToday
    */
-  async getApprovalStats() {
+  async getApprovalStats(supervisorId) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    const baseQuery = {};
+    if (supervisorId) {
+      baseQuery.supervisorId = supervisorId;
+    }
+
     const [pendingApproval, approvedToday, rejectedToday] = await Promise.all([
-      // Tasks that are in_progress or completed but submitted today (needing supervisor sign-off)
-      Task.countDocuments({ status: 'in_progress' }),
-      // Completed today (approved by supervisor)
-      Task.countDocuments({ status: 'completed', actualEndTime: { $gte: today, $lt: tomorrow } }),
-      // Missed today (rejected / escalated)
-      Task.countDocuments({ status: 'missed', updatedAt: { $gte: today, $lt: tomorrow } }),
+      Task.countDocuments({ ...baseQuery, status: { $in: ['in_progress', 'assigned'] } }),
+      Task.countDocuments({ ...baseQuery, status: 'completed', actualEndTime: { $gte: today, $lt: tomorrow } }),
+      Task.countDocuments({ ...baseQuery, status: 'missed', updatedAt: { $gte: today, $lt: tomorrow } }),
     ]);
 
     return { pendingApproval, approvedToday, rejectedToday };
@@ -512,14 +514,17 @@ class TaskService {
   /**
    * Get tasks for approval page by status tab
    */
-  async getApprovalList({ tab = 'pending', search, page = 1, limit = 30 } = {}) {
+  async getApprovalList({ tab = 'pending', search, page = 1, limit = 30, supervisorId } = {}) {
     let statusFilter;
-    if (tab === 'pending') statusFilter = { status: 'in_progress' };
+    if (tab === 'pending') statusFilter = { status: { $in: ['in_progress', 'assigned'] } };
     else if (tab === 'approved') statusFilter = { status: 'completed' };
     else if (tab === 'rejected') statusFilter = { status: 'missed' };
     else statusFilter = {};
 
     const query = { ...statusFilter };
+    if (supervisorId) {
+      query.supervisorId = supervisorId;
+    }
 
     const skip = (page - 1) * limit;
     const tasks = await Task.find(query)

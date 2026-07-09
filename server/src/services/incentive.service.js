@@ -100,8 +100,12 @@ class IncentiveService {
   /**
    * Calculate incentives for all cleaners in a month
    */
-  async calculateAllMonthly(month, year) {
-    const cleaners = await Cleaner.find({ isActive: true });
+  async calculateAllMonthly(month, year, supervisorId) {
+    const query = { isActive: true };
+    if (supervisorId) {
+      query.supervisorId = supervisorId;
+    }
+    const cleaners = await Cleaner.find(query);
 
     const results = await Promise.allSettled(
       cleaners.map(cleaner => this.calculateMonthly(cleaner._id, month, year))
@@ -144,13 +148,19 @@ class IncentiveService {
   /**
    * List incentives
    */
-  async list({ page = 1, limit = 20, cleanerId, month, year, tier, isPaid } = {}) {
+  async list({ page = 1, limit = 20, cleanerId, month, year, tier, isPaid, supervisorId } = {}) {
     const query = {};
     if (cleanerId) query.cleanerId = cleanerId;
     if (month) query.month = month;
     if (year) query.year = year;
     if (tier) query.tier = tier;
     if (isPaid !== undefined) query.incentivePaid = isPaid;
+
+    if (supervisorId) {
+      const cleaners = await Cleaner.find({ supervisorId }, '_id').lean();
+      const cleanerIds = cleaners.map(c => c._id);
+      query.cleanerId = { $in: cleanerIds };
+    }
 
     const skip = (page - 1) * limit;
     const [incentives, total] = await Promise.all([
@@ -160,8 +170,17 @@ class IncentiveService {
       Incentive.countDocuments(query),
     ]);
 
+    const formattedData = incentives.map(inc => {
+      const doc = inc.toObject ? inc.toObject() : inc;
+      return {
+        ...doc,
+        amount: doc.incentiveAmount,
+        paymentStatus: doc.incentivePaid ? 'paid' : 'pending'
+      };
+    });
+
     return {
-      data: incentives,
+      data: formattedData,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit), hasNextPage: page * limit < total, hasPrevPage: page > 1 },
     };
   }
@@ -176,23 +195,42 @@ class IncentiveService {
       { new: true }
     );
     if (!incentive) throw new AppError('Incentive not found', 404, 'INC_NOT_FOUND');
-    return incentive;
+    return {
+      ...incentive.toObject(),
+      amount: incentive.incentiveAmount,
+      paymentStatus: 'paid'
+    };
   }
 
   /**
    * Get leaderboard
    */
-  async getLeaderboard({ month, year, limit = 20 } = {}) {
+  async getLeaderboard({ month, year, limit = 20, supervisorId } = {}) {
     const currentDate = new Date();
     const query = {
       month: month || currentDate.getMonth() + 1,
       year: year || currentDate.getFullYear(),
     };
 
-    return Incentive.find(query)
+    if (supervisorId) {
+      const cleaners = await Cleaner.find({ supervisorId }, '_id').lean();
+      const cleanerIds = cleaners.map(c => c._id);
+      query.cleanerId = { $in: cleanerIds };
+    }
+
+    const records = await Incentive.find(query)
       .populate('cleanerId', 'firstName lastName cleanerId photo')
       .sort({ performanceScore: -1 })
       .limit(limit);
+
+    return records.map(inc => {
+      const doc = inc.toObject ? inc.toObject() : inc;
+      return {
+        ...doc,
+        amount: doc.incentiveAmount,
+        paymentStatus: doc.incentivePaid ? 'paid' : 'pending'
+      };
+    });
   }
 
   /**

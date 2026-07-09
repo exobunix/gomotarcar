@@ -10,7 +10,11 @@ const complaintController = {
 
   list: async (req, res, next) => {
     try {
-      const result = await complaintService.list(req.query);
+      const query = { ...req.query };
+      if (req.userRole === 'supervisor') {
+        query.assignedTo = req.userId;
+      }
+      const result = await complaintService.list(query);
       res.status(200).json({ success: true, ...result });
     } catch (error) { next(error); }
   },

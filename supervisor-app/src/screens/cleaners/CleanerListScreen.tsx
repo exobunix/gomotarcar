@@ -34,7 +34,7 @@ const CleanerListScreen: React.FC<Props> = ({ navigation }) => {
   const [activeFilter, setActiveFilter] = useState<FilterTab>('All');
 
   const load = useCallback(() => {
-    dispatch(fetchCleaners());
+    dispatch(fetchCleaners({ limit: 1000 }));
     dispatch(fetchCleanerStats());
     dispatch(fetchUnreadCount());
   }, [dispatch]);
@@ -542,22 +542,25 @@ const styles = StyleSheet.create({
   analyticsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
   analyticsCard: {
-    width: (width - 44) / 2,
+    width: '48%',
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
     borderColor: '#F1F5F9',
+    marginBottom: 10,
   },
   analyticsCardActive: {
     borderColor: '#2563EB',
     borderWidth: 2,
     backgroundColor: '#EFF6FF',
+    width: '48%',
+    marginBottom: 10,
   },
   metricHeader: {
     flexDirection: 'row',

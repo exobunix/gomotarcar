@@ -138,14 +138,19 @@ const taskController = {
 
   getApprovalStats: async (req, res, next) => {
     try {
-      const stats = await taskService.getApprovalStats();
+      const supervisorId = req.userRole === 'supervisor' ? req.userId : undefined;
+      const stats = await taskService.getApprovalStats(supervisorId);
       res.status(200).json({ success: true, data: stats });
     } catch (error) { next(error); }
   },
 
   getApprovalList: async (req, res, next) => {
     try {
-      const result = await taskService.getApprovalList(req.query);
+      const query = { ...req.query };
+      if (req.userRole === 'supervisor') {
+        query.supervisorId = req.userId;
+      }
+      const result = await taskService.getApprovalList(query);
       res.status(200).json({ success: true, ...result });
     } catch (error) { next(error); }
   },

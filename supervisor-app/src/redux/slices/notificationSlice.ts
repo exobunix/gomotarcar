@@ -23,7 +23,8 @@ export const fetchNotifications = createAsyncThunk('notifications/fetch', async 
 
 export const fetchUnreadCount = createAsyncThunk('notifications/unreadCount', async () => {
   const res = await notificationService.getUnreadCount();
-  return res.data.data;
+  const data = res.data.data;
+  return typeof data === 'object' && data !== null && 'count' in data ? data.count : data;
 });
 
 export const markNotificationRead = createAsyncThunk('notifications/markRead', async (id: string) => {
@@ -37,9 +38,10 @@ const notificationSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchNotifications.pending, (state) => { state.loading = true; })
-      .addCase(fetchNotifications.fulfilled, (state, action) => { state.loading = false; state.notifications = action.payload; })
-      .addCase(fetchUnreadCount.fulfilled, (state, action) => { state.unreadCount = action.payload; })
+      .addCase(fetchNotifications.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchNotifications.fulfilled, (state, action) => { state.loading = false; state.notifications = action.payload || []; })
+      .addCase(fetchNotifications.rejected, (state, action) => { state.loading = false; state.error = action.error.message || 'Failed to fetch'; })
+      .addCase(fetchUnreadCount.fulfilled, (state, action) => { state.unreadCount = Number(action.payload || 0); })
       .addCase(markNotificationRead.fulfilled, (state, action) => {
         state.notifications = state.notifications.map((n) =>
           n._id === action.payload ? { ...n, isRead: true } : n

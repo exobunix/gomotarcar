@@ -12,6 +12,10 @@ const {
 router.use(authenticate);
 
 // User-facing
+router.get('/me', notificationController.listForMe);
+router.get('/me/unread', notificationController.getUnreadCountForMe);
+router.patch('/me/read-all', notificationController.markAllAsReadForMe);
+
 router.get('/user/:userId', validate(userIdParamSchema, 'params'), validate(listForUserSchema, 'query'), notificationController.listForUser);
 router.get('/user/:userId/unread', validate(userIdParamSchema, 'params'), notificationController.getUnreadCount);
 router.patch('/:id/read', validate(notificationIdParamSchema, 'params'), notificationController.markAsRead);

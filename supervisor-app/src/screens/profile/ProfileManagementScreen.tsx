@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Platform, StatusBar } from 'react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '../../components/common/Card';
@@ -9,6 +11,7 @@ interface Props { navigation: any }
 const ProfileManagementScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState('Personal Info');
+  const { supervisor } = useSelector((s: RootState) => s.auth);
 
   const subTabs = [
     { name: 'Personal Info', label: 'Personal Info', icon: 'account-outline' },
@@ -50,14 +53,14 @@ const ProfileManagementScreen: React.FC<Props> = ({ navigation }) => {
               <Image source={require('../../assets/cleaner_avatar.png')} style={styles.avatarMini} />
               <View style={{ marginLeft: 6, marginRight: 4 }}>
                 <Text style={styles.profileDropdownRole}>Supervisor</Text>
-                <Text style={styles.profileDropdownCode}>SUP001</Text>
+                <Text style={styles.profileDropdownCode}>{supervisor?.firstName ? `SU-${String(supervisor._id).slice(-3).toUpperCase()}` : 'SUP001'}</Text>
               </View>
               <Icon name="chevron-down" size={14} color="#64748B" />
             </TouchableOpacity>
           </View>
         </View>
       </View>
-
+ 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Main Title Section */}
@@ -67,7 +70,7 @@ const ProfileManagementScreen: React.FC<Props> = ({ navigation }) => {
             <Text style={styles.subTitle}>Manage your profile and account settings</Text>
           </View>
         </View>
-
+ 
         {/* Tab Row Buttons */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.subTabsRow}>
           {subTabs.map((tab) => {
@@ -84,7 +87,7 @@ const ProfileManagementScreen: React.FC<Props> = ({ navigation }) => {
             );
           })}
         </ScrollView>
-
+ 
         {/* Profile Card Summary Header Box */}
         <Card variant="elevated" style={styles.profileCard}>
           <View style={styles.profileCardRow}>
@@ -94,35 +97,35 @@ const ProfileManagementScreen: React.FC<Props> = ({ navigation }) => {
                 <Icon name="camera" size={14} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
-
+ 
             <View style={{ flex: 1, marginLeft: 16 }}>
-              <Text style={styles.profileName}>Adarsh Kumar</Text>
+              <Text style={styles.profileName}>{supervisor?.firstName} {supervisor?.lastName || ''}</Text>
               <Text style={styles.profileRole}>Supervisor</Text>
               <View style={styles.statusPill}>
                 <Text style={styles.statusPillTxt}>Active</Text>
               </View>
-
+ 
               <View style={styles.metaRow}>
                 <Icon name="email-outline" size={14} color="#64748B" />
-                <Text style={styles.metaTxt}>adarsh.kumar@gomotarcar.com</Text>
+                <Text style={styles.metaTxt}>{supervisor?.email || 'N/A'}</Text>
               </View>
-
+ 
               <View style={styles.metaRow}>
                 <Icon name="phone-outline" size={14} color="#64748B" />
-                <Text style={styles.metaTxt}>+91 98765 43210</Text>
+                <Text style={styles.metaTxt}>{supervisor?.phone || 'N/A'}</Text>
               </View>
-
+ 
               <View style={styles.metaRow}>
                 <Icon name="calendar-range" size={14} color="#64748B" />
-                <Text style={styles.metaTxt}>Joined on 15 Jan 2024</Text>
+                <Text style={styles.metaTxt}>Joined on {supervisor?.joiningDate ? new Date(supervisor.joiningDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '15 Jan 2024'}</Text>
               </View>
-
+ 
               <View style={styles.metaRow}>
                 <Icon name="map-marker-outline" size={14} color="#64748B" />
-                <Text style={styles.metaTxt}>Noida, Uttar Pradesh</Text>
+                <Text style={styles.metaTxt}>{supervisor?.assignedZone?.name || 'All Zones'}</Text>
               </View>
             </View>
-
+ 
             <TouchableOpacity style={styles.editProfileBtn}>
               <Icon name="pencil-outline" size={14} color="#2563EB" />
               <Text style={styles.editProfileTxt}>Edit Profile</Text>
@@ -139,7 +142,7 @@ const ProfileManagementScreen: React.FC<Props> = ({ navigation }) => {
               <Icon name="account-outline" size={16} color="#64748B" />
               <Text style={styles.fieldLabel}>Full Name</Text>
             </View>
-            <Text style={styles.fieldVal}>Adarsh Kumar</Text>
+            <Text style={styles.fieldVal}>{supervisor?.firstName} {supervisor?.lastName || ''}</Text>
           </View>
 
           <View style={styles.infoFieldRow}>
@@ -147,7 +150,7 @@ const ProfileManagementScreen: React.FC<Props> = ({ navigation }) => {
               <Icon name="card-account-details-outline" size={16} color="#64748B" />
               <Text style={styles.fieldLabel}>Employee ID</Text>
             </View>
-            <Text style={styles.fieldVal}>SUP001</Text>
+            <Text style={styles.fieldVal}>{supervisor?.firstName ? `SU-${String(supervisor._id).slice(-3).toUpperCase()}` : 'SUP001'}</Text>
           </View>
 
           <View style={styles.infoFieldRow}>
@@ -171,7 +174,7 @@ const ProfileManagementScreen: React.FC<Props> = ({ navigation }) => {
               <Icon name="phone-outline" size={16} color="#64748B" />
               <Text style={styles.fieldLabel}>Mobile Number</Text>
             </View>
-            <Text style={styles.fieldVal}>+91 98765 43210</Text>
+            <Text style={styles.fieldVal}>{supervisor?.phone || 'N/A'}</Text>
           </View>
 
           <View style={styles.infoFieldRow}>
@@ -179,15 +182,15 @@ const ProfileManagementScreen: React.FC<Props> = ({ navigation }) => {
               <Icon name="email-outline" size={16} color="#64748B" />
               <Text style={styles.fieldLabel}>Email Address</Text>
             </View>
-            <Text style={styles.fieldVal}>adarsh.kumar@gomotarcar.com</Text>
+            <Text style={styles.fieldVal}>{supervisor?.email || 'N/A'}</Text>
           </View>
 
           <View style={[styles.infoFieldRow, { borderBottomWidth: 0 }]}>
             <View style={styles.fieldLabelRow}>
               <Icon name="map-marker-outline" size={16} color="#64748B" />
-              <Text style={styles.fieldLabel}>Address</Text>
+              <Text style={styles.fieldLabel}>Assigned Zone</Text>
             </View>
-            <Text style={[styles.fieldVal, { textAlign: 'right', flex: 1 }]}>Sector 62, Noida, Uttar Pradesh - 201301</Text>
+            <Text style={[styles.fieldVal, { textAlign: 'right', flex: 1 }]}>{supervisor?.assignedZone?.name || 'All Zones'}</Text>
           </View>
         </Card>
 

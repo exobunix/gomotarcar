@@ -63,6 +63,27 @@ const notificationController = {
       res.status(200).json({ success: true, data: stats });
     } catch (error) { next(error); }
   },
+  
+  listForMe: async (req, res, next) => {
+    try {
+      const result = await notificationService.listForUser(req.userId, req.query);
+      res.status(200).json({ success: true, ...result });
+    } catch (error) { next(error); }
+  },
+
+  getUnreadCountForMe: async (req, res, next) => {
+    try {
+      const count = await notificationService.getUnreadCount(req.userId);
+      res.status(200).json({ success: true, data: { count } });
+    } catch (error) { next(error); }
+  },
+
+  markAllAsReadForMe: async (req, res, next) => {
+    try {
+      const result = await notificationService.markAllAsRead(req.userId);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) { next(error); }
+  },
 };
 
 module.exports = notificationController;

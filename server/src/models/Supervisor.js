@@ -72,6 +72,16 @@ const supervisorSchema = new mongoose.Schema({
     type: Number,
     default: 24,
   },
+  inventory: [{
+    itemId: { type: String, required: true },
+    name: { type: String, required: true },
+    category: { type: String },
+    quantity: { type: Number, default: 0 },
+    allocated: { type: Number, default: 0 },
+    available: { type: Number, default: 0 },
+    unit: { type: String, default: 'pcs' },
+    minStock: { type: Number, default: 10 }
+  }],
 }, {
   timestamps: true,
 });

@@ -18,9 +18,9 @@ router.get('/stats', authorize(roles.SUPER_ADMIN, roles.MANAGER), incentiveContr
 router.get('/:id', validate(incentiveIdParamSchema, 'params'), incentiveController.getById);
 router.get('/cleaner/:cleanerId/:month/:year', validate(cleanerMonthParamSchema, 'params'), incentiveController.getCleanerMonth);
 
-// Admin (write)
-router.post('/calculate', authorize(roles.SUPER_ADMIN, roles.MANAGER), validate(calculateMonthlySchema), incentiveController.calculateMonthly);
-router.post('/calculate-all', authorize(roles.SUPER_ADMIN, roles.MANAGER), validate(calculateAllMonthlySchema), incentiveController.calculateAllMonthly);
-router.patch('/:id/mark-paid', authorize(roles.SUPER_ADMIN, roles.MANAGER), validate(incentiveIdParamSchema, 'params'), validate(markPaidSchema), incentiveController.markAsPaid);
+// Admin & Supervisor (write)
+router.post('/calculate', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.SUPERVISOR), validate(calculateMonthlySchema), incentiveController.calculateMonthly);
+router.post('/calculate-all', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.SUPERVISOR), validate(calculateAllMonthlySchema), incentiveController.calculateAllMonthly);
+router.patch('/:id/mark-paid', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.SUPERVISOR), validate(incentiveIdParamSchema, 'params'), validate(markPaidSchema), incentiveController.markAsPaid);
 
 module.exports = router;

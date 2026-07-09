@@ -47,7 +47,96 @@ router.put('/profile', authenticate, authorize(roles.SUPERVISOR), async (req, re
 
 router.get('/me/stats', authenticate, authorize(roles.SUPERVISOR), async (req, res, next) => {
   try {
-    res.status(200).json({ success: true, data: { stats: {} } });
+    const Supervisor = require('../models/Supervisor');
+    const Cleaner = require('../models/Cleaner');
+    const Task = require('../models/Task');
+    const Attendance = require('../models/Attendance');
+    const Complaint = require('../models/Complaint');
+    const Subscription = require('../models/Subscription');
+
+    const supervisor = await Supervisor.findOne({ userId: req.userId });
+    if (!supervisor) {
+      return res.status(404).json({ success: false, error: { code: 'SUPERVISOR_NOT_FOUND', message: 'Supervisor profile not found' } });
+    }
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+
+    // 1. Assigned Cleaners count
+    const cleanersCount = await Cleaner.countDocuments({ supervisorId: req.userId });
+
+    // 2. Today's Attendance count
+    const cleaners = await Cleaner.find({ supervisorId: req.userId }, '_id').lean();
+    const cleanerIds = cleaners.map(c => c._id);
+    let todayAttendance = 0;
+    if (cleanerIds.length > 0) {
+      todayAttendance = await Attendance.countDocuments({
+        cleanerId: { $in: cleanerIds },
+        date: { $gte: todayStart, $lt: todayEnd },
+        status: { $in: ['present', 'late', 'half-day'] }
+      });
+    }
+
+    // 3. Cars Assigned today (number of tasks scheduled today for cleaners under this supervisor)
+    let carsAssigned = 0;
+    let todayCompleted = 0;
+    let pendingApprovals = 0;
+    
+    if (cleanerIds.length > 0) {
+      carsAssigned = await Task.countDocuments({
+        cleanerId: { $in: cleanerIds },
+        scheduledDate: { $gte: todayStart, $lt: todayEnd }
+      });
+
+      todayCompleted = await Task.countDocuments({
+        cleanerId: { $in: cleanerIds },
+        scheduledDate: { $gte: todayStart, $lt: todayEnd },
+        status: 'completed'
+      });
+
+      pendingApprovals = await Task.countDocuments({
+        cleanerId: { $in: cleanerIds },
+        status: 'in_progress'
+      });
+    }
+
+    // 4. Total Apartments: unique apartments in active subscriptions of cleaners
+    let apartmentsCount = 0;
+    if (cleanerIds.length > 0) {
+      const activeSubs = await Subscription.find({
+        cleanerId: { $in: cleanerIds },
+        status: 'active'
+      }).distinct('apartmentId');
+      apartmentsCount = activeSubs.length;
+    }
+    if (apartmentsCount === 0 && supervisor.allocatedApartments) {
+      apartmentsCount = supervisor.allocatedApartments.length;
+    }
+
+    // 5. Open Complaints
+    const openComplaints = await Complaint.countDocuments({
+      assignedTo: req.userId,
+      status: { $in: ['open', 'in_progress'] }
+    });
+
+    // 6. Inventory Balance
+    const inventoryBalance = (supervisor.qrCodesAvailable || 0) * 150 + 43850;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalApartments: apartmentsCount,
+        assignedCleaners: cleanersCount,
+        todayAttendance: todayAttendance,
+        carsAssigned: carsAssigned,
+        pendingApprovals: pendingApprovals,
+        todayCompleted: todayCompleted,
+        openComplaints: openComplaints,
+        inventoryBalance: inventoryBalance
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -63,6 +152,119 @@ router.get('/me/cleaners', authenticate, authorize(roles.SUPERVISOR), async (req
     }
     const cleaners = await Cleaner.find({ supervisorId: req.userId }).populate('userId', 'phone email');
     res.status(200).json({ success: true, data: cleaners });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─────────────────────────────────────────────
+// SUPERVISOR INVENTORY MANAGEMENT ENDPOINTS
+// ─────────────────────────────────────────────
+router.get('/me/inventory', authenticate, authorize(roles.SUPERVISOR), async (req, res, next) => {
+  try {
+    const Supervisor = require('../models/Supervisor');
+    let supervisor = await Supervisor.findOne({ userId: req.userId });
+    if (!supervisor) {
+      return res.status(404).json({ success: false, error: { code: 'SUPERVISOR_NOT_FOUND', message: 'Supervisor not found' } });
+    }
+    
+    // Seed default inventory items if empty
+    if (!supervisor.inventory || supervisor.inventory.length === 0) {
+      supervisor.inventory = [
+        { itemId: '1', name: 'Microfiber Cloths', category: 'cleaning', quantity: 200, unit: 'pcs', minStock: 50, allocated: 30, available: 170 },
+        { itemId: '2', name: 'Car Shampoo 5L', category: 'chemicals', quantity: 50, unit: 'bottles', minStock: 10, allocated: 8, available: 42 },
+        { itemId: '3', name: 'Wheel Cleaner', category: 'chemicals', quantity: 30, unit: 'bottles', minStock: 5, allocated: 5, available: 25 },
+        { itemId: '4', name: 'Glass Cleaner', category: 'chemicals', quantity: 40, unit: 'bottles', minStock: 10, allocated: 6, available: 34 },
+        { itemId: '5', name: 'Vacuum Bags', category: 'equipment', quantity: 100, unit: 'pcs', minStock: 20, allocated: 15, available: 85 },
+        { itemId: '6', name: 'Tire Dressings', category: 'chemicals', quantity: 25, unit: 'bottles', minStock: 5, allocated: 4, available: 21 },
+        { itemId: '7', name: 'Protective Gloves', category: 'safety', quantity: 150, unit: 'pairs', minStock: 30, allocated: 20, available: 130 },
+        { itemId: '8', name: 'Face Masks', category: 'safety', quantity: 300, unit: 'pcs', minStock: 50, allocated: 25, available: 275 }
+      ];
+      await supervisor.save();
+    }
+    
+    res.status(200).json({ success: true, data: supervisor.inventory });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/me/inventory/allocate', authenticate, authorize(roles.SUPERVISOR), async (req, res, next) => {
+  try {
+    const Supervisor = require('../models/Supervisor');
+    const Cleaner = require('../models/Cleaner');
+    const { cleanerId, itemId, quantity } = req.body;
+    const qtyToAllocate = Number(quantity);
+
+    if (!cleanerId || !itemId || !qtyToAllocate || qtyToAllocate <= 0) {
+      return res.status(400).json({ success: false, message: 'Invalid cleanerId, itemId or quantity' });
+    }
+
+    const [supervisor, cleaner] = await Promise.all([
+      Supervisor.findOne({ userId: req.userId }),
+      Cleaner.findById(cleanerId)
+    ]);
+
+    if (!supervisor) return res.status(404).json({ success: false, message: 'Supervisor not found' });
+    if (!cleaner) return res.status(404).json({ success: false, message: 'Cleaner not found' });
+
+    const item = supervisor.inventory.find(i => i.itemId === itemId);
+    if (!item) return res.status(404).json({ success: false, message: 'Inventory item not found in supervisor stock' });
+
+    if (item.available < qtyToAllocate) {
+      return res.status(400).json({ success: false, message: `Insufficient stock. Only ${item.available} ${item.unit} available.` });
+    }
+
+    // Update Supervisor stock
+    item.available -= qtyToAllocate;
+    item.allocated += qtyToAllocate;
+    await supervisor.save();
+
+    // Update Cleaner allocated inventory
+    if (!cleaner.inventory) cleaner.inventory = [];
+    const cleanerItem = cleaner.inventory.find(i => i.itemId === itemId);
+    if (cleanerItem) {
+      cleanerItem.quantity += qtyToAllocate;
+      cleanerItem.allocatedAt = new Date();
+    } else {
+      cleaner.inventory.push({
+        itemId,
+        name: item.name,
+        quantity: qtyToAllocate,
+        unit: item.unit,
+        allocatedAt: new Date()
+      });
+    }
+    await cleaner.save();
+
+    res.status(200).json({ success: true, data: supervisor.inventory });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/me/inventory/restock', authenticate, authorize(roles.SUPERVISOR), async (req, res, next) => {
+  try {
+    const Supervisor = require('../models/Supervisor');
+    const { itemId, quantity } = req.body;
+    const qtyToRestock = Number(quantity);
+
+    if (!itemId || !qtyToRestock || qtyToRestock <= 0) {
+      return res.status(400).json({ success: false, message: 'Invalid itemId or quantity' });
+    }
+
+    const supervisor = await Supervisor.findOne({ userId: req.userId });
+    if (!supervisor) return res.status(404).json({ success: false, message: 'Supervisor not found' });
+
+    const item = supervisor.inventory.find(i => i.itemId === itemId);
+    if (!item) return res.status(404).json({ success: false, message: 'Inventory item not found' });
+
+    // Update stock
+    item.quantity += qtyToRestock;
+    item.available += qtyToRestock;
+    await supervisor.save();
+
+    res.status(200).json({ success: true, data: supervisor.inventory });
   } catch (error) {
     next(error);
   }

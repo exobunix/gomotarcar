@@ -110,18 +110,36 @@ class ComplaintService {
   /**
    * List complaints
    */
-  async list({ page = 1, limit = 20, status, priority, category, customerId, serviceType, search } = {}) {
+  async list({ page = 1, limit = 20, status, priority, category, customerId, serviceType, search, assignedTo } = {}) {
     const query = {};
     if (status) query.status = status;
     if (priority) query.priority = priority;
     if (category) query.category = category;
     if (customerId) query.customerId = customerId;
     if (serviceType) query.serviceType = serviceType;
-    if (search) {
+
+    if (assignedTo) {
       query.$or = [
+        { assignedTo: assignedTo },
+        { assignedTo: { $exists: false } },
+        { assignedTo: null }
+      ];
+    }
+
+    if (search) {
+      const searchTerms = [
         { ticketNumber: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
       ];
+      if (query.$or) {
+        query.$and = [
+          { $or: query.$or },
+          { $or: searchTerms }
+        ];
+        delete query.$or;
+      } else {
+        query.$or = searchTerms;
+      }
     }
 
     const skip = (page - 1) * limit;

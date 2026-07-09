@@ -12,14 +12,19 @@ const incentiveController = {
   calculateAllMonthly: async (req, res, next) => {
     try {
       const { month, year } = req.body;
-      const result = await incentiveService.calculateAllMonthly(month, year);
+      const supervisorId = req.userRole === 'supervisor' ? req.userId : undefined;
+      const result = await incentiveService.calculateAllMonthly(month, year, supervisorId);
       res.status(200).json({ success: true, data: result });
     } catch (error) { next(error); }
   },
 
   list: async (req, res, next) => {
     try {
-      const result = await incentiveService.list(req.query);
+      const query = { ...req.query };
+      if (req.userRole === 'supervisor') {
+        query.supervisorId = req.userId;
+      }
+      const result = await incentiveService.list(query);
       res.status(200).json({ success: true, ...result });
     } catch (error) { next(error); }
   },
@@ -49,7 +54,11 @@ const incentiveController = {
 
   getLeaderboard: async (req, res, next) => {
     try {
-      const leaderboard = await incentiveService.getLeaderboard(req.query);
+      const query = { ...req.query };
+      if (req.userRole === 'supervisor') {
+        query.supervisorId = req.userId;
+      }
+      const leaderboard = await incentiveService.getLeaderboard(query);
       res.status(200).json({ success: true, data: leaderboard });
     } catch (error) { next(error); }
   },

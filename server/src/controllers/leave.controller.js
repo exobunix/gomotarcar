@@ -10,7 +10,11 @@ const leaveController = {
 
   list: async (req, res, next) => {
     try {
-      const result = await leaveService.list(req.query);
+      const query = { ...req.query };
+      if (req.userRole === 'supervisor') {
+        query.supervisorId = req.userId;
+      }
+      const result = await leaveService.list(query);
       res.status(200).json({ success: true, ...result });
     } catch (error) { next(error); }
   },
@@ -46,7 +50,11 @@ const leaveController = {
 
   getStats: async (req, res, next) => {
     try {
-      const stats = await leaveService.getStats();
+      const query = {};
+      if (req.userRole === 'supervisor') {
+        query.supervisorId = req.userId;
+      }
+      const stats = await leaveService.getStats(query);
       res.status(200).json({ success: true, data: stats });
     } catch (error) { next(error); }
   },

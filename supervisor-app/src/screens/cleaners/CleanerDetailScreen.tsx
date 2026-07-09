@@ -13,15 +13,44 @@ const { width } = Dimensions.get('window');
 interface Props { navigation: any; route: any }
 
 const CleanerDetailScreen: React.FC<Props> = ({ navigation, route }) => {
-  const { cleanerId } = route.params;
+  const cleanerId = route.params?.cleanerId;
   const dispatch = useDispatch<AppDispatch>();
   const insets = useSafeAreaInsets();
   const { selectedCleaner: cleaner } = useSelector((s: RootState) => s.cleaners);
   const [activeTab, setActiveTab] = useState('Overview');
 
   useEffect(() => {
-    dispatch(fetchCleanerById(cleanerId));
+    if (cleanerId) {
+      dispatch(fetchCleanerById(cleanerId));
+    }
   }, [dispatch, cleanerId]);
+
+  if (!cleanerId) {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <View style={[styles.simpleHeader, { paddingTop: insets.top > 0 ? insets.top : 20, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, height: 60 }]}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon name="arrow-left" size={24} color="#1E293B" />
+          </TouchableOpacity>
+          <Text style={[styles.simpleHeaderTitle, { fontSize: 16, fontWeight: '700', color: '#1E293B', marginLeft: 16 }]}>Create Cleaner</Text>
+        </View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 }}>
+          <Icon name="account-multiple-plus-outline" size={64} color="#2563EB" />
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1E293B', marginTop: 16 }}>Cleaner Creation</Text>
+          <Text style={{ fontSize: 13, color: '#64748B', textAlign: 'center', marginTop: 8, lineHeight: 18 }}>
+            New cleaner profiles can be registered through the Admin Portal or the self-onboarding flow in the Cleaner App.
+          </Text>
+          <TouchableOpacity 
+            style={{ backgroundColor: '#2563EB', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8, marginTop: 24 }}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 14 }}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   if (!cleaner) {
     return (

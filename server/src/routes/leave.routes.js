@@ -22,6 +22,6 @@ router.patch('/:id/approve', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.S
 router.patch('/:id/reject', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.SUPERVISOR), validate(leaveIdParamSchema, 'params'), validate(rejectLeaveSchema), leaveController.reject);
 
 // Stats
-router.get('/stats', authorize(roles.SUPER_ADMIN, roles.MANAGER), leaveController.getStats);
+router.get('/stats', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.SUPERVISOR), leaveController.getStats);
 
 module.exports = router;

@@ -10,6 +10,15 @@ const bookingController = {
 
   list: async (req, res, next) => {
     try {
+      if (req.user && req.user.role === 'franchise') {
+        const Franchise = require('../models/Franchise');
+        const franchise = await Franchise.findOne({ userId: req.user.id });
+        if (franchise) {
+          req.query.franchiseId = franchise._id.toString();
+        } else {
+          req.query.franchiseId = '000000000000000000000000';
+        }
+      }
       const result = await bookingService.list(req.query);
       res.status(200).json({ success: true, ...result });
     } catch (error) { next(error); }

@@ -50,8 +50,8 @@ class CustomerService {
     return customer;
   }
 
-  async list({ page = 1, limit = 20, search, subscriptionStatus, isActive, city, apartmentId } = {}) {
-    const query = {};
+  async list({ page = 1, limit = 20, search, subscriptionStatus, isActive, city, apartmentId, ...rest } = {}) {
+    const query = { ...rest };
     if (search) {
       query.$or = [
         { firstName: { $regex: search, $options: 'i' } },

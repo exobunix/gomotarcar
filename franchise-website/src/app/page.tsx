@@ -345,93 +345,11 @@ export default function FranchisePortal() {
       const response = await api.get("/customer", { params: { limit: 100 } });
       const apiItems = response.data?.data?.items || response.data?.data || [];
       
-      const defaultCusts = [
-        {
-          _id: "default_cust_1",
-          name: "Rahul Sharma",
-          email: "rahul.sharma@email.com",
-          phone: "+91 98765 43210",
-          vehicle: "Toyota Fortuner",
-          plateNumber: "UP 16 AB 1234",
-          lastVisitDate: "24 May 2025",
-          lastVisitTime: "09:15 AM",
-          bookingsCount: 18,
-          type: "Repeat",
-          isVip: true
-        },
-        {
-          _id: "default_cust_2",
-          name: "Neha Gupta",
-          email: "neha.gupta@email.com",
-          phone: "+91 91234 56789",
-          vehicle: "Honda City",
-          plateNumber: "UP 14 CD 5678",
-          lastVisitDate: "22 May 2025",
-          lastVisitTime: "11:30 AM",
-          bookingsCount: 9,
-          type: "Repeat",
-          isVip: false
-        },
-        {
-          _id: "default_cust_3",
-          name: "Amit Verma",
-          email: "amit.verma@email.com",
-          phone: "+91 99887 66554",
-          vehicle: "Hyundai Creta",
-          plateNumber: "UP 14 EF 9012",
-          lastVisitDate: "20 May 2025",
-          lastVisitTime: "04:45 PM",
-          bookingsCount: 6,
-          type: "Repeat",
-          isVip: false
-        },
-        {
-          _id: "default_cust_4",
-          name: "Pooja Singh",
-          email: "pooja.singh@email.com",
-          phone: "+91 87654 32109",
-          vehicle: "Maruti Swift",
-          plateNumber: "UP 16 GH 7890",
-          lastVisitDate: "15 May 2025",
-          lastVisitTime: "10:20 AM",
-          bookingsCount: 3,
-          type: "Repeat",
-          isVip: false
-        },
-        {
-          _id: "default_cust_5",
-          name: "Vikram Patel",
-          email: "vikram.patel@email.com",
-          phone: "+91 96325 47896",
-          vehicle: "Mahindra Thar",
-          plateNumber: "UP 14 GH 3456",
-          lastVisitDate: "10 May 2025",
-          lastVisitTime: "03:10 PM",
-          bookingsCount: 1,
-          type: "New",
-          isVip: false
-        },
-        {
-          _id: "default_cust_6",
-          name: "Anjali Mehta",
-          email: "anjali.mehta@email.com",
-          phone: "+91 84562 36987",
-          vehicle: "Skoda Slavia",
-          plateNumber: "UP 16 KL 1122",
-          lastVisitDate: "08 May 2025",
-          lastVisitTime: "02:40 PM",
-          bookingsCount: 1,
-          type: "New",
-          isVip: false
-        }
-      ];
-
-      const merged = [...defaultCusts];
-      apiItems.forEach((apiItem: any) => {
+      const normalizedCustomers = apiItems.map((apiItem: any) => {
         // Find matching customer vehicle
         const vList = currentVehicles || vehiclesList || [];
         const customerVeh = vList.find(v => v?.customerId === apiItem?._id) || {};
-        const normalized = {
+        return {
           _id: apiItem._id,
           name: `${apiItem.firstName || ""} ${apiItem.lastName || ""}`.trim() || "Customer",
           email: apiItem.email || "no-email@gomotarcar.com",
@@ -444,98 +362,12 @@ export default function FranchisePortal() {
           type: (apiItem.totalBookings || 1) > 1 ? "Repeat" : "New",
           isVip: (apiItem.totalBookings || 1) > 5
         };
-        const existingIdx = merged.findIndex(x => x.phone === normalized.phone || x._id === normalized._id);
-        if (existingIdx !== -1) {
-          merged[existingIdx] = { ...merged[existingIdx], ...normalized };
-        } else {
-          merged.push(normalized);
-        }
       });
 
-      setCustomersList(merged);
+      setCustomersList(normalizedCustomers);
     } catch (e) {
       console.error(e);
-      // Fallback: set to default customers so page is populated even if API is empty or fails!
-      setCustomersList([
-        {
-          _id: "default_cust_1",
-          name: "Rahul Sharma",
-          email: "rahul.sharma@email.com",
-          phone: "+91 98765 43210",
-          vehicle: "Toyota Fortuner",
-          plateNumber: "UP 16 AB 1234",
-          lastVisitDate: "24 May 2025",
-          lastVisitTime: "09:15 AM",
-          bookingsCount: 18,
-          type: "Repeat",
-          isVip: true
-        },
-        {
-          _id: "default_cust_2",
-          name: "Neha Gupta",
-          email: "neha.gupta@email.com",
-          phone: "+91 91234 56789",
-          vehicle: "Honda City",
-          plateNumber: "UP 14 CD 5678",
-          lastVisitDate: "22 May 2025",
-          lastVisitTime: "11:30 AM",
-          bookingsCount: 9,
-          type: "Repeat",
-          isVip: false
-        },
-        {
-          _id: "default_cust_3",
-          name: "Amit Verma",
-          email: "amit.verma@email.com",
-          phone: "+91 99887 66554",
-          vehicle: "Hyundai Creta",
-          plateNumber: "UP 14 EF 9012",
-          lastVisitDate: "20 May 2025",
-          lastVisitTime: "04:45 PM",
-          bookingsCount: 6,
-          type: "Repeat",
-          isVip: false
-        },
-        {
-          _id: "default_cust_4",
-          name: "Pooja Singh",
-          email: "pooja.singh@email.com",
-          phone: "+91 87654 32109",
-          vehicle: "Maruti Swift",
-          plateNumber: "UP 16 GH 7890",
-          lastVisitDate: "15 May 2025",
-          lastVisitTime: "10:20 AM",
-          bookingsCount: 3,
-          type: "Repeat",
-          isVip: false
-        },
-        {
-          _id: "default_cust_5",
-          name: "Vikram Patel",
-          email: "vikram.patel@email.com",
-          phone: "+91 96325 47896",
-          vehicle: "Mahindra Thar",
-          plateNumber: "UP 14 GH 3456",
-          lastVisitDate: "10 May 2025",
-          lastVisitTime: "03:10 PM",
-          bookingsCount: 1,
-          type: "New",
-          isVip: false
-        },
-        {
-          _id: "default_cust_6",
-          name: "Anjali Mehta",
-          email: "anjali.mehta@email.com",
-          phone: "+91 84562 36987",
-          vehicle: "Skoda Slavia",
-          plateNumber: "UP 16 KL 1122",
-          lastVisitDate: "08 May 2025",
-          lastVisitTime: "02:40 PM",
-          bookingsCount: 1,
-          type: "New",
-          isVip: false
-        }
-      ]);
+      setCustomersList([]);
     }
   };
 
@@ -543,24 +375,12 @@ export default function FranchisePortal() {
     try {
       const response = await api.get("/vehicle", { params: { limit: 100 } });
       const items = response.data?.data?.items || response.data?.data || [];
-      const list = items.length > 0 ? items : [
-        { _id: "veh_1", customerId: "cust_1", brand: "Toyota", model: "Fortuner", plateNumber: "UP 16 AB 1234", color: "White", fuelType: "Diesel" },
-        { _id: "veh_2", customerId: "cust_2", brand: "Honda", model: "City", plateNumber: "UP 14 CD 5678", color: "Blue", fuelType: "Petrol" },
-        { _id: "veh_3", customerId: "cust_3", brand: "Hyundai", model: "Creta", plateNumber: "UP 14 EF 9012", color: "Silver", fuelType: "Petrol" },
-        { _id: "veh_4", customerId: "cust_4", brand: "Mahindra", model: "Thar", plateNumber: "UP 14 GH 3456", color: "Black", fuelType: "Diesel" }
-      ];
-      setVehiclesList(list);
-      return list;
+      setVehiclesList(items);
+      return items;
     } catch (e) {
       console.error(e);
-      const fallback = [
-        { _id: "veh_1", customerId: "cust_1", brand: "Toyota", model: "Fortuner", plateNumber: "UP 16 AB 1234", color: "White", fuelType: "Diesel" },
-        { _id: "veh_2", customerId: "cust_2", brand: "Honda", model: "City", plateNumber: "UP 14 CD 5678", color: "Blue", fuelType: "Petrol" },
-        { _id: "veh_3", customerId: "cust_3", brand: "Hyundai", model: "Creta", plateNumber: "UP 14 EF 9012", color: "Silver", fuelType: "Petrol" },
-        { _id: "veh_4", customerId: "cust_4", brand: "Mahindra", model: "Thar", plateNumber: "UP 14 GH 3456", color: "Black", fuelType: "Diesel" }
-      ];
-      setVehiclesList(fallback);
-      return fallback;
+      setVehiclesList([]);
+      return [];
     }
   };
 
@@ -3816,7 +3636,7 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Vehicles</span>
-                    <p className="text-2xl font-black text-slate-800 mt-1.5">128</p>
+                    <p className="text-2xl font-black text-slate-800 mt-1.5">{vehiclesList.length}</p>
                     <p className="text-[10px] text-slate-455 mt-0.5">All registered vehicles</p>
                   </div>
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-650 text-lg">
@@ -3826,7 +3646,7 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Vehicles</span>
-                    <p className="text-2xl font-black text-slate-850 mt-1.5">104</p>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">{vehiclesList.filter(v => v.isActive !== false).length}</p>
                     <p className="text-[10px] text-slate-455 mt-0.5">Currently active</p>
                   </div>
                   <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-lg">
@@ -3836,8 +3656,8 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Inactive Vehicles</span>
-                    <p className="text-2xl font-black text-slate-850 mt-1.5">16</p>
-                    <p className="text-[10px] text-slate-455 mt-0.5">Not used recently</p>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">{vehiclesList.filter(v => v.isActive === false).length}</p>
+                    <p className="text-[10px] text-slate-455 mt-0.5">Not active</p>
                   </div>
                   <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-lg">
                     🟡
@@ -3846,7 +3666,12 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">This Month Added</span>
-                    <p className="text-2xl font-black text-slate-850 mt-1.5">8</p>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">{vehiclesList.filter(v => {
+                      if (!v.createdAt) return false;
+                      const d = new Date(v.createdAt);
+                      const now = new Date();
+                      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                    }).length}</p>
                     <p className="text-[10px] text-slate-455 mt-0.5">New vehicles added</p>
                   </div>
                   <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 text-lg">

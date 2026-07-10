@@ -45,6 +45,17 @@ const customerController = {
 
   list: async (req, res, next) => {
     try {
+      if (req.user && req.user.role === 'franchise') {
+        const Franchise = require('../models/Franchise');
+        const ServiceBooking = require('../models/ServiceBooking');
+        const franchise = await Franchise.findOne({ userId: req.user.id });
+        if (franchise) {
+          const customerIds = await ServiceBooking.find({ franchiseId: franchise._id }).distinct('customerId');
+          req.query._id = { $in: customerIds };
+        } else {
+          req.query._id = { $in: [] };
+        }
+      }
       const result = await customerService.list(req.query);
       res.status(200).json({ success: true, ...result });
     } catch (error) { next(error); }

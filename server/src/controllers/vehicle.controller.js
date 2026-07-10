@@ -20,6 +20,17 @@ const vehicleController = {
    */
   list: async (req, res, next) => {
     try {
+      if (req.user && req.user.role === 'franchise') {
+        const Franchise = require('../models/Franchise');
+        const ServiceBooking = require('../models/ServiceBooking');
+        const franchise = await Franchise.findOne({ userId: req.user.id });
+        if (franchise) {
+          const vehicleIds = await ServiceBooking.find({ franchiseId: franchise._id }).distinct('vehicleId');
+          req.query._id = { $in: vehicleIds };
+        } else {
+          req.query._id = { $in: [] };
+        }
+      }
       const result = await vehicleService.list(req.query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {

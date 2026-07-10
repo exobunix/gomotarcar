@@ -94,9 +94,11 @@ class VehicleService {
   /**
    * List all vehicles (admin)
    */
-  async list({ page = 1, limit = 20, isActive, vehicleType, search } = {}) {
-    const query = {};
-    if (isActive !== undefined) query.isActive = isActive;
+  async list({ page = 1, limit = 20, isActive, vehicleType, search, ...rest } = {}) {
+    const query = { ...rest };
+    if (isActive !== undefined && isActive !== '') {
+      query.isActive = isActive === 'true' || isActive === true;
+    }
     if (vehicleType) query.vehicleType = vehicleType;
     if (search) {
       query.$or = [

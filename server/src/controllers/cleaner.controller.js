@@ -20,6 +20,15 @@ const cleanerController = {
    */
   list: async (req, res, next) => {
     try {
+      if (req.user && req.user.role === 'franchise') {
+        const Franchise = require('../models/Franchise');
+        const franchise = await Franchise.findOne({ userId: req.user.id });
+        if (franchise) {
+          req.query.assignedZone = { $in: franchise.serviceZones || [] };
+        } else {
+          req.query.assignedZone = '000000000000000000000000';
+        }
+      }
       const result = await cleanerService.list(req.query);
       res.status(200).json({ success: true, ...result });
     } catch (error) {

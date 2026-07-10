@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 
+// Trigger Vercel rebuild
 const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,

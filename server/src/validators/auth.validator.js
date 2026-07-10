@@ -60,10 +60,15 @@ const registerSchema = Joi.object({
 const loginPasswordSchema = Joi.object({
   phone: Joi.string()
     .pattern(phonePattern)
-    .required()
+    .optional()
     .messages({
       'string.pattern.base': 'Phone number must be a valid international number',
-      'any.required': 'Phone number is required',
+    }),
+  email: Joi.string()
+    .email()
+    .optional()
+    .messages({
+      'string.email': 'Please provide a valid email address',
     }),
   password: Joi.string()
     .min(6)
@@ -73,7 +78,7 @@ const loginPasswordSchema = Joi.object({
       'string.min': 'Password must be at least 6 characters',
       'any.required': 'Password is required',
     }),
-});
+}).xor('phone', 'email');
 
 const refreshTokenSchema = Joi.object({
   refreshToken: Joi.string()
@@ -109,6 +114,15 @@ const changePasswordSchema = Joi.object({
     }),
 });
 
+const googleLoginSchema = Joi.object({
+  idToken: Joi.string()
+    .required()
+    .messages({
+      'any.required': 'Google ID token is required',
+      'string.empty': 'Google ID token cannot be empty',
+    }),
+});
+
 module.exports = {
   sendOtpSchema,
   verifyOtpSchema,
@@ -117,4 +131,5 @@ module.exports = {
   refreshTokenSchema,
   setPasswordSchema,
   changePasswordSchema,
+  googleLoginSchema,
 };

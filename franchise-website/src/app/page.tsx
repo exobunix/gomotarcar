@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { auth, googleProvider, signInWithPopup } from "../lib/firebase";
 
 // ----------------------------------------------------
 // Core API Config & State Management (simulating Redux)
@@ -65,7 +66,9 @@ export default function FranchisePortal() {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
 
   // Auth form state
+  const [loginMethod, setLoginMethod] = useState<"phone" | "email">("phone");
   const [phone, setPhone] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegPassword, setShowRegPassword] = useState(false);
@@ -890,14 +893,19 @@ const fetchDashboardData = async () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone || !password) {
+    if (loginMethod === "phone" && (!phone || !password)) {
+      setAuthError("Please fill in both fields");
+      return;
+    }
+    if (loginMethod === "email" && (!loginEmail || !password)) {
       setAuthError("Please fill in both fields");
       return;
     }
     setAuthLoading(true);
     setAuthError(null);
     try {
-      const res = await api.post("/auth/login", { phone, password });
+      const payload = loginMethod === "phone" ? { phone, password } : { email: loginEmail, password };
+      const res = await api.post("/auth/login", payload);
       const data = res.data?.data || res.data;
       if (data.tokens?.accessToken) {
         const accessToken = data.tokens.accessToken;
@@ -918,6 +926,41 @@ const fetchDashboardData = async () => {
       }
     } catch (err: any) {
       setAuthError(err.response?.data?.message || err.response?.data?.error?.message || "Login failed");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const userObj = result.user;
+      const idToken = await userObj.getIdToken();
+      
+      const res = await api.post("/auth/google-login", { idToken });
+      const data = res.data?.data || res.data;
+      if (data.tokens?.accessToken) {
+        const accessToken = data.tokens.accessToken;
+        const loggedUser = data.user;
+        if (loggedUser.role !== "franchise" && loggedUser.role !== "super_admin") {
+          setAuthError("Unauthorized: Only Franchise Partners can log in here.");
+          setAuthLoading(false);
+          return;
+        }
+        localStorage.setItem("franchise_token", accessToken);
+        localStorage.setItem("franchise_user", JSON.stringify(loggedUser));
+        api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+        setToken(accessToken);
+        setUser(loggedUser);
+        setIsAuthenticated(true);
+      } else {
+        setAuthError("Invalid credentials or role");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setAuthError(err.response?.data?.message || err.response?.data?.error?.message || err.message || "Google sign-in failed");
     } finally {
       setAuthLoading(false);
     }
@@ -1137,35 +1180,73 @@ const fetchDashboardData = async () => {
               /* Login Form */
               <form className="space-y-5" onSubmit={handleLogin}>
                 <div className="flex bg-[#1E293B]/60 p-1 rounded-xl border border-slate-800 mb-6">
-                  <button type="button" className="flex-1 py-2 text-xs font-bold bg-blue-600 text-white rounded-lg transition-all shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginMethod("phone");
+                      setAuthError(null);
+                    }}
+                    className={`flex-1 py-2 text-xs transition-all rounded-lg cursor-pointer ${
+                      loginMethod === "phone"
+                        ? "font-bold bg-blue-600 text-white shadow-sm"
+                        : "font-medium text-slate-400 hover:text-white"
+                    }`}
+                  >
                     📱 Mobile Number
                   </button>
-                  <button type="button" className="flex-1 py-2 text-xs font-medium text-slate-400 hover:text-white rounded-lg transition-all">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginMethod("email");
+                      setAuthError(null);
+                    }}
+                    className={`flex-1 py-2 text-xs transition-all rounded-lg cursor-pointer ${
+                      loginMethod === "email"
+                        ? "font-bold bg-blue-600 text-white shadow-sm"
+                        : "font-medium text-slate-400 hover:text-white"
+                    }`}
+                  >
                     ✉️ Email
                   </button>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Mobile Number
-                  </label>
-                  <div className="flex gap-2">
-                    <div className="flex items-center gap-1.5 bg-[#1E293B]/40 border border-slate-800 rounded-xl px-3 text-sm text-slate-300">
-                      🇮🇳 <span>+91</span>
+                {loginMethod === "phone" ? (
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                      Mobile Number
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="flex items-center gap-1.5 bg-[#1E293B]/40 border border-slate-800 rounded-xl px-3 text-sm text-slate-300">
+                        🇮🇳 <span>+91</span>
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Enter mobile number"
+                        value={phone.replace(/^\+91/, '')}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          setPhone(val ? "+91" + val : "");
+                        }}
+                        className="flex-1 rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 transition-all text-sm"
+                      />
                     </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                      Email Address
+                    </label>
                     <input
-                      type="text"
+                      type="email"
                       required
-                      placeholder="Enter mobile number"
-                      value={phone.replace(/^\+91/, '')}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                        setPhone(val ? "+91" + val : "");
-                      }}
-                      className="flex-1 rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 transition-all text-sm"
+                      placeholder="Enter email address"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-600/50 transition-all text-sm"
                     />
                   </div>
-                </div>
+                )}
 
                 <div>
                   <div className="flex justify-between items-center mb-2">
@@ -1221,7 +1302,12 @@ const fetchDashboardData = async () => {
                   <div className="flex-grow border-t border-slate-800"></div>
                 </div>
 
-                <button type="button" className="w-full py-3 px-4 bg-white hover:bg-slate-100 text-slate-900 rounded-xl font-semibold text-xs tracking-wide shadow-md transition-all flex items-center justify-center gap-2.5 cursor-pointer">
+                 <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={authLoading}
+                  className="w-full py-3 px-4 bg-white hover:bg-slate-100 text-slate-900 rounded-xl font-semibold text-xs tracking-wide shadow-md transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-50"
+                >
                   <svg className="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.859-3.578-7.859-8s3.53-8 7.86-8c2.46 0 4.105 1.025 5.047 1.926l3.227-3.107C18.29 1.838 15.539.8 12.24.8 6.033.8 1 5.833 1 12.04s5.033 11.24 11.24 11.24c6.478 0 10.793-4.537 10.793-10.985 0-.746-.08-1.32-.176-1.88H12.24z"/></svg>
                   <span>Continue with Google</span>
                 </button>

@@ -13,6 +13,7 @@ const {
   refreshTokenSchema,
   setPasswordSchema,
   changePasswordSchema,
+  googleLoginSchema,
 } = require('../validators/auth.validator');
 
 // Public routes (with rate limiting)
@@ -30,6 +31,7 @@ router.post('/register-franchise', rateLimiters.auth, validate(require('../valid
   }
 });
 router.post('/login', rateLimiters.auth, validate(loginPasswordSchema), authController.login);
+router.post('/google-login', rateLimiters.auth, validate(googleLoginSchema), authController.googleLogin);
 router.post('/refresh', rateLimiters.auth, validate(refreshTokenSchema), authController.refresh);
 
 // Public routes (forgot/reset password)

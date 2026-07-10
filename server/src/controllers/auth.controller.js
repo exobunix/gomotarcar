@@ -68,8 +68,22 @@ const authController = {
    */
   login: async (req, res, next) => {
     try {
-      const { phone, password } = req.body;
-      const result = await authService.loginWithPassword(phone, password);
+      const { phone, email, password } = req.body;
+      const result = await authService.loginWithPassword({ phone, email, password });
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * POST /api/v1/auth/google-login
+   * Login with Firebase Google ID token
+   */
+  googleLogin: async (req, res, next) => {
+    try {
+      const { idToken } = req.body;
+      const result = await authService.loginWithGoogle(idToken);
       res.status(200).json({ success: true, data: result });
     } catch (error) {
       next(error);

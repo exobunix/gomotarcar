@@ -1,3 +1,4 @@
+const firebaseAdmin = require('firebase-admin');
 const User = require('../models/User');
 const Admin = require('../models/Admin');
 const Cleaner = require('../models/Cleaner');
@@ -73,10 +74,24 @@ class AuthService {
   /**
    * Login with phone + password
    */
-  async loginWithPassword(phone, password) {
-    const user = await User.findOne({ phone }).select('+passwordHash');
+  async loginWithPassword(identifier, password) {
+    let query = {};
+    if (identifier && typeof identifier === 'object') {
+      const { phone, email } = identifier;
+      if (email) {
+        query = { email: email.toLowerCase() };
+      } else {
+        query = { phone };
+      }
+      password = identifier.password;
+    } else {
+      query = { phone: identifier };
+    }
+
+    const user = await User.findOne(query).select('+passwordHash');
     if (!user) {
-      throw new AppError('Invalid phone or password', 401, 'AUTH_INVALID_CREDENTIALS');
+      const field = query.email ? 'email' : 'phone';
+      throw new AppError(`Invalid ${field} or password`, 401, 'AUTH_INVALID_CREDENTIALS');
     }
 
     if (!user.passwordHash) {
@@ -89,7 +104,8 @@ class AuthService {
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      throw new AppError('Invalid phone or password', 401, 'AUTH_INVALID_CREDENTIALS');
+      const field = query.email ? 'email' : 'phone';
+      throw new AppError(`Invalid ${field} or password`, 401, 'AUTH_INVALID_CREDENTIALS');
     }
 
     if (!user.isActive) {
@@ -98,6 +114,57 @@ class AuthService {
       }
       throw new AppError('Account is deactivated. Please contact support.', 403, 'AUTH_ACCOUNT_INACTIVE');
     }
+
+    return this._generateAuthResponse(user);
+  }
+
+  /**
+   * Login with Firebase Google ID token
+   */
+  async loginWithGoogle(idToken) {
+    if (!idToken) {
+      throw new AppError('Google ID token is required', 400, 'AUTH_ID_TOKEN_REQUIRED');
+    }
+
+    let decodedToken;
+    try {
+      let clientApp;
+      try {
+        clientApp = firebaseAdmin.app('client-auth');
+      } catch (e) {
+        clientApp = firebaseAdmin.initializeApp({
+          projectId: 'gomotar-7cd4a',
+        }, 'client-auth');
+      }
+      decodedToken = await clientApp.auth().verifyIdToken(idToken);
+    } catch (error) {
+      throw new AppError('Invalid Google ID token: ' + error.message, 401, 'AUTH_INVALID_GOOGLE_TOKEN');
+    }
+
+    const { email } = decodedToken;
+    if (!email) {
+      throw new AppError('Email not found in Google account', 400, 'AUTH_EMAIL_NOT_FOUND');
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      throw new AppError('Franchise partner account not found. Please register first.', 404, 'AUTH_USER_NOT_FOUND');
+    }
+
+    if (user.role !== 'franchise' && user.role !== 'super_admin') {
+      throw new AppError('Unauthorized: Only Franchise Partners can log in here.', 403, 'AUTH_UNAUTHORIZED');
+    }
+
+    if (!user.isActive) {
+      if (user.role === 'franchise' && !user.isVerified) {
+        throw new AppError('Your franchise account is pending admin approval.', 403, 'AUTH_PENDING_APPROVAL');
+      }
+      throw new AppError('Account is deactivated. Please contact support.', 403, 'AUTH_ACCOUNT_INACTIVE');
+    }
+
+    // Update lastLogin
+    user.lastLogin = new Date();
+    await user.save();
 
     return this._generateAuthResponse(user);
   }

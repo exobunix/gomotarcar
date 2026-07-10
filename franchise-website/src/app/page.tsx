@@ -1442,6 +1442,17 @@ const fetchDashboardData = async () => {
                     />
                   </div>
                   <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">State</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Haryana"
+                      value={regForm.state}
+                      onChange={(e) => setRegForm({ ...regForm, state: e.target.value })}
+                      className="w-full rounded-xl bg-[#1E293B]/40 border border-slate-850 text-white placeholder-slate-500 p-3 focus:outline-none focus:ring-2 focus:ring-blue-600/50 text-sm"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Pincode</label>
                     <input
                       type="text"

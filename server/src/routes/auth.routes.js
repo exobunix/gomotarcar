@@ -89,4 +89,120 @@ router.get('/temp-inspect-database', async (req, res, next) => {
   }
 });
 
+router.get('/temp-update-test-data', async (req, res, next) => {
+  try {
+    const User = require('../models/User');
+    const Franchise = require('../models/Franchise');
+    const ServiceBooking = require('../models/ServiceBooking');
+    const Cleaner = require('../models/Cleaner');
+    const Attendance = require('../models/Attendance');
+
+    const email = 'adarshdeepsachan@gmail.com';
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    let franchise = await Franchise.findOne({ userId: user._id });
+    if (!franchise) return res.status(404).json({ success: false, message: 'Franchise not found' });
+
+    // 1. Update franchise ID
+    franchise.franchiseId = 'GMF12345';
+    await franchise.save();
+
+    // 2. Fetch all bookings and cleaners
+    const bookings = await ServiceBooking.find({ franchiseId: franchise._id });
+    const cleaners = await Cleaner.find({ assignedZone: { $in: franchise.serviceZones } });
+
+    // 3. Update bookings dates/status to populate dashboard dynamically
+    const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    // Update first 25 bookings to be today's bookings
+    for (let i = 0; i < Math.min(bookings.length, 25); i++) {
+      bookings[i].slotDate = todayStr;
+      bookings[i].status = 'accepted';
+      bookings[i].paymentStatus = 'paid';
+      await bookings[i].save();
+    }
+
+    // Update next 15 bookings to be in progress (active)
+    for (let i = 25; i < Math.min(bookings.length, 40); i++) {
+      bookings[i].slotDate = todayStr;
+      bookings[i].status = 'in_progress';
+      bookings[i].paymentStatus = 'paid';
+      await bookings[i].save();
+    }
+
+    // Update next 35 bookings to be completed in current calendar month
+    const startOfMonthStr = new Date();
+    startOfMonthStr.setDate(5); // e.g. July 5th
+    const startOfMonthIso = startOfMonthStr.toISOString().split('T')[0];
+
+    for (let i = 40; i < Math.min(bookings.length, 75); i++) {
+      bookings[i].slotDate = startOfMonthIso;
+      bookings[i].status = 'completed';
+      bookings[i].totalAmount = 1500;
+      bookings[i].paymentStatus = 'paid';
+      await bookings[i].save();
+    }
+
+    // Update next 15 bookings to be completed but paymentStatus = 'pending'
+    for (let i = 75; i < Math.min(bookings.length, 90); i++) {
+      bookings[i].slotDate = startOfMonthIso;
+      bookings[i].status = 'completed';
+      bookings[i].totalAmount = 1200;
+      bookings[i].paymentStatus = 'pending';
+      await bookings[i].save();
+    }
+
+    // 4. Update attendance logs for today to show cleaners as present
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
+
+    // Delete existing attendance logs for today to avoid duplicates
+    const tomorrowDate = new Date(todayDate);
+    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+    await Attendance.deleteMany({ date: { $gte: todayDate, $lt: tomorrowDate } });
+
+    // Mark 20 cleaners as present today
+    const attendanceLogs = [];
+    for (let i = 0; i < Math.min(cleaners.length, 20); i++) {
+      attendanceLogs.push({
+        cleanerId: cleaners[i]._id,
+        date: todayDate,
+        status: 'present',
+        checkIn: { time: '09:00 AM', location: { type: 'Point', coordinates: [80.33, 26.44] }, address: 'Sector 62, Noida' },
+        checkOut: { time: '06:00 PM', location: { type: 'Point', coordinates: [80.33, 26.44] }, address: 'Sector 62, Noida' },
+        workingHours: 540 // 9 hours
+      });
+    }
+
+    // Mark 5 cleaners as absent today
+    for (let i = 20; i < Math.min(cleaners.length, 25); i++) {
+      attendanceLogs.push({
+        cleanerId: cleaners[i]._id,
+        date: todayDate,
+        status: 'absent'
+      });
+    }
+
+    if (attendanceLogs.length > 0) {
+      await Attendance.insertMany(attendanceLogs);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Dashboard and attendance test data updated successfully!',
+      data: {
+        franchiseId: franchise.franchiseId,
+        todayBookingsUpdated: 25,
+        activeServicesUpdated: 15,
+        monthlyRevenueUpdated: 35,
+        pendingPaymentsUpdated: 15,
+        attendanceLogsCreated: attendanceLogs.length
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

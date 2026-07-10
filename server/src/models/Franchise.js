@@ -12,6 +12,10 @@ const franchiseSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  franchiseId: {
+    type: String,
+    default: 'GMF12345',
+  },
   ownerName: {
     type: String,
     required: true,

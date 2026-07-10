@@ -34,6 +34,18 @@ const attendanceController = {
 
   list: async (req, res, next) => {
     try {
+      if (req.user && req.user.role === 'franchise') {
+        const Franchise = require('../models/Franchise');
+        const Cleaner = require('../models/Cleaner');
+        const franchise = await Franchise.findOne({ userId: req.user.id });
+        if (franchise) {
+          const cleaners = await Cleaner.find({ assignedZone: { $in: franchise.serviceZones || [] } });
+          const cleanerIds = cleaners.map(c => c._id);
+          req.query.cleanerId = { $in: cleanerIds };
+        } else {
+          req.query.cleanerId = { $in: [] };
+        }
+      }
       const result = await attendanceService.list(req.query);
       res.status(200).json({ success: true, ...result });
     } catch (error) { next(error); }

@@ -424,6 +424,7 @@ export default function FranchisePortal() {
       fetchDashboardData();
       fetchBookingsData();
       fetchStaffData();
+      fetchAttendanceData();
       initData();
     }
   }, [isAuthenticated]);
@@ -689,9 +690,38 @@ const fetchDashboardData = async () => {
     }
   };
 
+  const fetchAttendanceData = async () => {
+    try {
+      const response = await api.get("/attendance", { params: { limit: 100 } });
+      const apiItems = response.data?.data?.items || response.data?.data || [];
+      
+      const normalized = apiItems.map((apiItem: any) => {
+        const cleaner = apiItem.cleanerId || {};
+        return {
+          id: cleaner.cleanerId || `STF-${cleaner._id?.toString().slice(-4).toUpperCase()}`,
+          name: `${cleaner.firstName || ""} ${cleaner.lastName || ""}`.trim() || "Staff Member",
+          dep: cleaner.department || "Operations",
+          role: cleaner.role || "Cleaner",
+          checkin: apiItem.checkIn?.time || "--",
+          checkinDate: apiItem.date ? new Date(apiItem.date).toLocaleDateString() : "",
+          checkout: apiItem.checkOut?.time || "--",
+          checkoutDate: apiItem.date ? new Date(apiItem.date).toLocaleDateString() : "",
+          hours: apiItem.workingHours ? `${Math.floor(apiItem.workingHours / 60)}h ${apiItem.workingHours % 60}m` : "--",
+          loc: apiItem.checkIn?.address || "On Site",
+          status: (apiItem.status || "Present").charAt(0).toUpperCase() + (apiItem.status || "Present").slice(1),
+          badge: apiItem.status === 'present' ? 'bg-emerald-50 text-emerald-650' : (apiItem.status === 'absent' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'),
+          avatar: cleaner.photo || "https://images.unsplash.com/photo-1540569014015-19a7be504e3a?auto=format&fit=crop&q=80&w=60"
+        };
+      });
+      setAttendanceRecords(normalized);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([fetchDashboardData(), fetchBookingsData(), fetchStaffData()]);
+    await Promise.all([fetchDashboardData(), fetchBookingsData(), fetchStaffData(), fetchAttendanceData()]);
     setRefreshing(false);
   };
 
@@ -4845,67 +4875,69 @@ const fetchDashboardData = async () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
-                      {[
-                        { id: 'STF001', name: 'Amit Verma', dep: 'Operations', role: 'Supervisor', checkin: '09:15 AM', checkinDate: '26 May 2025', checkout: '06:05 PM', checkoutDate: '26 May 2025', hours: '8h 50m', loc: 'Sector 62, Noida', status: 'Present', badge: 'bg-emerald-50 text-emerald-650', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'STF002', name: 'Rahul Sharma', dep: 'Cleaning', role: 'Technician', checkin: '08:58 AM', checkinDate: '26 May 2025', checkout: '05:42 PM', checkoutDate: '26 May 2025', hours: '8h 44m', loc: 'Sector 63, Noida', status: 'Present', badge: 'bg-emerald-50 text-emerald-650', avatar: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'STF003', name: 'Vikram Singh', dep: 'Cleaning', role: 'Cleaner', checkin: '--', checkinDate: '', checkout: '--', checkoutDate: '', hours: '--', loc: '--', status: 'Absent', badge: 'bg-rose-50 text-rose-600', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'STF004', name: 'Sandeep Yadav', dep: 'Detailing', role: 'Detailer', checkin: '09:05 AM', checkinDate: '26 May 2025', checkout: '06:02 PM', checkoutDate: '26 May 2025', hours: '8h 57m', loc: 'Sector 61, Noida', status: 'Present', badge: 'bg-emerald-50 text-emerald-650', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'STF005', name: 'Mohit Kumar', dep: 'Mechanical', role: 'Technician', checkin: '09:20 AM', checkinDate: '26 May 2025', checkout: '--', checkoutDate: '', hours: '--', loc: 'Sector 62, Noida', status: 'On Leave', badge: 'bg-amber-50 text-amber-600', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=60' }
-                      ].map((item, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-100 bg-slate-55 shadow-sm flex items-center justify-center flex-shrink-0">
-                                <img src={item.avatar} alt={item.name} className="w-full h-full object-cover" />
-                              </div>
-                              <div>
-                                <span className="font-bold text-slate-800 block leading-tight">{item.name}</span>
-                                <span className="text-[9px] text-slate-400 font-semibold">{item.id}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4 font-semibold text-slate-500">{item.dep}</td>
-                          <td className="py-4 px-4 font-semibold text-slate-500">{item.role}</td>
-                          <td className="py-4 px-4">
-                            {item.checkin !== '--' ? (
-                              <div className="space-y-0.5">
-                                <span className="text-emerald-600 font-bold block">🟢 {item.checkin}</span>
-                                <span className="text-[8.5px] text-slate-400 font-bold">{item.checkinDate}</span>
-                              </div>
-                            ) : (
-                              <span className="text-slate-400">--</span>
-                            )}
-                          </td>
-                          <td className="py-4 px-4">
-                            {item.checkout !== '--' ? (
-                              <div className="space-y-0.5">
-                                <span className="text-emerald-600 font-bold block">🟢 {item.checkout}</span>
-                                <span className="text-[8.5px] text-slate-400 font-bold">{item.checkoutDate}</span>
-                              </div>
-                            ) : (
-                              <span className="text-slate-400">--</span>
-                            )}
-                          </td>
-                          <td className="py-4 px-4 font-semibold text-slate-500">{item.hours}</td>
-                          <td className="py-4 px-4">
-                            {item.loc !== '--' ? (
-                              <span className="text-slate-700 font-semibold">📍 {item.loc}</span>
-                            ) : (
-                              <span className="text-slate-400">--</span>
-                            )}
-                          </td>
-                          <td className="py-4 px-4 text-center">
-                            <span className={`px-2.5 py-0.5 rounded text-[8px] font-black uppercase ${item.badge}`}>{item.status}</span>
-                          </td>
-                          <td className="py-4 px-4 text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">👁️</button>
-                              <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">📷</button>
-                              <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">✏️</button>
-                            </div>
+                      {attendanceRecords.length === 0 ? (
+                        <tr>
+                          <td colSpan={9} className="py-8 text-center text-slate-400 font-semibold">
+                            No attendance records found for today
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        attendanceRecords.map((item, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="py-4 px-6">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-100 bg-slate-55 shadow-sm flex items-center justify-center flex-shrink-0">
+                                  <img src={item.avatar} alt={item.name} className="w-full h-full object-cover" />
+                                </div>
+                                <div>
+                                  <span className="font-bold text-slate-800 block leading-tight">{item.name}</span>
+                                  <span className="text-[9px] text-slate-400 font-semibold">{item.id}</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-4 font-semibold text-slate-500">{item.dep}</td>
+                            <td className="py-4 px-4 font-semibold text-slate-500">{item.role}</td>
+                            <td className="py-4 px-4">
+                              {item.checkin !== '--' ? (
+                                <div className="space-y-0.5">
+                                  <span className="text-emerald-600 font-bold block">🟢 {item.checkin}</span>
+                                  <span className="text-[8.5px] text-slate-400 font-bold">{item.checkinDate}</span>
+                                </div>
+                              ) : (
+                                <span className="text-slate-400">--</span>
+                              )}
+                            </td>
+                            <td className="py-4 px-4">
+                              {item.checkout !== '--' ? (
+                                <div className="space-y-0.5">
+                                  <span className="text-emerald-600 font-bold block">🟢 {item.checkout}</span>
+                                  <span className="text-[8.5px] text-slate-400 font-bold">{item.checkoutDate}</span>
+                                </div>
+                              ) : (
+                                <span className="text-slate-400">--</span>
+                              )}
+                            </td>
+                            <td className="py-4 px-4 font-semibold text-slate-500">{item.hours}</td>
+                            <td className="py-4 px-4">
+                              {item.loc !== '--' ? (
+                                <span className="text-slate-700 font-semibold">📍 {item.loc}</span>
+                              ) : (
+                                <span className="text-slate-400">--</span>
+                              )}
+                            </td>
+                            <td className="py-4 px-4 text-center">
+                              <span className={`px-2.5 py-0.5 rounded text-[8px] font-black uppercase ${item.badge}`}>{item.status}</span>
+                            </td>
+                            <td className="py-4 px-4 text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">👁️</button>
+                                <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">📷</button>
+                                <button className="p-1.5 hover:bg-slate-100 rounded text-slate-500">✏️</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>

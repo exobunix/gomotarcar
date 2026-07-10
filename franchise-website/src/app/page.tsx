@@ -965,13 +965,13 @@ const fetchDashboardData = async () => {
       const statusCode = err.response?.status;
       const errorMessage = err.response?.data?.message || err.response?.data?.error?.message || err.message;
       
-      if (statusCode === 404 || (errorMessage && errorMessage.toLowerCase().includes("not found"))) {
+      if (statusCode === 404 || statusCode === 403 || (errorMessage && (errorMessage.toLowerCase().includes("not found") || errorMessage.toLowerCase().includes("unauthorized")))) {
         setRegForm(prev => ({
           ...prev,
           email: userEmail
         }));
         setIsRegisterMode(true);
-        setAuthError(`No franchise account found for ${userEmail}. Please fill out the registration form below.`);
+        setAuthError(`No active franchise account found for ${userEmail}. Please register your franchise details below.`);
       } else {
         setAuthError(errorMessage || "Google sign-in failed");
       }

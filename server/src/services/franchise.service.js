@@ -11,22 +11,43 @@ class FranchiseService {
     const { franchiseName, ownerName, phone, email, address, type,
       servicesOffered, serviceZones, agreement, bankDetails } = data;
 
-    const existing = await User.findOne({ phone });
-    if (existing) {
-      throw new AppError('Phone number already registered', 409, 'FRANCHISE_PHONE_EXISTS');
+    let user = await User.findOne({ phone });
+    if (user) {
+      const existingFranchise = await Franchise.findOne({ userId: user._id });
+      if (existingFranchise) {
+        throw new AppError('Franchise partner profile already exists for this phone number', 409, 'FRANCHISE_PHONE_EXISTS');
+      }
+      user.role = 'franchise';
+      if (email) user.email = email.toLowerCase();
+      if (data.password) user.passwordHash = data.password;
+      await user.save();
+    } else if (email) {
+      const emailUser = await User.findOne({ email: email.toLowerCase() });
+      if (emailUser) {
+        const existingFranchise = await Franchise.findOne({ userId: emailUser._id });
+        if (existingFranchise) {
+          throw new AppError('Franchise partner profile already exists for this email', 409, 'FRANCHISE_EMAIL_EXISTS');
+        }
+        user = emailUser;
+        user.role = 'franchise';
+        user.phone = phone;
+        if (data.password) user.passwordHash = data.password;
+        await user.save();
+      }
     }
 
-    // Default password to owner name lowercase without spaces + '@123'
-    const defaultPassword = (ownerName || 'franchise').toLowerCase().replace(/\s+/g, '') + '@123';
-    const user = await User.create({
-      phone,
-      email,
-      role: 'franchise',
-      isVerified: false,
-      isActive: false,
-      phoneVerified: true,
-      passwordHash: data.password || defaultPassword,
-    });
+    if (!user) {
+      const defaultPassword = (ownerName || 'franchise').toLowerCase().replace(/\s+/g, '') + '@123';
+      user = await User.create({
+        phone,
+        email: email ? email.toLowerCase() : undefined,
+        role: 'franchise',
+        isVerified: false,
+        isActive: false,
+        phoneVerified: true,
+        passwordHash: data.password || defaultPassword,
+      });
+    }
 
     const franchise = await Franchise.create({
       userId: user._id,

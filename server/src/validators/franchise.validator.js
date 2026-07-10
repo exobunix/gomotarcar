@@ -15,6 +15,7 @@ const createFranchiseSchema = Joi.object({
     'any.required': 'Phone number is required',
   }),
   email: Joi.string().email().allow('', null),
+  password: Joi.string().min(6).optional(),
   address: Joi.object({
     street: Joi.string().allow('', null),
     city: Joi.string().required().messages({ 'any.required': 'City is required' }),

@@ -808,21 +808,21 @@ const fetchDashboardData = async () => {
           pendingBookings: activeCount,
           completedBookings: completedCount,
           activeBookings: activeCount,
-          bookingsGrowth: d.stats?.bookingsGrowth || 20,
-          servicesGrowth: d.stats?.servicesGrowth || 12,
+          bookingsGrowth: d.stats?.bookingsGrowth || 0,
+          servicesGrowth: d.stats?.servicesGrowth || 0,
           monthlyRevenue: d.revenue?.monthly !== undefined ? d.revenue.monthly : revTotal,
-          revenueGrowth: d.stats?.revenueGrowth || 18,
-          pendingPayments: d.revenue?.pending !== undefined ? d.revenue.pending : Math.round(revTotal * 0.19),
-          paymentGrowth: d.stats?.paymentGrowth || 8,
-          staffPresent: d.cleaners?.present !== undefined ? d.cleaners.present : 12,
-          totalStaff: d.cleaners?.total !== undefined ? d.cleaners.total : 15,
-          attendancePercentage: (d.cleaners?.total && d.cleaners?.present) ? Math.round((d.cleaners.present / d.cleaners.total) * 100) : 80,
-          newCustomers: d.stats?.newCustomers !== undefined ? d.stats.newCustomers : 36,
-          customerGrowth: d.stats?.customerGrowth || 15,
-          rating: d.stats?.rating !== undefined ? d.stats.rating : 4.7,
-          ratingGrowth: d.stats?.ratingGrowth || 0.3,
-          pendingComplaints: d.stats?.pendingComplaints !== undefined ? d.stats.pendingComplaints : 5,
-          complaintReduction: d.stats?.complaintReduction || 10,
+          revenueGrowth: d.stats?.revenueGrowth || 0,
+          pendingPayments: d.revenue?.pending !== undefined ? d.revenue.pending : 0,
+          paymentGrowth: d.stats?.paymentGrowth || 0,
+          staffPresent: d.cleaners?.present !== undefined ? d.cleaners.present : 0,
+          totalStaff: d.cleaners?.total !== undefined ? d.cleaners.total : 0,
+          attendancePercentage: (d.cleaners?.total && d.cleaners?.present) ? Math.round((d.cleaners.present / d.cleaners.total) * 100) : 0,
+          newCustomers: d.stats?.newCustomers !== undefined ? d.stats.newCustomers : 0,
+          customerGrowth: d.stats?.customerGrowth || 0,
+          rating: d.stats?.rating !== undefined ? d.stats.rating : 0,
+          ratingGrowth: d.stats?.ratingGrowth || 0,
+          pendingComplaints: d.stats?.pendingComplaints !== undefined ? d.stats.pendingComplaints : 0,
+          complaintReduction: d.stats?.complaintReduction || 0,
         });
         if (d.profile) {
           setProfile(d.profile);
@@ -1834,7 +1834,7 @@ const fetchDashboardData = async () => {
                     <span className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center text-blue-650 text-base shadow-sm">🚗</span>
                   </div>
                   <div className="mt-2">
-                    <p className="text-3xl font-black text-slate-850">{stats.activeBookings || 18}</p>
+                    <p className="text-3xl font-black text-slate-850">{stats.activeBookings}</p>
                     <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ 12% <span className="text-slate-400 font-semibold">vs yesterday</span></p>
                   </div>
                   <div className="w-full h-8 mt-2">
@@ -1887,11 +1887,11 @@ const fetchDashboardData = async () => {
                     <span className="w-7 h-7 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-650 text-sm shadow-sm">👥</span>
                   </div>
                   <div>
-                    <p className="text-2xl font-black text-slate-805">12 / 15</p>
-                    <p className="text-[9px] text-slate-450 font-bold mt-1"><span className="text-emerald-600 font-black">80%</span> Present</p>
+                    <p className="text-2xl font-black text-slate-805">{stats.staffPresent} / {stats.totalStaff}</p>
+                    <p className="text-[9px] text-slate-450 font-bold mt-1"><span className="text-emerald-600 font-black">{stats.attendancePercentage}%</span> Present</p>
                   </div>
                   <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-emerald-500 h-full w-[80%] rounded-full"></div>
+                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${stats.attendancePercentage}%` }}></div>
                   </div>
                 </div>
 

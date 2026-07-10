@@ -641,6 +641,15 @@ class DashboardService {
     }
     const actualFranchiseId = franchise ? franchise._id : franchiseIdOrUserId;
 
+    let queryFranchiseId = actualFranchiseId;
+    if (actualFranchiseId) {
+      try {
+        queryFranchiseId = new mongoose.Types.ObjectId(actualFranchiseId);
+      } catch (e) {
+        // Keep as is if not a valid ObjectId string
+      }
+    }
+
     const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999);
 
@@ -657,20 +666,20 @@ class DashboardService {
       ratingAgg
     ] = await Promise.all([
       Cleaner.countDocuments({ assignedZone: { $in: franchise?.serviceZones || [] } }),
-      ServiceBooking.aggregate([{ $match: { franchiseId: actualFranchiseId } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
-      ServiceBooking.aggregate([{ $match: { franchiseId: actualFranchiseId, status: 'completed' } }, { $group: { _id: null, total: { $sum: '$totalAmount' }, count: { $sum: 1 } } }]),
+      ServiceBooking.aggregate([{ $match: { franchiseId: queryFranchiseId } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
+      ServiceBooking.aggregate([{ $match: { franchiseId: queryFranchiseId, status: 'completed' } }, { $group: { _id: null, total: { $sum: '$totalAmount' }, count: { $sum: 1 } } }]),
       ServiceBooking.countDocuments({ franchiseId: actualFranchiseId, slotDate: { $gte: todayStart, $lte: todayEnd } }),
       ServiceBooking.countDocuments({ franchiseId: actualFranchiseId, status: { $in: ['booked', 'accepted', 'in_progress', 'job_card_pending', 'job_card_approved'] } }),
       ServiceBooking.aggregate([
-        { $match: { franchiseId: actualFranchiseId, status: 'completed', slotDate: { $gte: firstDayOfMonth } } },
+        { $match: { franchiseId: queryFranchiseId, status: 'completed', slotDate: { $gte: firstDayOfMonth } } },
         { $group: { _id: null, total: { $sum: '$totalAmount' } } }
       ]),
       ServiceBooking.aggregate([
-        { $match: { franchiseId: actualFranchiseId, paymentStatus: 'pending', status: { $ne: 'cancelled' } } },
+        { $match: { franchiseId: queryFranchiseId, paymentStatus: 'pending', status: { $ne: 'cancelled' } } },
         { $group: { _id: null, total: { $sum: '$totalAmount' } } }
       ]),
       ServiceBooking.aggregate([
-        { $match: { franchiseId: actualFranchiseId, customerRating: { $exists: true, $ne: null } } },
+        { $match: { franchiseId: queryFranchiseId, customerRating: { $exists: true, $ne: null } } },
         { $group: { _id: null, avgRating: { $avg: '$customerRating' } } }
       ])
     ]);
@@ -699,7 +708,7 @@ class DashboardService {
 
     const monthlyRevenue = monthlyRevenueAgg[0]?.total || 0;
     const pendingPayments = pendingPaymentsAgg[0]?.total || 0;
-    const avgRating = ratingAgg[0]?.avgRating ? Math.round(ratingAgg[0].avgRating * 10) / 10 : 4.7;
+    const avgRating = ratingAgg[0]?.avgRating ? Math.round(ratingAgg[0].avgRating * 10) / 10 : 0;
 
     return {
       profile: franchise ? {
@@ -709,8 +718,8 @@ class DashboardService {
         commission: franchise.agreement?.commissionPercent || 0
       } : null,
       cleaners: {
-        total: totalCleaners || 15,
-        present: todayAttendanceCount || 12
+        total: totalCleaners,
+        present: todayAttendanceCount
       },
       bookings: bookingStats,
       revenue: {
@@ -722,9 +731,9 @@ class DashboardService {
       },
       stats: {
         ...(franchise?.stats || {}),
-        newCustomers: uniqueCustomers.length || 36,
+        newCustomers: uniqueCustomers.length,
         rating: avgRating,
-        pendingComplaints: pendingComplaints || 5
+        pendingComplaints: pendingComplaints
       }
     };
   }

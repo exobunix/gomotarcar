@@ -146,12 +146,23 @@ class AuthService {
       throw new AppError('Email not found in Google account', 400, 'AUTH_EMAIL_NOT_FOUND');
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    let user = await User.findOne({ email: email.toLowerCase() });
+    let franchise = await Franchise.findOne({ email: email.toLowerCase() });
+
+    if (franchise && !user) {
+      user = await User.findById(franchise.userId);
+    }
+
     if (!user) {
       throw new AppError('Franchise partner account not found. Please register first.', 404, 'AUTH_USER_NOT_FOUND');
     }
 
-    if (user.role !== 'franchise' && user.role !== 'super_admin') {
+    if (!franchise && user.role === 'franchise') {
+      franchise = await Franchise.findOne({ userId: user._id });
+    }
+
+    const isAuthorized = user.role === 'franchise' || user.role === 'super_admin' || !!franchise;
+    if (!isAuthorized) {
       throw new AppError('Unauthorized: Only Franchise Partners can log in here.', 403, 'AUTH_UNAUTHORIZED');
     }
 

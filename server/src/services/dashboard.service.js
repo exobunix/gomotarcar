@@ -653,6 +653,7 @@ class DashboardService {
     const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999);
 
+    const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7); sevenDaysAgo.setHours(0, 0, 0, 0);
     const firstDayOfMonth = new Date(); firstDayOfMonth.setDate(1); firstDayOfMonth.setHours(0, 0, 0, 0);
 
     const [
@@ -663,7 +664,9 @@ class DashboardService {
       activeServicesCount,
       monthlyRevenueAgg,
       pendingPaymentsAgg,
-      ratingAgg
+      ratingAgg,
+      todayRevenueAgg,
+      weeklyRevenueAgg
     ] = await Promise.all([
       Cleaner.countDocuments({ assignedZone: { $in: franchise?.serviceZones || [] } }),
       ServiceBooking.aggregate([{ $match: { franchiseId: queryFranchiseId } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
@@ -681,6 +684,14 @@ class DashboardService {
       ServiceBooking.aggregate([
         { $match: { franchiseId: queryFranchiseId, customerRating: { $exists: true, $ne: null } } },
         { $group: { _id: null, avgRating: { $avg: '$customerRating' } } }
+      ]),
+      ServiceBooking.aggregate([
+        { $match: { franchiseId: queryFranchiseId, status: 'completed', slotDate: { $gte: todayStart, $lte: todayEnd } } },
+        { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+      ]),
+      ServiceBooking.aggregate([
+        { $match: { franchiseId: queryFranchiseId, status: 'completed', slotDate: { $gte: sevenDaysAgo } } },
+        { $group: { _id: null, total: { $sum: '$totalAmount' } } }
       ])
     ]);
 
@@ -725,6 +736,8 @@ class DashboardService {
       revenue: {
         total: revenueAgg[0]?.total || 0,
         count: revenueAgg[0]?.count || 0,
+        today: todayRevenueAgg[0]?.total || 0,
+        weekly: weeklyRevenueAgg[0]?.total || 0,
         monthly: monthlyRevenue,
         pending: pendingPayments,
         commission: franchise?.agreement?.commissionPercent ? Math.round((revenueAgg[0]?.total || 0) * franchise.agreement.commissionPercent / 100) : 0

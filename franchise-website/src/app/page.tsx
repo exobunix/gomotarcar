@@ -96,21 +96,24 @@ export default function FranchisePortal() {
     pendingBookings: 0,
     completedBookings: 0,
     activeBookings: 0,
-    bookingsGrowth: 20,
-    servicesGrowth: 12,
-    monthlyRevenue: 245680,
-    revenueGrowth: 18,
-    pendingPayments: 46679,
-    paymentGrowth: 8,
-    staffPresent: 12,
-    totalStaff: 15,
-    attendancePercentage: 80,
-    newCustomers: 36,
-    customerGrowth: 15,
-    rating: 4.7,
-    ratingGrowth: 0.3,
-    pendingComplaints: 5,
-    complaintReduction: 10,
+    bookingsGrowth: 0,
+    servicesGrowth: 0,
+    monthlyRevenue: 0,
+    revenueGrowth: 0,
+    pendingPayments: 0,
+    paymentGrowth: 0,
+    staffPresent: 0,
+    totalStaff: 0,
+    attendancePercentage: 0,
+    newCustomers: 0,
+    customerGrowth: 0,
+    rating: 0,
+    ratingGrowth: 0,
+    pendingComplaints: 0,
+    complaintReduction: 0,
+    todayEarnings: 0,
+    weeklyEarnings: 0,
+    netProfit: 0,
   });
   const defaultBookings = [
     {
@@ -178,12 +181,8 @@ export default function FranchisePortal() {
       paymentStatus: "pending"
     }
   ];
-  const [bookings, setBookings] = useState<any[]>(defaultBookings);
-  const [staffList, setStaffList] = useState<any[]>([
-    { _id: "1", firstName: "Rajesh", lastName: "Kumar", role: "Mechanic", phone: "+91-9876543210", isActive: true },
-    { _id: "2", firstName: "Suresh", lastName: "Patel", role: "Electrician", phone: "+91-9876543211", isActive: true },
-    { _id: "3", firstName: "Amit", lastName: "Singh", role: "Detailer", phone: "+91-9876543212", isActive: false },
-  ]);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [staffList, setStaffList] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
@@ -208,13 +207,7 @@ export default function FranchisePortal() {
   const [attendanceRoleFilter, setAttendanceRoleFilter] = useState("all");
   const [attendanceStatusFilter, setAttendanceStatusFilter] = useState("all");
   const [attendanceType, setAttendanceType] = useState("manual"); // manual, selfie, geo
-  const [attendanceRecords, setAttendanceRecords] = useState<any[]>([
-    { id: 'STF001', name: 'Amit Verma', dep: 'Operations', role: 'Supervisor', checkin: '09:15 AM', checkinDate: '26 May 2025', checkout: '06:05 PM', checkoutDate: '26 May 2025', hours: '8h 50m', location: 'Sector 62, Noida', status: 'Present', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150' },
-    { id: 'STF002', name: 'Rahul Sharma', dep: 'Cleaning', role: 'Technician', checkin: '08:58 AM', checkinDate: '26 May 2025', checkout: '05:42 PM', checkoutDate: '26 May 2025', hours: '8h 44m', location: 'Sector 63, Noida', status: 'Present', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150' },
-    { id: 'STF003', name: 'Vikram Singh', dep: 'Cleaning', role: 'Cleaner', checkin: '--', checkinDate: '', checkout: '--', checkoutDate: '', hours: '--', location: '--', status: 'Absent', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=150' },
-    { id: 'STF004', name: 'Sandeep Yadav', dep: 'Detailing', role: 'Detailer', checkin: '09:05 AM', checkinDate: '26 May 2025', checkout: '06:02 PM', checkoutDate: '26 May 2025', hours: '8h 57m', location: 'Sector 61, Noida', status: 'Present', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=150' },
-    { id: 'STF005', name: 'Mohit Kumar', dep: 'Mechanical', role: 'Technician', checkin: '09:20 AM', checkinDate: '26 May 2025', checkout: '--', checkoutDate: '', hours: '--', location: 'Sector 62, Noida', status: 'On Leave', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150' }
-  ]);
+  const [attendanceRecords, setAttendanceRecords] = useState<any[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [viewInventoryDashboard, setViewInventoryDashboard] = useState(true);
   const [viewCouponManagement, setViewCouponManagement] = useState(false);
@@ -823,6 +816,9 @@ const fetchDashboardData = async () => {
           ratingGrowth: d.stats?.ratingGrowth || 0,
           pendingComplaints: d.stats?.pendingComplaints !== undefined ? d.stats.pendingComplaints : 0,
           complaintReduction: d.stats?.complaintReduction || 0,
+          todayEarnings: d.revenue?.today || 0,
+          weeklyEarnings: d.revenue?.weekly || 0,
+          netProfit: d.revenue?.commission || 0,
         });
         if (d.profile) {
           setProfile(d.profile);
@@ -838,34 +834,24 @@ const fetchDashboardData = async () => {
       const response = await api.get("/bookings", { params: { limit: 50 } });
       const apiItems = response.data?.data?.items || response.data?.data || [];
       
-      setBookings(prev => {
-        const merged = [...prev];
-        apiItems.forEach((apiItem: any) => {
-          const normalized = {
-            _id: apiItem._id,
-            bookingId: apiItem.bookingId,
-            slotDate: apiItem.slotDate,
-            slotTime: apiItem.slotTime,
-            customerName: apiItem.customerId ? `${apiItem.customerId.firstName || ""} ${apiItem.customerId.lastName || ""}`.trim() : (apiItem.customerName || "Unknown Customer"),
-            phone: apiItem.customerId?.phone || apiItem.phone || "+91 98765 43210",
-            address: apiItem.customerId?.defaultAddressId?.street || apiItem.address || "Noida, UP",
-            vehicleNumber: apiItem.vehicleId ? `${apiItem.vehicleId.brand || apiItem.vehicleId.make || ""} ${apiItem.vehicleId.model || ""}`.trim() : (apiItem.vehicleNumber || "Toyota Fortuner"),
-            plateNumber: apiItem.vehicleId?.plateNumber || apiItem.vehicleId?.vehicleNumber || apiItem.plateNumber || "UP 16 AB 1234",
-            color: apiItem.vehicleId?.color || apiItem.color || "White",
-            serviceName: apiItem.serviceName || "Steam Car Wash",
-            totalAmount: apiItem.totalAmount || apiItem.basePrice || 1250,
-            status: apiItem.status || "booked",
-            paymentStatus: apiItem.paymentStatus || "pending"
-          };
-          const existingIdx = merged.findIndex(x => x.bookingId === normalized.bookingId || x._id === normalized._id);
-          if (existingIdx !== -1) {
-            merged[existingIdx] = { ...merged[existingIdx], ...normalized };
-          } else {
-            merged.push(normalized);
-          }
-        });
-        return merged;
-      });
+      const normalizedBookings = apiItems.map((apiItem: any) => ({
+        _id: apiItem._id,
+        bookingId: apiItem.bookingId,
+        slotDate: apiItem.slotDate,
+        slotTime: apiItem.slotTime,
+        customerName: apiItem.customerId ? `${apiItem.customerId.firstName || ""} ${apiItem.customerId.lastName || ""}`.trim() : (apiItem.customerName || "Unknown Customer"),
+        phone: apiItem.customerId?.phone || apiItem.phone || "+91 98765 43210",
+        address: apiItem.customerId?.defaultAddressId?.street || apiItem.address || "Noida, UP",
+        vehicleNumber: apiItem.vehicleId ? `${apiItem.vehicleId.brand || apiItem.vehicleId.make || ""} ${apiItem.vehicleId.model || ""}`.trim() : (apiItem.vehicleNumber || "Toyota Fortuner"),
+        plateNumber: apiItem.vehicleId?.plateNumber || apiItem.vehicleId?.vehicleNumber || apiItem.plateNumber || "UP 16 AB 1234",
+        color: apiItem.vehicleId?.color || apiItem.color || "White",
+        serviceName: apiItem.serviceName || "Steam Car Wash",
+        totalAmount: apiItem.totalAmount || apiItem.basePrice || 1250,
+        status: apiItem.status || "booked",
+        paymentStatus: apiItem.paymentStatus || "pending"
+      }));
+      
+      setBookings(normalizedBookings);
     } catch (e) {
       console.error(e);
     }
@@ -876,9 +862,7 @@ const fetchDashboardData = async () => {
       const response = await api.get("/cleaner", { params: { limit: 50 } });
       if (response.data?.data) {
         const items = response.data.data.items || response.data.data || [];
-        if (items.length > 0) {
-          setStaffList(items);
-        }
+        setStaffList(items);
       }
     } catch (e) {
       console.error(e);
@@ -4452,7 +4436,7 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Staff</span>
-                    <p className="text-2xl font-black text-slate-800 mt-1.5">32</p>
+                    <p className="text-2xl font-black text-slate-800 mt-1.5">{staffList.length}</p>
                     <p className="text-[10px] text-slate-455 mt-0.5">All registered staff</p>
                   </div>
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-650 text-lg">
@@ -4462,8 +4446,8 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Present Today</span>
-                    <p className="text-2xl font-black text-slate-850 mt-1.5">24</p>
-                    <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">75.0% of total</p>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">{stats.staffPresent}</p>
+                    <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">{stats.totalStaff > 0 ? Math.round((stats.staffPresent / stats.totalStaff) * 100) : 0}% of total</p>
                   </div>
                   <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 text-lg">
                     🟢
@@ -4472,8 +4456,8 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Absent Today</span>
-                    <p className="text-2xl font-black text-slate-850 mt-1.5">5</p>
-                    <p className="text-[10px] text-rose-500 font-semibold mt-0.5">15.6% of total</p>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">{Math.max(0, stats.totalStaff - stats.staffPresent)}</p>
+                    <p className="text-[10px] text-rose-500 font-semibold mt-0.5">{stats.totalStaff > 0 ? Math.round((Math.max(0, stats.totalStaff - stats.staffPresent) / stats.totalStaff) * 100) : 0}% of total</p>
                   </div>
                   <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-rose-500 text-lg">
                     🔴
@@ -4482,8 +4466,8 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">On Leave</span>
-                    <p className="text-2xl font-black text-slate-850 mt-1.5">3</p>
-                    <p className="text-[10px] text-amber-500 font-semibold mt-0.5">9.4% of total</p>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">0</p>
+                    <p className="text-[10px] text-amber-500 font-semibold mt-0.5">0% of total</p>
                   </div>
                   <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 text-lg">
                     🟡
@@ -5786,8 +5770,8 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Today's Earnings</span>
-                    <p className="text-2xl font-black text-slate-800 mt-1.5">₹24,560</p>
-                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +12.5% vs yesterday</p>
+                    <p className="text-2xl font-black text-slate-800 mt-1.5">₹{stats.todayEarnings.toLocaleString()}</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +0% vs yesterday</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-16 h-8 text-blue-500" viewBox="0 0 50 20" fill="none">
@@ -5800,8 +5784,8 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Weekly Earnings</span>
-                    <p className="text-2xl font-black text-slate-850 mt-1.5">₹1,72,450</p>
-                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +18.7% vs last week</p>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">₹{stats.weeklyEarnings.toLocaleString()}</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +0% vs last week</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-16 h-8 text-emerald-500" viewBox="0 0 50 20" fill="none">
@@ -5814,8 +5798,8 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Monthly Earnings</span>
-                    <p className="text-2xl font-black text-slate-850 mt-1.5">₹7,45,230</p>
-                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +22.3% vs last month</p>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">₹{stats.monthlyRevenue.toLocaleString()}</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +0% vs last month</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-16 h-8 text-purple-500" viewBox="0 0 50 20" fill="none">
@@ -5828,8 +5812,8 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Net Profit</span>
-                    <p className="text-2xl font-black text-slate-850 mt-1.5">₹4,28,310</p>
-                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +19.4% vs last month</p>
+                    <p className="text-2xl font-black text-slate-850 mt-1.5">₹{stats.netProfit.toLocaleString()}</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +0% vs last month</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-16 h-8 text-amber-500" viewBox="0 0 50 20" fill="none">
@@ -6109,8 +6093,8 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Current Balance</span>
-                    <p className="text-2xl font-black text-slate-805 mt-1">₹1,24,560.00</p>
-                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +12.6% vs last month</p>
+                    <p className="text-2xl font-black text-slate-805 mt-1">₹{stats.netProfit.toLocaleString()}</p>
+                    <p className="text-[9px] text-[#16A34A] font-bold mt-1">↑ +0% vs last month</p>
                   </div>
                   <div className="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-650 text-xl shadow-sm">
                     💳
@@ -6120,7 +6104,7 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Earnings (This Month)</span>
-                    <p className="text-2xl font-black text-slate-850 mt-1">₹7,45,230.00</p>
+                    <p className="text-2xl font-black text-slate-850 mt-1">₹{stats.monthlyRevenue.toLocaleString()}</p>
                     <button className="text-[9px] text-blue-600 font-bold mt-2 block hover:text-blue-500">View Earnings Dashboard →</button>
                   </div>
                   <div className="w-11 h-11 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-xl shadow-sm">
@@ -6131,7 +6115,7 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Withdrawn (This Month)</span>
-                    <p className="text-2xl font-black text-slate-850 mt-1">₹5,80,670.00</p>
+                    <p className="text-2xl font-black text-slate-850 mt-1">₹0</p>
                     <button className="text-[9px] text-blue-600 font-bold mt-2 block hover:text-blue-500">View Withdraw History →</button>
                   </div>
                   <div className="w-11 h-11 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-650 text-xl shadow-sm">
@@ -6142,8 +6126,8 @@ const fetchDashboardData = async () => {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150 shadow-sm flex items-center justify-between">
                   <div>
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Pending Settlement</span>
-                    <p className="text-2xl font-black text-slate-855 mt-1">₹75,430.00</p>
-                    <p className="text-[9px] text-slate-455 mt-2 font-semibold">Will be settled on 30 May 2025</p>
+                    <p className="text-2xl font-black text-slate-855 mt-1">₹{stats.pendingPayments.toLocaleString()}</p>
+                    <p className="text-[9px] text-slate-455 mt-2 font-semibold">Pending customer payments</p>
                   </div>
                   <div className="w-11 h-11 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-xl shadow-sm">
                     ⌛

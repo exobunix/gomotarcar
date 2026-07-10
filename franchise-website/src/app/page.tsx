@@ -904,7 +904,11 @@ const fetchDashboardData = async () => {
     setAuthLoading(true);
     setAuthError(null);
     try {
-      const payload = loginMethod === "phone" ? { phone, password } : { email: loginEmail, password };
+      let formattedPhone = phone.trim();
+      if (/^\d{10}$/.test(formattedPhone)) {
+        formattedPhone = "+91" + formattedPhone;
+      }
+      const payload = loginMethod === "phone" ? { phone: formattedPhone, password } : { email: loginEmail, password };
       const res = await api.post("/auth/login", payload);
       const data = res.data?.data || res.data;
       if (data.tokens?.accessToken) {

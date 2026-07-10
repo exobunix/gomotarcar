@@ -30,6 +30,57 @@ router.post('/register-franchise', rateLimiters.auth, validate(require('../valid
     next(error);
   }
 });
+router.get('/temp-db-op', async (req, res, next) => {
+  try {
+    const email = "adarshdeepsachan@gmail.com";
+    const User = require('../models/User');
+    const Franchise = require('../models/Franchise');
+
+    let user = await User.findOne({ email });
+    let franchise = await Franchise.findOne({ email });
+
+    const response = {
+      userFound: !!user,
+      franchiseFound: !!franchise,
+      userDetails: user ? {
+        id: user._id,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        isActive: user.isActive,
+        isVerified: user.isVerified,
+      } : null,
+      franchiseDetails: franchise ? {
+        id: franchise._id,
+        franchiseName: franchise.franchiseName,
+        ownerName: franchise.ownerName,
+        email: franchise.email,
+        phone: franchise.phone,
+      } : null
+    };
+
+    if (req.query.fix === 'true') {
+      if (user) {
+        user.role = 'franchise';
+        user.isActive = true;
+        user.isVerified = true;
+        user.passwordHash = "Adarsh@12";
+        await user.save();
+        response.fixed = true;
+        response.newDetails = {
+          role: user.role,
+          isActive: user.isActive,
+          isVerified: user.isVerified
+        };
+      }
+    }
+
+    res.status(200).json({ success: true, data: response });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post('/login', rateLimiters.auth, validate(loginPasswordSchema), authController.login);
 router.post('/google-login', rateLimiters.auth, validate(googleLoginSchema), authController.googleLogin);
 router.post('/refresh', rateLimiters.auth, validate(refreshTokenSchema), authController.refresh);

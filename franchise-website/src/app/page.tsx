@@ -8,7 +8,7 @@ import { auth, googleProvider, signInWithPopup } from "../lib/firebase";
 // Core API Config & State Management (simulating Redux)
 // ----------------------------------------------------
 const API_BASE = typeof window !== "undefined" && window.location.hostname !== "localhost" && !window.location.hostname.startsWith("127.0.0.1")
-  ? "https://api.gomotarcar.com/api/v1"
+  ? "https://gomotarcar-api.onrender.com/api/v1"
   : "http://localhost:5000/api/v1";
 
 const api = axios.create({
@@ -934,9 +934,11 @@ const fetchDashboardData = async () => {
   const handleGoogleLogin = async () => {
     setAuthLoading(true);
     setAuthError(null);
+    let userEmail = "";
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const userObj = result.user;
+      userEmail = userObj.email || "";
       const idToken = await userObj.getIdToken();
       
       const res = await api.post("/auth/google-login", { idToken });
@@ -960,7 +962,19 @@ const fetchDashboardData = async () => {
       }
     } catch (err: any) {
       console.error(err);
-      setAuthError(err.response?.data?.message || err.response?.data?.error?.message || err.message || "Google sign-in failed");
+      const statusCode = err.response?.status;
+      const errorMessage = err.response?.data?.message || err.response?.data?.error?.message || err.message;
+      
+      if (statusCode === 404 || (errorMessage && errorMessage.toLowerCase().includes("not found"))) {
+        setRegForm(prev => ({
+          ...prev,
+          email: userEmail
+        }));
+        setIsRegisterMode(true);
+        setAuthError(`No franchise account found for ${userEmail}. Please fill out the registration form below.`);
+      } else {
+        setAuthError(errorMessage || "Google sign-in failed");
+      }
     } finally {
       setAuthLoading(false);
     }

@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 // Trigger Vercel rebuild
-const nextConfig: NextConfig = {
+const nextConfig: any = {
   eslint: {
     ignoreDuringBuilds: true,
   },

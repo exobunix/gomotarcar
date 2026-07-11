@@ -81,6 +81,7 @@ router.get('/temp-inspect-database', async (req, res, next) => {
         franchiseId,
         franchiseName: franchise ? franchise.franchiseName : null,
         serviceZones: franchise ? franchise.serviceZones : [],
+        mongodbUri: process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/:([^@]+)@/, ':****@') : null,
         counts
       }
     });

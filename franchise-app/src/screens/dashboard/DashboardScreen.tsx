@@ -18,28 +18,98 @@ const StatCard = ({ title, value, subtitle, icon, colors }: any) => (
 
 const DashboardScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
+  const [profileName, setProfileName] = useState('Roy Motors');
+  const [initials, setInitials] = useState('RM');
   const [stats, setStats] = useState({
     todayBookings: 24,
     activeBookings: 18,
     monthlyRevenue: 245680,
     pendingPayments: 48320,
+    staffPresent: '12 / 15',
+    staffPercent: '80% Present',
+    ratings: '4.7 / 5',
+    complaints: 5,
   });
+  const [upcoming, setUpcoming] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
 
   const fetchStats = async () => {
     try {
       const franchiseService = require('../../services/franchise.service').franchiseService;
-      const response = await franchiseService.getDashboard();
-      if (response?.data) {
-        setStats(prev => ({
-          ...prev,
-          todayBookings: response.data.bookings?.today || 24,
-          activeBookings: response.data.bookings?.active || 18,
-          monthlyRevenue: response.data.revenue?.total || 245680,
-          pendingPayments: Math.round((response.data.revenue?.total || 245680) * 0.19),
-        }));
+      const bookingService = require('../../services/booking.service').bookingService;
+
+      // 1. Fetch Profile
+      try {
+        const profRes = await franchiseService.getProfile();
+        if (profRes?.data) {
+          const name = profRes.data.franchiseName || 'Roy Motors';
+          setProfileName(name);
+          setInitials(name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase());
+        }
+      } catch (e) {
+        console.error('Error fetching profile in mobile dashboard:', e);
       }
+
+      // 2. Fetch Dashboard stats
+      try {
+        const response = await franchiseService.getDashboard();
+        if (response?.data) {
+          setStats(prev => ({
+            ...prev,
+            todayBookings: response.data.bookings?.today || 24,
+            activeBookings: response.data.bookings?.active || 18,
+            monthlyRevenue: response.data.revenue?.total || 245680,
+            pendingPayments: Math.round((response.data.revenue?.total || 245680) * 0.19),
+            complaints: response.data.complaints?.total || 5,
+            ratings: response.data.ratings?.average ? `${response.data.ratings.average.toFixed(1)} / 5` : '4.7 / 5',
+          }));
+        }
+      } catch (e) {
+        console.error('Error fetching dashboard stats in mobile dashboard:', e);
+      }
+
+      // 3. Fetch Bookings for appointments and activities
+      try {
+        const bookingsRes = await bookingService.list({ limit: 10 });
+        const list = bookingsRes?.data?.data || bookingsRes?.data || [];
+        if (list.length > 0) {
+          // Map upcoming
+          const upList = list
+            .filter((b: any) => b.status === 'confirmed' || b.status === 'assigned' || b.status === 'in_progress')
+            .slice(0, 3)
+            .map((b: any) => ({
+              time: b.slotTime || '10:00 AM',
+              name: b.customerName || 'Customer',
+              service: b.serviceName || 'Car Wash',
+              plate: b.vehicleNumber || 'DL 10 AB 1234'
+            }));
+          if (upList.length > 0) setUpcoming(upList);
+
+          // Map recent activities
+          const actList = list.slice(0, 3).map((b: any) => {
+            let title = 'New booking created';
+            let desc = `${b.customerName || 'Customer'} - ${b.serviceName || 'Service'}`;
+            if (b.status === 'completed') {
+              title = 'Service completed';
+              desc = `${b.serviceName} - ${b.vehicleNumber || ''}`;
+            } else if (b.paymentStatus === 'paid') {
+              title = 'Payment received';
+              desc = `₹${b.totalAmount || 1250} from ${b.customerName || 'Customer'}`;
+            }
+            return {
+              title,
+              desc,
+              time: b.slotTime || 'Just now'
+            };
+          });
+          if (actList.length > 0) setActivities(actList);
+        }
+      } catch (e) {
+        console.error('Error fetching bookings in mobile dashboard:', e);
+      }
+
     } catch (err) {
-      // Use defaults
+      console.error(err);
     }
   };
 
@@ -52,6 +122,18 @@ const DashboardScreen = () => {
     await fetchStats();
     setRefreshing(false);
   };
+
+  const displayUpcoming = upcoming.length > 0 ? upcoming : [
+    { time: '10:00 AM', name: 'Ravi Sharma', service: 'Steam Wash', plate: 'DL 10 AB 1234' },
+    { time: '11:30 AM', name: 'Neha Gupta', service: 'Interior Cleaning', plate: 'HR 26 CD 5678' },
+    { time: '01:00 PM', name: 'Amit Verma', service: 'Foam Wash', plate: 'UP 16 EF 9012' },
+  ];
+
+  const displayActivities = activities.length > 0 ? activities : [
+    { title: 'New booking created', desc: 'Ravi Sharma - Steam Wash', time: '10:15 AM' },
+    { title: 'Payment received', desc: '₹1,250 from Neha Gupta', time: '09:45 AM' },
+    { title: 'Service completed', desc: 'Foam Wash - UP 14 GH 3456', time: '09:10 AM' },
+  ];
 
   return (
     <ScrollView 
@@ -66,11 +148,11 @@ const DashboardScreen = () => {
             <Image source={{ uri: 'https://franchise-website-lovat.vercel.app/logo.png' }} style={styles.logoImg} resizeMode="contain" />
             <View>
               <Text style={styles.greetingSub}>Good Morning, 👋</Text>
-              <Text style={styles.greeting}>Welcome back, Roy Motors</Text>
+              <Text style={styles.greeting}>Welcome back, {profileName}</Text>
             </View>
           </View>
           <View style={styles.profileBadge}>
-            <Text style={styles.profileText}>RM</Text>
+            <Text style={styles.profileText}>{initials}</Text>
           </View>
         </View>
       </View>
@@ -87,17 +169,17 @@ const DashboardScreen = () => {
       <View style={styles.secondaryStats}>
         <View style={styles.secondaryCard}>
           <Text style={styles.secondaryTitle}>Staff Present</Text>
-          <Text style={styles.secondaryVal}>12 / 15</Text>
-          <Text style={styles.secondarySub}>80% Present</Text>
+          <Text style={styles.secondaryVal}>{stats.staffPresent}</Text>
+          <Text style={styles.secondarySub}>{stats.staffPercent}</Text>
         </View>
         <View style={styles.secondaryCard}>
           <Text style={styles.secondaryTitle}>Ratings</Text>
-          <Text style={styles.secondaryVal}>4.7 / 5</Text>
+          <Text style={styles.secondaryVal}>{stats.ratings}</Text>
           <Text style={styles.secondarySub}>↑ 0.3 vs last month</Text>
         </View>
         <View style={styles.secondaryCard}>
           <Text style={styles.secondaryTitle}>Complaints</Text>
-          <Text style={styles.secondaryVal}>5</Text>
+          <Text style={styles.secondaryVal}>{String(stats.complaints)}</Text>
           <Text style={[styles.secondarySub, { color: '#EF4444' }]}>↓ 10% vs last month</Text>
         </View>
       </View>
@@ -109,11 +191,7 @@ const DashboardScreen = () => {
           <TouchableOpacity><Text style={styles.seeAll}>View All</Text></TouchableOpacity>
         </View>
         <View style={styles.appointmentList}>
-          {[
-            { time: '10:00 AM', name: 'Ravi Sharma', service: 'Steam Wash', plate: 'DL 10 AB 1234' },
-            { time: '11:30 AM', name: 'Neha Gupta', service: 'Interior Cleaning', plate: 'HR 26 CD 5678' },
-            { time: '01:00 PM', name: 'Amit Verma', service: 'Foam Wash', plate: 'UP 16 EF 9012' },
-          ].map((item, idx) => (
+          {displayUpcoming.map((item, idx) => (
             <View key={idx} style={styles.appCard}>
               <View>
                 <Text style={styles.appTime}>{item.time}</Text>
@@ -133,11 +211,7 @@ const DashboardScreen = () => {
           <TouchableOpacity><Text style={styles.seeAll}>View All</Text></TouchableOpacity>
         </View>
         <View style={styles.activityList}>
-          {[
-            { title: 'New booking created', desc: 'Ravi Sharma - Steam Wash', time: '10:15 AM' },
-            { title: 'Payment received', desc: '₹1,250 from Neha Gupta', time: '09:45 AM' },
-            { title: 'Service completed', desc: 'Foam Wash - UP 14 GH 3456', time: '09:10 AM' },
-          ].map((act, idx) => (
+          {displayActivities.map((act, idx) => (
             <View key={idx} style={styles.actCard}>
               <View style={styles.actDot} />
               <View style={styles.actInfo}>

@@ -705,7 +705,7 @@ class DashboardService {
 
     const Complaint = require('../models/Complaint');
     const pendingComplaints = await Complaint.countDocuments({
-      bookingId: { $in: await ServiceBooking.find({ franchiseId: actualFranchiseId }).distinct('_id') },
+      referenceId: { $in: await ServiceBooking.find({ franchiseId: actualFranchiseId }).distinct('_id') },
       status: { $in: ['pending', 'open'] }
     });
 

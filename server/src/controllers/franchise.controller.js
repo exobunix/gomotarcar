@@ -105,6 +105,29 @@ const franchiseController = {
       next(error);
     }
   },
+
+  getInventory: async (req, res, next) => {
+    try {
+      const result = await franchiseService.getInventory(req.user.id);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) { next(error); }
+  },
+
+  restockInventory: async (req, res, next) => {
+    try {
+      const { itemId, quantity } = req.body;
+      const result = await franchiseService.restockInventory(req.user.id, itemId, quantity);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) { next(error); }
+  },
+
+  allocateInventory: async (req, res, next) => {
+    try {
+      const { itemId, cleanerId, quantity } = req.body;
+      const result = await franchiseService.allocateInventory(req.user.id, itemId, cleanerId, quantity);
+      res.status(200).json({ success: true, data: result });
+    } catch (error) { next(error); }
+  },
 };
 
 module.exports = franchiseController;

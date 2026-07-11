@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../redux/slices/authSlice';
+import { franchiseService } from '../../services/franchise.service';
 
 const ProfileRow = ({ label, value }: { label: string; value: string }) => (
   <View style={styles.row}>
@@ -12,31 +13,74 @@ const ProfileRow = ({ label, value }: { label: string; value: string }) => (
 
 const ProfileScreen = () => {
   const dispatch = useDispatch();
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProfileData = async () => {
+    try {
+      const response = await franchiseService.getProfile();
+      if (response?.data) {
+        setProfile(response.data);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
+
+  const displayName = profile?.franchiseName || 'Roy Motors';
+  const displayId = profile?.franchiseId || 'GMF12345';
+  const displayOwner = profile?.ownerName || 'Roy Motors';
+  const displayEmail = profile?.email || 'roymotors@gmail.com';
+  const displayPhone = profile?.phone || '+91 98765 43210';
+  const displayAddress = profile?.address 
+    ? `${profile.address.street ? profile.address.street + ', ' : ''}${profile.address.city || ''}, ${profile.address.state || ''}`.trim()
+    : 'Noida, Uttar Pradesh';
+
+  const displayBank = profile?.bankDetails?.bankName || 'HDFC Bank';
+  const displayHolder = profile?.bankDetails?.accountHolder || 'Roy Motors Pvt Ltd';
+  const displayAccountNum = profile?.bankDetails?.accountNumber || '50200012345678';
+  const displayIfsc = profile?.bankDetails?.ifscCode || 'HDFC0000123';
+
+  const initialText = displayName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() || 'RM';
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
+        <ActivityIndicator size="large" color="#0D5BD7" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <View style={styles.header}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>RM</Text>
+          <Text style={styles.avatarText}>{initialText}</Text>
         </View>
-        <Text style={styles.name}>Roy Motors</Text>
-        <Text style={styles.franchiseName}>Franchise ID: GMF12345</Text>
+        <Text style={styles.name}>{displayName}</Text>
+        <Text style={styles.franchiseName}>Franchise ID: {displayId}</Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>👤 Personal Details</Text>
-        <ProfileRow label="Owner Name" value="Roy Motors" />
-        <ProfileRow label="Email" value="roymotors@gmail.com" />
-        <ProfileRow label="Mobile" value="+91 98765 43210" />
-        <ProfileRow label="Address" value="Noida, Uttar Pradesh" />
+        <ProfileRow label="Owner Name" value={displayOwner} />
+        <ProfileRow label="Email" value={displayEmail} />
+        <ProfileRow label="Mobile" value={displayPhone} />
+        <ProfileRow label="Address" value={displayAddress} />
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>🏦 Bank Details</Text>
-        <ProfileRow label="Bank Name" value="HDFC Bank" />
-        <ProfileRow label="Account Holder" value="Roy Motors Pvt Ltd" />
-        <ProfileRow label="Account Number" value="50200012345678" />
-        <ProfileRow label="IFSC Code" value="HDFC0000123" />
+        <ProfileRow label="Bank Name" value={displayBank} />
+        <ProfileRow label="Account Holder" value={displayHolder} />
+        <ProfileRow label="Account Number" value={displayAccountNum} />
+        <ProfileRow label="IFSC Code" value={displayIfsc} />
       </View>
 
       <View style={styles.section}>

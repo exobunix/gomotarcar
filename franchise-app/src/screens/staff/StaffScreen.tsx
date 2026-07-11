@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { staffService } from '../../services/staff.service';
 
 const MOCK_STAFF = [
   { id: '1', name: 'Rajesh Kumar', role: 'Mechanic', phone: '+91-9876543210', status: 'active' },
@@ -8,9 +9,37 @@ const MOCK_STAFF = [
 ];
 
 const StaffScreen = () => {
-  const [staff] = useState(MOCK_STAFF);
+  const [staff, setStaff] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const renderStaff = ({ item }: { item: typeof MOCK_STAFF[0] }) => (
+  const fetchStaffData = async () => {
+    try {
+      const response = await staffService.list();
+      const list = response?.data?.data || response?.data || [];
+      if (list.length > 0) {
+        setStaff(list.map((c: any) => ({
+          id: c._id || String(Math.random()),
+          name: `${c.firstName || ''} ${c.lastName || ''}`.trim() || 'Staff Member',
+          role: c.role || 'Cleaner',
+          phone: c.phone || '+91-9876543210',
+          status: c.status || 'active'
+        })));
+      } else {
+        setStaff(MOCK_STAFF);
+      }
+    } catch (e) {
+      console.error(e);
+      setStaff(MOCK_STAFF);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStaffData();
+  }, []);
+
+  const renderStaff = ({ item }: { item: any }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.avatar}>
@@ -27,6 +56,14 @@ const StaffScreen = () => {
       </View>
     </View>
   );
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
+        <ActivityIndicator size="large" color="#0D5BD7" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

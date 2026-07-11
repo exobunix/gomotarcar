@@ -108,6 +108,16 @@ const BookingsScreen = () => {
     dispatch(fetchBookings({}) as any);
   };
 
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
+    try {
+      const { bookingService } = require('../../services/booking.service');
+      await bookingService.updateStatus(id, newStatus);
+      loadBookings();
+    } catch (e) {
+      console.error('Error updating booking status:', e);
+    }
+  };
+
   useEffect(() => {
     loadBookings();
   }, []);
@@ -205,8 +215,8 @@ const BookingsScreen = () => {
           <BookingCard 
             item={item} 
             onPress={() => setSelectedBookingId(item._id)}
-            onStart={() => {}} 
-            onComplete={() => {}} 
+            onStart={() => handleUpdateStatus(item._id, 'in_progress')} 
+            onComplete={() => handleUpdateStatus(item._id, 'completed')} 
           />
         )}
         contentContainerStyle={styles.listContainer}

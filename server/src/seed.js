@@ -224,10 +224,11 @@ async function seed() {
     const batch = [];
 
     for (let i = existing; i < 20; i++) {
-      const phone = `+9197${String(10000000 + i).slice(0, 8)}`;
+      const phone = i === 0 ? '+919999999999' : `+9197${String(10000000 + i).slice(0, 8)}`;
+      const email = i === 0 ? 'adarshdeepsachan@gmail.com' : `franchise${i}@gmail.com`;
       const user = await User.create({
         phone,
-        email: `franchise${i}@gmail.com`,
+        email,
         passwordHash: 'password123',
         role: 'franchise',
         isVerified: true,
@@ -239,7 +240,7 @@ async function seed() {
         franchiseName: FRANCHISE_NAMES[i],
         ownerName: OWNER_NAMES[i],
         phone,
-        email: `franchise${i}@gmail.com`,
+        email,
         address: { street: 'Main Road', city: CITIES[i % CITIES.length], state: 'Maharashtra', pincode: '400001', coordinates: { type: 'Point', coordinates: [72.8777, 19.0760] } },
         type: randomItem(['workshop', 'service_center', 'cleaning_station']),
         serviceZones: [zones[i % zones.length]._id],

@@ -165,12 +165,17 @@ router.get('/temp-update-test-data', async (req, res, next) => {
     // Mark 20 cleaners as present today
     const attendanceLogs = [];
     for (let i = 0; i < Math.min(cleaners.length, 20); i++) {
+      const checkInTime = new Date(todayDate);
+      checkInTime.setHours(9, 0, 0, 0);
+      const checkOutTime = new Date(todayDate);
+      checkOutTime.setHours(18, 0, 0, 0);
+
       attendanceLogs.push({
         cleanerId: cleaners[i]._id,
         date: todayDate,
         status: 'present',
-        checkIn: { time: '09:00 AM', location: { type: 'Point', coordinates: [80.33, 26.44] }, address: 'Sector 62, Noida' },
-        checkOut: { time: '06:00 PM', location: { type: 'Point', coordinates: [80.33, 26.44] }, address: 'Sector 62, Noida' },
+        checkIn: { time: checkInTime, location: { type: 'Point', coordinates: [80.33, 26.44] }, address: 'Sector 62, Noida' },
+        checkOut: { time: checkOutTime, location: { type: 'Point', coordinates: [80.33, 26.44] }, address: 'Sector 62, Noida' },
         workingHours: 540 // 9 hours
       });
     }

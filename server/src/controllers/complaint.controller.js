@@ -14,6 +14,15 @@ const complaintController = {
       if (req.userRole === 'supervisor') {
         query.assignedTo = req.userId;
       }
+      if (req.userRole === 'franchise') {
+        const Franchise = require('../models/Franchise');
+        const franchise = await Franchise.findOne({ userId: req.userId });
+        if (franchise) {
+          query.franchiseId = franchise._id.toString();
+        } else {
+          query.franchiseId = '000000000000000000000000';
+        }
+      }
       const result = await complaintService.list(query);
       res.status(200).json({ success: true, ...result });
     } catch (error) { next(error); }

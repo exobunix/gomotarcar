@@ -208,6 +208,11 @@ export default function FranchisePortal() {
   const [attendanceStatusFilter, setAttendanceStatusFilter] = useState("all");
   const [attendanceType, setAttendanceType] = useState("manual"); // manual, selfie, geo
   const [attendanceRecords, setAttendanceRecords] = useState<any[]>([]);
+  const [inventoryList, setInventoryList] = useState<any[]>([]);
+  const [invoicesList, setInvoicesList] = useState<any[]>([]);
+  const [offersList, setOffersList] = useState<any[]>([]);
+  const [complaintsList, setComplaintsList] = useState<any[]>([]);
+  const [notificationsList, setNotificationsList] = useState<any[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [viewInventoryDashboard, setViewInventoryDashboard] = useState(true);
   const [viewCouponManagement, setViewCouponManagement] = useState(false);
@@ -425,6 +430,12 @@ export default function FranchisePortal() {
       fetchBookingsData();
       fetchStaffData();
       fetchAttendanceData();
+      fetchServicesData();
+      fetchInventoryData();
+      fetchInvoicesData();
+      fetchOffersData();
+      fetchComplaintsData();
+      fetchNotificationsCenterData();
       initData();
     }
   }, [isAuthenticated]);
@@ -719,9 +730,102 @@ const fetchDashboardData = async () => {
     }
   };
 
+  const fetchServicesData = async () => {
+    try {
+      const response = await api.get("/services/categories");
+      const data = response.data?.data || response.data || [];
+      if (data.length > 0) {
+        setServicesList(data.map((c: any) => ({
+          _id: c._id,
+          name: c.name,
+          cat: c.name,
+          price: c.price || 499,
+          dur: c.duration || "45 mins",
+          status: c.isActive ? "Active" : "Inactive",
+          desc: c.description || "Category description",
+          img: c.image || "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=60&w=120",
+          badge: "bg-blue-50 text-blue-600"
+        })));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchInventoryData = async () => {
+    try {
+      const response = await api.get("/franchise/me/inventory");
+      const data = response.data?.data || response.data || [];
+      if (data.length > 0) {
+        setInventoryList(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchInvoicesData = async () => {
+    try {
+      const response = await api.get("/invoices");
+      const data = response.data?.data || response.data || [];
+      if (data.length > 0) {
+        setInvoicesList(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchOffersData = async () => {
+    try {
+      const response = await api.get("/offers");
+      const data = response.data?.data || response.data || [];
+      if (data.length > 0) {
+        setOffersList(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchComplaintsData = async () => {
+    try {
+      const response = await api.get("/complaints");
+      const data = response.data?.data || response.data || [];
+      if (data.length > 0) {
+        setComplaintsList(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchNotificationsCenterData = async () => {
+    try {
+      const response = await api.get("/notifications/me");
+      const data = response.data?.data || response.data || [];
+      if (data.length > 0) {
+        setNotificationsList(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([fetchDashboardData(), fetchBookingsData(), fetchStaffData(), fetchAttendanceData()]);
+    await Promise.all([
+      fetchDashboardData(),
+      fetchBookingsData(),
+      fetchStaffData(),
+      fetchAttendanceData(),
+      fetchServicesData(),
+      fetchInventoryData(),
+      fetchInvoicesData(),
+      fetchOffersData(),
+      fetchComplaintsData(),
+      fetchNotificationsCenterData()
+    ]);
     setRefreshing(false);
   };
 
@@ -1326,6 +1430,139 @@ const fetchDashboardData = async () => {
       </div>
     );
   }
+
+  const displayInventory = inventoryList.length > 0 ? inventoryList.map(item => ({
+    id: item.itemId,
+    name: item.name,
+    desc: item.category || 'Cleaning',
+    cat: item.category || 'Cleaning',
+    badge: item.category === 'Accessories' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-650',
+    stock: item.quantity,
+    unit: item.unit || 'pcs',
+    min: item.minStock,
+    status: item.available > item.minStock ? 'In Stock' : (item.available > 0 ? 'Low Stock' : 'Out of Stock'),
+    img: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=60&w=120'
+  })) : [
+    { id: 'ITM-001', name: 'Shampoo', desc: 'Car Shampoo', cat: 'Cleaning', badge: 'bg-blue-50 text-blue-600', stock: 120, unit: 'Litre', min: 20, status: 'In Stock', img: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=60&w=120' },
+    { id: 'ITM-002', name: 'Cloth', desc: 'Microfiber Cloth', cat: 'Accessories', badge: 'bg-purple-50 text-purple-600', stock: 85, unit: 'Pcs', min: 15, status: 'In Stock', img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=60&w=120' },
+    { id: 'ITM-003', name: 'Wax', desc: 'Car Polish Wax', cat: 'Polish', badge: 'bg-amber-50 text-amber-600', stock: 40, unit: 'Pcs', min: 10, status: 'In Stock', img: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&q=60&w=120' },
+    { id: 'ITM-004', name: 'Foam', desc: 'Active Foam', cat: 'Chemicals', badge: 'bg-blue-50 text-blue-600', stock: 65, unit: 'Litre', min: 15, status: 'In Stock', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=60&w=120' },
+    { id: 'ITM-005', name: 'Steam Chemicals', desc: 'Steam Wash Chemical', cat: 'Chemicals', badge: 'bg-blue-50 text-blue-600', stock: 30, unit: 'Litre', min: 10, status: 'Low Stock', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=60&w=120' },
+    { id: 'ITM-006', name: 'Uniform', desc: 'Staff Uniform', cat: 'Uniform', badge: 'bg-emerald-50 text-emerald-600', stock: 25, unit: 'Set', min: 10, status: 'Low Stock', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=60&w=120' }
+  ];
+
+  const displayInvoices = invoicesList.length > 0 ? invoicesList.map((inv: any) => ({
+    id: inv.invoiceNumber || `INV-${String(inv._id).slice(-5).toUpperCase()}`,
+    svc: inv.bookingId?.serviceName || 'Car Wash Service',
+    cust: inv.bookingId?.customerId ? `${inv.bookingId.customerId.firstName || ''} ${inv.bookingId.customerId.lastName || ''}`.trim() : 'Customer',
+    phone: inv.bookingId?.customerId?.phone || '+91 98765 43210',
+    initial: (inv.bookingId?.customerId?.firstName || 'C')[0].toUpperCase(),
+    bg: 'bg-blue-50 text-blue-600',
+    date: inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : '26 May 2025',
+    due: inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : '02 Jun 2025',
+    amt: `₹${inv.totalAmount || 1250}`,
+    status: inv.status || 'Paid',
+    badge: inv.status === 'Paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+  })) : [
+    { id: 'INV-2025-0526-001', svc: 'Car Wash Service', cust: 'Rahul Sharma', phone: '+91 98765 43210', initial: 'RS', bg: 'bg-blue-50 text-blue-600', date: '26 May 2025', due: '02 Jun 2025', amt: '₹2,450.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
+    { id: 'INV-2025-0526-002', svc: 'Interior Cleaning', cust: 'Priya Verma', phone: '+91 87654 32109', initial: 'PV', bg: 'bg-purple-50 text-purple-600', date: '26 May 2025', due: '02 Jun 2025', amt: '₹4,750.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
+    { id: 'INV-2025-0525-018', svc: 'Exterior Wash', cust: 'Amit Gupta', phone: '+91 76543 21098', initial: 'AG', bg: 'bg-blue-50 text-blue-600', date: '25 May 2025', due: '01 Jun 2025', amt: '₹850.00', status: 'Pending', badge: 'bg-amber-50 text-amber-600' },
+    { id: 'INV-2025-0525-017', svc: 'Full Car Detailing', cust: 'Neha Singh', phone: '+91 65432 10987', initial: 'NS', bg: 'bg-purple-50 text-purple-600', date: '25 May 2025', due: '01 Jun 2025', amt: '₹6,250.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
+    { id: 'INV-2025-0525-016', svc: 'Steam Wash', cust: 'Vikram Patel', phone: '+91 54321 09876', initial: 'VP', bg: 'bg-yellow-50 text-yellow-600', date: '25 May 2025', due: '01 Jun 2025', amt: '₹1,950.00', status: 'Overdue', badge: 'bg-rose-50 text-rose-600' },
+    { id: 'INV-2025-0524-014', svc: 'Interior + Exterior', cust: 'Karan Mehta', phone: '+91 43210 98765', initial: 'KM', bg: 'bg-blue-50 text-blue-600', date: '24 May 2025', due: '31 May 2025', amt: '₹3,150.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
+    { id: 'INV-2025-0524-013', svc: 'Ceramic Coating', cust: 'Sneha Reddy', phone: '+91 32109 87654', initial: 'SR', bg: 'bg-cyan-50 text-cyan-600', date: '24 May 2025', due: '31 May 2025', amt: '₹8,900.00', status: 'Pending', badge: 'bg-amber-50 text-amber-600' },
+    { id: 'INV-2025-0524-012', svc: 'Foam Wash', cust: 'Manish Kumar', phone: '+91 21098 76543', initial: 'MK', bg: 'bg-blue-50 text-blue-600', date: '24 May 2025', due: '31 May 2025', amt: '₹650.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
+    { id: 'INV-2025-0523-011', svc: 'Engine Cleaning', cust: 'Pooja Iyer', phone: '+91 10987 65432', initial: 'PI', bg: 'bg-yellow-50 text-yellow-600', date: '23 May 2025', due: '30 May 2025', amt: '₹2,250.00', status: 'Overdue', badge: 'bg-rose-50 text-rose-600' },
+    { id: 'INV-2025-0523-010', svc: 'Windshield Treatment', cust: 'Sagar Joshi', phone: '+91 09876 54321', initial: 'SJ', bg: 'bg-blue-50 text-blue-600', date: '23 May 2025', due: '30 May 2025', amt: '₹1,150.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' }
+  ];
+
+  const displayOffers = offersList.length > 0 ? offersList.map((off: any) => ({
+    name: off.title,
+    type: off.type === 'coupon' ? 'Coupon' : 'Offer',
+    typeBadge: off.type === 'coupon' ? 'bg-purple-50 text-purple-650' : 'bg-blue-50 text-blue-655',
+    amt: off.discountType === 'percentage' ? `${off.discountValue}%` : `₹${off.discountValue}`,
+    target: off.applicableTo?.join(', ') || 'All Services',
+    val: `${off.validFrom ? new Date(off.validFrom).toLocaleDateString() : '20 May 2025'} - ${off.validTo ? new Date(off.validTo).toLocaleDateString() : '31 May 2025'}`,
+    status: off.isActive ? 'Active' : 'Expired',
+    badge: off.isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600',
+    created: off.createdAt ? new Date(off.createdAt).toLocaleDateString() : '20 May 2025'
+  })) : [
+    { name: 'Summer Special Flat 100', type: 'Flat Discount', typeBadge: 'bg-blue-50 text-blue-655', amt: '₹100', target: 'All Services', val: '20 May 2025 - 31 May 2025', status: 'Active', badge: 'bg-emerald-50 text-emerald-600', created: '20 May 2025' },
+    { name: 'Weekend 20% OFF', type: 'Percentage Discount', typeBadge: 'bg-emerald-50 text-emerald-650', amt: '20%', target: 'Exterior Wash', val: '23 May 2025 - 25 May 2025', status: 'Active', badge: 'bg-emerald-50 text-emerald-600', created: '23 May 2025' },
+    { name: 'GOMOTOR50', type: 'Coupon', typeBadge: 'bg-purple-50 text-purple-650', amt: '₹50', target: 'Min. Order ₹300', val: '15 May 2025 - 15 Jun 2025', status: 'Active', badge: 'bg-emerald-50 text-emerald-600', created: '15 May 2025' },
+    { name: 'Diwali Dhamaka', type: 'Festival Offer', typeBadge: 'bg-amber-50 text-amber-600', amt: '30%', target: 'All Services', val: '25 Oct 2025 - 05 Nov 2025', status: 'Scheduled', badge: 'bg-blue-50 text-blue-650', created: '24 May 2025' },
+    { name: 'Flat 150 OFF', type: 'Flat Discount', typeBadge: 'bg-blue-50 text-blue-655', amt: '₹150', target: 'Interior Cleaning', val: '10 May 2025 - 20 May 2025', status: 'Expired', badge: 'bg-rose-50 text-rose-600', created: '10 May 2025' },
+    { name: 'Monsoon 25% OFF', type: 'Percentage Discount', typeBadge: 'bg-emerald-50 text-emerald-650', amt: '25%', target: 'Steam Wash', val: '01 Jun 2025 - 30 Jun 2025', status: 'Scheduled', badge: 'bg-blue-50 text-blue-650', created: '25 May 2025' },
+    { name: 'NEWUSER100', type: 'Coupon', typeBadge: 'bg-purple-50 text-purple-655', amt: '₹100', target: 'Min. Order ₹500', val: '01 May 2025 - 31 May 2025', status: 'Expired', badge: 'bg-rose-50 text-rose-600', created: '01 May 2025' }
+  ];
+
+  const displayComplaints = complaintsList.length > 0 ? complaintsList.map((cmp: any) => ({
+    id: cmp.ticketNumber || `CMP-${String(cmp._id).slice(-5).toUpperCase()}`,
+    cust: cmp.customerId ? `${cmp.customerId.firstName || ''} ${cmp.customerId.lastName || ''}`.trim() : 'Customer',
+    phone: cmp.customerId?.phone || '+91 98765 43210',
+    cat: cmp.category || 'Other',
+    catBadge: 'bg-purple-50 text-purple-650',
+    sub: cmp.description || 'Service complaint',
+    status: cmp.status ? cmp.status.charAt(0).toUpperCase() + cmp.status.slice(1) : 'Open',
+    statusBadge: cmp.status === 'open' ? 'bg-yellow-50 text-yellow-600' : (cmp.status === 'closed' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'),
+    priority: cmp.priority ? cmp.priority.charAt(0).toUpperCase() + cmp.priority.slice(1) : 'Medium',
+    priorityBadge: cmp.priority === 'high' || cmp.priority === 'critical' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600',
+    dt: cmp.createdAt ? new Date(cmp.createdAt).toLocaleString() : '26 May 2025, 10:30 AM',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60'
+  })) : [
+    { id: 'CMP-2025-0526-001', cust: 'Rahul Sharma', phone: '+91 98765 43210', cat: 'Customer', catBadge: 'bg-purple-50 text-purple-650', sub: 'Poor service experience', status: 'Open', statusBadge: 'bg-yellow-50 text-yellow-600', priority: 'High', priorityBadge: 'bg-rose-50 text-rose-600', dt: '26 May 2025, 10:30 AM', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' },
+    { id: 'CMP-2025-0525-014', cust: 'Priya Verma', phone: '+91 87654 32109', cat: 'Billing', catBadge: 'bg-emerald-50 text-emerald-650', sub: 'Double charge on invoice', status: 'Resolved', statusBadge: 'bg-emerald-50 text-emerald-600', priority: 'Medium', priorityBadge: 'bg-amber-50 text-amber-655', dt: '25 May 2025, 03:15 PM', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=60' },
+    { id: 'CMP-2025-0525-011', cust: 'Amit Gupta', phone: '+91 76543 21098', cat: 'Cleaner', catBadge: 'bg-blue-50 text-blue-650', sub: 'Staff did not clean trunk', status: 'In Progress', statusBadge: 'bg-blue-50 text-blue-600', priority: 'Low', priorityBadge: 'bg-slate-50 text-slate-600', dt: '25 May 2025, 11:45 AM', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60' }
+  ];
+
+  const displayNotifications = notificationsList.length > 0 ? notificationsList.map((not: any) => ({
+    unread: !not.isRead,
+    title: not.title || 'Notification Alert',
+    desc: not.message || '',
+    cat: not.type || 'System Alerts',
+    catBadge: not.type === 'Bookings' ? 'bg-purple-50 text-purple-650' : 'bg-blue-50 text-blue-650',
+    time: not.createdAt ? new Date(not.createdAt).toLocaleDateString() : 'Just now',
+    prio: not.priority || 'Normal',
+    prioBadge: not.priority === 'Important' ? 'text-rose-600 bg-rose-50/50' : 'text-slate-500 bg-slate-100',
+    icon: not.type === 'Bookings' ? '📅' : (not.type === 'Payments' ? '💵' : '🔔'),
+    iconBg: not.type === 'Bookings' ? 'bg-purple-50 text-purple-650' : 'bg-blue-50 text-blue-650'
+  })) : [
+    { unread: true, title: 'New Booking Received', desc: 'A new booking #BK-7245 has been received for 26 May 2025 at 11:00 AM.', cat: 'Bookings', catBadge: 'bg-purple-50 text-purple-650', time: '10 mins ago', prio: 'Important', prioBadge: 'text-rose-600 bg-rose-50/50', icon: '📅', iconBg: 'bg-purple-50 text-purple-650' },
+    { unread: true, title: 'Inventory Restocked', desc: 'Car Shampoo and Active Foam have been restocked in the Main Store.', cat: 'Inventory', catBadge: 'bg-blue-50 text-blue-650', time: '1 hour ago', prio: 'Normal', prioBadge: 'text-slate-500 bg-slate-100', icon: '📦', iconBg: 'bg-blue-50 text-blue-650' },
+    { unread: false, title: 'Weekly Report Generated', desc: 'Your weekly performance and earnings report for week 21 is now ready.', cat: 'Reports', catBadge: 'bg-emerald-50 text-emerald-655', time: '1 day ago', prio: 'Normal', prioBadge: 'text-slate-500 bg-slate-100', icon: '📊', iconBg: 'bg-emerald-50 text-emerald-655' }
+  ];
+
+  const displayTransactions = bookings.length > 0 ? bookings.map((b: any) => ({
+    id: `TRX-${b.bookingId ? b.bookingId.slice(-5) : String(b._id).slice(-5).toUpperCase()}`,
+    cust: b.customerName || 'Customer',
+    phone: b.phone || '+91 98765 43210',
+    amt: `₹${b.totalAmount || 1250}`,
+    mode: b.paymentMode || 'UPI',
+    date: b.slotDate ? new Date(b.slotDate).toLocaleDateString() : '26 May 2025',
+    status: b.paymentStatus === 'paid' ? 'Success' : (b.status === 'cancelled' ? 'Failed' : 'Pending'),
+    badge: b.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600' : (b.status === 'cancelled' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'),
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60'
+  })) : [
+    { id: 'TRX-2025-0526-001', cust: 'Rahul Sharma', phone: '+91 98765 43210', amt: '₹2,450.00', mode: 'UPI', date: '26 May 2025, 10:15 AM', status: 'Success', badge: 'bg-emerald-50 text-emerald-600', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' },
+    { id: 'TRX-2025-0526-002', cust: 'Priya Verma', phone: '+91 87654 32109', amt: '₹4,750.00', mode: 'NetBanking', date: '26 May 2025, 09:30 AM', status: 'Success', badge: 'bg-emerald-50 text-emerald-600', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=60' },
+    { id: 'TRX-2025-0525-018', cust: 'Amit Gupta', phone: '+91 76543 21098', amt: '₹850.00', mode: 'Card', date: '25 May 2025, 05:45 PM', status: 'Pending', badge: 'bg-amber-50 text-amber-600', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60' }
+  ];
+
+  const reviewedBookings = bookings.filter((b: any) => b.customerRating !== undefined && b.customerRating !== null);
+  const displayReviews = reviewedBookings.length > 0 ? reviewedBookings.map((b: any) => ({
+    name: b.customerName || 'Customer',
+    star: '★'.repeat(Math.round(b.customerRating)) + '☆'.repeat(5 - Math.round(b.customerRating)),
+    starCount: String(b.customerRating),
+    badge: b.customerRating >= 4 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600',
+    date: b.slotDate ? new Date(b.slotDate).toLocaleDateString() : '26 May 2025',
+    comment: b.reviewText || 'Good service!',
+    tags: [b.serviceName || 'Car Wash'],
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60'
+  })) : [
+    { name: 'Rahul Sharma', star: '★★★★★', starCount: '5.0', badge: 'bg-emerald-50 text-emerald-600', date: '26 May 2025', comment: 'Extremely professional staff. The steam car wash removed some tough stains that were there for months. Highly recommended!', tags: ['Steam Car Wash', 'Interior Cleaning'], avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' },
+    { name: 'Priya Verma', star: '★★★★☆', starCount: '4.0', badge: 'bg-emerald-50 text-emerald-650', date: '26 May 2025', comment: 'Very clean job. The interior looks and smells like new. Just took slightly longer than expected, but quality was top notch.', tags: ['Interior Cleaning'], avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=60' },
+    { name: 'Amit Gupta', star: '★★★★★', starCount: '5.0', badge: 'bg-emerald-50 text-emerald-600', date: '25 May 2025', comment: 'Excellent exterior wash. The foam wash is premium and the wax coating gives a great shine. Value for money.', tags: ['Foam Wash', 'Wax Polish'], avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60' }
+  ];
 
   return (
     <div className="flex h-screen bg-slate-900 text-slate-100 overflow-hidden">
@@ -5494,14 +5731,7 @@ const fetchDashboardData = async () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
-                      {[
-                        { id: 'ITM-001', name: 'Shampoo', desc: 'Car Shampoo', cat: 'Cleaning', badge: 'bg-blue-50 text-blue-600', stock: 120, unit: 'Litre', min: 20, status: 'In Stock', img: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=60&w=120' },
-                        { id: 'ITM-002', name: 'Cloth', desc: 'Microfiber Cloth', cat: 'Accessories', badge: 'bg-purple-50 text-purple-600', stock: 85, unit: 'Pcs', min: 15, status: 'In Stock', img: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=60&w=120' },
-                        { id: 'ITM-003', name: 'Wax', desc: 'Car Polish Wax', cat: 'Polish', badge: 'bg-amber-50 text-amber-600', stock: 40, unit: 'Pcs', min: 10, status: 'In Stock', img: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?auto=format&fit=crop&q=60&w=120' },
-                        { id: 'ITM-004', name: 'Foam', desc: 'Active Foam', cat: 'Chemicals', badge: 'bg-blue-50 text-blue-600', stock: 65, unit: 'Litre', min: 15, status: 'In Stock', img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=60&w=120' },
-                        { id: 'ITM-005', name: 'Steam Chemicals', desc: 'Steam Wash Chemical', cat: 'Chemicals', badge: 'bg-blue-50 text-blue-600', stock: 30, unit: 'Litre', min: 10, status: 'Low Stock', img: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=60&w=120' },
-                        { id: 'ITM-006', name: 'Uniform', desc: 'Staff Uniform', cat: 'Uniform', badge: 'bg-emerald-50 text-emerald-600', stock: 25, unit: 'Set', min: 10, status: 'Low Stock', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=60&w=120' }
-                      ].map((item, idx) => (
+                      {displayInventory.map((item, idx) => (
                         <tr 
                           key={idx} 
                           onClick={() => setSelectedItemId(item.id)}
@@ -6332,18 +6562,7 @@ const fetchDashboardData = async () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
-                      {[
-                        { id: 'TRX-2025-0526-001', cust: 'Rahul Sharma', phone: '+91 98765 43210', amt: '₹1,250.00', mode: 'UPI', date: '26 May 2025, 10:35 AM', status: 'Success', badge: 'bg-emerald-50 text-emerald-600', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'TRX-2025-0526-002', cust: 'Priya Verma', phone: '+91 87654 32109', amt: '₹2,800.00', mode: 'Credit Card', date: '26 May 2025, 09:20 AM', status: 'Success', badge: 'bg-emerald-50 text-emerald-600', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'TRX-2025-0525-018', cust: 'Amit Gupta', phone: '+91 76543 21098', amt: '₹950.00', mode: 'UPI', date: '25 May 2025, 08:45 PM', status: 'Pending', badge: 'bg-amber-50 text-amber-600', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'TRX-2025-0525-017', cust: 'Neha Singh', phone: '+91 65432 10987', amt: '₹1,600.00', mode: 'Net Banking', date: '25 May 2025, 07:30 PM', status: 'Success', badge: 'bg-emerald-50 text-emerald-600', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'TRX-2025-0525-016', cust: 'Vikram Patel', phone: '+91 54321 09876', amt: '₹3,420.00', mode: 'Debit Card', date: '25 May 2025, 06:15 PM', status: 'Success', badge: 'bg-emerald-50 text-emerald-600', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'TRX-2025-0525-015', cust: 'Karan Mehta', phone: '+91 43210 98765', amt: '₹750.00', mode: 'UPI', date: '25 May 2025, 05:05 PM', status: 'Failed', badge: 'bg-rose-50 text-rose-600', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'TRX-2025-0525-014', cust: 'Sneha Reddy', phone: '+91 32109 87654', amt: '₹1,125.00', mode: 'Wallet', date: '25 May 2025, 04:20 PM', status: 'Success', badge: 'bg-emerald-50 text-emerald-600', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'TRX-2025-0525-013', cust: 'Manish Kumar', phone: '+91 21098 76543', amt: '₹2,200.00', mode: 'Credit Card', date: '25 May 2025, 03:40 PM', status: 'Pending', badge: 'bg-amber-50 text-amber-600', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'TRX-2025-0525-012', cust: 'Pooja Iyer', phone: '+91 10987 65432', amt: '₹650.00', mode: 'UPI', date: '25 May 2025, 02:30 PM', status: 'Failed', badge: 'bg-rose-50 text-rose-600', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'TRX-2025-0525-011', cust: 'Sagar Joshi', phone: '+91 09876 54321', amt: '₹1,900.00', mode: 'Net Banking', date: '25 May 2025, 01:15 PM', status: 'Success', badge: 'bg-emerald-50 text-emerald-600', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=60' }
-                      ].map((item, idx) => (
+                      {displayTransactions.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-4 px-6 font-bold text-blue-600">{item.id}</td>
                           <td className="py-4 px-4">
@@ -6533,18 +6752,7 @@ const fetchDashboardData = async () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
-                      {[
-                        { id: 'INV-2025-0526-001', svc: 'Car Wash Service', cust: 'Rahul Sharma', phone: '+91 98765 43210', initial: 'RS', bg: 'bg-blue-50 text-blue-600', date: '26 May 2025', due: '02 Jun 2025', amt: '₹2,450.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
-                        { id: 'INV-2025-0526-002', svc: 'Interior Cleaning', cust: 'Priya Verma', phone: '+91 87654 32109', initial: 'PV', bg: 'bg-purple-50 text-purple-600', date: '26 May 2025', due: '02 Jun 2025', amt: '₹4,750.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
-                        { id: 'INV-2025-0525-018', svc: 'Exterior Wash', cust: 'Amit Gupta', phone: '+91 76543 21098', initial: 'AG', bg: 'bg-blue-50 text-blue-600', date: '25 May 2025', due: '01 Jun 2025', amt: '₹850.00', status: 'Pending', badge: 'bg-amber-50 text-amber-600' },
-                        { id: 'INV-2025-0525-017', svc: 'Full Car Detailing', cust: 'Neha Singh', phone: '+91 65432 10987', initial: 'NS', bg: 'bg-purple-50 text-purple-600', date: '25 May 2025', due: '01 Jun 2025', amt: '₹6,250.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
-                        { id: 'INV-2025-0525-016', svc: 'Steam Wash', cust: 'Vikram Patel', phone: '+91 54321 09876', initial: 'VP', bg: 'bg-yellow-50 text-yellow-600', date: '25 May 2025', due: '01 Jun 2025', amt: '₹1,950.00', status: 'Overdue', badge: 'bg-rose-50 text-rose-600' },
-                        { id: 'INV-2025-0524-014', svc: 'Interior + Exterior', cust: 'Karan Mehta', phone: '+91 43210 98765', initial: 'KM', bg: 'bg-blue-50 text-blue-600', date: '24 May 2025', due: '31 May 2025', amt: '₹3,150.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
-                        { id: 'INV-2025-0524-013', svc: 'Ceramic Coating', cust: 'Sneha Reddy', phone: '+91 32109 87654', initial: 'SR', bg: 'bg-cyan-50 text-cyan-600', date: '24 May 2025', due: '31 May 2025', amt: '₹8,900.00', status: 'Pending', badge: 'bg-amber-50 text-amber-600' },
-                        { id: 'INV-2025-0524-012', svc: 'Foam Wash', cust: 'Manish Kumar', phone: '+91 21098 76543', initial: 'MK', bg: 'bg-blue-50 text-blue-600', date: '24 May 2025', due: '31 May 2025', amt: '₹650.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' },
-                        { id: 'INV-2025-0523-011', svc: 'Engine Cleaning', cust: 'Pooja Iyer', phone: '+91 10987 65432', initial: 'PI', bg: 'bg-yellow-50 text-yellow-600', date: '23 May 2025', due: '30 May 2025', amt: '₹2,250.00', status: 'Overdue', badge: 'bg-rose-50 text-rose-600' },
-                        { id: 'INV-2025-0523-010', svc: 'Windshield Treatment', cust: 'Sagar Joshi', phone: '+91 09876 54321', initial: 'SJ', bg: 'bg-blue-50 text-blue-600', date: '23 May 2025', due: '30 May 2025', amt: '₹1,150.00', status: 'Paid', badge: 'bg-emerald-50 text-emerald-600' }
-                      ].map((item, idx) => (
+                      {displayInvoices.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-4 px-6">
                             <span className="font-bold text-blue-600 block">{item.id}</span>
@@ -7006,15 +7214,7 @@ const fetchDashboardData = async () => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50 text-slate-700">
-                          {[
-                            { name: 'Summer Special Flat 100', type: 'Flat Discount', typeBadge: 'bg-blue-50 text-blue-650', amt: '₹100', target: 'All Services', val: '20 May 2025 - 31 May 2025', status: 'Active', badge: 'bg-emerald-50 text-emerald-600', created: '20 May 2025' },
-                            { name: 'Weekend 20% OFF', type: 'Percentage Discount', typeBadge: 'bg-emerald-50 text-emerald-650', amt: '20%', target: 'Exterior Wash', val: '23 May 2025 - 25 May 2025', status: 'Active', badge: 'bg-emerald-50 text-emerald-600', created: '23 May 2025' },
-                            { name: 'GOMOTOR50', type: 'Coupon', typeBadge: 'bg-purple-50 text-purple-650', amt: '₹50', target: 'Min. Order ₹300', val: '15 May 2025 - 15 Jun 2025', status: 'Active', badge: 'bg-emerald-50 text-emerald-600', created: '15 May 2025' },
-                            { name: 'Diwali Dhamaka', type: 'Festival Offer', typeBadge: 'bg-amber-50 text-amber-600', amt: '30%', target: 'All Services', val: '25 Oct 2025 - 05 Nov 2025', status: 'Scheduled', badge: 'bg-blue-50 text-blue-650', created: '24 May 2025' },
-                            { name: 'Flat 150 OFF', type: 'Flat Discount', typeBadge: 'bg-blue-50 text-blue-655', amt: '₹150', target: 'Interior Cleaning', val: '10 May 2025 - 20 May 2025', status: 'Expired', badge: 'bg-rose-50 text-rose-600', created: '10 May 2025' },
-                            { name: 'Monsoon 25% OFF', type: 'Percentage Discount', typeBadge: 'bg-emerald-50 text-emerald-650', amt: '25%', target: 'Steam Wash', val: '01 Jun 2025 - 30 Jun 2025', status: 'Scheduled', badge: 'bg-blue-50 text-blue-650', created: '25 May 2025' },
-                            { name: 'NEWUSER100', type: 'Coupon', typeBadge: 'bg-purple-50 text-purple-650', amt: '₹100', target: 'Min. Order ₹500', val: '01 May 2025 - 31 May 2025', status: 'Expired', badge: 'bg-rose-50 text-rose-600', created: '01 May 2025' }
-                          ].map((row, idx) => (
+                          {displayOffers.map((row, idx) => (
                             <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                               <td className="py-3 px-3 font-bold text-slate-800 flex items-center gap-1.5">
                                 <span>🏷️</span> {row.name}
@@ -7350,13 +7550,7 @@ const fetchDashboardData = async () => {
                     </div>
 
                     <div className="space-y-4">
-                      {[
-                        { name: 'Rahul Sharma', star: '★★★★★', starCount: '5.0', badge: 'bg-emerald-50 text-emerald-600', date: '26 May 2025', comment: 'Excellent service! My car was cleaned perfectly. Staff was professional and on time.', tags: ['Exterior Wash', 'Express Service'], avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' },
-                        { name: 'Priya Verma', star: '★★★★½', starCount: '4.5', badge: 'bg-emerald-50 text-emerald-600', date: '25 May 2025', comment: 'Good service and friendly staff. Will definitely come again.', tags: ['Interior Cleaning', 'Premium Package'], avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=60' },
-                        { name: 'Amit Gupta', star: '★★★★★', starCount: '5.0', badge: 'bg-emerald-50 text-emerald-600', date: '24 May 2025', comment: 'Very satisfied with the steam wash. My car looks brand new!', tags: ['Steam Wash'], avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60' },
-                        { name: 'Neha Singh', star: '★★★★☆', starCount: '4.0', badge: 'bg-amber-50 text-amber-600', date: '23 May 2025', comment: 'Good service but a little delay in pickup.', tags: ['Exterior Wash'], avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=60' },
-                        { name: 'Vikram Patel', star: '★★★☆☆', starCount: '3.0', badge: 'bg-amber-50 text-amber-600', date: '22 May 2025', comment: 'Service was average. Could be better.', tags: ['Full Detailing'], avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=60' }
-                      ].map((item, idx) => (
+                      {displayReviews.map((item, idx) => (
                         <div key={idx} className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 flex gap-3 text-xs">
                           <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-100 bg-slate-50 shadow-sm flex items-center justify-center flex-shrink-0">
                             <img src={item.avatar} alt={item.name} className="w-full h-full object-cover" />
@@ -7602,16 +7796,7 @@ const fetchDashboardData = async () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
-                      {[
-                        { id: 'CMP-2025-0526-001', cust: 'Rahul Sharma', phone: '+91 98765 43210', cat: 'Customer', catBadge: 'bg-purple-50 text-purple-650', sub: 'Poor service experience', status: 'Open', statusBadge: 'bg-yellow-50 text-yellow-600', priority: 'High', priorityBadge: 'bg-rose-50 text-rose-600', dt: '26 May 2025, 10:30 AM', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'CMP-2025-0526-002', cust: 'Priya Verma', phone: '+91 87654 32109', cat: 'Payment', catBadge: 'bg-blue-50 text-blue-650', sub: 'Payment not refunded', status: 'Pending', statusBadge: 'bg-orange-50 text-orange-600', priority: 'Medium', priorityBadge: 'bg-amber-50 text-amber-600', dt: '26 May 2025, 09:20 AM', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'CMP-2025-0525-018', cust: 'Amit Gupta', phone: '+91 76543 21098', cat: 'Inventory', catBadge: 'bg-amber-50 text-amber-600', sub: 'Item out of stock', status: 'Pending', statusBadge: 'bg-orange-50 text-orange-600', priority: 'Medium', priorityBadge: 'bg-amber-50 text-amber-600', dt: '25 May 2025, 08:45 PM', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'CMP-2025-0525-017', cust: 'Neha Singh', phone: '+91 65432 10987', cat: 'Technical', catBadge: 'bg-emerald-50 text-emerald-650', sub: 'App not working', status: 'Open', statusBadge: 'bg-yellow-50 text-yellow-600', priority: 'High', priorityBadge: 'bg-rose-50 text-rose-600', dt: '25 May 2025, 07:30 PM', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'CMP-2025-0525-016', cust: 'Vikram Patel', phone: '+91 54321 09876', cat: 'Customer', catBadge: 'bg-purple-50 text-purple-650', sub: 'Staff behavior issue', status: 'Closed', statusBadge: 'bg-blue-50 text-blue-600', priority: 'Low', priorityBadge: 'bg-emerald-50 text-emerald-650', dt: '25 May 2025, 06:15 PM', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'CMP-2025-0525-015', cust: 'Karan Mehta', phone: '+91 43210 98765', cat: 'Payment', catBadge: 'bg-blue-50 text-blue-650', sub: 'Double payment deducted', status: 'Closed', statusBadge: 'bg-blue-50 text-blue-600', priority: 'Low', priorityBadge: 'bg-emerald-50 text-emerald-650', dt: '25 May 2025, 05:05 PM', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'CMP-2025-0525-014', cust: 'Sneha Reddy', phone: '+91 32109 87654', cat: 'Inventory', catBadge: 'bg-amber-50 text-amber-600', sub: 'Received wrong product', status: 'Pending', statusBadge: 'bg-orange-50 text-orange-600', priority: 'Medium', priorityBadge: 'bg-amber-50 text-amber-600', dt: '25 May 2025, 04:20 PM', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=60' },
-                        { id: 'CMP-2025-0525-013', cust: 'Manish Kumar', phone: '+91 21098 76543', cat: 'Technical', catBadge: 'bg-emerald-50 text-emerald-655', sub: 'Login issue in app', status: 'Closed', statusBadge: 'bg-blue-50 text-blue-600', priority: 'Low', priorityBadge: 'bg-emerald-50 text-emerald-655', dt: '25 May 2025, 03:40 PM', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60' }
-                      ].map((item, idx) => (
+                      {displayComplaints.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-4 px-6 font-bold text-blue-600">{item.id}</td>
                           <td className="py-4 px-4">
@@ -8957,16 +9142,7 @@ const fetchDashboardData = async () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-700 text-xs">
-                      {[
-                        { unread: true, title: 'New Booking Received', desc: 'A new booking #BK-7245 has been received for 26 May 2025 at 11:00 AM.', cat: 'Bookings', catBadge: 'bg-purple-50 text-purple-650', time: '10 mins ago', prio: 'Important', prioBadge: 'text-rose-600 bg-rose-50/50', icon: '📅', iconBg: 'bg-purple-50 text-purple-650' },
-                        { unread: true, title: 'Payment Received', desc: 'Payment of ₹2,450 for booking #BK-7240 has been received successfully.', cat: 'Payments', catBadge: 'bg-emerald-50 text-emerald-650', time: '25 mins ago', prio: 'Important', prioBadge: 'text-rose-600 bg-rose-50/50', icon: '💵', iconBg: 'bg-emerald-50 text-emerald-650' },
-                        { unread: false, title: 'Special Offer Live Now!', desc: 'Flat 20% OFF on Premium Wash services. Offer valid till 31 May 2025.', cat: 'Promotions', catBadge: 'bg-amber-50 text-amber-600', time: '1 hour ago', prio: 'Normal', prioBadge: 'text-slate-500 bg-slate-100', icon: '📢', iconBg: 'bg-amber-50 text-amber-600' },
-                        { unread: true, title: 'System Maintenance Scheduled', desc: 'System maintenance scheduled on 28 May 2025 from 02:00 AM to 04:00 AM.', cat: 'System Alerts', catBadge: 'bg-blue-50 text-blue-650', time: '2 hours ago', prio: 'Important', prioBadge: 'text-rose-600 bg-rose-50/50', icon: '🔔', iconBg: 'bg-blue-50 text-blue-600' },
-                        { unread: false, title: 'Booking Cancelled', desc: 'Booking #BK-7238 has been cancelled by the customer.', cat: 'Bookings', catBadge: 'bg-purple-50 text-purple-650', time: '3 hours ago', prio: 'Normal', prioBadge: 'text-slate-500 bg-slate-100', icon: '📅', iconBg: 'bg-purple-50 text-purple-650' },
-                        { unread: false, title: 'Refund Processed', desc: 'Refund of ₹1,250 for booking #BK-7232 has been processed.', cat: 'Payments', catBadge: 'bg-emerald-50 text-emerald-650', time: '4 hours ago', prio: 'Normal', prioBadge: 'text-slate-500 bg-slate-100', icon: '💵', iconBg: 'bg-emerald-50 text-emerald-650' },
-                        { unread: false, title: 'Weekend Mega Sale', desc: 'Get up to 30% OFF on all services this weekend. Don\'t miss out!', cat: 'Promotions', catBadge: 'bg-amber-50 text-amber-600', time: '1 day ago', prio: 'Normal', prioBadge: 'text-slate-500 bg-slate-100', icon: '📢', iconBg: 'bg-amber-50 text-amber-600' },
-                        { unread: false, title: 'Password Changed Successfully', desc: 'Your account password was changed successfully.', cat: 'System Alerts', catBadge: 'bg-blue-50 text-blue-650', time: '1 day ago', prio: 'Important', prioBadge: 'text-rose-600 bg-rose-50/50', icon: '🔔', iconBg: 'bg-blue-50 text-blue-600' }
-                      ].map((item, idx) => (
+                      {displayNotifications.map((item, idx) => (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-4.5 px-6">
                             <div className="flex items-start gap-3">

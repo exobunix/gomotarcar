@@ -16,6 +16,11 @@ const {
 router.use(authenticate);
 router.get('/stats', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS, roles.FRANCHISE), franchiseController.getStats);
 
+// Franchise inventory
+router.get('/me/inventory', authorize(roles.FRANCHISE), franchiseController.getInventory);
+router.post('/me/inventory/restock', authorize(roles.FRANCHISE), franchiseController.restockInventory);
+router.post('/me/inventory/allocate', authorize(roles.FRANCHISE), franchiseController.allocateInventory);
+
 // Admin CRUD
 router.get('/', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS), validate(listFranchisesSchema, 'query'), franchiseController.list);
 router.post('/', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS), validate(createFranchiseSchema), franchiseController.create);

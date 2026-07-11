@@ -6,7 +6,7 @@ const { authorize, roles } = require('../middleware/roleGuard');
 
 // All report routes require authentication
 router.use(authenticate);
-router.use(authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS, roles.SUPERVISOR));
+router.use(authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS, roles.SUPERVISOR, roles.FRANCHISE));
 
 // Report endpoints
 router.get('/summary', reportController.getSummary);

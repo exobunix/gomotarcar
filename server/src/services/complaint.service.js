@@ -110,13 +110,19 @@ class ComplaintService {
   /**
    * List complaints
    */
-  async list({ page = 1, limit = 20, status, priority, category, customerId, serviceType, search, assignedTo } = {}) {
+  async list({ page = 1, limit = 20, status, priority, category, customerId, serviceType, search, assignedTo, franchiseId } = {}) {
     const query = {};
     if (status) query.status = status;
     if (priority) query.priority = priority;
     if (category) query.category = category;
     if (customerId) query.customerId = customerId;
     if (serviceType) query.serviceType = serviceType;
+
+    if (franchiseId) {
+      const ServiceBooking = require('../models/ServiceBooking');
+      const bookingIds = await ServiceBooking.find({ franchiseId }).distinct('_id');
+      query.referenceId = { $in: bookingIds };
+    }
 
     if (assignedTo) {
       query.$or = [

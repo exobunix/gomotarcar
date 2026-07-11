@@ -28,6 +28,6 @@ router.post('/generate/:bookingId', authorize(roles.SUPER_ADMIN, roles.MANAGER, 
 router.get('/booking/:bookingId', validate(bookingIdParamSchema, 'params'), invoiceController.getByBookingId);
 
 // List invoices (admin)
-router.get('/', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS), validate(listInvoicesSchema, 'query'), invoiceController.list);
+router.get('/', authorize(roles.SUPER_ADMIN, roles.MANAGER, roles.OPERATIONS, roles.FRANCHISE), validate(listInvoicesSchema, 'query'), invoiceController.list);
 
 module.exports = router;

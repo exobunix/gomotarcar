@@ -446,6 +446,72 @@ class FranchiseService {
       revenueThisMonth: { value: totalRevenueThisMonth, changePercent: 16.7 }
     };
   }
+
+  async getInventory(userId) {
+    const franchise = await Franchise.findOne({ userId });
+    if (!franchise) throw new AppError('Franchise profile not found', 404, 'FRANCHISE_NOT_FOUND');
+
+    if (!franchise.inventory || franchise.inventory.length === 0) {
+      franchise.inventory = [
+        { itemId: 'INV001', name: 'Car Shampoo', category: 'Chemicals', quantity: 45, allocated: 15, available: 30, unit: 'Liters', minStock: 10 },
+        { itemId: 'INV002', name: 'Microfiber Cloths', category: 'Accessories', quantity: 120, allocated: 60, available: 60, unit: 'pcs', minStock: 20 },
+        { itemId: 'INV003', name: 'Car Wax', category: 'Chemicals', quantity: 15, allocated: 5, available: 10, unit: 'Kgs', minStock: 5 },
+        { itemId: 'INV004', name: 'Glass Cleaner', category: 'Chemicals', quantity: 30, allocated: 10, available: 20, unit: 'Liters', minStock: 8 },
+        { itemId: 'INV005', name: 'Tyre Dresser', category: 'Chemicals', quantity: 25, allocated: 8, available: 17, unit: 'Liters', minStock: 5 },
+        { itemId: 'INV006', name: 'Vacuum Filter', category: 'Spares', quantity: 10, allocated: 4, available: 6, unit: 'pcs', minStock: 3 }
+      ];
+      await franchise.save();
+    }
+    return franchise.inventory;
+  }
+
+  async restockInventory(userId, itemId, quantity) {
+    const franchise = await Franchise.findOne({ userId });
+    if (!franchise) throw new AppError('Franchise profile not found', 404, 'FRANCHISE_NOT_FOUND');
+
+    const item = franchise.inventory.find(i => i.itemId === itemId);
+    if (!item) throw new AppError('Inventory item not found', 404, 'ITEM_NOT_FOUND');
+
+    item.quantity += quantity;
+    item.available += quantity;
+    await franchise.save();
+    return franchise.inventory;
+  }
+
+  async allocateInventory(userId, itemId, cleanerId, quantity) {
+    const franchise = await Franchise.findOne({ userId });
+    if (!franchise) throw new AppError('Franchise profile not found', 404, 'FRANCHISE_NOT_FOUND');
+
+    const item = franchise.inventory.find(i => i.itemId === itemId);
+    if (!item) throw new AppError('Inventory item not found', 404, 'ITEM_NOT_FOUND');
+    if (item.available < quantity) throw new AppError('Insufficient inventory stock available', 400, 'INSUFFICIENT_STOCK');
+
+    const Cleaner = require('../models/Cleaner');
+    const cleaner = await Cleaner.findById(cleanerId);
+    if (!cleaner) throw new AppError('Cleaner not found', 404, 'CLEANER_NOT_FOUND');
+
+    // Deduct from franchise inventory
+    item.allocated += quantity;
+    item.available -= quantity;
+
+    // Add to cleaner inventory
+    if (!cleaner.inventory) cleaner.inventory = [];
+    const cleanerItem = cleaner.inventory.find(i => i.itemId === itemId);
+    if (cleanerItem) {
+      cleanerItem.quantity += quantity;
+    } else {
+      cleaner.inventory.push({
+        itemId,
+        name: item.name,
+        quantity,
+        unit: item.unit,
+        allocatedAt: new Date()
+      });
+    }
+
+    await Promise.all([franchise.save(), cleaner.save()]);
+    return franchise.inventory;
+  }
 }
 
 module.exports = new FranchiseService();

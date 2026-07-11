@@ -43,6 +43,7 @@ router.use('/search', require('./search.routes'));
 router.use('/upload', require('./upload.routes'));
 router.use('/apartments', require('./apartment.routes'));
 router.use('/vehicles', require('./vehicle.routes'));
+router.use('/vehicle', require('./vehicle.routes'));
 
 // Lead / NCSP routes
 router.use('/leads', require('./lead.routes'));
